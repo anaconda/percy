@@ -1,0 +1,6 @@
+name: percy
+
+dependencies:
+  - python
+  - pyyaml
+  - jinja2

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "percy"
+version = "0.0.1"
+authors = [
+  { name="Anaconda, Inc.", email="distribution_team@anaconda.com" },
+]
+description = "Fast and rough renderer of conda recipes."
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "pyyaml",
+  "jinja2",
+]
+
+[project.scripts]
+prender = "percy.render.recipe:main_cli"
+
+[project.urls]
+"Homepage" = "https://github.com/anaconda-distribution/percy"
+"Bug Tracker" = "https://github.com/anaconda-distribution/percy/issues"
