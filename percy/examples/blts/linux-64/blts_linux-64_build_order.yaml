@@ -1,0 +1,230 @@
+python: 3.10
+stages:
+  000:
+  - ./pkg-config-feedstock
+  - ./rust-feedstock
+  001:
+  - ./flex-feedstock
+  - ./cdt_cos6_x86_64/libx11-common-cos6-x86_64
+  - ./linux-sysroot-feedstock
+  - ./ncurses-feedstock
+  - ./rust-activation-feedstock
+  002:
+  - ./bison-feedstock
+  - ./cmake-no-system-feedstock
+  - ./cdt_cos6_x86_64/libx11-cos6-x86_64
+  - ./ninja-feedstock
+  - ./readline-feedstock
+  - ./ripgrep-feedstock
+  003:
+  - ./bash-feedstock
+  - ./ca-certificates-feedstock
+  - ./gawk-feedstock
+  - ./help2man-feedstock
+  - ./cdt_cos6_x86_64/libx11-devel-cos6-x86_64
+  - ./cdt_cos6_x86_64/libxau-cos6-x86_64
+  - ./sed-feedstock
+  - ./cdt_cos6_x86_64/xorg-x11-proto-devel-cos6-x86_64
+  - ./zlib-feedstock
+  004:
+  - ./c-ares-feedstock
+  - ./gcc_toolchain-feedstock
+  - ./libedit-feedstock
+  - ./libev-feedstock
+  - ./openssl-feedstock
+  - ./tk-feedstock
+  005:
+  - ./krb5-feedstock
+  - ./libssh2-feedstock
+  - ./lz4-c-feedstock
+  - ./nghttp2-feedstock
+  - ./xz-feedstock
+  006:
+  - ./bzip2-feedstock
+  - ./curl-feedstock
+  - ./expat-feedstock
+  - ./libuv-feedstock
+  - ./rhash-feedstock
+  - ./zstd-feedstock
+  007:
+  - ./cmake-feedstock
+  - ./libunistring-feedstock
+  008:
+  - ./libidn2-feedstock
+  - ./pcre2-feedstock
+  009:
+  - ./git-feedstock
+  - ./unzip-feedstock
+  - ./wget-feedstock
+  010:
+  - ./binutils-feedstock
+  011:
+  - ./gcc_activation-feedstock
+  012:
+  - ./icu-feedstock
+  013:
+  - ./autoconf-archive-feedstock
+  - ./libxml2-feedstock
+  014:
+  - ./gettext-feedstock
+  015:
+  - ./texinfo-feedstock
+  016:
+  - ./gdbm-feedstock
+  017:
+  - ./perl-feedstock
+  018:
+  - ./autoconf-feedstock
+  019:
+  - ./_libgcc_mutex-feedstock
+  - ./automake-feedstock
+  020:
+  - ./make-feedstock
+  021:
+  - ./patch-feedstock
+  022:
+  - ./libtool-feedstock
+  023:
+  - ./m4-feedstock
+  024:
+  - ./gnuconfig-feedstock
+  025:
+  - ./libffi-feedstock
+  - ./libuuid-feedstock
+  - ./sqlite-feedstock
+  - ./tzdata-feedstock
+  026:
+  - ./python-feedstock
+  027:
+  - ./certifi-feedstock
+  028:
+  - ./setuptools-feedstock
+  029:
+  - ./wheel-feedstock
+  030:
+  - ./pip-feedstock
+  031:
+  - ./flit-feedstock
+  032:
+  - ./typing_extensions-feedstock
+  033:
+  - ./packaging-feedstock
+  - ./pycparser-feedstock
+  - ./semantic_version-feedstock
+  - ./tomli-feedstock
+  034:
+  - ./cffi-feedstock
+  - ./intel_repack-feedstock
+  - ./setuptools-rust-feedstock
+  - ./setuptools_scm-feedstock
+  035:
+  - ./cryptography-feedstock
+  - ./openblas-feedstock
+  - ./toml-feedstock
+  036:
+  - ./attrs-feedstock
+  - ./brotli-feedstock
+  - ./brotlipy-feedstock
+  - ./cython-feedstock
+  - ./idna-feedstock
+  - ./iniconfig-feedstock
+  - ./pluggy-feedstock
+  - ./py-feedstock
+  - ./pyopenssl-feedstock
+  - ./pysocks-feedstock
+  037:
+  - ./charset-normalizer-feedstock
+  - ./gast-feedstock
+  - ./numpy-feedstock
+  - ./pytest-feedstock
+  - ./urllib3-feedstock
+  038:
+  - ./beniget-feedstock
+  - ./docutils-feedstock
+  - ./jpeg-feedstock
+  - ./lerc-feedstock
+  - ./libdeflate-feedstock
+  - ./libwebp-base-feedstock
+  - ./ply-feedstock
+  - ./pybind11-feedstock
+  - ./pytest-runner-feedstock
+  - ./requests-feedstock
+  - ./tomli-w-feedstock
+  - ./xsimd-feedstock
+  039:
+  - ./editables-feedstock
+  - ./fftw-feedstock
+  - ./giflib-feedstock
+  - ./libpng-feedstock
+  - ./libtiff-feedstock
+  - ./pathspec-feedstock
+  - ./pythran-feedstock
+  040:
+  - ./_libarchive_static_for_cph-feedstock
+  - ./blosc-feedstock
+  - ./brunsli-feedstock
+  - ./cfitsio-feedstock
+  - ./charls-feedstock
+  - ./freetype-feedstock
+  - ./hatchling-feedstock
+  - ./joblib-feedstock
+  - ./jxrlib-feedstock
+  - ./lcms2-feedstock
+  - ./libaec-feedstock
+  - ./libwebp-feedstock
+  - ./libzopfli-feedstock
+  - ./locket-feedstock
+  - ./openjpeg-feedstock
+  - ./ruamel-feedstock
+  - ./ruamel.yaml.clib-feedstock
+  - ./scipy-feedstock
+  - ./snappy-feedstock
+  - ./threadpoolctl-feedstock
+  - ./toolz-feedstock
+  - ./tqdm-feedstock
+  - ./yaml-feedstock
+  - ./zfpy-feedstock
+  041:
+  - ./ccache-feedstock
+  - ./cloudpickle-feedstock
+  - ./conda-package-handling-feedstock
+  - ./filesystem-spec-feedstock
+  - ./hatch-vcs-feedstock
+  - ./imagecodecs-feedstock
+  - ./libarchive-feedstock
+  - ./lief-feedstock
+  - ./markupsafe-feedstock
+  - ./partd-feedstock
+  - ./pillow-feedstock
+  - ./pycosat-feedstock
+  - ./pyyaml-feedstock
+  - ./ruamel.yaml-feedstock
+  - ./scikit-learn-feedstock
+  - ./six-feedstock
+  - ./soupsieve-feedstock
+  - ./xgboost-feedstock
+  042:
+  - ./beautifulsoup4-feedstock
+  - ./bottleneck-feedstock
+  - ./chardet-feedstock
+  - ./conda-feedstock
+  - ./cytoolz-feedstock
+  - ./dask-core-feedstock
+  - ./filelock-feedstock
+  - ./glob2-feedstock
+  - ./imageio-feedstock
+  - ./jinja2-feedstock
+  - ./networkx-feedstock
+  - ./numexpr-feedstock
+  - ./patchelf-feedstock
+  - ./pkginfo-feedstock
+  - ./psutil-feedstock
+  - ./python-dateutil-feedstock
+  - ./python-libarchive-c-feedstock
+  - ./pytz-feedstock
+  - ./pywavelets-feedstock
+  - ./tifffile-feedstock
+  043:
+  - ./conda-build-feedstock
+  - ./pandas-feedstock
+  - ./scikit-image-feedstock
