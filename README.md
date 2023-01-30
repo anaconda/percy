@@ -14,3 +14,7 @@
   Build order examples
 
     See percy/examples/blts and percy/examples/py311
+
+  Test install examples
+
+    pytest -n auto --junit-xml="test_install.xml" --html="test_install.html" --self-contained-html ./percy/examples/preinstall/test_install.py --feedstock=./gensim-feedstock
