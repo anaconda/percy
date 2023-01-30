@@ -420,9 +420,11 @@ class Recipe:
         # read main package deps
         name = self.meta.get("package", {}).get("name", "unknown").strip()
         is_noarch = False
+        ignore_run_exports = []
         main_build = self.meta.get("build", {})
         if main_build:
             is_noarch = main_build.get("noarch", False)
+            ignore_run_exports = main_build.get("ignore_run_exports", [])
         pkg_reqs = {"build": [], "host": [], "run": [], "run_constrained": []}
         requirements = self.meta.get("requirements", {})
         if requirements is not None:
@@ -446,6 +448,7 @@ class Recipe:
             set(pkg_reqs["host"]),
             set(pkg_reqs["run"]),
             set(pkg_reqs["run_constrained"]),
+            set(ignore_run_exports),
             is_noarch,
         )
 
@@ -455,9 +458,11 @@ class Recipe:
             for output in outputs:
                 name = output.get("name", "")
                 is_noarch = False
+                ignore_run_exports = []
                 main_build = output.get("build", {})
                 if main_build:
                     is_noarch = main_build.get("noarch", False)
+                    ignore_run_exports = main_build.get("ignore_run_exports", [])
                 output_pkg_reqs = deepcopy(pkg_reqs)
                 requirements = output.get("requirements", {})
                 if requirements is not None:
@@ -483,6 +488,7 @@ class Recipe:
                     set(output_pkg_reqs["host"]),
                     set(output_pkg_reqs["run"]),
                     set(output_pkg_reqs["run_constrained"]),
+                    set(ignore_run_exports),
                     is_noarch,
                 )
 
@@ -519,6 +525,7 @@ class Package:
     host: Set[Dep] = field(default_factory=set)
     run: Set[Dep] = field(default_factory=set)
     run_constrained: Set[Dep] = field(default_factory=set)
+    ignore_run_exports: Set[str] = field(default_factory=set)
     is_noarch = False
     git_info: object = None
 
@@ -539,6 +546,7 @@ class Package:
         self.host.update(other.host)
         self.run.update(other.run)
         self.run_constrained.update(other.run_constrained)
+        self.ignore_run_exports.update(other.ignore_run_exports)
 
 
 def render(recipe_path, subdir=None, python=None, others=None, return_exceptions=False):
