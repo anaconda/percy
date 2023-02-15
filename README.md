@@ -12,7 +12,9 @@
 
   ## Installation
   
+    conda env create -f environment.yaml --name percy
     pip install .
+    conda activate percy
     
   ## Render examples
   
@@ -21,15 +23,21 @@
     prender ./numpy-feedstock/recipe/meta.yaml -p 3.10 -s linux-aarch64
     prender ./numpy-feedstock/recipe/meta.yaml -p 3.10 -s linux-64 -s osx-64 -s win-64 -k blas_impl mkl
 
-  ## Build order examples
+  ## Other examples
+  
+  ### Python 3.11 buildout
 
-    See percy/examples/blts and percy/examples/py311
+    See percy/examples/py311 [here](percy/examples/py311/README.md)
 
-  Test install examples
+  ### Build order examples
+
+    See percy/examples/blts
+
+  ### Test install examples
 
     pytest -n auto --junit-xml="test_install.xml" --html="test_install.html" --self-contained-html ./percy/examples/preinstall/test_install.py --feedstock=./gensim-feedstock
 
 
-  Find pinning issues in aggregate
+  ### Find pinning issues in aggregate
 
     python ./percy/examples/aggregate_deps_issue_finder/aggregate_deps_issue_finder.py

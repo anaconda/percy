@@ -2,6 +2,8 @@
 """
 
 import percy.render.aggregate as aggregate
+from config import block_list
+from config import extras_versions
 import argparse
 from pathlib import Path
 from itertools import groupby
@@ -91,10 +93,11 @@ def gen_python_build_order(
     aggregate_path, subdir, python_ref, python_target, numpy_target, croot, channel
 ):
 
-    if croot is None and not subdir.startswith("win-"):
-        croot = f"../ci_py{python_target.replace('.','')}/"
-    else:
-        croot = f"c:/ci_{python_target.replace('.','')}/"
+    if croot is None:
+        if not subdir.startswith("win-"):
+            croot = f"../ci_py{python_target.replace('.','')}/"
+        else:
+            croot = f"c:/ci_{python_target.replace('.','')}/"
 
     os.makedirs(f"./{subdir}/", exist_ok=True)
 
@@ -120,52 +123,6 @@ def gen_python_build_order(
     # get feedstock build order
     allow_list = repodata_package_list  # only packages already in subdir defaults
     allow_list_noarch = repodata_package_list_with_noarch  # only packages already in subdir and noarch defaults
-    block_list = [  # ignore specific packages
-        "python-feedstock",
-        # tensorflow --> build on hardware
-        "tensorboard-feedstock",
-        "tensorboard-data-server-feedstock",
-        "tensorflow-feedstock",
-        "tensorflow-base-feedstock",
-        "tensorflow-datasets-feedstock",
-        "tensorflow-gpu-feedstock",
-        "tensorflow-hub-feedstock",
-        "tensorflow-metadata-feedstock",
-        "tensorflow-probability-feedstock",
-        "tensorflow-estimator",
-        "tensorboard-plugin-wit",
-        # intel
-        "dpctl-feedstock",
-        # airflow and co --> likely requires an update to latest
-        "airflow-feedstock",
-        # numba and co --> requires a new version of numba
-        "llvmlite-feedstock",
-        "numba-feedstock",
-        # modin and co --> repack not available for 3.11
-        "omniscidb-feedstock",
-        "modin-feedstock",
-        # pytorch and co
-        "pytorch-feedstock",
-        "torchvision-feedstock",
-        # catboost --> repack of wheels !?!
-        "catboost-feedstock",
-        "orange3-feedstock",
-        # obslolete
-        "jupyterlab_widgets-feedstock",
-        "thriftpy-feedstock",
-        "theano-feedstock",
-        # private
-        "conda-repo-cli-feedstock",
-        # other
-        "14.3.0",
-    ]
-    extras = {
-        "setuptools-feedstock": "setuptools-52.0.0-feedstock",
-        "numpy-feedstock": "numpy-1.22-feedstock",
-        "mistune-feedstock": "mistune-0.8.4-feedstock",
-        "bokeh-feedstock": "bokeh-2.4.3-feedstock",
-        "mccabe-feedstock": "mccabe-0.6.1-feedstock",
-    }
     python_buildout = aggregate_repo.get_depends_build_order(
         "python", allow_list, block_list, True
     )
@@ -212,7 +169,7 @@ def gen_python_build_order(
             ),
             f,
         )
-    shutil.copy("test_install.py", f"./{subdir}/")
+    shutil.copy(Path(__file__).parent / "test_install.py", f"./{subdir}/")
 
     # write stage build scripts
     stages = [
@@ -224,13 +181,14 @@ def gen_python_build_order(
         build_feedstock_template = """
 if [[ ! -f {feedstockname}.mark ]]; then
     if [[ -d {feedstockname} ]]; then
-        (conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channel} --use-local --no-test {feedstockpath} >d 2>&1 && rm -f d && ( echo \"done\" >>{feedstockname}.mark ) && true) || ( (echo \"{feedstockname}\" >>failed.{stage} ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+        (conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channel} --use-local --no-test {feedstockpath} >d 2>&1 && rm -f d && ( echo \"done\" >>{feedstockname}.mark ) && true) || ( (echo \"{feedstockname}\" >>failed.{stage} ) && (echo \"{feedstockname}\" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo \"{feedstockname} not present\" >>failed.{stage}
     fi
 fi
 
 """
+        issue_order = []
         with open(f"./{subdir}/python_{python_target}_{subdir}_build_all.sh", "w") as g:
             g.write("#!/bin/bash\n")
             g.write("set -x\n")
@@ -240,6 +198,7 @@ fi
                 g.write(f"{fname}\n")
                 with open(f"./{subdir}/{fname}", "w") as f:
                     f.write("#!/bin/bash\n")
+                    f.write("CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\n")
                     for feedstock in stage:
                         # print(f"{feedstock.weight:02} {feedstock.name:25} {feedstock.packages}")
                         f.write(
@@ -253,11 +212,12 @@ fi
                                 stage=i,
                             )
                         )
-                        if feedstock.name in extras:
+
+                        if feedstock.name in extras_versions:
                             f.write(
                                 build_feedstock_template.format(
-                                    feedstockname=extras[feedstock.name],
-                                    feedstockpath=f"./{extras[feedstock.name]}",
+                                    feedstockname=extras_versions[feedstock.name],
+                                    feedstockpath=f"./{extras_versions[feedstock.name]}",
                                     python_ver=python_target,
                                     numpy_ver=numpy_target,
                                     croot=croot,
@@ -269,7 +229,11 @@ fi
             g.write('echo "Done"\n')
 
         # copy test script
-        shutil.copy("test_packages.sh", f"./{subdir}/")
+        shutil.copy(Path(__file__).parent / "test_packages.sh", f"./{subdir}/")
+
+        # copy tally script
+        shutil.copy(Path(__file__).parent / "tally.sh", f"./{subdir}/")
+
     else:
         build_feedstock_template = """
 conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channel} --use-local --no-test {feedstockpath} || echo \"{feedstockname}\" >>failed.{stage} || cmd /K \"exit /b 0\"
@@ -284,6 +248,7 @@ conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channe
                 )
                 g.write(f"call {fname}\n")
                 with open(f"./{subdir}/{fname}", "w") as f:
+                    f.write("set CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\r\n")
                     for feedstock in stage:
                         # print(f"{feedstock.weight:02} {feedstock.name:25} {feedstock.packages}")
                         f.write(
@@ -297,11 +262,11 @@ conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channe
                                 stage=i,
                             )
                         )
-                        if feedstock.name in extras:
+                        if feedstock.name in extras_versions:
                             f.write(
                                 build_feedstock_template.format(
-                                    feedstockname=extras[feedstock.name],
-                                    feedstockpath=f"./{extras[feedstock.name]}",
+                                    feedstockname=extras_versions[feedstock.name],
+                                    feedstockpath=f"./{extras_versions[feedstock.name]}",
                                     python_ver=python_target,
                                     numpy_ver=numpy_target,
                                     croot=croot,
