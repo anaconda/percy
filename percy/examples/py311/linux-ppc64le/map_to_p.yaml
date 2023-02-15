@@ -1,0 +1,3544 @@
+_anaconda_depends:
+- ./anaconda-feedstock
+_go_select:
+- ./_go_select-feedstock
+_libarchive_static_for_cph:
+- ./_libarchive_static_for_cph-feedstock
+_libgcc_mutex:
+- ./_libgcc_mutex-feedstock
+_mutex_mxnet:
+- ./mxnet-feedstock
+_openmp_mutex:
+- ./gcc_toolchain-feedstock
+_py-xgboost-mutex:
+- ./xgboost-feedstock
+_r-xgboost-mutex:
+- ./xgboost-feedstock
+abseil-cpp:
+- ./abseil-cpp-feedstock
+absl-py:
+- ./absl-py-feedstock
+access:
+- ./access-feedstock
+adal:
+- ./adal-feedstock
+aenum:
+- ./aenum-feedstock
+affine:
+- ./affine-feedstock
+agate:
+- ./agate-feedstock
+agate-dbf:
+- ./agate-dbf-feedstock
+agate-excel:
+- ./agate-excel-feedstock
+agate-sql:
+- ./agate-sql-feedstock
+aiobotocore:
+- ./aiobotocore-feedstock
+aiodns:
+- ./aiodns-feedstock
+aiofiles:
+- ./aiofiles-feedstock
+aiohttp:
+- ./aiohttp-feedstock
+aiohttp-cors:
+- ./aiohttp-cors-feedstock
+aiohttp-jinja2:
+- ./aiohttp-jinja2-feedstock
+aioitertools:
+- ./aioitertools-feedstock
+aiopg:
+- ./aiopg-feedstock
+aioredis:
+- ./aioredis-feedstock
+aiosignal:
+- ./aiosignal-feedstock
+airflow:
+- ./airflow-feedstock
+airflow-split:
+- ./airflow-feedstock
+airflow-with-apache-atlas:
+- ./airflow-feedstock
+airflow-with-apache-webhdfs:
+- ./airflow-feedstock
+airflow-with-async:
+- ./airflow-feedstock
+airflow-with-cgroups:
+- ./airflow-feedstock
+airflow-with-cncf-kubernetes:
+- ./airflow-feedstock
+airflow-with-dask:
+- ./airflow-feedstock
+airflow-with-deprecated-api:
+- ./airflow-feedstock
+airflow-with-github_enterprise:
+- ./airflow-feedstock
+airflow-with-google_auth:
+- ./airflow-feedstock
+airflow-with-kerberos:
+- ./airflow-feedstock
+airflow-with-ldap:
+- ./airflow-feedstock
+airflow-with-leveldb:
+- ./airflow-feedstock
+airflow-with-pandas:
+- ./airflow-feedstock
+airflow-with-password:
+- ./airflow-feedstock
+airflow-with-rabbitmq:
+- ./airflow-feedstock
+airflow-with-sentry:
+- ./airflow-feedstock
+airflow-with-statsd:
+- ./airflow-feedstock
+airflow-with-virtualenv:
+- ./airflow-feedstock
+alabaster:
+- ./alabaster-feedstock
+alembic:
+- ./alembic-feedstock
+altair:
+- ./altair-feedstock
+altgraph:
+- ./altgraph-feedstock
+ampl-mp:
+- ./ampl-mp-feedstock
+amqp:
+- ./amqp-feedstock
+anaconda:
+- ./anaconda-feedstock
+anaconda-clean:
+- ./anaconda-clean-feedstock
+anaconda-client:
+- ./anaconda-client-feedstock
+anaconda-linter:
+- ./anaconda-linter-feedstock
+anaconda-project:
+- ./anaconda-project-feedstock
+anaconda-split:
+- ./anaconda-feedstock
+aniso8601:
+- ./aniso8601-feedstock
+anyio:
+- ./anyio-feedstock
+anyjson:
+- ./anyjson-feedstock
+apache-airflow:
+- ./airflow-feedstock
+apache-airflow-providers-apache-hdfs:
+- ./apache-airflow-providers-apache-hdfs-feedstock
+apache-airflow-providers-common-sql:
+- ./apache-airflow-providers-common-sql-feedstock
+apache-airflow-providers-ftp:
+- ./apache-airflow-providers-ftp-feedstock
+apache-airflow-providers-http:
+- ./apache-airflow-providers-http-feedstock
+apache-airflow-providers-imap:
+- ./apache-airflow-providers-imap-feedstock
+apache-airflow-providers-sqlite:
+- ./apache-airflow-providers-sqlite-feedstock
+apache-libcloud:
+- ./apache-libcloud-feedstock
+apipkg:
+- ./apipkg-feedstock
+apispec:
+- ./apispec-feedstock
+appdirs:
+- ./appdirs-feedstock
+apptools:
+- ./apptools-feedstock
+apscheduler:
+- ./apscheduler-feedstock
+archspec:
+- ./archspec-feedstock
+argcomplete:
+- ./argcomplete-feedstock
+argh:
+- ./argh-feedstock
+argon2-cffi:
+- ./argon2_cffi-feedstock
+argon2-cffi-bindings:
+- ./argon2-cffi-bindings-feedstock
+arrow:
+- ./arrow-feedstock
+arrow-cpp:
+- ./arrow-cpp-feedstock
+arviz:
+- ./arviz-feedstock
+asciitree:
+- ./asciitree-feedstock
+asgiref:
+- ./asgiref-feedstock
+asn1crypto:
+- ./asn1crypto-feedstock
+assimp:
+- ./assimp-feedstock
+astor:
+- ./astor-feedstock
+astroid:
+- ./astroid-feedstock
+astropy:
+- ./astropy-feedstock
+asttokens:
+- ./asttokens-feedstock
+astunparse:
+- ./astunparse-feedstock
+async-timeout:
+- ./async-timeout-feedstock
+async_generator:
+- ./async_generator-feedstock
+asyncpg:
+- ./asyncpg-feedstock
+asyncpgsa:
+- ./asyncpgsa-feedstock
+asynctest:
+- ./asynctest-feedstock
+at-spi2-atk:
+- ./at-spi2-atk-feedstock
+at-spi2-core:
+- ./at-spi2-core-feedstock
+atk:
+- ./atk-feedstock
+atk-1.0:
+- ./atk-feedstock
+atlasclient:
+- ./atlasclient-feedstock
+atom:
+- ./atom-feedstock
+atomicwrites:
+- ./atomicwrites-feedstock
+attrs:
+- ./attrs-feedstock
+authlib:
+- ./authlib-feedstock
+autocfg:
+- ./autocfg-feedstock
+autoconf:
+- ./autoconf-feedstock
+autoconf-archive:
+- ./autoconf-archive-feedstock
+autograd:
+- ./autograd-feedstock
+automake:
+- ./automake-feedstock
+automat:
+- ./automat-feedstock
+autopep8:
+- ./autopep8-feedstock
+autovizwidget:
+- ./autovizwidget-feedstock
+aws-c-common:
+- ./aws-c-common-feedstock
+aws-c-event-stream:
+- ./aws-c-event-stream-feedstock
+aws-checksums:
+- ./aws-checksums-feedstock
+aws-requests-auth:
+- ./aws-requests-auth-feedstock
+aws-sam-translator:
+- ./aws-sam-translator-feedstock
+aws-sdk-cpp:
+- ./aws-sdk-cpp-feedstock
+aws-xray-sdk:
+- ./aws-xray-sdk-feedstock
+azure:
+- ./azure-feedstock
+azure-common:
+- ./azure-common-feedstock
+azure-core:
+- ./azure-core-feedstock
+azure-cosmos:
+- ./azure-cosmos-feedstock
+azure-storage-blob:
+- ./azure-storage-blob-feedstock
+babel:
+- ./babel-feedstock
+backcall:
+- ./backcall-feedstock
+backports.functools_lru_cache:
+- ./backports.functools_lru_cache-feedstock
+backports.lzma:
+- ./backports.lzma-feedstock/
+backports.os:
+- ./backports.os-feedstock
+backports.shutil_get_terminal_size:
+- ./backports.shutil_get_terminal_size-feedstock
+backports.shutil_which:
+- ./backports.shutil_which-feedstock
+backports.tempfile:
+- ./backports.tempfile-feedstock
+backports.weakref:
+- ./backports.weakref-feedstock
+backports_abc:
+- ./backports_abc-feedstock
+basemap:
+- ./basemap-feedstock
+basemap-data:
+- ./basemap-feedstock
+basemap-data-hires:
+- ./basemap-feedstock
+basemap-split:
+- ./basemap-feedstock
+bash:
+- ./bash-feedstock
+baycomp:
+- ./baycomp-feedstock
+bcj-cffi:
+- ./bcj-cffi-feedstock
+bcrypt:
+- ./bcrypt-feedstock
+beautifulsoup4:
+- ./beautifulsoup4-feedstock
+beniget:
+- ./beniget-feedstock
+bidict:
+- ./bidict-feedstock
+billiard:
+- ./billiard-feedstock
+binaryornot:
+- ./binaryornot-feedstock
+binutils:
+- ./binutils-feedstock
+binutils-meta:
+- ./compilers-feedstock
+binutils_build:
+- ./binutils-feedstock
+binutils_impl_linux-ppc64le:
+- ./binutils-feedstock
+binutils_linux-ppc64le:
+- ./gcc_activation-feedstock
+biopython:
+- ./biopython-feedstock
+bison:
+- ./bison-feedstock
+bisonpp:
+- ./bisonpp-feedstock
+bitarray:
+- ./bitarray-feedstock
+bkcharts:
+- ./bkcharts-feedstock
+black:
+- ./black-feedstock
+blas:
+- ./openblas-feedstock
+blaze:
+- ./blaze-feedstock
+bleach:
+- ./bleach-feedstock
+blessings:
+- ./blessings-feedstock
+blinker:
+- ./blinker-feedstock/
+blist:
+- ./blist-feedstock
+blosc:
+- ./blosc-feedstock
+bokeh:
+- ./bokeh-feedstock
+boltons:
+- ./boltons-feedstock
+boolean.py:
+- ./boolean.py-feedstock
+boost:
+- ./boost-feedstock
+boost-cpp:
+- ./boost-feedstock
+boto3:
+- ./boto3-feedstock
+botocore:
+- ./botocore-feedstock
+bottleneck:
+- ./bottleneck-feedstock
+bpython:
+- ./bpython-feedstock
+branca:
+- ./branca-feedstock
+brotli:
+- ./brotli-feedstock
+brotli-bin:
+- ./brotli-feedstock
+brotli-python:
+- ./brotli-feedstock
+brotli-split:
+- ./brotli-feedstock
+brotlicffi:
+- ./brotlicffi-feedstock
+brotlipy:
+- ./brotlipy-feedstock
+brunsli:
+- ./brunsli-feedstock
+bs4:
+- ./beautifulsoup4-feedstock
+bst:
+- ./boost-feedstock
+bytecode:
+- ./bytecode-feedstock
+bzip2:
+- ./bzip2-feedstock
+c-ares:
+- ./c-ares-feedstock
+c-ares-static:
+- ./c-ares-feedstock
+c-compiler:
+- ./compilers-feedstock
+c99-to-c89:
+- ./c99-to-c89
+ca-certificates:
+- ./ca-certificates-feedstock
+cachecontrol:
+- ./cachecontrol-feedstock
+cached-property:
+- ./cached-property-feedstock
+cachelib:
+- ./cachelib-feedstock
+cachetools:
+- ./cachetools-feedstock
+cachy:
+- ./cachy-feedstock
+caffe:
+- ./caffe-feedstock
+cairo:
+- ./cairo-feedstock
+capnproto:
+- ./capnproto-feedstock
+capstone:
+- ./capstone-feedstock
+capturer:
+- ./capturer-feedstock
+cargo-bundle-licenses:
+- ./cargo-bundle-licenses-feedstock
+cargo-bundle-licenses-suite:
+- ./cargo-bundle-licenses-feedstock
+cartopy:
+- ./cartopy-feedstock
+case:
+- ./case-feedstock
+cassandra-driver:
+- ./cassandra-driver-feedstock
+catalogue:
+- ./catalogue-feedstock
+category_encoders:
+- ./category_encoders-feedstock
+cattrs:
+- ./cattrs-feedstock
+ccache:
+- ./ccache-feedstock
+cctools:
+- ./cctools-and-ld64-feedstock
+cctools-and-ld64:
+- ./cctools-and-ld64-feedstock
+cctools_osx-64:
+- ./cctools-and-ld64-feedstock
+celery:
+- ./celery-feedstock
+celery-redbeat:
+- ./celery-redbeat-feedstock
+cerberus:
+- ./cerberus-feedstock
+certifi:
+- ./certifi-feedstock
+certipy:
+- ./certipy-feedstock
+cffi:
+- ./cffi-feedstock
+cfgv:
+- ./cfgv-feedstock
+cfn-lint:
+- ./cfn-lint-feedstock
+cftime:
+- ./cftime-feedstock
+cgroupspy:
+- ./cgroupspy-feedstock
+chai:
+- ./chai-feedstock
+chainer:
+- ./chainer-feedstock
+chardet:
+- ./chardet-feedstock
+charls:
+- ./charls-feedstock
+charset-normalizer:
+- ./charset-normalizer-feedstock
+cheroot:
+- ./cheroot-feedstock
+cherrypy:
+- ./cherrypy-feedstock
+chest:
+- ./chest-feedstock
+chromedriver-binary:
+- ./python-chromedriver-binary-feedstock
+ciocheck:
+- ./ciocheck-feedstock
+clang:
+- ./clangdev-feedstock
+clang-14:
+- ./clangdev-feedstock
+clang-format:
+- ./clangdev-feedstock
+clang-format-14:
+- ./clangdev-feedstock
+clang-tools:
+- ./clangdev-feedstock
+clang_packages:
+- ./clangdev-feedstock
+clangdev:
+- ./clangdev-feedstock
+clangxx:
+- ./clangdev-feedstock
+cleo:
+- ./cleo-feedstock
+cli11:
+- ./cli11-feedstock
+click:
+- ./click-feedstock
+click-default-group:
+- ./click-default-group-feedstock
+click-didyoumean:
+- ./click-didyoumean-feedstock
+click-plugins:
+- ./click-plugins-feedstock
+click-repl:
+- ./click-repl-feedstock
+clickclick:
+- ./clickclick-feedstock
+clickhouse-cityhash:
+- ./clickhouse-cityhash-feedstock
+clickhouse-driver:
+- ./clickhouse-driver-feedstock
+clickhouse-sqlalchemy:
+- ./clickhouse-sqlalchemy-feedstock
+cligj:
+- ./cligj-feedstock
+clikit:
+- ./clikit-feedstock
+cloudant:
+- ./cloudant-feedstock
+cloudpickle:
+- ./cloudpickle-feedstock
+clyent:
+- ./clyent-feedstock
+cmake:
+- ./cmake-feedstock
+cmake-no-system:
+- ./cmake-no-system-feedstock
+cmdstan:
+- ./cmdstan-feedstock
+codecov:
+- ./codecov-feedstock
+colorama:
+- ./colorama-feedstock
+colorcet:
+- ./colorcet-feedstock
+coloredlogs:
+- ./coloredlogs-feedstock
+colorful:
+- ./colorful-feedstock
+colorlog:
+- ./colorlog-feedstock
+colour:
+- ./colour-feedstock
+comm:
+- ./comm-feedstock
+commonmark:
+- ./commonmark-feedstock
+compiler-rt:
+- ./compiler-rt-feedstock
+compiler-rt-packages:
+- ./compiler-rt-feedstock
+compiler-rt_linux-ppc64le:
+- ./compiler-rt-feedstock
+compilers:
+- ./compilers-feedstock
+composeml:
+- ./composeml-feedstock
+conda:
+- ./conda-feedstock
+conda-build:
+- ./conda-build-feedstock
+conda-content-trust:
+- ./conda-content-trust-feedstock
+conda-env:
+- ./conda-env-feedstock
+conda-index:
+- ./conda-index-feedstock
+conda-libmamba-solver:
+- ./conda-libmamba-solver-feedstock
+conda-lock:
+- ./conda-lock-feedstock
+conda-pack:
+- ./conda-pack-feedstock
+conda-package-handling:
+- ./conda-package-handling-feedstock
+conda-package-streaming:
+- ./conda-package-streaming-feedstock
+conda-prefix-replacement:
+- ./conda-prefix-replacement-feedstock
+conda-repo-cli:
+- ./conda-repo-cli-feedstock
+conda-standalone:
+- ./conda-standalone-feedstock
+conda-token:
+- ./conda-token-feedstock
+conda-verify:
+- ./conda-verify-feedstock
+configargparse:
+- ./configargparse-feedstock
+configparser:
+- ./configparser-feedstock
+configspace:
+- ./configspace-feedstock
+configupdater:
+- ./configupdater-feedstock
+configurable-http-proxy:
+- ./configurable-http-proxy-feedstock
+confuse:
+- ./confuse-feedstock
+conllu:
+- ./conllu-feedstock
+connexion:
+- ./connexion-feedstock
+constantly:
+- ./constantly-feedstock
+constructor:
+- ./constructor-feedstock
+contextlib2:
+- ./contextlib2-feedstock
+contourpy:
+- ./contourpy-feedstock
+convertdate:
+- ./convertdate-feedstock
+cookiecutter:
+- ./cookiecutter-feedstock
+cookies:
+- ./cookies-feedstock
+coremltools:
+- ./coremltools-feedstock
+coreutils:
+- ./coreutils-feedstock
+coverage:
+- ./coverage-feedstock
+coveralls:
+- ./coveralls-feedstock
+covid-sim:
+- ./covid-sim-suite-feedstock
+covid-sim-data:
+- ./covid-sim-suite-feedstock
+covid-sim-suite:
+- ./covid-sim-suite-feedstock
+cpp-expected:
+- ./cpp-expected-feedstock
+cpp-filesystem:
+- ./cpp-filesystem-feedstock
+cppy:
+- ./cppy-feedstock
+cram:
+- ./cram-feedstock
+crashtest:
+- ./crashtest-feedstock
+crender:
+- ./crender-feedstock
+cron-descriptor:
+- ./cron-descriptor-feedstock
+croniter:
+- ./croniter-feedstock
+crosstool-ng:
+- ./crosstool-ng-feedstock
+cryptography:
+- ./cryptography-feedstock
+cryptography-vectors:
+- ./cryptography-vectors-feedstock
+cryptominisat:
+- ./cryptominisat-feedstock
+cryptominisat-split:
+- ./cryptominisat-feedstock
+cssselect:
+- ./cssselect-feedstock
+csvkit:
+- ./csvkit-feedstock
+ctng-compiler-activation:
+- ./ctng-compiler-activation-feedstock
+cudatoolkit:
+- ./cudatoolkit-feedstock
+cunit:
+- ./cunit-feedstock
+curio:
+- ./curio-feedstock
+curl:
+- ./curl-feedstock
+curl_split_recipe:
+- ./curl-feedstock
+curtsies:
+- ./curtsies-feedstock
+cvxopt:
+- ./cvxopt-feedstock
+cx_oracle:
+- ./cx_oracle-feedstock
+cxx-compiler:
+- ./compilers-feedstock
+cycler:
+- ./cycler-feedstock
+cymem:
+- ./cymem-feedstock
+cyrus-sasl:
+- ./cyrus-sasl-feedstock
+cython:
+- ./cython-feedstock
+cython-blis:
+- ./cython-blis-feedstock
+cytoolz:
+- ./cytoolz-feedstock
+d2to1:
+- ./d2to1-feedstock
+dash:
+- ./dash-feedstock
+dash-bio:
+- ./dash-bio-feedstock
+dash-core-components:
+- ./dash-core-components-feedstock
+dash-html-components:
+- ./dash-html-components-feedstock
+dash-renderer:
+- ./dash-renderer-feedstock
+dash-table:
+- ./dash-table-feedstock
+dask:
+- ./dask-feedstock
+dask-core:
+- ./dask-core-feedstock
+dask-glm:
+- ./dask-glm-feedstock
+dask-image:
+- ./dask-image-feedstock
+dask-jobqueue:
+- ./dask-jobqueue-feedstock
+dask-ml:
+- ./dask-ml-feedstock
+dask-searchcv:
+- ./dask-searchcv-feedstock
+dataclasses:
+- ./dataclasses-feedstock
+datadog:
+- ./datadog-feedstock
+datasets:
+- ./datasets-feedstock
+datashader:
+- ./datashader-feedstock
+datashape:
+- ./datashape-feedstock
+dateparser:
+- ./dateparser-feedstock
+datrie:
+- ./datrie-feedstock
+db:
+- ./libdb-feedstock
+dbf:
+- ./dbf-feedstock
+dbfread:
+- ./dbfread-feedstock
+dbus:
+- ./dbus-feedstock
+dbus-python:
+- ./dbus-python-feedstock
+debugpy:
+- ./debugpy-feedstock
+decorator:
+- ./decorator-feedstock
+defusedxml:
+- ./defusedxml-feedstock
+deprecated:
+- ./deprecated-feedstock
+deprecation:
+- ./deprecation-feedstock
+descartes:
+- ./descartes-feedstock
+devil:
+- ./devil-feedstock
+dictdiffer:
+- ./dictdiffer-feedstock
+dicttoxml:
+- ./dicttoxml-feedstock
+diff-match-patch:
+- ./diff-match-patch-feedstock
+diffusers:
+- ./diffusers-feedstock
+diffusers-base:
+- ./diffusers-feedstock
+diffusers-suite:
+- ./diffusers-feedstock
+diffusers-torch:
+- ./diffusers-feedstock
+dill:
+- ./dill-feedstock
+distconfig3:
+- ./distconfig3-feedstock
+distlib:
+- ./distlib-feedstock
+distributed:
+- ./distributed-feedstock
+distro:
+- ./distro-feedstock
+django:
+- ./django-feedstock
+django-pyodbc-azure:
+- ./django-pyodbc-azure-feedstock
+dnspython:
+- ./dnspython-feedstock
+docker-py:
+- ./docker-py-feedstock
+docker-pycreds:
+- ./docker-pycreds-feedstock
+docopt:
+- ./docopt-feedstock/
+docstring-to-markdown:
+- ./docstring-to-markdown-feedstock
+docutils:
+- ./docutils-feedstock
+doit:
+- ./doit-feedstock
+dos2unix:
+- ./dos2unix-feedstock
+drmaa:
+- ./drmaa-feedstock
+dropbox:
+- ./dropbox-feedstock
+dsdp:
+- ./dsdp-feedstock
+ecos:
+- ./ecos-feedstock
+editables:
+- ./editables-feedstock
+editdistance:
+- ./editdistance-feedstock
+eigen:
+- ./eigen-feedstock
+elasticsearch:
+- ./elasticsearch-feedstock
+elasticsearch-async:
+- ./elasticsearch-async-feedstock
+elasticsearch-dsl:
+- ./elasticsearch-dsl-feedstock
+email-validator:
+- ./email-validator-feedstock
+email-validator-meta:
+- ./email-validator-feedstock
+email_validator:
+- ./email-validator-feedstock
+enscons:
+- ./enscons-feedstock
+ensureconda:
+- ./ensureconda-feedstock
+entrypoints:
+- ./entrypoints-feedstock
+enum34:
+- ./enum34-feedstock
+envisage:
+- ./envisage-feedstock
+ephem:
+- ./ephem-feedstock
+epoxy:
+- ./epoxy-feedstock
+esda:
+- ./esda-feedstock
+et_xmlfile:
+- ./et_xmlfile-feedstock
+evaluate:
+- ./evaluate-feedstock
+eventlet:
+- ./eventlet-feedstock
+exceptiongroup:
+- ./exceptiongroup-feedstock
+execnet:
+- ./execnet-feedstock
+executing:
+- ./executing-feedstock
+expat:
+- ./expat-feedstock
+expecttest:
+- ./expecttest-feedstock
+extension-helpers:
+- ./extension-helpers-feedstock
+fabric:
+- ./fabric-feedstock
+fabric3:
+- ./fabric3-feedstock
+factory_boy:
+- ./factory_boy-feedstock
+faker:
+- ./faker-feedstock
+fast-histogram:
+- ./fast-histogram-feedstock/
+fastapi:
+- ./fastapi-feedstock
+fastavro:
+- ./fastavro-feedstock
+fastcache:
+- ./fastcache-feedstock
+fastcluster:
+- ./fastcluster-feedstock
+fasteners:
+- ./fasteners-feedstock
+fastparquet:
+- ./fastparquet-feedstock
+fastprogress:
+- ./fastprogress-feedstock
+fastrlock:
+- ./fastrlock-feedstock
+fasttsne:
+- ./fasttsne-feedstock
+fbprophet:
+- ./fbprophet-feedstock
+featuretools:
+- ./featuretools-feedstock
+ffmpeg:
+- ./ffmpeg-feedstock
+fftw:
+- ./fftw-feedstock
+filelock:
+- ./filelock-feedstock
+findpython:
+- ./findpython-feedstock
+fiona:
+- ./fiona-feedstock
+flake8:
+- ./flake8-feedstock
+flake8-import-order:
+- ./flake8-import-order-feedstock
+flake8-polyfill:
+- ./flake8-polyfill-feedstock
+flaky:
+- ./flaky-feedstock
+flask:
+- ./flask-feedstock
+flask-admin:
+- ./flask-admin-feedstock
+flask-appbuilder:
+- ./flask-appbuilder-feedstock
+flask-apscheduler:
+- ./flask-apscheduler-feedstock
+flask-babel:
+- ./flask-babel-feedstock
+flask-bcrypt:
+- ./flask-bcrypt-feedstock
+flask-caching:
+- ./flask-caching-feedstock
+flask-compress:
+- ./flask-compress-feedstock
+flask-cors:
+- ./flask-cors-feedstock
+flask-json:
+- ./flask-json-feedstock/
+flask-jwt-extended:
+- ./flask-jwt-extended-feedstock
+flask-login:
+- ./flask-login-feedstock
+flask-openid:
+- ./flask-openid-feedstock
+flask-restful:
+- ./flask-restful-feedstock
+flask-restx:
+- ./flask-restx-feedstock
+flask-session:
+- ./flask-session-feedstock
+flask-socketio:
+- ./flask-socketio-feedstock
+flask-sqlalchemy:
+- ./flask-sqlalchemy-feedstock
+flask-swagger:
+- ./flask-swagger-feedstock
+flask-wtf:
+- ./flask-wtf-feedstock
+flask_cors:
+- ./flask_cors-feedstock
+flatbuffers:
+- ./flatbuffers-feedstock
+flax:
+- ./flax-feedstock
+flex:
+- ./flex-feedstock
+flit:
+- ./flit-feedstock
+flit-core:
+- ./flit-feedstock
+flit-scm:
+- ./flit-scm-feedstock
+flower:
+- ./flower-feedstock
+fmt:
+- ./fmt-feedstock
+folium:
+- ./folium-feedstock
+fontconfig:
+- ./fontconfig-feedstock
+fonts-conda-ecosystem:
+- ./fonts-conda-ecosystem-feedstock
+fonttools:
+- ./fonttools-feedstock
+fortran-compiler:
+- ./compilers-feedstock
+fossil:
+- ./fossil-feedstock
+freeglut:
+- ./freeglut-feedstock
+freetds:
+- ./freetds-feedstock
+freetype:
+- ./freetype-feedstock
+freetype-py:
+- ./freetype-py-feedstock
+freexl:
+- ./freexl-feedstock
+freezegun:
+- ./freezegun-feedstock
+fribidi:
+- ./fribidi-feedstock
+frozenlist:
+- ./frozenlist-feedstock
+fsspec:
+- ./filesystem-spec-feedstock
+ftfy:
+- ./ftfy-feedstock
+func_timeout:
+- ./func_timeout-feedstock
+funcsigs:
+- ./funcsigs-feedstock
+furl:
+- ./furl-feedstock
+future:
+- ./future-feedstock
+fuzzywuzzy:
+- ./fuzzywuzzy-feedstock
+g2clib:
+- ./g2clib-feedstock
+gast:
+- ./gast-feedstock
+gawk:
+- ./gawk-feedstock
+gcab:
+- ./gcab-feedstock
+gcc-compiler:
+- ./gcc_toolchain-feedstock
+gcc_activation:
+- ./gcc_activation-feedstock
+gcc_bootstrap_linux-ppc64le:
+- ./gcc_activation-feedstock
+gcc_impl_linux-ppc64le:
+- ./gcc_toolchain-feedstock
+gcc_linux-ppc64le:
+- ./gcc_activation-feedstock
+gdal:
+- ./gdal-py-feedstock
+gdata:
+- ./gdata-feedstock
+gdb:
+- ./gdb-feedstock
+gdb-pretty-printer:
+- ./gdb-feedstock
+gdbm:
+- ./gdbm-feedstock
+gdk-pixbuf:
+- ./gdk-pixbuf-feedstock
+gensim:
+- ./gensim-feedstock
+genson:
+- ./genson-feedstock
+geoalchemy2:
+- ./geoalchemy2-feedstock
+geos:
+- ./geos-feedstock
+geotiff:
+- ./geotiff-feedstock
+geoviews:
+- ./geoviews-feedstock
+geoviews-core:
+- ./geoviews-core-feedstock
+gettext:
+- ./gettext-feedstock
+gevent:
+- ./gevent-feedstock
+geventhttpclient:
+- ./geventhttpclient-feedstock
+gflags:
+- ./gflags-feedstock
+gfortran_impl_linux-ppc64le:
+- ./gcc_toolchain-feedstock
+gfortran_linux-ppc64le:
+- ./gcc_activation-feedstock
+gh:
+- ./gh-feedstock
+gi-docgen:
+- ./gi-docgen-feedstock
+giddy:
+- ./giddy-feedstock
+giflib:
+- ./giflib-feedstock
+git:
+- ./git-feedstock
+git-lfs:
+- ./git-lfs-feedstock
+gitdb:
+- ./gitdb-feedstock
+gitdb2:
+- ./gitdb2-feedstock
+gitea:
+- ./gitea-feedstock
+gitpython:
+- ./gitpython-feedstock
+gl2ps:
+- ./gl2ps-feedstock
+glob2:
+- ./glob2-feedstock
+glog:
+- ./glog-feedstock
+glpk:
+- ./glpk-feedstock
+glueviz:
+- ./glueviz-feedstock
+gluon-cv:
+- ./gluon-cv-feedstock
+gluonts:
+- ./gluon-ts-feedstock
+gmock:
+- ./gtest-feedstock
+gmp:
+- ./gmp-feedstock
+gmpy2:
+- ./gmpy2-feedstock
+gn:
+- ./gn-feedstock
+gnuconfig:
+- ./gnuconfig-feedstock
+gnutls:
+- ./gnutls-feedstock
+go:
+- ./go-feedstock
+go-:
+- ./go-feedstock
+gobject-introspection:
+- ./gobject-introspection-feedstock
+google-api-core:
+- ./google-api-core-feedstock
+google-api-core-grpc:
+- ./google-api-core-feedstock
+google-api-core-grpcgcp:
+- ./google-api-core-feedstock
+google-api-core-grpcio-gcp:
+- ./google-api-core-feedstock
+google-auth:
+- ./google-auth-feedstock
+google-auth-oauthlib:
+- ./google-auth-oauthlib-feedstock
+google-cloud-core:
+- ./google-cloud-core-feedstock
+google-cloud-storage:
+- ./google-cloud-storage-feedstock
+google-crc32c:
+- ./google-crc32c-feedstock
+google-pasta:
+- ./google-pasta-feedstock
+google-resumable-media:
+- ./google-resumable-media-feedstock
+googleapis-common-protos:
+- ./googleapis-common-protos-feedstock
+googleapis-common-protos-feedstock:
+- ./googleapis-common-protos-feedstock
+googleapis-common-protos-grpc:
+- ./googleapis-common-protos-feedstock
+gperf:
+- ./gperf-feedstock
+gperftools:
+- ./gperftools-feedstock
+gpustat:
+- ./gpustat-feedstock
+graphene:
+- ./graphene-feedstock
+graphite2:
+- ./graphite2-feedstock
+graphql-core:
+- ./graphql-core-feedstock
+graphviz:
+- ./graphviz-feedstock
+greenlet:
+- ./greenlet-feedstock
+grin:
+- ./grin-feedstock
+groff:
+- ./groff-feedstock
+grpc-cpp:
+- ./grpc-cpp-feedstock
+grpc_java_plugin:
+- ./grpc_java_plugin-feedstock
+grpcio:
+- ./grpcio-feedstock
+grpcio-gcp:
+- ./grpcio-gcp-feedstock
+grpcio-status:
+- ./grpcio-status-feedstock
+grpcio-tools:
+- ./grpcio-tools-feedstock
+gsl:
+- ./gsl-feedstock
+gst-plugins-base:
+- ./gstreamer-feedstock
+gst-plugins-good:
+- ./gstreamer-feedstock
+gstreamer:
+- ./gstreamer-feedstock
+gstreamer_and_plugins:
+- ./gstreamer-feedstock
+gtest:
+- ./gtest-feedstock
+gtk2:
+- ./gtk2-feedstock
+gts:
+- ./gts-feedstock
+gunicorn:
+- ./gunicorn-feedstock
+gxx_impl_linux-ppc64le:
+- ./gcc_toolchain-feedstock
+gxx_linux-ppc64le:
+- ./gcc_activation-feedstock
+h11:
+- ./h11-feedstock
+h2:
+- ./h2-feedstock
+h2o:
+- ./h2o-feedstock
+h2o-py:
+- ./h2o-feedstock
+h2o-split:
+- ./h2o-feedstock
+h5py:
+- ./h5py-feedstock
+harfbuzz:
+- ./harfbuzz-feedstock
+hatch-nodejs-version:
+- ./hatch-nodejs-version-feedstock
+hatch-requirements-txt:
+- ./hatch-requirements-txt-feedstock
+hatch-vcs:
+- ./hatch-vcs-feedstock
+hatchling:
+- ./hatchling-feedstock
+hdf4:
+- ./hdf4-feedstock
+hdfeos2:
+- ./hdfeos2-feedstock
+hdfeos5:
+- ./hdfeos5-feedstock
+hdfs3:
+- ./hdfs3-feedstock
+hdijupyterutils:
+- ./hdijupyterutils-feedstock
+hdmedians:
+- ./hdmedians-feedstock
+heapdict:
+- ./heapdict-feedstock
+help2man:
+- ./help2man-feedstock
+hicolor-icon-theme:
+- ./hicolor-icon-theme-feedstock
+hijri-converter:
+- ./hijri-converter-feedstock
+hiredis:
+- ./hiredis-feedstock
+holidays:
+- ./holidays-feedstock
+holoviews:
+- ./holoviews-feedstock
+hpack:
+- ./hpack-feedstock
+hsluv:
+- ./hsluv-feedstock
+html5lib:
+- ./html5lib-feedstock
+htmlmin:
+- ./htmlmin-feedstock
+httpcore:
+- ./httpcore-feedstock
+httpretty:
+- ./httpretty-feedstock
+httpx:
+- ./httpx-feedstock
+huggingface_accelerate:
+- ./accelerate-feedstock
+huggingface_hub:
+- ./huggingface_hub-feedstock
+humanfriendly:
+- ./humanfriendly-feedstock
+humanize:
+- ./humanize-feedstock
+hunspell:
+- ./hunspell-feedstock
+hvplot:
+- ./hvplot-feedstock
+hyperframe:
+- ./hyperframe-feedstock
+hyperlink:
+- ./hyperlink-feedstock
+hypothesis:
+- ./hypothesis-feedstock
+ibis-framework:
+- ./ibis-framework-feedstock
+icalendar:
+- ./icalendar-feedstock
+icu:
+- ./icu-feedstock
+identify:
+- ./identify-feedstock
+idna:
+- ./idna-feedstock
+idna_ssl:
+- ./idna_ssl-feedstock
+ijson:
+- ./ijson-feedstock
+imagehash:
+- ./imagehash-feedstock
+imageio:
+- ./imageio-feedstock
+imagesize:
+- ./imagesize-feedstock
+imgaug:
+- ./imgaug-feedstock
+iminuit:
+- ./iminuit-feedstock
+immutables:
+- ./immutables-feedstock
+importlib-metadata:
+- ./importlib_metadata-feedstock
+importlib_metadata:
+- ./importlib_metadata-feedstock
+importlib_resources:
+- ./importlib_resources-feedstock
+impyla:
+- ./impyla-feedstock
+incremental:
+- ./incremental-feedstock
+inequality:
+- ./inequality-feedstock
+infinity:
+- ./infinity-feedstock
+inflect:
+- ./inflect-feedstock
+inflection:
+- ./inflection-feedstock
+iniconfig:
+- ./iniconfig-feedstock
+intake:
+- ./intake-feedstock
+intake-parquet:
+- ./intake-parquet-feedstock
+intake-xarray:
+- ./intake-xarray-feedstock
+intervals:
+- ./intervals-feedstock
+intervaltree:
+- ./intervaltree-feedstock
+intreehooks:
+- ./intreehooks-feedstock
+invoke:
+- ./invoke-feedstock
+ipaddr:
+- ./ipaddr-feedstock
+ipopt:
+- ./ipopt-feedstock
+ipykernel:
+- ./ipykernel-feedstock
+ipympl:
+- ./ipympl-feedstock
+ipyparallel:
+- ./ipyparallel-feedstock
+ipython:
+- ./ipython-feedstock
+ipython-sql:
+- ./ipython-sql-feedstock
+ipython_genutils:
+- ./ipython_genutils-feedstock
+ipywidgets:
+- ./ipywidgets-feedstock
+isl:
+- ./isl-feedstock
+iso8601:
+- ./iso8601-feedstock
+isodate:
+- ./isodate-feedstock
+isort:
+- ./isort-feedstock
+itemadapter:
+- ./itemadapter-feedstock
+itemloaders:
+- ./itemloaders-feedstock
+itsdangerous:
+- ./itsdangerous-feedstock
+jaeger-client:
+- ./jaeger-client-feedstock
+jags:
+- ./jags-feedstock
+jansson:
+- ./jansson-feedstock
+jaraco.classes:
+- ./jaraco.classes-feedstock
+jaraco.collections:
+- ./jaraco.collections-feedstock
+jaraco.functools:
+- ./jaraco.functools-feedstock
+jaraco.itertools:
+- ./jaraco.itertools-feedstock
+jaraco.text:
+- ./jaraco.text-feedstock
+jasper:
+- ./jasper-feedstock
+javaobj-py3:
+- ./javaobj-py3-feedstock
+jaydebeapi:
+- ./jaydebeapi-feedstock
+jbig:
+- ./jbig-feedstock
+jdcal:
+- ./jdcal-feedstock
+jedi:
+- ./jedi-feedstock
+jeepney:
+- ./jeepney-feedstock
+jellyfish:
+- ./jellyfish-feedstock
+jemalloc:
+- ./jemalloc-feedstock/
+jinja2:
+- ./jinja2-feedstock
+jinja2-time:
+- ./jinja2-time-feedstock
+jira:
+- ./jira-feedstock
+jmespath:
+- ./jmespath-feedstock
+joblib:
+- ./joblib-feedstock
+jpeg:
+- ./jpeg-feedstock
+jpype1:
+- ./jpype1-feedstock
+jq:
+- ./jq-feedstock
+jq-suite:
+- ./jq-feedstock
+js2py:
+- ./js2py-feedstock
+json-c:
+- ./json-c-feedstock
+json-merge-patch:
+- ./json-merge-patch-feedstock
+json5:
+- ./json5-feedstock
+jsoncpp:
+- ./jsoncpp-feedstock
+jsondate:
+- ./jsondate-feedstock
+jsondiff:
+- ./jsondiff-feedstock
+jsonlines:
+- ./jsonlines-feedstock
+jsonpatch:
+- ./jsonpatch-feedstock
+jsonpickle:
+- ./jsonpickle-feedstock
+jsonpointer:
+- ./jsonpointer-feedstock
+jsonschema:
+- ./jsonschema-feedstock
+junit-xml:
+- ./junit-xml-feedstock
+jupyter:
+- ./jupyter-feedstock
+jupyter-packaging:
+- ./jupyter-packaging-feedstock
+jupyter_client:
+- ./jupyter_client-feedstock
+jupyter_console:
+- ./jupyter_console-feedstock
+jupyter_core:
+- ./jupyter_core-feedstock
+jupyter_kernel_gateway:
+- ./jupyter_kernel_gateway-feedstock
+jupyter_server:
+- ./jupyter_server-feedstock
+jupyter_telemetry:
+- ./jupyter_telemetry-feedstock
+jupyterhub:
+- ./jupyterhub-feedstock
+jupyterhub-ldapauthenticator:
+- ./jupyterhub-ldapauthenticator-feedstock
+jupyterlab:
+- ./jupyterlab-feedstock
+jupyterlab_launcher:
+- ./jupyterlab_launcher-feedstock
+jupyterlab_pygments:
+- ./jupyterlab_pygments-feedstock
+jupyterlab_server:
+- ./jupyterlab_server-feedstock
+jupyterlab_widgets:
+- ./jupyterlab_widgets-feedstock
+jxrlib:
+- ./jxrlib-feedstock
+kealib:
+- ./kealib-feedstock
+keras:
+- ./keras-feedstock
+keras-applications:
+- ./keras-applications-feedstock
+keras-base:
+- ./keras-feedstock
+keras-gpu:
+- ./keras-feedstock
+keras-preprocessing:
+- ./keras-preprocessing-feedstock
+keras_split:
+- ./keras-feedstock
+kernel-headers_linux-ppc64le:
+- ./linux-sysroot-feedstock
+keyring:
+- ./keyring-feedstock
+keyrings.alt:
+- ./keyrings.alt-feedstock
+kiwisolver:
+- ./kiwisolver-feedstock
+kombu:
+- ./kombu-feedstock
+korean_lunar_calendar:
+- ./korean_lunar_calendar-feedstock
+krb5:
+- ./krb5-feedstock
+lame:
+- ./lame-feedstock
+lancet:
+- ./lancet-feedstock
+langcodes:
+- ./langcodes-feedstock
+lark:
+- ./lark-feedstock
+lazy-object-proxy:
+- ./lazy-object-proxy-feedstock
+lbzip2:
+- ./lbzip2-feedstock
+lcms2:
+- ./lcms2-feedstock
+ld64:
+- ./cctools-and-ld64-feedstock
+ld64_osx-64:
+- ./cctools-and-ld64-feedstock
+ld_impl_linux-ppc64le:
+- ./binutils-feedstock
+ldap3:
+- ./ldap3-feedstock
+leather:
+- ./leather-feedstock
+lerc:
+- ./lerc-feedstock
+leveldb:
+- ./leveldb-feedstock
+liac-arff:
+- ./liac-arff-feedstock
+libaec:
+- ./libaec-feedstock
+libaio:
+- ./libaio-feedstock
+libarchive:
+- ./libarchive-feedstock
+libboost:
+- ./boost-feedstock
+libbrotlicommon:
+- ./brotli-feedstock
+libbrotlidec:
+- ./brotli-feedstock
+libbrotlienc:
+- ./brotli-feedstock
+libclang:
+- ./clangdev-feedstock
+libclang-cpp:
+- ./clangdev-feedstock
+libclang-cpp14:
+- ./clangdev-feedstock
+libclang13:
+- ./clangdev-feedstock
+libcrc32c:
+- ./libcrc32c-feedstock
+libcryptominisat:
+- ./cryptominisat-feedstock
+libcst:
+- ./libcst-feedstock
+libcups:
+- ./libcups-feedstock
+libcurl:
+- ./curl-feedstock
+libcurl-static:
+- ./curl-feedstock
+libcxx:
+- ./libcxx-feedstock
+libcxx_and_libcxxabi:
+- ./libcxx-feedstock
+libcxxabi:
+- ./libcxx-feedstock
+libdap4:
+- ./libdap4-feedstock
+libdate:
+- ./libdate-feedstock
+libdb:
+- ./libdb-feedstock
+libdeflate:
+- ./libdeflate-feedstock
+libedit:
+- ./libedit-feedstock
+libev:
+- ./libev-feedstock
+libev-libevent:
+- ./libev-feedstock
+libev-static:
+- ./libev-feedstock
+libevent:
+- ./libevent-feedstock
+libffi:
+- ./libffi-feedstock
+libgcc-devel_linux-ppc64le:
+- ./gcc_toolchain-feedstock
+libgcc-ng:
+- ./gcc_toolchain-feedstock
+libgcrypt:
+- ./libgcrypt-feedstock
+libgd:
+- ./libgd-feedstock
+libgdal:
+- ./gdal-lib-feedstock
+libgfortran:
+- ./gcc_toolchain-feedstock
+libgfortran-ng:
+- ./gcc_toolchain-feedstock
+libgit2:
+- ./libgit2-feedstock
+libglu:
+- ./libglu-feedstock
+libgomp:
+- ./gcc_toolchain-feedstock
+libgpg-error:
+- ./libgpg-error-feedstock
+libgpuarray:
+- ./libgpuarray-feedstock
+libgsasl:
+- ./libgsasl-feedstock
+libgsf:
+- ./libgsf-feedstock
+libhdfs3:
+- ./libhdfs3-feedstock
+libiconv:
+- ./libiconv-feedstock
+libidn11:
+- ./libidn11-feedstock
+libidn2:
+- ./libidn2-feedstock
+libjpeg-turbo:
+- ./libjpeg-turbo-feedstock
+liblief:
+- ./lief-feedstock
+libllvm14:
+- ./llvmdev-feedstock
+libmagic:
+- ./libmagic-feedstock
+libmamba:
+- ./libmambapy-feedstock
+libmambapy:
+- ./libmambapy-feedstock
+libmlir:
+- ./mlir-feedstock
+libmlir14:
+- ./mlir-feedstock
+libmng:
+- ./libmng-feedstock
+libmxnet:
+- ./mxnet-feedstock
+libnghttp2:
+- ./nghttp2-feedstock
+libnghttp2-static:
+- ./nghttp2-feedstock
+libnsl:
+- ./libnsl-feedstock
+libntlm:
+- ./libntlm-feedstock
+libogg:
+- ./libogg-feedstock
+libopenblas:
+- ./openblas-feedstock
+libopenblas-static:
+- ./openblas-feedstock
+libpcap:
+- ./libpcap-feedstock
+libpng:
+- ./libpng-feedstock
+libpq:
+- ./libpq-feedstock
+libprotobuf:
+- ./libprotobuf-feedstock
+libprotobuf-static:
+- ./libprotobuf-feedstock
+libprotobuf-suite:
+- ./libprotobuf-feedstock
+libpysal:
+- ./libpysal-feedstock
+librdkafka:
+- ./librdkafka-feedstock
+librsvg:
+- ./librsvg-feedstock
+libsodium:
+- ./libsodium-feedstock
+libsolv:
+- ./libsolv-feedstock
+libsolv-static:
+- ./libsolv-feedstock
+libsolv-suite:
+- ./libsolv-feedstock
+libspatialindex:
+- ./libspatialindex-feedstock
+libspatialite:
+- ./libspatialite-feedstock
+libssh2:
+- ./libssh2-feedstock
+libstdcxx-devel_linux-ppc64le:
+- ./gcc_toolchain-feedstock
+libstdcxx-ng:
+- ./gcc_toolchain-feedstock
+libtasn1:
+- ./libtasn1-feedstock
+libtheora:
+- ./libtheora-feedstock
+libthrift:
+- ./thrift-cpp-feedstock
+libtiff:
+- ./libtiff-feedstock
+libtool:
+- ./libtool-feedstock
+libtvm:
+- ./libtvm-feedstock
+libunistring:
+- ./libunistring-feedstock
+libunwind:
+- ./libunwind-feedstock
+libutf8proc:
+- ./libutf8proc-feedstock
+libuuid:
+- ./libuuid-feedstock
+libuv:
+- ./libuv-feedstock
+libvorbis:
+- ./libvorbis-feedstock
+libvpx:
+- ./libvpx-feedstock
+libwebp:
+- ./libwebp-feedstock
+libwebp-base:
+- ./libwebp-base-feedstock
+libxcb:
+- ./libxcb-feedstock
+libxcb_and_xcb-proto:
+- ./libxcb-feedstock
+libxgboost:
+- ./xgboost-feedstock
+libxkbcommon:
+- ./libxkbcommon-feedstock
+libxml2:
+- ./libxml2-feedstock
+libzip:
+- ./libzip-feedstock
+libzopfli:
+- ./libzopfli-feedstock
+license-expression:
+- ./license-expression-feedstock
+lief:
+- ./lief-feedstock
+lightgbm:
+- ./lightgbm-feedstock
+lighttpd:
+- ./lighttpd-feedstock
+linecache2:
+- ./linecache2-feedstock
+linkify-it-py:
+- ./linkify-it-py-feedstock
+linux-sysroot:
+- ./linux-sysroot-feedstock
+lit:
+- ./llvmdev-feedstock
+lld:
+- ./lld-feedstock
+llvm:
+- ./llvmdev-feedstock
+llvm-package:
+- ./llvmdev-feedstock
+llvm-spirv:
+- ./llvm-spirv-feedstock
+llvm-tools:
+- ./llvmdev-feedstock
+llvmdev:
+- ./llvmdev-feedstock
+llvmlite:
+- ./llvmlite-feedstock
+lmdb:
+- ./lmdb-feedstock
+locket:
+- ./locket-feedstock
+logilab-common:
+- ./logilab-common-feedstock
+loguru:
+- ./loguru-feedstock
+luigi:
+- ./luigi-feedstock
+lunarcalendar:
+- ./lunarcalendar-feedstock
+lxml:
+- ./lxml-feedstock
+lz4-c:
+- ./lz4-c-feedstock
+lz4-c-static:
+- ./lz4-c-feedstock
+lzo:
+- ./lzo-feedstock
+m4:
+- ./m4-feedstock
+m4ri:
+- ./m4ri-feedstock
+macholib:
+- ./macholib-feedstock
+make:
+- ./make-feedstock
+mako:
+- ./mako-feedstock
+mamba-split:
+- ./libmambapy-feedstock
+mando:
+- ./mando-feedstock
+mapclassify:
+- ./mapclassify-feedstock
+markdown:
+- ./markdown-feedstock
+markdown-it-py:
+- ./markdown-it-py-feedstock
+markdown2:
+- ./markdown2-feedstock
+markupsafe:
+- ./markupsafe-feedstock
+marshmallow:
+- ./marshmallow-feedstock
+marshmallow-enum:
+- ./marshmallow-enum-feedstock
+marshmallow-oneofschema:
+- ./marshmallow-oneofschema-feedstock
+marshmallow-sqlalchemy:
+- ./marshmallow-sqlalchemy-feedstock
+matplotlib:
+- ./matplotlib-feedstock
+matplotlib-base:
+- ./matplotlib-feedstock
+matplotlib-inline:
+- ./matplotlib-inline-feedstock
+matplotlib-suite:
+- ./matplotlib-feedstock
+matrixprofile:
+- ./matrixprofile-feedstock
+maturin:
+- ./maturin-feedstock
+maturin-suite:
+- ./maturin-feedstock
+mccabe:
+- ./mccabe-feedstock
+mdit-py-plugins:
+- ./mdit-py-plugins-feedstock
+mdurl:
+- ./mdurl-feedstock
+memory_profiler:
+- ./memory_profiler-feedstock
+meson:
+- ./meson-feedstock
+meson-python:
+- ./meson-python-feedstock
+metakernel:
+- ./metakernel-feedstock
+metis:
+- ./metis-feedstock
+mgwr:
+- ./mgwr-feedstock
+minio:
+- ./minio-feedstock
+missingno:
+- ./missingno-feedstock
+mistune:
+- ./mistune-feedstock
+mlir:
+- ./mlir-feedstock
+mlir-split:
+- ./mlir-feedstock
+mmh3:
+- ./mmh3-feedstock
+mock:
+- ./mock-feedstock
+mockito:
+- ./mockito-feedstock
+modin:
+- ./modin-feedstock
+modin-all:
+- ./modin-feedstock
+modin-core:
+- ./modin-feedstock
+modin-dask:
+- ./modin-feedstock
+modin-packages:
+- ./modin-feedstock
+modin-ray:
+- ./modin-feedstock
+monotonic:
+- ./monotonic-feedstock
+more-itertools:
+- ./more-itertools-feedstock
+morfessor:
+- ./morfessor-feedstock
+moto:
+- ./moto-feedstock
+mpc:
+- ./mpc-feedstock
+mpfr:
+- ./mpfr-feedstock
+mpg123:
+- ./mpg123-feedstock
+mpi:
+- ./mpi-feedstock
+mpi4py:
+- ./mpi4py-feedstock
+mpich:
+- ./mpich-feedstock
+mpich-mpi:
+- ./mpich-feedstock
+mpich-mpicc:
+- ./mpich-feedstock
+mpich-mpicxx:
+- ./mpich-feedstock
+mpich-mpifort:
+- ./mpich-feedstock
+mpir:
+- ./mpir-feedstock
+mpl-scatter-density:
+- ./mpl-scatter-density-feedstock/
+mpl_sample_data:
+- ./matplotlib-feedstock
+mpld3:
+- ./mpld3-feedstock
+mpmath:
+- ./mpmath-feedstock
+msgpack-numpy:
+- ./msgpack-numpy-feedstock
+msgpack-python:
+- ./msgpack-python-feedstock
+msitools:
+- ./msitools-feedstock
+msrest:
+- ./msrest-feedstock
+multi_key_dict:
+- ./multi_key_dict-feedstock
+multidict:
+- ./multidict-feedstock
+multimethod:
+- ./multimethod-feedstock
+multipledispatch:
+- ./multipledispatch-feedstock
+multiprocess:
+- ./multiprocess-feedstock
+multivolumefile:
+- ./multivolumefile-feedstock
+mumps:
+- ./mumps-feedstock
+mumps-include:
+- ./mumps-feedstock
+mumps-mpi:
+- ./mumps-feedstock
+mumps-seq:
+- ./mumps-feedstock
+munch:
+- ./munch-feedstock
+munkres:
+- ./munkres-feedstock
+murmurhash:
+- ./murmurhash-feedstock
+mxnet:
+- ./mxnet-feedstock
+mxnet-:
+- ./mxnet-feedstock
+mxnet-gpu:
+- ./mxnet-feedstock
+mxnet-suite:
+- ./mxnet-feedstock
+mypy:
+- ./mypy-feedstock
+mypy_extensions:
+- ./mypy_extensions-feedstock
+mysql:
+- ./mysql-feedstock
+mysql-connector-c:
+- ./mysql-connector-c-feedstock/
+mysql-connector-python:
+- ./mysql-connector-python-feedstock
+mysqlclient:
+- ./mysqlclient-feedstock
+nasm:
+- ./nasm-feedstock
+natsort:
+- ./natsort-feedstock
+nb_anacondacloud:
+- ./nb_anacondacloud-feedstock
+nb_conda:
+- ./nb_conda-feedstock
+nb_conda_kernels:
+- ./nb_conda_kernels-feedstock
+nbclassic:
+- ./nbclassic-feedstock
+nbclient:
+- ./nbclient-feedstock
+nbconvert:
+- ./nbconvert-feedstock
+nbformat:
+- ./nbformat-feedstock
+nbpresent:
+- ./nbpresent-feedstock
+nbserverproxy:
+- ./nbserverproxy-feedstock
+nbsmoke:
+- ./nbsmoke-feedstock
+ncurses:
+- ./ncurses-feedstock
+ndg-httpsclient:
+- ./ndg-httpsclient-feedstock
+neo4j-python-driver:
+- ./neo4j-python-driver-feedstock
+nest-asyncio:
+- ./nest-asyncio-feedstock
+netcdf4:
+- ./netcdf4-feedstock
+netifaces:
+- ./netifaces-feedstock
+nettle:
+- ./nettle-feedstock
+networkx:
+- ./networkx-feedstock
+neuralprophet:
+- ./neuralprophet-feedstock
+nghttp2:
+- ./nghttp2-feedstock
+ninja:
+- ./ninja-feedstock
+ninja-base:
+- ./ninja-feedstock
+ninja-suite:
+- ./ninja-feedstock
+nlohmann_json:
+- ./nlohmann_json-feedstock
+nlopt:
+- ./nlopt-feedstock
+nltk:
+- ./nltk-feedstock
+nodeenv:
+- ./nodeenv-feedstock
+nodejs:
+- ./nodejs-feedstock
+nomkl:
+- ./openblas-feedstock
+nose:
+- ./nose-feedstock
+nose-exclude:
+- ./nose-exclude-feedstock
+nose-parameterized:
+- ./nose_parameterized-feedstock
+nosexcover:
+- ./nosexcover-feedstock
+notebook:
+- ./notebook-feedstock
+notebook-shim:
+- ./notebook-shim-feedstock
+nspr:
+- ./nspr-feedstock
+nss:
+- ./nss-feedstock
+nsync:
+- ./nsync-feedstock
+ntlm-auth:
+- ./ntlm-auth-feedstock
+nuitka:
+- ./nuitka-feedstock
+numba:
+- ./numba-feedstock
+numcodecs:
+- ./numcodecs-feedstock
+numexpr:
+- ./numexpr-feedstock
+numpy:
+- ./numpy-feedstock
+numpy-base:
+- ./numpy-feedstock
+numpy_and_numpy_base:
+- ./numpy-feedstock
+numpydoc:
+- ./numpydoc-feedstock
+nvcc:
+- ./nvcc-feedstock
+nvcc_linux-ppc64le:
+- ./nvcc-feedstock
+nvidia-ml:
+- ./nvidia-ml-feedstock
+oauthenticator:
+- ./oauthenticator-feedstock
+oauthlib:
+- ./oauthlib-feedstock/
+objconv:
+- ./objconv-feedstock
+odo:
+- ./odo-feedstock
+olefile:
+- ./olefile-feedstock
+oniguruma:
+- ./oniguruma-feedstock
+onnx:
+- ./onnx-feedstock
+onnxconverter-common:
+- ./onnxconverter-common-feedstock
+onnxmltools:
+- ./onnxmltools-feedstock
+openapi-spec-validator:
+- ./openapi-spec-validator-feedstock
+openblas:
+- ./openblas-feedstock
+openblas-devel:
+- ./openblas-feedstock
+openblas_multipkg:
+- ./openblas-feedstock
+opencensus:
+- ./opencensus-feedstock
+opencensus-context:
+- ./opencensus-context-feedstock
+openh264:
+- ./openh264-feedstock
+openjpeg:
+- ./openjpeg-feedstock
+openldap:
+- ./openldap-feedstock
+openml:
+- ./openml-feedstock
+openmpi:
+- ./openmpi-feedstock
+openmpi-mpi:
+- ./openmpi-feedstock
+openmpi-mpicc:
+- ./openmpi-feedstock
+openmpi-mpicxx:
+- ./openmpi-feedstock
+openmpi-mpifort:
+- ./openmpi-feedstock
+openpyxl:
+- ./openpyxl-feedstock
+openrefine:
+- ./openrefine-feedstock
+openssl:
+- ./openssl-feedstock
+opentracing:
+- ./opentracing-feedstock
+opentracing_instrumentation:
+- ./opentracing_instrumentation-feedstock
+opentsne:
+- ./opentsne-feedstock
+opt_einsum:
+- ./opt_einsum-feedstock
+optimum:
+- ./optimum-feedstock
+optional-lite:
+- ./optional-lite-feedstock
+orc:
+- ./orc-feedstock
+orderedmultidict:
+- ./orderedmultidict-feedstock
+orjson:
+- ./orjson-feedstock
+oscrypto:
+- ./oscrypto-feedstock
+outcome:
+- ./outcome-feedstock
+owslib:
+- ./owslib-feedstock
+p7zip:
+- ./p7zip-feedstock
+packaging:
+- ./packaging-feedstock
+pagmo:
+- ./pagmo-feedstock
+pagmo-devel:
+- ./pagmo-feedstock
+palettable:
+- ./palettable-feedstock
+pamela:
+- ./pamela-feedstock
+pandarallel:
+- ./pandarallel-feedstock
+pandas:
+- ./pandas-feedstock
+pandas-datareader:
+- ./pandas-datareader-feedstock
+pandas-profiling:
+- ./pandas-profiling-feedstock
+pandas-stubs:
+- ./pandas-stubs-feedstock
+pandoc:
+- ./pandoc-feedstock
+pandocfilters:
+- ./pandocfilters-feedstock
+panel:
+- ./panel-feedstock
+pango:
+- ./pango-feedstock
+param:
+- ./param-feedstock
+parameterized:
+- ./parameterized-feedstock
+paramiko:
+- ./paramiko-feedstock
+parquet-cpp:
+- ./parquet-cpp-feedstock
+parsedatetime:
+- ./parsedatetime-feedstock
+parso:
+- ./parso-feedstock
+partd:
+- ./partd-feedstock
+passlib:
+- ./passlib-feedstock
+paste:
+- ./paste-feedstock
+pastel:
+- ./pastel-feedstock
+patch:
+- ./patch-feedstock
+patch-ng:
+- ./patch-ng-feedstock
+patchelf:
+- ./patchelf-feedstock
+path:
+- ./path-feedstock
+path.py:
+- ./path.py-feedstock
+pathlib:
+- ./pathlib-feedstock
+pathlib2:
+- ./pathlib2-feedstock
+pathspec:
+- ./pathspec-feedstock
+pathtools:
+- ./pathtools-feedstock
+pathy:
+- ./pathy-feedstock
+patsy:
+- ./patsy-feedstock
+pbr:
+- ./pbr-feedstock
+pcre:
+- ./pcre-feedstock
+pcre2:
+- ./pcre2-feedstock
+pdm:
+- ./pdm-feedstock
+pdm-pep517:
+- ./pdm-pep517-feedstock
+pdoc3:
+- ./pdoc3-feedstock
+pefile:
+- ./pefile-feedstock
+pendulum:
+- ./pendulum-feedstock
+pep517:
+- ./pep517-feedstock
+pep8:
+- ./pep8-feedstock
+pep8-naming:
+- ./pep8-naming-feedstock
+performance:
+- ./performance-feedstock
+perl:
+- ./perl-feedstock
+perl-xml-parser:
+- ./perl-xml-parser-feedstock
+petl:
+- ./petl-feedstock
+pexpect:
+- ./pexpect-feedstock
+pg8000:
+- ./pg8000-feedstock
+phik:
+- ./phik-feedstock
+phonenumbers:
+- ./phonenumbers-feedstock
+pickleshare:
+- ./pickleshare-feedstock
+pigz:
+- ./pigz-feedstock
+pillow:
+- ./pillow-feedstock
+pims:
+- ./pims-feedstock
+pip:
+- ./pip-feedstock
+pipenv:
+- ./pipenv-feedstock
+pkg-config:
+- ./pkg-config-feedstock
+pkgconfig:
+- ./pkgconfig-feedstock
+pkginfo:
+- ./pkginfo-feedstock
+pkgutil-resolve-name:
+- ./pkgutil-resolve-name-feedstock
+plac:
+- ./plac-feedstock
+platformdirs:
+- ./platformdirs-feedstock
+plotly:
+- ./plotly-feedstock
+pluggy:
+- ./pluggy-feedstock
+ply:
+- ./ply-feedstock
+plyvel:
+- ./plyvel-feedstock
+pmdarima:
+- ./pmdarima-feedstock
+poetry:
+- ./poetry-feedstock
+poetry-core:
+- ./poetry-core-feedstock
+pointpats:
+- ./pointpats-feedstock
+pomegranate:
+- ./pomegranate-feedstock
+pooch:
+- ./pooch-feedstock
+poppler:
+- ./poppler-feedstock
+poppler-data:
+- ./poppler-data-feedstock
+poppler-qt:
+- ./poppler-feedstock
+poppler-split:
+- ./poppler-feedstock
+portalocker:
+- ./portalocker-feedstock
+portaudio:
+- ./portaudio-feedstock
+portend:
+- ./portend-feedstock
+postgis:
+- ./postgis-feedstock
+poyo:
+- ./poyo-feedstock
+pre-commit:
+- ./pre-commit-feedstock
+pre_commit:
+- ./pre-commit-feedstock
+prefect:
+- ./prefect-feedstock
+preshed:
+- ./preshed-feedstock
+pretend:
+- ./pretend-feedstock
+prettytable:
+- ./prettytable-feedstock
+prison:
+- ./prison-feedstock
+progress:
+- ./progress-feedstock
+progressbar2:
+- ./progressbar2-feedstock
+proj:
+- ./proj.4-feedstock
+prometheus_client:
+- ./prometheus_client-feedstock
+promise:
+- ./promise-feedstock
+prompt-toolkit:
+- ./prompt_toolkit-feedstock
+prompt_toolkit:
+- ./prompt_toolkit-feedstock
+protego:
+- ./protego-feedstock
+proto-plus:
+- ./proto-plus-feedstock
+protobuf:
+- ./protobuf-feedstock
+pscript:
+- ./pscript-feedstock
+psqlodbc:
+- ./psqlodbc-feedstock
+psutil:
+- ./psutil-feedstock
+psycopg2:
+- ./psycopg2-feedstock
+pthread-stubs:
+- ./pthread-stubs-feedstock
+ptscotch:
+- ./scotch-feedstock
+ptyprocess:
+- ./ptyprocess-feedstock
+pugixml:
+- ./pugixml-feedstock
+pure-sasl:
+- ./pure-sasl-feedstock
+pure_eval:
+- ./pure_eval-feedstock
+py:
+- ./py-feedstock
+py-boost:
+- ./boost-feedstock
+py-cpuinfo:
+- ./py-cpuinfo-feedstock
+py-lief:
+- ./lief-feedstock
+py-mxnet:
+- ./mxnet-feedstock
+py-spy:
+- ./py-spy-feedstock
+py-xgboost:
+- ./xgboost-feedstock
+py-xgboost-cpu:
+- ./xgboost-feedstock
+py4j:
+- ./py4j-feedstock
+py7zr:
+- ./py7zr-feedstock
+pyamg:
+- ./pyamg-feedstock
+pyaml:
+- ./pyaml-feedstock
+pyarrow:
+- ./pyarrow-feedstock
+pyasn1:
+- ./pyasn1-feedstock
+pyasn1-modules:
+- ./pyasn1-modules-feedstock
+pybind11:
+- ./pybind11-feedstock
+pybind11-abi:
+- ./pybind11-feedstock
+pybind11-global:
+- ./pybind11-feedstock
+pybind11-split:
+- ./pybind11-feedstock
+pycairo:
+- ./pycairo-feedstock
+pycares:
+- ./pycares-feedstock
+pyclipper:
+- ./pyclipper-feedstock
+pycodestyle:
+- ./pycodestyle-feedstock
+pycosat:
+- ./pycosat-feedstock
+pycparser:
+- ./pycparser-feedstock
+pycrypto:
+- ./pycrypto-feedstock
+pycryptodome:
+- ./pycryptodome-feedstock
+pycryptodomex:
+- ./pycryptodomex-feedstock
+pycryptosat:
+- ./cryptominisat-feedstock
+pyct:
+- ./pyct-feedstock
+pyct-core:
+- ./pyct-core-feedstock
+pycurl:
+- ./pycurl-feedstock
+pydantic:
+- ./pydantic-feedstock
+pydata-google-auth:
+- ./pydata-google-auth-feedstock
+pydeck:
+- ./pydeck-feedstock
+pydispatcher:
+- ./pydispatcher-feedstock
+pydocstyle:
+- ./pydocstyle-feedstock
+pydot:
+- ./pydot-feedstock
+pydotplus:
+- ./pydotplus-feedstock
+pydruid:
+- ./pydruid-feedstock
+pyemd:
+- ./pyemd-feedstock
+pyepsg:
+- ./pyepsg-feedstock
+pyerfa:
+- ./pyerfa-feedstock
+pyface:
+- ./pyface-feedstock
+pyflakes:
+- ./pyflakes-feedstock
+pygithub:
+- ./pygithub-feedstock
+pygments:
+- ./pygments-feedstock
+pygmo:
+- ./pygmo-feedstock
+pygpu:
+- ./pygpu-feedstock
+pygraphviz:
+- ./pygraphviz-feedstock
+pyhamcrest:
+- ./pyhamcrest-feedstock
+pyicu:
+- ./pyicu-feedstock
+pyinotify:
+- ./pyinotify-feedstock
+pyinstaller:
+- ./pyinstaller-feedstock
+pyinstaller-hooks-contrib:
+- ./pyinstaller-hooks-contrib-feedstock
+pyjks:
+- ./pyjks-feedstock
+pyjsparser:
+- ./pyjsparser-feedstock
+pyjwt:
+- ./pyjwt-feedstock
+pykdtree:
+- ./pykdtree-feedstock
+pykerberos:
+- ./pykerberos-feedstock
+pylev:
+- ./pylev-feedstock
+pylint:
+- ./pylint-feedstock
+pylint-venv:
+- ./pylint-venv-feedstock
+pyls-black:
+- ./pyls-black-feedstock
+pyls-spyder:
+- ./pyls-spyder-feedstock
+pymc:
+- ./pymc-feedstock
+pymc3:
+- ./pymc3-feedstock
+pymeeus:
+- ./pymeeus-feedstock
+pymongo:
+- ./pymongo-feedstock
+pympler:
+- ./pympler-feedstock
+pymssql:
+- ./pymssql-feedstock
+pymysql:
+- ./pymysql-feedstock
+pynacl:
+- ./pynacl-feedstock
+pynndescent:
+- ./pynndescent-feedstock
+pynomaly:
+- ./pynomaly-feedstock
+pyodbc:
+- ./pyodbc-feedstock
+pyopengl:
+- ./pyopengl-feedstock
+pyopenssl:
+- ./pyopenssl-feedstock
+pypandoc:
+- ./pypandoc-feedstock
+pyparsing:
+- ./pyparsing-feedstock
+pypdf2:
+- ./pypdf2-feedstock
+pyperf:
+- ./pyperf-feedstock
+pyppeteer:
+- ./pyppeteer-feedstock
+pyppmd:
+- ./pyppmd-feedstock
+pyproj:
+- ./pyproj-feedstock
+pyproject-metadata:
+- ./pyproject-metadata-feedstock
+pyqt-builder:
+- ./pyqt-builder-feedstock
+pyquery:
+- ./pyquery-feedstock
+pyrsistent:
+- ./pyrsistent-feedstock
+pysal:
+- ./pysal-feedstock
+pyserial:
+- ./pyserial-feedstock
+pysftp:
+- ./pysftp-feedstock
+pyshp:
+- ./pyshp-feedstock
+pysmbclient:
+- ./pysmbclient-feedstock
+pysmi:
+- ./pysmi-feedstock
+pysnmp:
+- ./pysnmp-feedstock
+pysocks:
+- ./pysocks-feedstock
+pyspark:
+- ./pyspark-feedstock
+pyspnego:
+- ./pyspnego-feedstock
+pystan:
+- ./pystan-feedstock
+pytables:
+- ./pytables-feedstock
+pyte:
+- ./pyte-feedstock
+pytesseract:
+- ./pytesseract-feedstock
+pytest:
+- ./pytest-feedstock
+pytest-arraydiff:
+- ./pytest-arraydiff-feedstock
+pytest-astropy:
+- ./pytest-astropy-feedstock
+pytest-astropy-header:
+- ./pytest-astropy-header-feedstock
+pytest-asyncio:
+- ./pytest-asyncio-feedstock
+pytest-azurepipelines:
+- ./pytest-azurepipelines-feedstock
+pytest-base-url:
+- ./pytest-base-url-feedstock
+pytest-benchmark:
+- ./pytest-benchmark-feedstock
+pytest-cache:
+- ./pytest-cache-feedstock
+pytest-cov:
+- ./pytest-cov-feedstock
+pytest-describe:
+- ./pytest-describe-feedstock
+pytest-doctestplus:
+- ./pytest-doctestplus-feedstock
+pytest-filter-subpackage:
+- ./pytest-filter-subpackage-feedstock
+pytest-flake8:
+- ./pytest-flake8-feedstock
+pytest-flakes:
+- ./pytest-flakes-feedstock
+pytest-forked:
+- ./pytest-forked-feedstock
+pytest-html:
+- ./pytest-html-feedstock
+pytest-json:
+- ./pytest-json-feedstock
+pytest-localserver:
+- ./pytest-localserver-feedstock
+pytest-metadata:
+- ./pytest-metadata-feedstock
+pytest-mock:
+- ./pytest-mock-feedstock
+pytest-mpi:
+- ./pytest-mpi-feedstock
+pytest-openfiles:
+- ./pytest-openfiles-feedstock
+pytest-ordering:
+- ./pytest-ordering-feedstock
+pytest-pep8:
+- ./pytest-pep8-feedstock
+pytest-remotedata:
+- ./pytest-remotedata-feedstock
+pytest-replay:
+- ./pytest-replay-feedstock
+pytest-rerunfailures:
+- ./pytest-rerunfailures-feedstock
+pytest-runner:
+- ./pytest-runner-feedstock
+pytest-selenium:
+- ./pytest-selenium-feedstock
+pytest-subtests:
+- ./pytest-subtests-feedstock
+pytest-timeout:
+- ./pytest-timeout-feedstock
+pytest-tornado:
+- ./pytest-tornado-feedstock
+pytest-variables:
+- ./pytest-variables-feedstock
+pytest-xdist:
+- ./pytest-xdist-feedstock
+python-bidi:
+- ./python-bidi-feedstock
+python-blosc:
+- ./python-blosc-feedstock
+python-box:
+- ./python-box-feedstock
+python-build:
+- ./python-build-feedstock
+python-chromedriver-binary:
+- ./python-chromedriver-binary-feedstock
+python-chromedriver-binary-suite:
+- ./python-chromedriver-binary-feedstock
+python-clang:
+- ./clangdev-feedstock
+python-crfsuite:
+- ./python-crfsuite-feedstock/
+python-daemon:
+- ./python-daemon-feedstock
+python-dateutil:
+- ./python-dateutil-feedstock
+python-debian:
+- ./python-debian-feedstock
+python-dotenv:
+- ./python-dotenv-feedstock
+python-editor:
+- ./python-editor-feedstock
+python-engineio:
+- ./python-engineio-feedstock
+python-fastjsonschema:
+- ./python-fastjsonschema-feedstock
+python-flatbuffers:
+- ./python-flatbuffers-feedstock
+python-gflags:
+- ./python-gflags-feedstock
+python-graphviz:
+- ./python-graphviz-feedstock
+python-hdfs:
+- ./python-hdfs-feedstock
+python-installer:
+- ./python-installer-feedstock
+python-jenkins:
+- ./python-jenkins-feedstock
+python-jose:
+- ./python-jose-feedstock
+python-json-logger:
+- ./python-json-logger-feedstock
+python-jsonrpc-server:
+- ./python-jsonrpc-server-feedstock
+python-kubernetes:
+- ./python-kubernetes-feedstock
+python-language-server:
+- ./python-language-server-feedstock
+python-ldap:
+- ./python-ldap-feedstock
+python-leveldb:
+- ./python-leveldb-feedstock
+python-levenshtein:
+- ./python-levenshtein-feedstock
+python-libarchive-c:
+- ./python-libarchive-c-feedstock
+python-lmdb:
+- ./python-lmdb-feedstock
+python-louvain:
+- ./python-louvain-feedstock
+python-lsp-black:
+- ./python-lsp-black-feedstock
+python-lsp-jsonrpc:
+- ./python-lsp-jsonrpc-feedstock
+python-lsp-server:
+- ./python-lsp-server-feedstock
+python-memcached:
+- ./python-memcached-feedstock
+python-multipart:
+- ./python-multipart-feedstock
+python-nvd3:
+- ./python-nvd3-feedstock
+python-oauth2:
+- ./python-oauth2-feedstock
+python-rapidjson:
+- ./python-rapidjson-feedstock
+python-slugify:
+- ./python-slugify-feedstock
+python-snappy:
+- ./python-snappy-feedstock
+python-socketio:
+- ./python-socketio-feedstock
+python-tzdata:
+- ./python-tzdata-feedstock
+python-utils:
+- ./python-utils-feedstock
+python-xxhash:
+- ./python-xxhash-feedstock
+python3-openid:
+- ./python3-openid-feedstock
+python_http_client:
+- ./python_http_client-feedstock
+pythran:
+- ./pythran-feedstock
+pytimeparse:
+- ./pytimeparse-feedstock
+pytoml:
+- ./pytoml-feedstock
+pytoolconfig:
+- ./pytoolconfig-feedstock
+pytorch:
+- ./pytorch-feedstock
+pytz:
+- ./pytz-feedstock
+pytzdata:
+- ./pytzdata-feedstock
+pyutilib:
+- ./pyutilib-feedstock
+pyviz_comms:
+- ./pyviz_comms-feedstock
+pywavelets:
+- ./pywavelets-feedstock
+pywinrm:
+- ./pywinrm-feedstock
+pyxdg:
+- ./pyxdg-feedstock
+pyyaml:
+- ./pyyaml-feedstock
+pyzstd:
+- ./pyzstd-feedstock
+qdarkstyle:
+- ./qdarkstyle-feedstock
+qds-sdk:
+- ./qds-sdk-feedstock
+qgrid:
+- ./qgrid-feedstock
+qhull:
+- ./qhull-feedstock
+qstylizer:
+- ./qstylizer-feedstock
+quandl:
+- ./quandl-feedstock
+quantecon:
+- ./quantecon-feedstock
+quilt3:
+- ./quilt-feedstock
+r-xgboost:
+- ./xgboost-feedstock
+r-xgboost-cpu:
+- ./xgboost-feedstock
+radon:
+- ./radon-feedstock
+rapidjson:
+- ./rapidjson-feedstock
+rasterio:
+- ./rasterio-feedstock
+rasterstats:
+- ./rasterstats-feedstock
+rdkit:
+- ./rdkit-feedstock
+rdkit-dev:
+- ./rdkit-feedstock
+re2:
+- ./re2-feedstock
+readline:
+- ./readline-feedstock
+redis-py:
+- ./redis-py-feedstock
+regex:
+- ./regex-feedstock
+reportlab:
+- ./reportlab-feedstock
+reproc:
+- ./reproc-feedstock
+reproc-cpp:
+- ./reproc-feedstock
+reproc-cpp-static:
+- ./reproc-feedstock
+reproc-static:
+- ./reproc-feedstock
+requests:
+- ./requests-feedstock
+requests-ftp:
+- ./requests-ftp-feedstock
+requests-futures:
+- ./requests-futures-feedstock
+requests-kerberos:
+- ./requests-kerberos-feedstock
+requests-oauthlib:
+- ./requests-oauthlib-feedstock/
+requests-toolbelt:
+- ./requests-toolbelt-feedstock/
+requests-wsgi-adapter:
+- ./requests-wsgi-adapter-feedstock
+requests_download:
+- ./requests_download-feedstock
+requests_ntlm:
+- ./requests_ntlm-feedstock
+resolvelib:
+- ./resolvelib-feedstock
+responses:
+- ./responses-feedstock
+retrying:
+- ./retrying-feedstock
+rfc3986:
+- ./rfc3986-feedstock
+rhash:
+- ./rhash-feedstock
+rich:
+- ./rich-feedstock
+rise:
+- ./rise-feedstock
+rope:
+- ./rope-feedstock
+routes:
+- ./routes-feedstock
+rsa:
+- ./rsa-feedstock
+rsync:
+- ./rsync-feedstock
+rtree:
+- ./rtree-feedstock
+ruamel:
+- ./ruamel-feedstock
+ruamel.yaml:
+- ./ruamel.yaml-feedstock
+ruamel.yaml.clib:
+- ./ruamel.yaml.clib-feedstock
+ruamel_yaml:
+- ./ruamel_yaml-feedstock
+ruby:
+- ./ruby-feedstock
+runipy:
+- ./runipy-feedstock
+rust:
+- ./rust-feedstock
+rust-suite:
+- ./rust-feedstock
+rust_linux-ppc64le:
+- ./rust-activation-feedstock
+rust_linux-ppc64le-suite:
+- ./rust-activation-feedstock
+s3fs:
+- ./s3fs-feedstock
+s3transfer:
+- ./s3transfer-feedstock
+sacrebleu:
+- ./sacrebleu-feedstock
+sacremoses:
+- ./sacremoses-feedstock
+safeint:
+- ./safeint-feedstock
+salt:
+- ./salt-feedstock
+sas_kernel:
+- ./sas_kernel-feedstock
+sasl:
+- ./sasl-feedstock
+saspy:
+- ./saspy-feedstock
+scalapack:
+- ./scalapack-feedstock
+scandir:
+- ./scandir-feedstock
+scapy:
+- ./scapy-feedstock
+schema:
+- ./schema-feedstock
+scikit-build:
+- ./scikit-build-feedstock
+scikit-image:
+- ./scikit-image-feedstock
+scikit-learn:
+- ./scikit-learn-feedstock
+scikit-rf:
+- ./scikit-rf-feedstock
+scipy:
+- ./scipy-feedstock
+scons:
+- ./scons-feedstock
+scotch:
+- ./scotch-feedstock
+scotch-pkgs:
+- ./scotch-feedstock
+scp:
+- ./scp-feedstock
+scramp:
+- ./scramp-feedstock
+scrapy:
+- ./scrapy-feedstock
+seaborn:
+- ./seaborn-feedstock
+secretstorage:
+- ./secretstorage-feedstock
+sed:
+- ./sed-feedstock
+segregation:
+- ./segregation-feedstock
+selenium:
+- ./selenium-feedstock
+semantic_version:
+- ./semantic_version-feedstock
+semver:
+- ./semver-feedstock
+send2trash:
+- ./send2trash-feedstock
+sendgrid:
+- ./sendgrid-feedstock
+sentencepiece:
+- ./sentencepiece-feedstock
+sentry-sdk:
+- ./sentry-sdk-feedstock
+serverfiles:
+- ./serverfiles-feedstock
+service_identity:
+- ./service_identity-feedstock
+setproctitle:
+- ./setproctitle-feedstock
+setuptools:
+- ./setuptools-feedstock
+setuptools-git:
+- ./setuptools-git-feedstock
+setuptools-git-versioning:
+- ./setuptools-git-versioning-feedstock
+setuptools-rust:
+- ./setuptools-rust-feedstock
+setuptools-scm:
+- ./setuptools_scm-feedstock
+setuptools-scm-git-archive:
+- ./setuptools-scm-git-archive-feedstock
+setuptools_scm:
+- ./setuptools_scm-feedstock
+setuptools_scm_git_archive:
+- ./setuptools_scm_git_archive-feedstock
+sgmllib3k:
+- ./sgmllib3k-feedstock
+sh:
+- ./sh-feedstock
+shap:
+- ./shap-feedstock
+shapely:
+- ./shapely-feedstock
+shellingham:
+- ./shellingham-feedstock
+simple-salesforce:
+- ./simple-salesforce-feedstock
+simplegeneric:
+- ./simplegeneric-feedstock
+simplejson:
+- ./simplejson-feedstock
+singledispatch:
+- ./singledispatch-feedstock
+sip:
+- ./sip-feedstock
+six:
+- ./six-feedstock
+skl2onnx:
+- ./skl2onnx-feedstock
+slack-sdk:
+- ./slack-sdk-feedstock
+slack_sdk:
+- ./slack-sdk-feedstock
+slackclient:
+- ./slackclient-feedstock
+sleef:
+- ./sleef-feedstock
+slicer:
+- ./slicer-feedstock
+slicerator:
+- ./slicerator-feedstock
+smart_open:
+- ./smart_open-feedstock
+smartypants:
+- ./smartypants-feedstock
+smmap:
+- ./smmap-feedstock
+smmap2:
+- ./smmap2-feedstock
+snakebite-py3:
+- ./snakebite-py3-feedstock
+snappy:
+- ./snappy-feedstock
+sniffio:
+- ./sniffio-feedstock
+snowballstemmer:
+- ./snowballstemmer-feedstock
+snowflake-connector-python:
+- ./snowflake-connector-python-feedstock
+snuggs:
+- ./snuggs-feedstock
+sortedcollections:
+- ./sortedcollections-feedstock
+sortedcontainers:
+- ./sortedcontainers-feedstock
+soupsieve:
+- ./soupsieve-feedstock
+spacy:
+- ./spacy-feedstock
+spacy-alignments:
+- ./spacy-alignments-feedstock
+spacy-legacy:
+- ./spacy-legacy-feedstock
+spacy-loggers:
+- ./spacy-loggers-feedstock
+spacy-model-en_core_web:
+- ./spacy-model-en_core_web-feedstock
+spacy-model-en_core_web_lg:
+- ./spacy-model-en_core_web-feedstock
+spacy-model-en_core_web_md:
+- ./spacy-model-en_core_web-feedstock
+spacy-model-en_core_web_sm:
+- ./spacy-model-en_core_web-feedstock
+spacy-model-en_core_web_trf:
+- ./spacy-model-en_core_web-feedstock
+spacy-transformers:
+- ./spacy-transformers-feedstock
+spaghetti:
+- ./spaghetti-feedstock
+spdlog:
+- ./spdlog-feedstock
+spdlog-fmt-embed:
+- ./spdlog-feedstock
+spdlog-split:
+- ./spdlog-feedstock
+spglm:
+- ./spglm-feedstock
+sphinx:
+- ./sphinx-feedstock
+sphinx_rtd_theme:
+- ./sphinx_rtd_theme-feedstock
+sphinxcontrib-applehelp:
+- ./sphinxcontrib-applehelp-feedstock
+sphinxcontrib-devhelp:
+- ./sphinxcontrib-devhelp-feedstock
+sphinxcontrib-htmlhelp:
+- ./sphinxcontrib-htmlhelp-feedstock
+sphinxcontrib-jsmath:
+- ./sphinxcontrib-jsmath-feedstock
+sphinxcontrib-qthelp:
+- ./sphinxcontrib-qthelp-feedstock
+sphinxcontrib-serializinghtml:
+- ./sphinxcontrib-serializinghtml-feedstock
+sphinxcontrib-websupport:
+- ./sphinxcontrib-websupport-feedstock
+spint:
+- ./spint-feedstock
+spirv-tools:
+- ./spirv-tools-feedstock
+splot:
+- ./splot-feedstock
+spreg:
+- ./spreg-feedstock
+sputnik:
+- ./sputnik-feedstock
+spvcm:
+- ./spvcm-feedstock
+spyder-kernels:
+- ./spyder-kernels-feedstock
+sqlalchemy:
+- ./sqlalchemy-feedstock
+sqlalchemy-jsonfield:
+- ./sqlalchemy-jsonfield-feedstock
+sqlalchemy-utils:
+- ./sqlalchemy-utils-feedstock
+sqlite:
+- ./sqlite-feedstock
+sqlparse:
+- ./sqlparse-feedstock
+srsly:
+- ./srsly-feedstock
+sshpubkeys:
+- ./sshpubkeys-feedstock
+sshtunnel:
+- ./sshtunnel-feedstock
+stack_data:
+- ./stack_data-feedstock
+starkbank-ecdsa:
+- ./starkbank-ecdsa-feedstock
+starlette:
+- ./starlette-feedstock
+starlette-full:
+- ./starlette-feedstock
+starlette-recipe:
+- ./starlette-feedstock
+statsd:
+- ./statsd-feedstock
+statsmodels:
+- ./statsmodels-feedstock
+stone:
+- ./stone-feedstock
+streamlit:
+- ./streamlit-feedstock
+streamz:
+- ./streamz-feedstock
+stumpy:
+- ./stumpy-feedstock
+suds-jurko:
+- ./suds-jurko-feedstock
+suitesparse:
+- ./suitesparse-feedstock
+supervisor:
+- ./supervisor-feedstock
+swagger-ui-bundle:
+- ./swagger-ui-bundle-feedstock
+swig:
+- ./swig-feedstock
+sympy:
+- ./sympy-feedstock
+sysroot--:
+- ./linux-sysroot-feedstock
+sysroot_linux-ppc64le:
+- ./linux-sysroot-feedstock
+tabulate:
+- ./tabulate-feedstock
+tangled-up-in-unicode:
+- ./tangled-up-in-unicode-feedstock
+tapi:
+- ./tapi-feedstock
+tbb:
+- ./tbb-feedstock
+tbb-devel:
+- ./tbb-feedstock
+tbb4py:
+- ./tbb-feedstock
+tblib:
+- ./tblib-feedstock
+tempita:
+- ./tempita-feedstock
+tempora:
+- ./tempora-feedstock
+tenacity:
+- ./tenacity-feedstock
+tensorboard-data-server:
+- ./tensorboard-data-server-feedstock
+tensorboardx:
+- ./tensorboardx-feedstock
+tensorflow-hub:
+- ./tensorflow-hub-feedstock
+tensorflow-probability:
+- ./tensorflow-probability-feedstock
+termcolor:
+- ./termcolor-feedstock
+termcolor-cpp:
+- ./termcolor-cpp-feedstock
+terminado:
+- ./terminado-feedstock
+tesseract:
+- ./tesseract-feedstock
+testfixtures:
+- ./testfixtures-feedstock
+testpath:
+- ./testpath-feedstock
+testtools:
+- ./testtools-feedstock
+texinfo:
+- ./texinfo-feedstock
+texlive-core:
+- ./texlive-core-feedstock
+text-unidecode:
+- ./text-unidecode-feedstock
+textdistance:
+- ./textdistance-feedstock
+texttable:
+- ./texttable-feedstock
+the_silver_searcher:
+- ./the_silver_searcher-feedstock
+theano-pymc:
+- ./theano-pymc-feedstock
+thefuzz:
+- ./thefuzz-feedstock
+thinc:
+- ./thinc-feedstock
+threadloop:
+- ./threadloop-feedstock
+threadpoolctl:
+- ./threadpoolctl-feedstock
+three-merge:
+- ./three-merge-feedstock
+thrift:
+- ./thrift-feedstock
+thrift-compiler:
+- ./thrift-cpp-feedstock
+thrift-cpp:
+- ./thrift-cpp-feedstock
+thrift-split:
+- ./thrift-cpp-feedstock
+thrift_sasl:
+- ./thrift_sasl-feedstock
+thriftpy:
+- ./thriftpy-feedstock
+thriftpy2:
+- ./thriftpy2-feedstock
+tifffile:
+- ./tifffile-feedstock
+tiledb:
+- ./tiledb-feedstock
+tini:
+- ./tini-feedstock
+tinycss:
+- ./tinycss-feedstock
+tinycss2:
+- ./tinycss2-feedstock
+tk:
+- ./tk-feedstock
+tldextract:
+- ./tldextract-feedstock
+tmux:
+- ./tmux-feedstock
+tobler:
+- ./tobler-feedstock
+tokenizers:
+- ./tokenizers-feedstock
+toml:
+- ./toml-feedstock
+tomli:
+- ./tomli-feedstock
+tomli-w:
+- ./tomli-w-feedstock
+tomlkit:
+- ./tomlkit-feedstock
+toolchain:
+- ./toolchain-feedstock
+toolchain_c_linux-ppc64le:
+- ./toolchain-feedstock
+toolchain_cxx_linux-ppc64le:
+- ./toolchain-feedstock
+toolchain_fort_linux-ppc64le:
+- ./toolchain-feedstock
+toolz:
+- ./toolz-feedstock
+torch-lr-finder:
+- ./torch-lr-finder-feedstock
+tornado:
+- ./tornado-feedstock
+toro:
+- ./toro-feedstock
+tqdm:
+- ./tqdm-feedstock
+traceback2:
+- ./traceback2-feedstock
+traitlets:
+- ./traitlets-feedstock
+traits:
+- ./traits-feedstock
+traitsui:
+- ./traitsui-feedstock
+tranquilizer:
+- ./tranquilizer-feedstock
+transaction:
+- ./transaction-feedstock
+transformers:
+- ./transformers-feedstock
+treelib:
+- ./treelib-feedstock
+trio:
+- ./trio-feedstock
+trustme:
+- ./trustme-feedstock
+tsfresh:
+- ./tsfresh-feedstock
+twine:
+- ./twine-feedstock
+twisted:
+- ./twisted-feedstock
+twofish:
+- ./twofish-feedstock
+twython:
+- ./twython-feedstock/
+typed-ast:
+- ./typed-ast-feedstock
+typeguard:
+- ./typeguard-feedstock
+typer:
+- ./typer-feedstock
+types-pytz:
+- ./types-pytz-feedstock
+types-toml:
+- ./types-toml-feedstock
+types-typed-ast:
+- ./types-typed-ast-feedstock
+typing:
+- ./typing-feedstock
+typing-extensions:
+- ./typing_extensions-feedstock
+typing_extensions:
+- ./typing_extensions-feedstock
+typing_inspect:
+- ./typing_inspect-feedstock
+typogrify:
+- ./typogrify-feedstock
+tzlocal:
+- ./tzlocal-feedstock
+uc-micro-py:
+- ./uc-micro-py-feedstock
+udunits2:
+- ./udunits2-feedstock
+ujson:
+- ./ujson-feedstock
+ukkonen:
+- ./ukkonen-feedstock
+unearth:
+- ./unearth-feedstock
+unicodecsv:
+- ./unicodecsv-feedstock
+unicodedata2:
+- ./unicodedata2-feedstock
+unidecode:
+- ./unidecode-feedstock
+unittest2:
+- ./unittest2-feedstock
+unixodbc:
+- ./unixodbc-feedstock
+unzip:
+- ./unzip-feedstock
+uriparser:
+- ./uriparser-feedstock
+urllib3:
+- ./urllib3-feedstock
+urwid:
+- ./urwid-feedstock
+utfcpp:
+- ./utfcpp-feedstock
+uvicorn:
+- ./uvicorn-feedstock
+uvloop:
+- ./uvloop-feedstock
+uwsgi:
+- ./uwsgi-feedstock
+validators:
+- ./validators-feedstock
+vcrpy:
+- ./vcrpy-feedstock
+vcversioner:
+- ./vcversioner-feedstock
+verboselogs:
+- ./verboselogs-feedstock
+vertica-python:
+- ./vertica-python-feedstock
+vine:
+- ./vine-feedstock
+virtualenv:
+- ./virtualenv-feedstock
+virtualenv-clone:
+- ./virtualenv-clone-feedstock
+visions:
+- ./visions-feedstock
+vispy:
+- ./vispy-feedstock
+visvis:
+- ./visvis-feedstock
+vyper-config:
+- ./vyper-config-feedstock
+waf:
+- ./waf-feedstock
+waitress:
+- ./waitress-feedstock
+wasabi:
+- ./wasabi-feedstock
+watchdog:
+- ./watchdog-feedstock
+wcwidth:
+- ./wcwidth-feedstock
+webencodings:
+- ./webencodings-feedstock
+webob:
+- ./webob-feedstock
+websocket-client:
+- ./websocket-client-feedstock
+werkzeug:
+- ./werkzeug-feedstock
+wget:
+- ./wget-feedstock
+whatthepatch:
+- ./whatthepatch-feedstock
+wheel:
+- ./wheel-feedstock
+whichcraft:
+- ./whichcraft-feedstock
+whoosh:
+- ./whoosh-feedstock
+widgetsnbextension:
+- ./widgetsnbextension-feedstock
+win32_setctime:
+- ./win32_setctime-feedstock
+wrapt:
+- ./wrapt-feedstock
+ws4py:
+- ./ws4py-feedstock
+wsgiproxy2:
+- ./wsgiproxy2-feedstock
+wtforms:
+- ./wtforms-feedstock
+wurlitzer:
+- ./wurlitzer-feedstock
+wxpython:
+- ./wxpython-feedstock
+x264:
+- ./x264-feedstock
+xarray:
+- ./xarray-feedstock
+xcb-proto:
+- ./xcb-proto-feedstock
+xerces-c:
+- ./xerces-c-feedstock
+xgboost:
+- ./xgboost-feedstock
+xgboost-split:
+- ./xgboost-feedstock
+xlrd:
+- ./xlrd-feedstock
+xlsxwriter:
+- ./xlsxwriter-feedstock
+xlutils:
+- ./xlutils-feedstock
+xlwt:
+- ./xlwt-feedstock
+xmltodict:
+- ./xmltodict-feedstock
+xorg-util-macros:
+- ./xorg-util-macros-feedstock
+xorg-xproto:
+- ./xorg-xproto-feedstock
+xsimd:
+- ./xsimd-feedstock
+xxhash:
+- ./xxhash-feedstock
+xyzservices:
+- ./xyzservices-feedstock
+xz:
+- ./xz-feedstock
+yacs:
+- ./yacs-feedstock
+yajl:
+- ./yajl-feedstock
+yaml:
+- ./yaml-feedstock
+yaml-cpp:
+- ./yaml-cpp-feedstock
+yaml-cpp-split:
+- ./yaml-cpp-feedstock
+yaml-cpp-static:
+- ./yaml-cpp-feedstock
+yapf:
+- ./yapf-feedstock
+yarl:
+- ./yarl-feedstock
+yarn:
+- ./yarn-feedstock
+yasm:
+- ./yasm-feedstock
+yq:
+- ./yq-feedstock
+yt:
+- ./yt-feedstock
+zarr:
+- ./zarr-feedstock
+zc.lockfile:
+- ./zc.lockfile-feedstock
+zeep:
+- ./zeep-feedstock
+zeromq:
+- ./zeromq-feedstock
+zeromq-static:
+- ./zeromq-feedstock
+zfp:
+- ./zfpy-feedstock
+zfpy:
+- ./zfpy-feedstock
+zict:
+- ./zict-feedstock
+zip:
+- ./zip-feedstock
+zipp:
+- ./zipp-feedstock
+zlib:
+- ./zlib-feedstock
+zope.interface:
+- ./zope.interface-feedstock
+zstandard:
+- ./zstandard-feedstock
+zstd:
+- ./zstd-feedstock

@@ -1,0 +1,3564 @@
+absl-py:
+- ../ci_py311/
+- py311_bs/label/release
+access:
+- ../ci_py311/
+- py311_bs/label/release
+adal:
+- ../ci_py311/
+- py311_bs/label/release
+aenum:
+- ../ci_py311/
+- py311_bs/label/release
+affine:
+- ../ci_py311/
+- py311_bs/label/release
+agate:
+- ../ci_py311/
+- py311_bs/label/release
+agate-dbf:
+- ../ci_py311/
+- py311_bs/label/release
+agate-excel:
+- ../ci_py311/
+- py311_bs/label/release
+agate-sql:
+- ../ci_py311/
+- py311_bs/label/release
+aiobotocore:
+- ../ci_py311/
+- py311_bs/label/release
+aiodns:
+- ../ci_py311/
+- py311_bs/label/release
+aiofiles:
+- ../ci_py311/
+- py311_bs/label/release
+aiohttp:
+- ../ci_py311/
+- py311_bs/label/release
+aiohttp-cors:
+- ../ci_py311/
+- py311_bs/label/release
+aiohttp-jinja2:
+- ../ci_py311/
+- py311_bs/label/release
+aioitertools:
+- ../ci_py311/
+- py311_bs/label/release
+aiopg:
+- ../ci_py311/
+- py311_bs/label/release
+aioredis:
+- ../ci_py311/
+- py311_bs/label/release
+aiosignal:
+- ../ci_py311/
+- py311_bs/label/release
+alabaster:
+- ../ci_py311/
+- py311_bs/label/release
+alembic:
+- ../ci_py311/
+- py311_bs/label/release
+altair:
+- ../ci_py311/
+- py311_bs/label/release
+altgraph:
+- ../ci_py311/
+- py311_bs/label/release
+amqp:
+- ../ci_py311/
+- py311_bs/label/release
+anaconda-clean:
+- ../ci_py311/
+- py311_bs/label/release
+anaconda-client:
+- ../ci_py311/
+- py311_bs/label/release
+anaconda-linter:
+- ../ci_py311/
+- py311_bs/label/release
+anaconda-project:
+- ../ci_py311/
+- py311_bs/label/release
+aniso8601:
+- ../ci_py311/
+- py311_bs/label/release
+anyio:
+- ../ci_py311/
+- py311_bs/label/release
+anyjson:
+- ../ci_py311/
+- py311_bs/label/release
+anyqt:
+- ../ci_py311/
+- py311_bs/label/release
+apache-airflow-providers-apache-hdfs:
+- ../ci_py311/
+- py311_bs/label/release
+apache-airflow-providers-common-sql:
+- ../ci_py311/
+- py311_bs/label/release
+apache-airflow-providers-ftp:
+- ../ci_py311/
+- py311_bs/label/release
+apache-airflow-providers-http:
+- ../ci_py311/
+- py311_bs/label/release
+apache-airflow-providers-imap:
+- ../ci_py311/
+- py311_bs/label/release
+apache-airflow-providers-sqlite:
+- ../ci_py311/
+- py311_bs/label/release
+apache-libcloud:
+- ../ci_py311/
+- py311_bs/label/release
+apipkg:
+- ../ci_py311/
+- py311_bs/label/release
+apispec:
+- ../ci_py311/
+- py311_bs/label/release
+appdirs:
+- ../ci_py311/
+- py311_bs/label/release
+applaunchservices:
+- ../ci_py311/
+- py311_bs/label/release
+appnope:
+- ../ci_py311/
+- py311_bs/label/release
+appscript:
+- ../ci_py311/
+- py311_bs/label/release
+apptools:
+- ../ci_py311/
+- py311_bs/label/release
+apscheduler:
+- ../ci_py311/
+- py311_bs/label/release
+archspec:
+- ../ci_py311/
+- py311_bs/label/release
+argcomplete:
+- ../ci_py311/
+- py311_bs/label/release
+argh:
+- ../ci_py311/
+- py311_bs/label/release
+argon2-cffi:
+- ../ci_py311/
+- py311_bs/label/release
+argon2-cffi-bindings:
+- ../ci_py311/
+- py311_bs/label/release
+arrow:
+- ../ci_py311/
+- py311_bs/label/release
+arrow-cpp:
+- ../ci_py311/
+- py311_bs/label/release
+arviz:
+- ../ci_py311/
+- py311_bs/label/release
+asciitree:
+- ../ci_py311/
+- py311_bs/label/release
+asgiref:
+- ../ci_py311/
+- py311_bs/label/release
+asn1crypto:
+- ../ci_py311/
+- py311_bs/label/release
+astor:
+- ../ci_py311/
+- py311_bs/label/release
+astroid:
+- ../ci_py311/
+- py311_bs/label/release
+astropy:
+- ../ci_py311/
+- py311_bs/label/release
+asttokens:
+- ../ci_py311/
+- py311_bs/label/release
+astunparse:
+- ../ci_py311/
+- py311_bs/label/release
+async-timeout:
+- ../ci_py311/
+- py311_bs/label/release
+async_generator:
+- ../ci_py311/
+- py311_bs/label/release
+asyncpg:
+- ../ci_py311/
+- py311_bs/label/release
+asynctest:
+- ../ci_py311/
+- py311_bs/label/release
+atlasclient:
+- ../ci_py311/
+- py311_bs/label/release
+atom:
+- ../ci_py311/
+- py311_bs/label/release
+atomicwrites:
+- ../ci_py311/
+- py311_bs/label/release
+attrs:
+- ../ci_py311/
+- py311_bs/label/release
+authlib:
+- ../ci_py311/
+- py311_bs/label/release
+autocfg:
+- ../ci_py311/
+- py311_bs/label/release
+autograd:
+- ../ci_py311/
+- py311_bs/label/release
+automat:
+- ../ci_py311/
+- py311_bs/label/release
+autopep8:
+- ../ci_py311/
+- py311_bs/label/release
+autovizwidget:
+- ../ci_py311/
+- py311_bs/label/release
+aws-requests-auth:
+- ../ci_py311/
+- py311_bs/label/release
+aws-sam-translator:
+- ../ci_py311/
+- py311_bs/label/release
+aws-xray-sdk:
+- ../ci_py311/
+- py311_bs/label/release
+azure-common:
+- ../ci_py311/
+- py311_bs/label/release
+azure-core:
+- ../ci_py311/
+- py311_bs/label/release
+azure-cosmos:
+- ../ci_py311/
+- py311_bs/label/release
+azure-storage-blob:
+- ../ci_py311/
+- py311_bs/label/release
+babel:
+- ../ci_py311/
+- py311_bs/label/release
+backcall:
+- ../ci_py311/
+- py311_bs/label/release
+backports.functools_lru_cache:
+- ../ci_py311/
+- py311_bs/label/release
+backports.os:
+- ../ci_py311/
+- py311_bs/label/release
+backports.shutil_get_terminal_size:
+- ../ci_py311/
+- py311_bs/label/release
+backports.shutil_which:
+- ../ci_py311/
+- py311_bs/label/release
+backports.tempfile:
+- ../ci_py311/
+- py311_bs/label/release
+backports.weakref:
+- ../ci_py311/
+- py311_bs/label/release
+backports_abc:
+- ../ci_py311/
+- py311_bs/label/release
+basemap:
+- ../ci_py311/
+- py311_bs/label/release
+basemap-data:
+- ../ci_py311/
+- py311_bs/label/release
+basemap-data-hires:
+- ../ci_py311/
+- py311_bs/label/release
+baycomp:
+- ../ci_py311/
+- py311_bs/label/release
+bcrypt:
+- ../ci_py311/
+- py311_bs/label/release
+beautifulsoup4:
+- ../ci_py311/
+- py311_bs/label/release
+beniget:
+- ../ci_py311/
+- py311_bs/label/release
+bidict:
+- ../ci_py311/
+- py311_bs/label/release
+billiard:
+- ../ci_py311/
+- py311_bs/label/release
+binaryornot:
+- ../ci_py311/
+- py311_bs/label/release
+biopython:
+- ../ci_py311/
+- py311_bs/label/release
+bitarray:
+- ../ci_py311/
+- py311_bs/label/release
+bkcharts:
+- ../ci_py311/
+- py311_bs/label/release
+black:
+- ../ci_py311/
+- py311_bs/label/release
+bleach:
+- ../ci_py311/
+- py311_bs/label/release
+blessings:
+- ../ci_py311/
+- py311_bs/label/release
+blinker:
+- ../ci_py311/
+- py311_bs/label/release
+bokeh:
+- ../ci_py311/
+- py311_bs/label/release
+boltons:
+- ../ci_py311/
+- py311_bs/label/release
+boolean.py:
+- ../ci_py311/
+- py311_bs/label/release
+boto3:
+- ../ci_py311/
+- py311_bs/label/release
+botocore:
+- ../ci_py311/
+- py311_bs/label/release
+bottleneck:
+- ../ci_py311/
+- py311_bs/label/release
+bpython:
+- ../ci_py311/
+- py311_bs/label/release
+branca:
+- ../ci_py311/
+- py311_bs/label/release
+brotli-python:
+- ../ci_py311/
+- py311_bs/label/release
+brotlipy:
+- ../ci_py311/
+- py311_bs/label/release
+bytecode:
+- ../ci_py311/
+- py311_bs/label/release
+cachecontrol:
+- ../ci_py311/
+- py311_bs/label/release
+cached-property:
+- ../ci_py311/
+- py311_bs/label/release
+cachelib:
+- ../ci_py311/
+- py311_bs/label/release
+cachetools:
+- ../ci_py311/
+- py311_bs/label/release
+cachy:
+- ../ci_py311/
+- py311_bs/label/release
+capturer:
+- ../ci_py311/
+- py311_bs/label/release
+cartopy:
+- ../ci_py311/
+- py311_bs/label/release
+case:
+- ../ci_py311/
+- py311_bs/label/release
+cassandra-driver:
+- ../ci_py311/
+- py311_bs/label/release
+catalogue:
+- ../ci_py311/
+- py311_bs/label/release
+category_encoders:
+- ../ci_py311/
+- py311_bs/label/release
+cattrs:
+- ../ci_py311/
+- py311_bs/label/release
+celery:
+- ../ci_py311/
+- py311_bs/label/release
+celery-redbeat:
+- ../ci_py311/
+- py311_bs/label/release
+cerberus:
+- ../ci_py311/
+- py311_bs/label/release
+certifi:
+- ../ci_py311/
+- py311_bs/label/release
+certipy:
+- ../ci_py311/
+- py311_bs/label/release
+cffi:
+- ../ci_py311/
+- py311_bs/label/release
+cfgv:
+- ../ci_py311/
+- py311_bs/label/release
+cfn-lint:
+- ../ci_py311/
+- py311_bs/label/release
+cftime:
+- ../ci_py311/
+- py311_bs/label/release
+cgroupspy:
+- ../ci_py311/
+- py311_bs/label/release
+chai:
+- ../ci_py311/
+- py311_bs/label/release
+chainer:
+- ../ci_py311/
+- py311_bs/label/release
+chardet:
+- ../ci_py311/
+- py311_bs/label/release
+charset-normalizer:
+- ../ci_py311/
+- py311_bs/label/release
+cheroot:
+- ../ci_py311/
+- py311_bs/label/release
+cherrypy:
+- ../ci_py311/
+- py311_bs/label/release
+chest:
+- ../ci_py311/
+- py311_bs/label/release
+chex:
+- ../ci_py311/
+- py311_bs/label/release
+ciocheck:
+- ../ci_py311/
+- py311_bs/label/release
+cleo:
+- ../ci_py311/
+- py311_bs/label/release
+click:
+- ../ci_py311/
+- py311_bs/label/release
+click-default-group:
+- ../ci_py311/
+- py311_bs/label/release
+click-didyoumean:
+- ../ci_py311/
+- py311_bs/label/release
+click-plugins:
+- ../ci_py311/
+- py311_bs/label/release
+click-repl:
+- ../ci_py311/
+- py311_bs/label/release
+clickclick:
+- ../ci_py311/
+- py311_bs/label/release
+clickhouse-cityhash:
+- ../ci_py311/
+- py311_bs/label/release
+clickhouse-driver:
+- ../ci_py311/
+- py311_bs/label/release
+clickhouse-sqlalchemy:
+- ../ci_py311/
+- py311_bs/label/release
+cligj:
+- ../ci_py311/
+- py311_bs/label/release
+clikit:
+- ../ci_py311/
+- py311_bs/label/release
+cloudant:
+- ../ci_py311/
+- py311_bs/label/release
+cloudpickle:
+- ../ci_py311/
+- py311_bs/label/release
+clr_loader:
+- ../ci_py311/
+- py311_bs/label/release
+clyent:
+- ../ci_py311/
+- py311_bs/label/release
+codecov:
+- ../ci_py311/
+- py311_bs/label/release
+colorama:
+- ../ci_py311/
+- py311_bs/label/release
+colorcet:
+- ../ci_py311/
+- py311_bs/label/release
+coloredlogs:
+- ../ci_py311/
+- py311_bs/label/release
+colorful:
+- ../ci_py311/
+- py311_bs/label/release
+colorlog:
+- ../ci_py311/
+- py311_bs/label/release
+colour:
+- ../ci_py311/
+- py311_bs/label/release
+comm:
+- ../ci_py311/
+- py311_bs/label/release
+commonmark:
+- ../ci_py311/
+- py311_bs/label/release
+composeml:
+- ../ci_py311/
+- py311_bs/label/release
+conda:
+- ../ci_py311/
+- py311_bs/label/release
+conda-build:
+- ../ci_py311/
+- py311_bs/label/release
+conda-content-trust:
+- ../ci_py311/
+- py311_bs/label/release
+conda-index:
+- ../ci_py311/
+- py311_bs/label/release
+conda-libmamba-solver:
+- ../ci_py311/
+- py311_bs/label/release
+conda-lock:
+- ../ci_py311/
+- py311_bs/label/release
+conda-pack:
+- ../ci_py311/
+- py311_bs/label/release
+conda-package-handling:
+- ../ci_py311/
+- py311_bs/label/release
+conda-package-streaming:
+- ../ci_py311/
+- py311_bs/label/release
+conda-prefix-replacement:
+- ../ci_py311/
+- py311_bs/label/release
+conda-token:
+- ../ci_py311/
+- py311_bs/label/release
+conda-verify:
+- ../ci_py311/
+- py311_bs/label/release
+configargparse:
+- ../ci_py311/
+- py311_bs/label/release
+configparser:
+- ../ci_py311/
+- py311_bs/label/release
+configupdater:
+- ../ci_py311/
+- py311_bs/label/release
+confuse:
+- ../ci_py311/
+- py311_bs/label/release
+conllu:
+- ../ci_py311/
+- py311_bs/label/release
+connexion:
+- ../ci_py311/
+- py311_bs/label/release
+constantly:
+- ../ci_py311/
+- py311_bs/label/release
+constructor:
+- ../ci_py311/
+- py311_bs/label/release
+contextlib2:
+- ../ci_py311/
+- py311_bs/label/release
+contourpy:
+- ../ci_py311/
+- py311_bs/label/release
+convertdate:
+- ../ci_py311/
+- py311_bs/label/release
+cookiecutter:
+- ../ci_py311/
+- py311_bs/label/release
+cookies:
+- ../ci_py311/
+- py311_bs/label/release
+coverage:
+- ../ci_py311/
+- py311_bs/label/release
+coveralls:
+- ../ci_py311/
+- py311_bs/label/release
+cppy:
+- ../ci_py311/
+- py311_bs/label/release
+cram:
+- ../ci_py311/
+- py311_bs/label/release
+crashtest:
+- ../ci_py311/
+- py311_bs/label/release
+cron-descriptor:
+- ../ci_py311/
+- py311_bs/label/release
+croniter:
+- ../ci_py311/
+- py311_bs/label/release
+cryptography:
+- ../ci_py311/
+- py311_bs/label/release
+cryptography-vectors:
+- ../ci_py311/
+- py311_bs/label/release
+cssselect:
+- ../ci_py311/
+- py311_bs/label/release
+csvkit:
+- ../ci_py311/
+- py311_bs/label/release
+curio:
+- ../ci_py311/
+- py311_bs/label/release
+curtsies:
+- ../ci_py311/
+- py311_bs/label/release
+cvxopt:
+- ../ci_py311/
+- py311_bs/label/release
+cx_oracle:
+- ../ci_py311/
+- py311_bs/label/release
+cycler:
+- ../ci_py311/
+- py311_bs/label/release
+cymem:
+- ../ci_py311/
+- py311_bs/label/release
+cython:
+- ../ci_py311/
+- py311_bs/label/release
+cython-blis:
+- ../ci_py311/
+- py311_bs/label/release
+cytoolz:
+- ../ci_py311/
+- py311_bs/label/release
+d2to1:
+- ../ci_py311/
+- py311_bs/label/release
+dash:
+- ../ci_py311/
+- py311_bs/label/release
+dash-core-components:
+- ../ci_py311/
+- py311_bs/label/release
+dash-html-components:
+- ../ci_py311/
+- py311_bs/label/release
+dash-renderer:
+- ../ci_py311/
+- py311_bs/label/release
+dash-table:
+- ../ci_py311/
+- py311_bs/label/release
+dask:
+- ../ci_py311/
+- py311_bs/label/release
+dask-core:
+- ../ci_py311/
+- py311_bs/label/release
+dask-glm:
+- ../ci_py311/
+- py311_bs/label/release
+dask-image:
+- ../ci_py311/
+- py311_bs/label/release
+dask-jobqueue:
+- ../ci_py311/
+- py311_bs/label/release
+dataclasses:
+- ../ci_py311/
+- py311_bs/label/release
+datadog:
+- ../ci_py311/
+- py311_bs/label/release
+datasets:
+- ../ci_py311/
+- py311_bs/label/release
+datashape:
+- ../ci_py311/
+- py311_bs/label/release
+dateparser:
+- ../ci_py311/
+- py311_bs/label/release
+datrie:
+- ../ci_py311/
+- py311_bs/label/release
+dbf:
+- ../ci_py311/
+- py311_bs/label/release
+dbfread:
+- ../ci_py311/
+- py311_bs/label/release
+dbus-python:
+- ../ci_py311/
+- py311_bs/label/release
+debugpy:
+- ../ci_py311/
+- py311_bs/label/release
+decorator:
+- ../ci_py311/
+- py311_bs/label/release
+defusedxml:
+- ../ci_py311/
+- py311_bs/label/release
+deprecated:
+- ../ci_py311/
+- py311_bs/label/release
+deprecation:
+- ../ci_py311/
+- py311_bs/label/release
+descartes:
+- ../ci_py311/
+- py311_bs/label/release
+dictdiffer:
+- ../ci_py311/
+- py311_bs/label/release
+dicttoxml:
+- ../ci_py311/
+- py311_bs/label/release
+diff-match-patch:
+- ../ci_py311/
+- py311_bs/label/release
+dill:
+- ../ci_py311/
+- py311_bs/label/release
+distconfig3:
+- ../ci_py311/
+- py311_bs/label/release
+distlib:
+- ../ci_py311/
+- py311_bs/label/release
+distributed:
+- ../ci_py311/
+- py311_bs/label/release
+distro:
+- ../ci_py311/
+- py311_bs/label/release
+django:
+- ../ci_py311/
+- py311_bs/label/release
+django-pyodbc-azure:
+- ../ci_py311/
+- py311_bs/label/release
+dm-tree:
+- ../ci_py311/
+- py311_bs/label/release
+dnspython:
+- ../ci_py311/
+- py311_bs/label/release
+docker-py:
+- ../ci_py311/
+- py311_bs/label/release
+docker-pycreds:
+- ../ci_py311/
+- py311_bs/label/release
+docopt:
+- ../ci_py311/
+- py311_bs/label/release
+docstring-to-markdown:
+- ../ci_py311/
+- py311_bs/label/release
+docutils:
+- ../ci_py311/
+- py311_bs/label/release
+doit:
+- ../ci_py311/
+- py311_bs/label/release
+drmaa:
+- ../ci_py311/
+- py311_bs/label/release
+echo:
+- ../ci_py311/
+- py311_bs/label/release
+ecos:
+- ../ci_py311/
+- py311_bs/label/release
+editables:
+- ../ci_py311/
+- py311_bs/label/release
+editdistance:
+- ../ci_py311/
+- py311_bs/label/release
+elasticsearch:
+- ../ci_py311/
+- py311_bs/label/release
+elasticsearch-async:
+- ../ci_py311/
+- py311_bs/label/release
+elasticsearch-dsl:
+- ../ci_py311/
+- py311_bs/label/release
+email-validator:
+- ../ci_py311/
+- py311_bs/label/release
+enscons:
+- ../ci_py311/
+- py311_bs/label/release
+ensureconda:
+- ../ci_py311/
+- py311_bs/label/release
+entrypoints:
+- ../ci_py311/
+- py311_bs/label/release
+enum34:
+- ../ci_py311/
+- py311_bs/label/release
+envisage:
+- ../ci_py311/
+- py311_bs/label/release
+ephem:
+- ../ci_py311/
+- py311_bs/label/release
+esda:
+- ../ci_py311/
+- py311_bs/label/release
+et_xmlfile:
+- ../ci_py311/
+- py311_bs/label/release
+evaluate:
+- ../ci_py311/
+- py311_bs/label/release
+eventlet:
+- ../ci_py311/
+- py311_bs/label/release
+exceptiongroup:
+- ../ci_py311/
+- py311_bs/label/release
+execnet:
+- ../ci_py311/
+- py311_bs/label/release
+executing:
+- ../ci_py311/
+- py311_bs/label/release
+expecttest:
+- ../ci_py311/
+- py311_bs/label/release
+extension-helpers:
+- ../ci_py311/
+- py311_bs/label/release
+fabric:
+- ../ci_py311/
+- py311_bs/label/release
+fabric3:
+- ../ci_py311/
+- py311_bs/label/release
+factory_boy:
+- ../ci_py311/
+- py311_bs/label/release
+faker:
+- ../ci_py311/
+- py311_bs/label/release
+fast-histogram:
+- ../ci_py311/
+- py311_bs/label/release
+fastavro:
+- ../ci_py311/
+- py311_bs/label/release
+fastcache:
+- ../ci_py311/
+- py311_bs/label/release
+fastcluster:
+- ../ci_py311/
+- py311_bs/label/release
+fasteners:
+- ../ci_py311/
+- py311_bs/label/release
+fastprogress:
+- ../ci_py311/
+- py311_bs/label/release
+fastrlock:
+- ../ci_py311/
+- py311_bs/label/release
+featuretools:
+- ../ci_py311/
+- py311_bs/label/release
+filelock:
+- ../ci_py311/
+- py311_bs/label/release
+findpython:
+- ../ci_py311/
+- py311_bs/label/release
+fiona:
+- ../ci_py311/
+- py311_bs/label/release
+flake8:
+- ../ci_py311/
+- py311_bs/label/release
+flake8-import-order:
+- ../ci_py311/
+- py311_bs/label/release
+flake8-polyfill:
+- ../ci_py311/
+- py311_bs/label/release
+flaky:
+- ../ci_py311/
+- py311_bs/label/release
+flask:
+- ../ci_py311/
+- py311_bs/label/release
+flask-admin:
+- ../ci_py311/
+- py311_bs/label/release
+flask-appbuilder:
+- ../ci_py311/
+- py311_bs/label/release
+flask-apscheduler:
+- ../ci_py311/
+- py311_bs/label/release
+flask-babel:
+- ../ci_py311/
+- py311_bs/label/release
+flask-bcrypt:
+- ../ci_py311/
+- py311_bs/label/release
+flask-caching:
+- ../ci_py311/
+- py311_bs/label/release
+flask-compress:
+- ../ci_py311/
+- py311_bs/label/release
+flask-cors:
+- ../ci_py311/
+- py311_bs/label/release
+flask-json:
+- ../ci_py311/
+- py311_bs/label/release
+flask-jwt-extended:
+- ../ci_py311/
+- py311_bs/label/release
+flask-login:
+- ../ci_py311/
+- py311_bs/label/release
+flask-openid:
+- ../ci_py311/
+- py311_bs/label/release
+flask-restful:
+- ../ci_py311/
+- py311_bs/label/release
+flask-restx:
+- ../ci_py311/
+- py311_bs/label/release
+flask-session:
+- ../ci_py311/
+- py311_bs/label/release
+flask-socketio:
+- ../ci_py311/
+- py311_bs/label/release
+flask-sqlalchemy:
+- ../ci_py311/
+- py311_bs/label/release
+flask-swagger:
+- ../ci_py311/
+- py311_bs/label/release
+flask-wtf:
+- ../ci_py311/
+- py311_bs/label/release
+flask_cors:
+- ../ci_py311/
+- py311_bs/label/release
+flit:
+- ../ci_py311/
+- py311_bs/label/release
+flit-core:
+- ../ci_py311/
+- py311_bs/label/release
+flit-scm:
+- ../ci_py311/
+- py311_bs/label/release
+flower:
+- ../ci_py311/
+- py311_bs/label/release
+folium:
+- ../ci_py311/
+- py311_bs/label/release
+fonttools:
+- ../ci_py311/
+- py311_bs/label/release
+freetype-py:
+- ../ci_py311/
+- py311_bs/label/release
+freezegun:
+- ../ci_py311/
+- py311_bs/label/release
+frozenlist:
+- ../ci_py311/
+- py311_bs/label/release
+fsspec:
+- ../ci_py311/
+- py311_bs/label/release
+ftfy:
+- ../ci_py311/
+- py311_bs/label/release
+func_timeout:
+- ../ci_py311/
+- py311_bs/label/release
+funcsigs:
+- ../ci_py311/
+- py311_bs/label/release
+furl:
+- ../ci_py311/
+- py311_bs/label/release
+future:
+- ../ci_py311/
+- py311_bs/label/release
+fuzzywuzzy:
+- ../ci_py311/
+- py311_bs/label/release
+gast:
+- ../ci_py311/
+- py311_bs/label/release
+gdal:
+- ../ci_py311/
+- py311_bs/label/release
+gensim:
+- ../ci_py311/
+- py311_bs/label/release
+genson:
+- ../ci_py311/
+- py311_bs/label/release
+geoalchemy2:
+- ../ci_py311/
+- py311_bs/label/release
+geoviews:
+- ../ci_py311/
+- py311_bs/label/release
+geoviews-core:
+- ../ci_py311/
+- py311_bs/label/release
+gevent:
+- ../ci_py311/
+- py311_bs/label/release
+geventhttpclient:
+- ../ci_py311/
+- py311_bs/label/release
+giddy:
+- ../ci_py311/
+- py311_bs/label/release
+gitdb:
+- ../ci_py311/
+- py311_bs/label/release
+gitdb2:
+- ../ci_py311/
+- py311_bs/label/release
+gitpython:
+- ../ci_py311/
+- py311_bs/label/release
+glob2:
+- ../ci_py311/
+- py311_bs/label/release
+glue-core:
+- ../ci_py311/
+- py311_bs/label/release
+glue-vispy-viewers:
+- ../ci_py311/
+- py311_bs/label/release
+gluonts:
+- ../ci_py311/
+- py311_bs/label/release
+gmpy2:
+- ../ci_py311/
+- py311_bs/label/release
+gobject-introspection:
+- ../ci_py311/
+- py311_bs/label/release
+google-api-core:
+- ../ci_py311/
+- py311_bs/label/release
+google-api-core-grpc:
+- ../ci_py311/
+- py311_bs/label/release
+google-api-core-grpcgcp:
+- ../ci_py311/
+- py311_bs/label/release
+google-api-core-grpcio-gcp:
+- ../ci_py311/
+- py311_bs/label/release
+google-auth:
+- ../ci_py311/
+- py311_bs/label/release
+google-auth-oauthlib:
+- ../ci_py311/
+- py311_bs/label/release
+google-cloud-core:
+- ../ci_py311/
+- py311_bs/label/release
+google-cloud-storage:
+- ../ci_py311/
+- py311_bs/label/release
+google-crc32c:
+- ../ci_py311/
+- py311_bs/label/release
+google-pasta:
+- ../ci_py311/
+- py311_bs/label/release
+google-resumable-media:
+- ../ci_py311/
+- py311_bs/label/release
+googleapis-common-protos:
+- ../ci_py311/
+- py311_bs/label/release
+googleapis-common-protos-grpc:
+- ../ci_py311/
+- py311_bs/label/release
+gpustat:
+- ../ci_py311/
+- py311_bs/label/release
+graphql-core:
+- ../ci_py311/
+- py311_bs/label/release
+greenlet:
+- ../ci_py311/
+- py311_bs/label/release
+grin:
+- ../ci_py311/
+- py311_bs/label/release
+grpcio:
+- ../ci_py311/
+- py311_bs/label/release
+grpcio-gcp:
+- ../ci_py311/
+- py311_bs/label/release
+grpcio-status:
+- ../ci_py311/
+- py311_bs/label/release
+gunicorn:
+- ../ci_py311/
+- py311_bs/label/release
+h11:
+- ../ci_py311/
+- py311_bs/label/release
+h2:
+- ../ci_py311/
+- py311_bs/label/release
+h5py:
+- ../ci_py311/
+- py311_bs/label/release
+hatch-nodejs-version:
+- ../ci_py311/
+- py311_bs/label/release
+hatch-requirements-txt:
+- ../ci_py311/
+- py311_bs/label/release
+hatch-vcs:
+- ../ci_py311/
+- py311_bs/label/release
+hatchling:
+- ../ci_py311/
+- py311_bs/label/release
+hdijupyterutils:
+- ../ci_py311/
+- py311_bs/label/release
+hdmedians:
+- ../ci_py311/
+- py311_bs/label/release
+heapdict:
+- ../ci_py311/
+- py311_bs/label/release
+hijri-converter:
+- ../ci_py311/
+- py311_bs/label/release
+hiredis:
+- ../ci_py311/
+- py311_bs/label/release
+holidays:
+- ../ci_py311/
+- py311_bs/label/release
+holoviews:
+- ../ci_py311/
+- py311_bs/label/release
+hpack:
+- ../ci_py311/
+- py311_bs/label/release
+hsluv:
+- ../ci_py311/
+- py311_bs/label/release
+html5lib:
+- ../ci_py311/
+- py311_bs/label/release
+htmlmin:
+- ../ci_py311/
+- py311_bs/label/release
+httpcore:
+- ../ci_py311/
+- py311_bs/label/release
+httpretty:
+- ../ci_py311/
+- py311_bs/label/release
+httpx:
+- ../ci_py311/
+- py311_bs/label/release
+huggingface_hub:
+- ../ci_py311/
+- py311_bs/label/release
+humanfriendly:
+- ../ci_py311/
+- py311_bs/label/release
+humanize:
+- ../ci_py311/
+- py311_bs/label/release
+hvplot:
+- ../ci_py311/
+- py311_bs/label/release
+hyperframe:
+- ../ci_py311/
+- py311_bs/label/release
+hyperlink:
+- ../ci_py311/
+- py311_bs/label/release
+hypothesis:
+- ../ci_py311/
+- py311_bs/label/release
+icalendar:
+- ../ci_py311/
+- py311_bs/label/release
+identify:
+- ../ci_py311/
+- py311_bs/label/release
+idna:
+- ../ci_py311/
+- py311_bs/label/release
+idna_ssl:
+- ../ci_py311/
+- py311_bs/label/release
+ijson:
+- ../ci_py311/
+- py311_bs/label/release
+imagecodecs:
+- ../ci_py311/
+- py311_bs/label/release
+imagehash:
+- ../ci_py311/
+- py311_bs/label/release
+imageio:
+- ../ci_py311/
+- py311_bs/label/release
+imagesize:
+- ../ci_py311/
+- py311_bs/label/release
+imgaug:
+- ../ci_py311/
+- py311_bs/label/release
+iminuit:
+- ../ci_py311/
+- py311_bs/label/release
+immutables:
+- ../ci_py311/
+- py311_bs/label/release
+importlib-metadata:
+- ../ci_py311/
+- py311_bs/label/release
+importlib_resources:
+- ../ci_py311/
+- py311_bs/label/release
+impyla:
+- ../ci_py311/
+- py311_bs/label/release
+incremental:
+- ../ci_py311/
+- py311_bs/label/release
+inequality:
+- ../ci_py311/
+- py311_bs/label/release
+infinity:
+- ../ci_py311/
+- py311_bs/label/release
+inflect:
+- ../ci_py311/
+- py311_bs/label/release
+inflection:
+- ../ci_py311/
+- py311_bs/label/release
+iniconfig:
+- ../ci_py311/
+- py311_bs/label/release
+intake:
+- ../ci_py311/
+- py311_bs/label/release
+intake-parquet:
+- ../ci_py311/
+- py311_bs/label/release
+intake-xarray:
+- ../ci_py311/
+- py311_bs/label/release
+intervals:
+- ../ci_py311/
+- py311_bs/label/release
+intervaltree:
+- ../ci_py311/
+- py311_bs/label/release
+intreehooks:
+- ../ci_py311/
+- py311_bs/label/release
+invoke:
+- ../ci_py311/
+- py311_bs/label/release
+ipaddr:
+- ../ci_py311/
+- py311_bs/label/release
+ipykernel:
+- ../ci_py311/
+- py311_bs/label/release
+ipympl:
+- ../ci_py311/
+- py311_bs/label/release
+ipyparallel:
+- ../ci_py311/
+- py311_bs/label/release
+ipython:
+- ../ci_py311/
+- py311_bs/label/release
+ipython-sql:
+- ../ci_py311/
+- py311_bs/label/release
+ipython_genutils:
+- ../ci_py311/
+- py311_bs/label/release
+ipywidgets:
+- ../ci_py311/
+- py311_bs/label/release
+iso8601:
+- ../ci_py311/
+- py311_bs/label/release
+isodate:
+- ../ci_py311/
+- py311_bs/label/release
+isort:
+- ../ci_py311/
+- py311_bs/label/release
+itemadapter:
+- ../ci_py311/
+- py311_bs/label/release
+itemloaders:
+- ../ci_py311/
+- py311_bs/label/release
+itsdangerous:
+- ../ci_py311/
+- py311_bs/label/release
+jaeger-client:
+- ../ci_py311/
+- py311_bs/label/release
+jaraco.classes:
+- ../ci_py311/
+- py311_bs/label/release
+jaraco.collections:
+- ../ci_py311/
+- py311_bs/label/release
+jaraco.functools:
+- ../ci_py311/
+- py311_bs/label/release
+jaraco.itertools:
+- ../ci_py311/
+- py311_bs/label/release
+jaraco.text:
+- ../ci_py311/
+- py311_bs/label/release
+javaobj-py3:
+- ../ci_py311/
+- py311_bs/label/release
+jax:
+- ../ci_py311/
+- py311_bs/label/release
+jaxlib:
+- ../ci_py311/
+- py311_bs/label/release
+jaydebeapi:
+- ../ci_py311/
+- py311_bs/label/release
+jdcal:
+- ../ci_py311/
+- py311_bs/label/release
+jedi:
+- ../ci_py311/
+- py311_bs/label/release
+jeepney:
+- ../ci_py311/
+- py311_bs/label/release
+jellyfish:
+- ../ci_py311/
+- py311_bs/label/release
+jinja2:
+- ../ci_py311/
+- py311_bs/label/release
+jinja2-time:
+- ../ci_py311/
+- py311_bs/label/release
+jira:
+- ../ci_py311/
+- py311_bs/label/release
+jmespath:
+- ../ci_py311/
+- py311_bs/label/release
+joblib:
+- ../ci_py311/
+- py311_bs/label/release
+jpype1:
+- ../ci_py311/
+- py311_bs/label/release
+js2py:
+- ../ci_py311/
+- py311_bs/label/release
+json-merge-patch:
+- ../ci_py311/
+- py311_bs/label/release
+json5:
+- ../ci_py311/
+- py311_bs/label/release
+jsondate:
+- ../ci_py311/
+- py311_bs/label/release
+jsondiff:
+- ../ci_py311/
+- py311_bs/label/release
+jsonlines:
+- ../ci_py311/
+- py311_bs/label/release
+jsonpatch:
+- ../ci_py311/
+- py311_bs/label/release
+jsonpickle:
+- ../ci_py311/
+- py311_bs/label/release
+jsonpointer:
+- ../ci_py311/
+- py311_bs/label/release
+jsonschema:
+- ../ci_py311/
+- py311_bs/label/release
+junit-xml:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter-packaging:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter_client:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter_console:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter_core:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter_kernel_gateway:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter_server:
+- ../ci_py311/
+- py311_bs/label/release
+jupyter_telemetry:
+- ../ci_py311/
+- py311_bs/label/release
+jupyterhub:
+- ../ci_py311/
+- py311_bs/label/release
+jupyterhub-ldapauthenticator:
+- ../ci_py311/
+- py311_bs/label/release
+jupyterlab:
+- ../ci_py311/
+- py311_bs/label/release
+jupyterlab_launcher:
+- ../ci_py311/
+- py311_bs/label/release
+jupyterlab_pygments:
+- ../ci_py311/
+- py311_bs/label/release
+jupyterlab_server:
+- ../ci_py311/
+- py311_bs/label/release
+keras:
+- ../ci_py311/
+- py311_bs/label/release
+keras-applications:
+- ../ci_py311/
+- py311_bs/label/release
+keras-base:
+- ../ci_py311/
+- py311_bs/label/release
+keras-preprocessing:
+- ../ci_py311/
+- py311_bs/label/release
+keyring:
+- ../ci_py311/
+- py311_bs/label/release
+keyrings.alt:
+- ../ci_py311/
+- py311_bs/label/release
+kiwisolver:
+- ../ci_py311/
+- py311_bs/label/release
+kombu:
+- ../ci_py311/
+- py311_bs/label/release
+korean_lunar_calendar:
+- ../ci_py311/
+- py311_bs/label/release
+lancet:
+- ../ci_py311/
+- py311_bs/label/release
+langcodes:
+- ../ci_py311/
+- py311_bs/label/release
+lark:
+- ../ci_py311/
+- py311_bs/label/release
+lazy-object-proxy:
+- ../ci_py311/
+- py311_bs/label/release
+ldap3:
+- ../ci_py311/
+- py311_bs/label/release
+leather:
+- ../ci_py311/
+- py311_bs/label/release
+liac-arff:
+- ../ci_py311/
+- py311_bs/label/release
+libcst:
+- ../ci_py311/
+- py311_bs/label/release
+libmambapy:
+- ../ci_py311/
+- py311_bs/label/release
+libpysal:
+- ../ci_py311/
+- py311_bs/label/release
+license-expression:
+- ../ci_py311/
+- py311_bs/label/release
+lightgbm:
+- ../ci_py311/
+- py311_bs/label/release
+linecache2:
+- ../ci_py311/
+- py311_bs/label/release
+linkify-it-py:
+- ../ci_py311/
+- py311_bs/label/release
+lit:
+- ../ci_py311/
+- py311_bs/label/release
+locket:
+- ../ci_py311/
+- py311_bs/label/release
+logilab-common:
+- ../ci_py311/
+- py311_bs/label/release
+loguru:
+- ../ci_py311/
+- py311_bs/label/release
+luigi:
+- ../ci_py311/
+- py311_bs/label/release
+lunarcalendar:
+- ../ci_py311/
+- py311_bs/label/release
+lxml:
+- ../ci_py311/
+- py311_bs/label/release
+macfsevents:
+- ../ci_py311/
+- py311_bs/label/release
+macholib:
+- ../ci_py311/
+- py311_bs/label/release
+mako:
+- ../ci_py311/
+- py311_bs/label/release
+mando:
+- ../ci_py311/
+- py311_bs/label/release
+mapclassify:
+- ../ci_py311/
+- py311_bs/label/release
+markdown:
+- ../ci_py311/
+- py311_bs/label/release
+markdown-it-py:
+- ../ci_py311/
+- py311_bs/label/release
+markdown2:
+- ../ci_py311/
+- py311_bs/label/release
+markupsafe:
+- ../ci_py311/
+- py311_bs/label/release
+marshmallow:
+- ../ci_py311/
+- py311_bs/label/release
+marshmallow-enum:
+- ../ci_py311/
+- py311_bs/label/release
+marshmallow-oneofschema:
+- ../ci_py311/
+- py311_bs/label/release
+marshmallow-sqlalchemy:
+- ../ci_py311/
+- py311_bs/label/release
+matplotlib:
+- ../ci_py311/
+- py311_bs/label/release
+matplotlib-base:
+- ../ci_py311/
+- py311_bs/label/release
+matplotlib-inline:
+- ../ci_py311/
+- py311_bs/label/release
+maturin:
+- ../ci_py311/
+- py311_bs/label/release
+mccabe:
+- ../ci_py311/
+- py311_bs/label/release
+mdit-py-plugins:
+- ../ci_py311/
+- py311_bs/label/release
+mdurl:
+- ../ci_py311/
+- py311_bs/label/release
+memory_profiler:
+- ../ci_py311/
+- py311_bs/label/release
+meson:
+- ../ci_py311/
+- py311_bs/label/release
+meson-python:
+- ../ci_py311/
+- py311_bs/label/release
+metakernel:
+- ../ci_py311/
+- py311_bs/label/release
+mgwr:
+- ../ci_py311/
+- py311_bs/label/release
+minio:
+- ../ci_py311/
+- py311_bs/label/release
+missingno:
+- ../ci_py311/
+- py311_bs/label/release
+mistune:
+- ../ci_py311/
+- py311_bs/label/release
+mmh3:
+- ../ci_py311/
+- py311_bs/label/release
+mock:
+- ../ci_py311/
+- py311_bs/label/release
+mockito:
+- ../ci_py311/
+- py311_bs/label/release
+monotonic:
+- ../ci_py311/
+- py311_bs/label/release
+more-itertools:
+- ../ci_py311/
+- py311_bs/label/release
+morfessor:
+- ../ci_py311/
+- py311_bs/label/release
+moto:
+- ../ci_py311/
+- py311_bs/label/release
+mpi4py:
+- ../ci_py311/
+- py311_bs/label/release
+mpl-scatter-density:
+- ../ci_py311/
+- py311_bs/label/release
+mpl_sample_data:
+- ../ci_py311/
+- py311_bs/label/release
+mpld3:
+- ../ci_py311/
+- py311_bs/label/release
+mpmath:
+- ../ci_py311/
+- py311_bs/label/release
+msgpack-numpy:
+- ../ci_py311/
+- py311_bs/label/release
+msgpack-python:
+- ../ci_py311/
+- py311_bs/label/release
+msrest:
+- ../ci_py311/
+- py311_bs/label/release
+multi_key_dict:
+- ../ci_py311/
+- py311_bs/label/release
+multidict:
+- ../ci_py311/
+- py311_bs/label/release
+multimethod:
+- ../ci_py311/
+- py311_bs/label/release
+multipledispatch:
+- ../ci_py311/
+- py311_bs/label/release
+multiprocess:
+- ../ci_py311/
+- py311_bs/label/release
+multivolumefile:
+- ../ci_py311/
+- py311_bs/label/release
+munch:
+- ../ci_py311/
+- py311_bs/label/release
+munkres:
+- ../ci_py311/
+- py311_bs/label/release
+murmurhash:
+- ../ci_py311/
+- py311_bs/label/release
+mypy:
+- ../ci_py311/
+- py311_bs/label/release
+mypy_extensions:
+- ../ci_py311/
+- py311_bs/label/release
+mysqlclient:
+- ../ci_py311/
+- py311_bs/label/release
+natsort:
+- ../ci_py311/
+- py311_bs/label/release
+nb_conda_kernels:
+- ../ci_py311/
+- py311_bs/label/release
+nbclassic:
+- ../ci_py311/
+- py311_bs/label/release
+nbclient:
+- ../ci_py311/
+- py311_bs/label/release
+nbconvert:
+- ../ci_py311/
+- py311_bs/label/release
+nbformat:
+- ../ci_py311/
+- py311_bs/label/release
+nbserverproxy:
+- ../ci_py311/
+- py311_bs/label/release
+nbsmoke:
+- ../ci_py311/
+- py311_bs/label/release
+ndg-httpsclient:
+- ../ci_py311/
+- py311_bs/label/release
+neo4j-python-driver:
+- ../ci_py311/
+- py311_bs/label/release
+nest-asyncio:
+- ../ci_py311/
+- py311_bs/label/release
+netcdf4:
+- ../ci_py311/
+- py311_bs/label/release
+netifaces:
+- ../ci_py311/
+- py311_bs/label/release
+networkx:
+- ../ci_py311/
+- py311_bs/label/release
+ninja:
+- ../ci_py311/
+- py311_bs/label/release
+nltk:
+- ../ci_py311/
+- py311_bs/label/release
+nodeenv:
+- ../ci_py311/
+- py311_bs/label/release
+nose:
+- ../ci_py311/
+- py311_bs/label/release
+nose-exclude:
+- ../ci_py311/
+- py311_bs/label/release
+nose-parameterized:
+- ../ci_py311/
+- py311_bs/label/release
+nosexcover:
+- ../ci_py311/
+- py311_bs/label/release
+notebook:
+- ../ci_py311/
+- py311_bs/label/release
+notebook-shim:
+- ../ci_py311/
+- py311_bs/label/release
+ntlm-auth:
+- ../ci_py311/
+- py311_bs/label/release
+nuitka:
+- ../ci_py311/
+- py311_bs/label/release
+numcodecs:
+- ../ci_py311/
+- py311_bs/label/release
+numexpr:
+- ../ci_py311/
+- py311_bs/label/release
+numpy:
+- ../ci_py311/
+- py311_bs/label/release
+numpy-base:
+- ../ci_py311/
+- py311_bs/label/release
+numpydoc:
+- ../ci_py311/
+- py311_bs/label/release
+nvidia-ml:
+- ../ci_py311/
+- py311_bs/label/release
+oauthenticator:
+- ../ci_py311/
+- py311_bs/label/release
+oauthlib:
+- ../ci_py311/
+- py311_bs/label/release
+olefile:
+- ../ci_py311/
+- py311_bs/label/release
+onnx:
+- ../ci_py311/
+- py311_bs/label/release
+onnxconverter-common:
+- ../ci_py311/
+- py311_bs/label/release
+onnxmltools:
+- ../ci_py311/
+- py311_bs/label/release
+onnxruntime:
+- ../ci_py311/
+- py311_bs/label/release
+openapi-spec-validator:
+- ../ci_py311/
+- py311_bs/label/release
+opencensus:
+- ../ci_py311/
+- py311_bs/label/release
+opencensus-context:
+- ../ci_py311/
+- py311_bs/label/release
+opencv:
+- ../ci_py311/
+- py311_bs/label/release
+opencv-suite:
+- ../ci_py311/
+- py311_bs/label/release
+openml:
+- ../ci_py311/
+- py311_bs/label/release
+openpyxl:
+- ../ci_py311/
+- py311_bs/label/release
+opentracing:
+- ../ci_py311/
+- py311_bs/label/release
+opentracing_instrumentation:
+- ../ci_py311/
+- py311_bs/label/release
+opentsne:
+- ../ci_py311/
+- py311_bs/label/release
+opt_einsum:
+- ../ci_py311/
+- py311_bs/label/release
+optax:
+- ../ci_py311/
+- py311_bs/label/release
+orange-canvas-core:
+- ../ci_py311/
+- py311_bs/label/release
+orange-widget-base:
+- ../ci_py311/
+- py311_bs/label/release
+orderedmultidict:
+- ../ci_py311/
+- py311_bs/label/release
+oscrypto:
+- ../ci_py311/
+- py311_bs/label/release
+outcome:
+- ../ci_py311/
+- py311_bs/label/release
+owslib:
+- ../ci_py311/
+- py311_bs/label/release
+packaging:
+- ../ci_py311/
+- py311_bs/label/release
+palettable:
+- ../ci_py311/
+- py311_bs/label/release
+pamela:
+- ../ci_py311/
+- py311_bs/label/release
+pandarallel:
+- ../ci_py311/
+- py311_bs/label/release
+pandas:
+- ../ci_py311/
+- py311_bs/label/release
+pandas-datareader:
+- ../ci_py311/
+- py311_bs/label/release
+pandas-profiling:
+- ../ci_py311/
+- py311_bs/label/release
+pandas-stubs:
+- ../ci_py311/
+- py311_bs/label/release
+pandocfilters:
+- ../ci_py311/
+- py311_bs/label/release
+panel:
+- ../ci_py311/
+- py311_bs/label/release
+param:
+- ../ci_py311/
+- py311_bs/label/release
+parameterized:
+- ../ci_py311/
+- py311_bs/label/release
+paramiko:
+- ../ci_py311/
+- py311_bs/label/release
+parsedatetime:
+- ../ci_py311/
+- py311_bs/label/release
+parso:
+- ../ci_py311/
+- py311_bs/label/release
+partd:
+- ../ci_py311/
+- py311_bs/label/release
+passlib:
+- ../ci_py311/
+- py311_bs/label/release
+paste:
+- ../ci_py311/
+- py311_bs/label/release
+pastel:
+- ../ci_py311/
+- py311_bs/label/release
+patch-ng:
+- ../ci_py311/
+- py311_bs/label/release
+path:
+- ../ci_py311/
+- py311_bs/label/release
+path.py:
+- ../ci_py311/
+- py311_bs/label/release
+pathlib:
+- ../ci_py311/
+- py311_bs/label/release
+pathlib2:
+- ../ci_py311/
+- py311_bs/label/release
+pathspec:
+- ../ci_py311/
+- py311_bs/label/release
+pathtools:
+- ../ci_py311/
+- py311_bs/label/release
+pathy:
+- ../ci_py311/
+- py311_bs/label/release
+patsy:
+- ../ci_py311/
+- py311_bs/label/release
+pbr:
+- ../ci_py311/
+- py311_bs/label/release
+pdm:
+- ../ci_py311/
+- py311_bs/label/release
+pdm-pep517:
+- ../ci_py311/
+- py311_bs/label/release
+pdoc3:
+- ../ci_py311/
+- py311_bs/label/release
+pefile:
+- ../ci_py311/
+- py311_bs/label/release
+pendulum:
+- ../ci_py311/
+- py311_bs/label/release
+pep517:
+- ../ci_py311/
+- py311_bs/label/release
+pep8:
+- ../ci_py311/
+- py311_bs/label/release
+pep8-naming:
+- ../ci_py311/
+- py311_bs/label/release
+petl:
+- ../ci_py311/
+- py311_bs/label/release
+pexpect:
+- ../ci_py311/
+- py311_bs/label/release
+pg8000:
+- ../ci_py311/
+- py311_bs/label/release
+phik:
+- ../ci_py311/
+- py311_bs/label/release
+phonenumbers:
+- ../ci_py311/
+- py311_bs/label/release
+pickleshare:
+- ../ci_py311/
+- py311_bs/label/release
+pillow:
+- ../ci_py311/
+- py311_bs/label/release
+pims:
+- ../ci_py311/
+- py311_bs/label/release
+pip:
+- ../ci_py311/
+- py311_bs/label/release
+pipenv:
+- ../ci_py311/
+- py311_bs/label/release
+pkgconfig:
+- ../ci_py311/
+- py311_bs/label/release
+pkginfo:
+- ../ci_py311/
+- py311_bs/label/release
+plac:
+- ../ci_py311/
+- py311_bs/label/release
+platformdirs:
+- ../ci_py311/
+- py311_bs/label/release
+plotly:
+- ../ci_py311/
+- py311_bs/label/release
+pluggy:
+- ../ci_py311/
+- py311_bs/label/release
+ply:
+- ../ci_py311/
+- py311_bs/label/release
+plyvel:
+- ../ci_py311/
+- py311_bs/label/release
+pmdarima:
+- ../ci_py311/
+- py311_bs/label/release
+poetry:
+- ../ci_py311/
+- py311_bs/label/release
+poetry-core:
+- ../ci_py311/
+- py311_bs/label/release
+pointpats:
+- ../ci_py311/
+- py311_bs/label/release
+pooch:
+- ../ci_py311/
+- py311_bs/label/release
+portalocker:
+- ../ci_py311/
+- py311_bs/label/release
+portend:
+- ../ci_py311/
+- py311_bs/label/release
+poyo:
+- ../ci_py311/
+- py311_bs/label/release
+pre-commit:
+- ../ci_py311/
+- py311_bs/label/release
+preshed:
+- ../ci_py311/
+- py311_bs/label/release
+pretend:
+- ../ci_py311/
+- py311_bs/label/release
+prettytable:
+- ../ci_py311/
+- py311_bs/label/release
+prison:
+- ../ci_py311/
+- py311_bs/label/release
+progress:
+- ../ci_py311/
+- py311_bs/label/release
+progressbar2:
+- ../ci_py311/
+- py311_bs/label/release
+prometheus_client:
+- ../ci_py311/
+- py311_bs/label/release
+promise:
+- ../ci_py311/
+- py311_bs/label/release
+prompt-toolkit:
+- ../ci_py311/
+- py311_bs/label/release
+protego:
+- ../ci_py311/
+- py311_bs/label/release
+proto-plus:
+- ../ci_py311/
+- py311_bs/label/release
+protobuf:
+- ../ci_py311/
+- py311_bs/label/release
+pscript:
+- ../ci_py311/
+- py311_bs/label/release
+psutil:
+- ../ci_py311/
+- py311_bs/label/release
+psycopg2:
+- ../ci_py311/
+- py311_bs/label/release
+ptyprocess:
+- ../ci_py311/
+- py311_bs/label/release
+pure-sasl:
+- ../ci_py311/
+- py311_bs/label/release
+pure_eval:
+- ../ci_py311/
+- py311_bs/label/release
+py:
+- ../ci_py311/
+- py311_bs/label/release
+py-cpuinfo:
+- ../ci_py311/
+- py311_bs/label/release
+py-lief:
+- ../ci_py311/
+- py311_bs/label/release
+py-mxnet:
+- ../ci_py311/
+- py311_bs/label/release
+py4j:
+- ../ci_py311/
+- py311_bs/label/release
+py7zr:
+- ../ci_py311/
+- py311_bs/label/release
+pyamg:
+- ../ci_py311/
+- py311_bs/label/release
+pyaml:
+- ../ci_py311/
+- py311_bs/label/release
+pyarrow:
+- ../ci_py311/
+- py311_bs/label/release
+pyasn1:
+- ../ci_py311/
+- py311_bs/label/release
+pyasn1-modules:
+- ../ci_py311/
+- py311_bs/label/release
+pybind11:
+- ../ci_py311/
+- py311_bs/label/release
+pybind11-global:
+- ../ci_py311/
+- py311_bs/label/release
+pycairo:
+- ../ci_py311/
+- py311_bs/label/release
+pycares:
+- ../ci_py311/
+- py311_bs/label/release
+pyclipper:
+- ../ci_py311/
+- py311_bs/label/release
+pycodestyle:
+- ../ci_py311/
+- py311_bs/label/release
+pycosat:
+- ../ci_py311/
+- py311_bs/label/release
+pycparser:
+- ../ci_py311/
+- py311_bs/label/release
+pycrypto:
+- ../ci_py311/
+- py311_bs/label/release
+pycryptodome:
+- ../ci_py311/
+- py311_bs/label/release
+pycryptodomex:
+- ../ci_py311/
+- py311_bs/label/release
+pycryptosat:
+- ../ci_py311/
+- py311_bs/label/release
+pyct:
+- ../ci_py311/
+- py311_bs/label/release
+pyct-core:
+- ../ci_py311/
+- py311_bs/label/release
+pycurl:
+- ../ci_py311/
+- py311_bs/label/release
+pydantic:
+- ../ci_py311/
+- py311_bs/label/release
+pydata-google-auth:
+- ../ci_py311/
+- py311_bs/label/release
+pydeck:
+- ../ci_py311/
+- py311_bs/label/release
+pydispatcher:
+- ../ci_py311/
+- py311_bs/label/release
+pydocstyle:
+- ../ci_py311/
+- py311_bs/label/release
+pydot:
+- ../ci_py311/
+- py311_bs/label/release
+pydotplus:
+- ../ci_py311/
+- py311_bs/label/release
+pydruid:
+- ../ci_py311/
+- py311_bs/label/release
+pyemd:
+- ../ci_py311/
+- py311_bs/label/release
+pyepsg:
+- ../ci_py311/
+- py311_bs/label/release
+pyerfa:
+- ../ci_py311/
+- py311_bs/label/release
+pyface:
+- ../ci_py311/
+- py311_bs/label/release
+pyflakes:
+- ../ci_py311/
+- py311_bs/label/release
+pygithub:
+- ../ci_py311/
+- py311_bs/label/release
+pygments:
+- ../ci_py311/
+- py311_bs/label/release
+pygpu:
+- ../ci_py311/
+- py311_bs/label/release
+pygraphviz:
+- ../ci_py311/
+- py311_bs/label/release
+pyhamcrest:
+- ../ci_py311/
+- py311_bs/label/release
+pyicu:
+- ../ci_py311/
+- py311_bs/label/release
+pyinstaller:
+- ../ci_py311/
+- py311_bs/label/release
+pyinstaller-hooks-contrib:
+- ../ci_py311/
+- py311_bs/label/release
+pyjks:
+- ../ci_py311/
+- py311_bs/label/release
+pyjsparser:
+- ../ci_py311/
+- py311_bs/label/release
+pyjwt:
+- ../ci_py311/
+- py311_bs/label/release
+pykdtree:
+- ../ci_py311/
+- py311_bs/label/release
+pykerberos:
+- ../ci_py311/
+- py311_bs/label/release
+pylev:
+- ../ci_py311/
+- py311_bs/label/release
+pylint:
+- ../ci_py311/
+- py311_bs/label/release
+pylint-venv:
+- ../ci_py311/
+- py311_bs/label/release
+pyls-spyder:
+- ../ci_py311/
+- py311_bs/label/release
+pymc3:
+- ../ci_py311/
+- py311_bs/label/release
+pymeeus:
+- ../ci_py311/
+- py311_bs/label/release
+pymongo:
+- ../ci_py311/
+- py311_bs/label/release
+pympler:
+- ../ci_py311/
+- py311_bs/label/release
+pymssql:
+- ../ci_py311/
+- py311_bs/label/release
+pymysql:
+- ../ci_py311/
+- py311_bs/label/release
+pynacl:
+- ../ci_py311/
+- py311_bs/label/release
+pynndescent:
+- ../ci_py311/
+- py311_bs/label/release
+pyobjc-core:
+- ../ci_py311/
+- py311_bs/label/release
+pyobjc-framework-cocoa:
+- ../ci_py311/
+- py311_bs/label/release
+pyobjc-framework-coreservices:
+- ../ci_py311/
+- py311_bs/label/release
+pyobjc-framework-fsevents:
+- ../ci_py311/
+- py311_bs/label/release
+pyodbc:
+- ../ci_py311/
+- py311_bs/label/release
+pyopengl:
+- ../ci_py311/
+- py311_bs/label/release
+pyopenssl:
+- ../ci_py311/
+- py311_bs/label/release
+pypandoc:
+- ../ci_py311/
+- py311_bs/label/release
+pyparsing:
+- ../ci_py311/
+- py311_bs/label/release
+pypdf2:
+- ../ci_py311/
+- py311_bs/label/release
+pyperf:
+- ../ci_py311/
+- py311_bs/label/release
+pyproj:
+- ../ci_py311/
+- py311_bs/label/release
+pyproject-metadata:
+- ../ci_py311/
+- py311_bs/label/release
+pyqt:
+- ../ci_py311/
+- py311_bs/label/release
+pyqt-builder:
+- ../ci_py311/
+- py311_bs/label/release
+pyqt5-sip:
+- ../ci_py311/
+- py311_bs/label/release
+pyqtchart:
+- ../ci_py311/
+- py311_bs/label/release
+pyqtgraph:
+- ../ci_py311/
+- py311_bs/label/release
+pyqtwebengine:
+- ../ci_py311/
+- py311_bs/label/release
+pyquery:
+- ../ci_py311/
+- py311_bs/label/release
+pyrsistent:
+- ../ci_py311/
+- py311_bs/label/release
+pysal:
+- ../ci_py311/
+- py311_bs/label/release
+pyserial:
+- ../ci_py311/
+- py311_bs/label/release
+pysftp:
+- ../ci_py311/
+- py311_bs/label/release
+pyshp:
+- ../ci_py311/
+- py311_bs/label/release
+pysmbclient:
+- ../ci_py311/
+- py311_bs/label/release
+pysmi:
+- ../ci_py311/
+- py311_bs/label/release
+pysnmp:
+- ../ci_py311/
+- py311_bs/label/release
+pysocks:
+- ../ci_py311/
+- py311_bs/label/release
+pyspark:
+- ../ci_py311/
+- py311_bs/label/release
+pyspnego:
+- ../ci_py311/
+- py311_bs/label/release
+pytables:
+- ../ci_py311/
+- py311_bs/label/release
+pyte:
+- ../ci_py311/
+- py311_bs/label/release
+pytesseract:
+- ../ci_py311/
+- py311_bs/label/release
+pytest:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-arraydiff:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-astropy:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-astropy-header:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-asyncio:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-azurepipelines:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-base-url:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-benchmark:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-cache:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-cov:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-describe:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-doctestplus:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-filter-subpackage:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-flake8:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-flakes:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-forked:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-html:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-json:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-localserver:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-metadata:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-mock:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-mpi:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-openfiles:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-ordering:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-pep8:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-remotedata:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-replay:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-rerunfailures:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-runner:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-selenium:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-subtests:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-timeout:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-tornado:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-variables:
+- ../ci_py311/
+- py311_bs/label/release
+pytest-xdist:
+- ../ci_py311/
+- py311_bs/label/release
+python-bidi:
+- ../ci_py311/
+- py311_bs/label/release
+python-blosc:
+- ../ci_py311/
+- py311_bs/label/release
+python-build:
+- ../ci_py311/
+- py311_bs/label/release
+python-chromedriver-binary:
+- ../ci_py311/
+- py311_bs/label/release
+python-clang:
+- ../ci_py311/
+- py311_bs/label/release
+python-crfsuite:
+- ../ci_py311/
+- py311_bs/label/release
+python-daemon:
+- ../ci_py311/
+- py311_bs/label/release
+python-dateutil:
+- ../ci_py311/
+- py311_bs/label/release
+python-debian:
+- ../ci_py311/
+- py311_bs/label/release
+python-dotenv:
+- ../ci_py311/
+- py311_bs/label/release
+python-editor:
+- ../ci_py311/
+- py311_bs/label/release
+python-engineio:
+- ../ci_py311/
+- py311_bs/label/release
+python-fastjsonschema:
+- ../ci_py311/
+- py311_bs/label/release
+python-flatbuffers:
+- ../ci_py311/
+- py311_bs/label/release
+python-gflags:
+- ../ci_py311/
+- py311_bs/label/release
+python-graphviz:
+- ../ci_py311/
+- py311_bs/label/release
+python-hdfs:
+- ../ci_py311/
+- py311_bs/label/release
+python-installer:
+- ../ci_py311/
+- py311_bs/label/release
+python-jenkins:
+- ../ci_py311/
+- py311_bs/label/release
+python-jose:
+- ../ci_py311/
+- py311_bs/label/release
+python-json-logger:
+- ../ci_py311/
+- py311_bs/label/release
+python-jsonrpc-server:
+- ../ci_py311/
+- py311_bs/label/release
+python-kubernetes:
+- ../ci_py311/
+- py311_bs/label/release
+python-language-server:
+- ../ci_py311/
+- py311_bs/label/release
+python-ldap:
+- ../ci_py311/
+- py311_bs/label/release
+python-leveldb:
+- ../ci_py311/
+- py311_bs/label/release
+python-levenshtein:
+- ../ci_py311/
+- py311_bs/label/release
+python-libarchive-c:
+- ../ci_py311/
+- py311_bs/label/release
+python-lmdb:
+- ../ci_py311/
+- py311_bs/label/release
+python-louvain:
+- ../ci_py311/
+- py311_bs/label/release
+python-lsp-black:
+- ../ci_py311/
+- py311_bs/label/release
+python-lsp-jsonrpc:
+- ../ci_py311/
+- py311_bs/label/release
+python-lsp-server:
+- ../ci_py311/
+- py311_bs/label/release
+python-memcached:
+- ../ci_py311/
+- py311_bs/label/release
+python-nvd3:
+- ../ci_py311/
+- py311_bs/label/release
+python-oauth2:
+- ../ci_py311/
+- py311_bs/label/release
+python-rapidjson:
+- ../ci_py311/
+- py311_bs/label/release
+python-slugify:
+- ../ci_py311/
+- py311_bs/label/release
+python-snappy:
+- ../ci_py311/
+- py311_bs/label/release
+python-socketio:
+- ../ci_py311/
+- py311_bs/label/release
+python-tzdata:
+- ../ci_py311/
+- py311_bs/label/release
+python-utils:
+- ../ci_py311/
+- py311_bs/label/release
+python-xxhash:
+- ../ci_py311/
+- py311_bs/label/release
+python.app:
+- ../ci_py311/
+- py311_bs/label/release
+python3-openid:
+- ../ci_py311/
+- py311_bs/label/release
+python_http_client:
+- ../ci_py311/
+- py311_bs/label/release
+pythonnet:
+- ../ci_py311/
+- py311_bs/label/release
+pythran:
+- ../ci_py311/
+- py311_bs/label/release
+pytimeparse:
+- ../ci_py311/
+- py311_bs/label/release
+pytoml:
+- ../ci_py311/
+- py311_bs/label/release
+pytoolconfig:
+- ../ci_py311/
+- py311_bs/label/release
+pytz:
+- ../ci_py311/
+- py311_bs/label/release
+pytzdata:
+- ../ci_py311/
+- py311_bs/label/release
+pyutilib:
+- ../ci_py311/
+- py311_bs/label/release
+pyviz_comms:
+- ../ci_py311/
+- py311_bs/label/release
+pywavelets:
+- ../ci_py311/
+- py311_bs/label/release
+pywinrm:
+- ../ci_py311/
+- py311_bs/label/release
+pyxdg:
+- ../ci_py311/
+- py311_bs/label/release
+pyyaml:
+- ../ci_py311/
+- py311_bs/label/release
+pyzstd:
+- ../ci_py311/
+- py311_bs/label/release
+qasync:
+- ../ci_py311/
+- py311_bs/label/release
+qdarkstyle:
+- ../ci_py311/
+- py311_bs/label/release
+qds-sdk:
+- ../ci_py311/
+- py311_bs/label/release
+qstylizer:
+- ../ci_py311/
+- py311_bs/label/release
+qtawesome:
+- ../ci_py311/
+- py311_bs/label/release
+qtconsole:
+- ../ci_py311/
+- py311_bs/label/release
+qtpy:
+- ../ci_py311/
+- py311_bs/label/release
+quandl:
+- ../ci_py311/
+- py311_bs/label/release
+radon:
+- ../ci_py311/
+- py311_bs/label/release
+rasterio:
+- ../ci_py311/
+- py311_bs/label/release
+rasterstats:
+- ../ci_py311/
+- py311_bs/label/release
+redis-py:
+- ../ci_py311/
+- py311_bs/label/release
+regex:
+- ../ci_py311/
+- py311_bs/label/release
+reportlab:
+- ../ci_py311/
+- py311_bs/label/release
+requests:
+- ../ci_py311/
+- py311_bs/label/release
+requests-ftp:
+- ../ci_py311/
+- py311_bs/label/release
+requests-futures:
+- ../ci_py311/
+- py311_bs/label/release
+requests-kerberos:
+- ../ci_py311/
+- py311_bs/label/release
+requests-oauthlib:
+- ../ci_py311/
+- py311_bs/label/release
+requests-toolbelt:
+- ../ci_py311/
+- py311_bs/label/release
+requests-wsgi-adapter:
+- ../ci_py311/
+- py311_bs/label/release
+requests_download:
+- ../ci_py311/
+- py311_bs/label/release
+requests_ntlm:
+- ../ci_py311/
+- py311_bs/label/release
+resolvelib:
+- ../ci_py311/
+- py311_bs/label/release
+responses:
+- ../ci_py311/
+- py311_bs/label/release
+retrying:
+- ../ci_py311/
+- py311_bs/label/release
+rfc3986:
+- ../ci_py311/
+- py311_bs/label/release
+rich:
+- ../ci_py311/
+- py311_bs/label/release
+rope:
+- ../ci_py311/
+- py311_bs/label/release
+routes:
+- ../ci_py311/
+- py311_bs/label/release
+rsa:
+- ../ci_py311/
+- py311_bs/label/release
+rtree:
+- ../ci_py311/
+- py311_bs/label/release
+ruamel:
+- ../ci_py311/
+- py311_bs/label/release
+ruamel.yaml:
+- ../ci_py311/
+- py311_bs/label/release
+ruamel.yaml.clib:
+- ../ci_py311/
+- py311_bs/label/release
+ruamel_yaml:
+- ../ci_py311/
+- py311_bs/label/release
+runipy:
+- ../ci_py311/
+- py311_bs/label/release
+s3fs:
+- ../ci_py311/
+- py311_bs/label/release
+s3transfer:
+- ../ci_py311/
+- py311_bs/label/release
+sacrebleu:
+- ../ci_py311/
+- py311_bs/label/release
+sacremoses:
+- ../ci_py311/
+- py311_bs/label/release
+salt:
+- ../ci_py311/
+- py311_bs/label/release
+sasl:
+- ../ci_py311/
+- py311_bs/label/release
+saspy:
+- ../ci_py311/
+- py311_bs/label/release
+scandir:
+- ../ci_py311/
+- py311_bs/label/release
+scapy:
+- ../ci_py311/
+- py311_bs/label/release
+schema:
+- ../ci_py311/
+- py311_bs/label/release
+scikit-build:
+- ../ci_py311/
+- py311_bs/label/release
+scikit-image:
+- ../ci_py311/
+- py311_bs/label/release
+scikit-learn:
+- ../ci_py311/
+- py311_bs/label/release
+scikit-rf:
+- ../ci_py311/
+- py311_bs/label/release
+scipy:
+- ../ci_py311/
+- py311_bs/label/release
+scons:
+- ../ci_py311/
+- py311_bs/label/release
+scp:
+- ../ci_py311/
+- py311_bs/label/release
+scramp:
+- ../ci_py311/
+- py311_bs/label/release
+scrapy:
+- ../ci_py311/
+- py311_bs/label/release
+seaborn:
+- ../ci_py311/
+- py311_bs/label/release
+segregation:
+- ../ci_py311/
+- py311_bs/label/release
+selenium:
+- ../ci_py311/
+- py311_bs/label/release
+semantic_version:
+- ../ci_py311/
+- py311_bs/label/release
+semver:
+- ../ci_py311/
+- py311_bs/label/release
+send2trash:
+- ../ci_py311/
+- py311_bs/label/release
+sendgrid:
+- ../ci_py311/
+- py311_bs/label/release
+sentencepiece:
+- ../ci_py311/
+- py311_bs/label/release
+sentry-sdk:
+- ../ci_py311/
+- py311_bs/label/release
+serverfiles:
+- ../ci_py311/
+- py311_bs/label/release
+service_identity:
+- ../ci_py311/
+- py311_bs/label/release
+setproctitle:
+- ../ci_py311/
+- py311_bs/label/release
+setuptools:
+- ../ci_py311/
+- py311_bs/label/release
+setuptools-git:
+- ../ci_py311/
+- py311_bs/label/release
+setuptools-git-versioning:
+- ../ci_py311/
+- py311_bs/label/release
+setuptools-rust:
+- ../ci_py311/
+- py311_bs/label/release
+setuptools-scm:
+- ../ci_py311/
+- py311_bs/label/release
+setuptools_scm_git_archive:
+- ../ci_py311/
+- py311_bs/label/release
+sgmllib3k:
+- ../ci_py311/
+- py311_bs/label/release
+sh:
+- ../ci_py311/
+- py311_bs/label/release
+shapely:
+- ../ci_py311/
+- py311_bs/label/release
+shellingham:
+- ../ci_py311/
+- py311_bs/label/release
+simple-salesforce:
+- ../ci_py311/
+- py311_bs/label/release
+simplegeneric:
+- ../ci_py311/
+- py311_bs/label/release
+simplejson:
+- ../ci_py311/
+- py311_bs/label/release
+singledispatch:
+- ../ci_py311/
+- py311_bs/label/release
+sip:
+- ../ci_py311/
+- py311_bs/label/release
+six:
+- ../ci_py311/
+- py311_bs/label/release
+skl2onnx:
+- ../ci_py311/
+- py311_bs/label/release
+slack-sdk:
+- ../ci_py311/
+- py311_bs/label/release
+slack_sdk:
+- ../ci_py311/
+- py311_bs/label/release
+slicer:
+- ../ci_py311/
+- py311_bs/label/release
+slicerator:
+- ../ci_py311/
+- py311_bs/label/release
+smart_open:
+- ../ci_py311/
+- py311_bs/label/release
+smartypants:
+- ../ci_py311/
+- py311_bs/label/release
+smmap:
+- ../ci_py311/
+- py311_bs/label/release
+smmap2:
+- ../ci_py311/
+- py311_bs/label/release
+snakebite-py3:
+- ../ci_py311/
+- py311_bs/label/release
+sniffio:
+- ../ci_py311/
+- py311_bs/label/release
+snowballstemmer:
+- ../ci_py311/
+- py311_bs/label/release
+snowflake-connector-python:
+- ../ci_py311/
+- py311_bs/label/release
+snuggs:
+- ../ci_py311/
+- py311_bs/label/release
+sortedcollections:
+- ../ci_py311/
+- py311_bs/label/release
+sortedcontainers:
+- ../ci_py311/
+- py311_bs/label/release
+soupsieve:
+- ../ci_py311/
+- py311_bs/label/release
+spacy:
+- ../ci_py311/
+- py311_bs/label/release
+spacy-alignments:
+- ../ci_py311/
+- py311_bs/label/release
+spacy-legacy:
+- ../ci_py311/
+- py311_bs/label/release
+spacy-loggers:
+- ../ci_py311/
+- py311_bs/label/release
+spacy-model-en_core_web_lg:
+- ../ci_py311/
+- py311_bs/label/release
+spacy-model-en_core_web_md:
+- ../ci_py311/
+- py311_bs/label/release
+spacy-model-en_core_web_sm:
+- ../ci_py311/
+- py311_bs/label/release
+spacy-model-en_core_web_trf:
+- ../ci_py311/
+- py311_bs/label/release
+spaghetti:
+- ../ci_py311/
+- py311_bs/label/release
+sparkmagic:
+- ../ci_py311/
+- py311_bs/label/release
+spglm:
+- ../ci_py311/
+- py311_bs/label/release
+sphinx:
+- ../ci_py311/
+- py311_bs/label/release
+sphinx_rtd_theme:
+- ../ci_py311/
+- py311_bs/label/release
+sphinxcontrib-applehelp:
+- ../ci_py311/
+- py311_bs/label/release
+sphinxcontrib-devhelp:
+- ../ci_py311/
+- py311_bs/label/release
+sphinxcontrib-htmlhelp:
+- ../ci_py311/
+- py311_bs/label/release
+sphinxcontrib-jsmath:
+- ../ci_py311/
+- py311_bs/label/release
+sphinxcontrib-qthelp:
+- ../ci_py311/
+- py311_bs/label/release
+sphinxcontrib-serializinghtml:
+- ../ci_py311/
+- py311_bs/label/release
+sphinxcontrib-websupport:
+- ../ci_py311/
+- py311_bs/label/release
+spint:
+- ../ci_py311/
+- py311_bs/label/release
+splot:
+- ../ci_py311/
+- py311_bs/label/release
+spreg:
+- ../ci_py311/
+- py311_bs/label/release
+spvcm:
+- ../ci_py311/
+- py311_bs/label/release
+spyder:
+- ../ci_py311/
+- py311_bs/label/release
+spyder-kernels:
+- ../ci_py311/
+- py311_bs/label/release
+sqlalchemy:
+- ../ci_py311/
+- py311_bs/label/release
+sqlalchemy-jsonfield:
+- ../ci_py311/
+- py311_bs/label/release
+sqlalchemy-utils:
+- ../ci_py311/
+- py311_bs/label/release
+sqlparse:
+- ../ci_py311/
+- py311_bs/label/release
+srsly:
+- ../ci_py311/
+- py311_bs/label/release
+sshpubkeys:
+- ../ci_py311/
+- py311_bs/label/release
+stack_data:
+- ../ci_py311/
+- py311_bs/label/release
+starkbank-ecdsa:
+- ../ci_py311/
+- py311_bs/label/release
+statsd:
+- ../ci_py311/
+- py311_bs/label/release
+statsmodels:
+- ../ci_py311/
+- py311_bs/label/release
+stone:
+- ../ci_py311/
+- py311_bs/label/release
+streamlit:
+- ../ci_py311/
+- py311_bs/label/release
+streamz:
+- ../ci_py311/
+- py311_bs/label/release
+stumpy:
+- ../ci_py311/
+- py311_bs/label/release
+supervisor:
+- ../ci_py311/
+- py311_bs/label/release
+swagger-ui-bundle:
+- ../ci_py311/
+- py311_bs/label/release
+sympy:
+- ../ci_py311/
+- py311_bs/label/release
+tabula-py:
+- ../ci_py311/
+- py311_bs/label/release
+tabulate:
+- ../ci_py311/
+- py311_bs/label/release
+tangled-up-in-unicode:
+- ../ci_py311/
+- py311_bs/label/release
+tbb4py:
+- ../ci_py311/
+- py311_bs/label/release
+tblib:
+- ../ci_py311/
+- py311_bs/label/release
+tempora:
+- ../ci_py311/
+- py311_bs/label/release
+tenacity:
+- ../ci_py311/
+- py311_bs/label/release
+tensorboardx:
+- ../ci_py311/
+- py311_bs/label/release
+termcolor:
+- ../ci_py311/
+- py311_bs/label/release
+terminado:
+- ../ci_py311/
+- py311_bs/label/release
+testfixtures:
+- ../ci_py311/
+- py311_bs/label/release
+testpath:
+- ../ci_py311/
+- py311_bs/label/release
+testtools:
+- ../ci_py311/
+- py311_bs/label/release
+text-unidecode:
+- ../ci_py311/
+- py311_bs/label/release
+textdistance:
+- ../ci_py311/
+- py311_bs/label/release
+texttable:
+- ../ci_py311/
+- py311_bs/label/release
+theano-pymc:
+- ../ci_py311/
+- py311_bs/label/release
+thefuzz:
+- ../ci_py311/
+- py311_bs/label/release
+thinc:
+- ../ci_py311/
+- py311_bs/label/release
+threadloop:
+- ../ci_py311/
+- py311_bs/label/release
+threadpoolctl:
+- ../ci_py311/
+- py311_bs/label/release
+three-merge:
+- ../ci_py311/
+- py311_bs/label/release
+thrift:
+- ../ci_py311/
+- py311_bs/label/release
+thrift_sasl:
+- ../ci_py311/
+- py311_bs/label/release
+thriftpy2:
+- ../ci_py311/
+- py311_bs/label/release
+tifffile:
+- ../ci_py311/
+- py311_bs/label/release
+tinycss:
+- ../ci_py311/
+- py311_bs/label/release
+tinycss2:
+- ../ci_py311/
+- py311_bs/label/release
+tldextract:
+- ../ci_py311/
+- py311_bs/label/release
+tobler:
+- ../ci_py311/
+- py311_bs/label/release
+tokenizers:
+- ../ci_py311/
+- py311_bs/label/release
+toml:
+- ../ci_py311/
+- py311_bs/label/release
+tomli:
+- ../ci_py311/
+- py311_bs/label/release
+tomli-w:
+- ../ci_py311/
+- py311_bs/label/release
+tomlkit:
+- ../ci_py311/
+- py311_bs/label/release
+toolz:
+- ../ci_py311/
+- py311_bs/label/release
+torch-lr-finder:
+- ../ci_py311/
+- py311_bs/label/release
+tornado:
+- ../ci_py311/
+- py311_bs/label/release
+toro:
+- ../ci_py311/
+- py311_bs/label/release
+tqdm:
+- ../ci_py311/
+- py311_bs/label/release
+traceback2:
+- ../ci_py311/
+- py311_bs/label/release
+traitlets:
+- ../ci_py311/
+- py311_bs/label/release
+traits:
+- ../ci_py311/
+- py311_bs/label/release
+traitsui:
+- ../ci_py311/
+- py311_bs/label/release
+tranquilizer:
+- ../ci_py311/
+- py311_bs/label/release
+transaction:
+- ../ci_py311/
+- py311_bs/label/release
+treelib:
+- ../ci_py311/
+- py311_bs/label/release
+trio:
+- ../ci_py311/
+- py311_bs/label/release
+trustme:
+- ../ci_py311/
+- py311_bs/label/release
+twine:
+- ../ci_py311/
+- py311_bs/label/release
+twisted:
+- ../ci_py311/
+- py311_bs/label/release
+twofish:
+- ../ci_py311/
+- py311_bs/label/release
+typeguard:
+- ../ci_py311/
+- py311_bs/label/release
+typer:
+- ../ci_py311/
+- py311_bs/label/release
+types-pytz:
+- ../ci_py311/
+- py311_bs/label/release
+typing:
+- ../ci_py311/
+- py311_bs/label/release
+typing-extensions:
+- ../ci_py311/
+- py311_bs/label/release
+typing_extensions:
+- ../ci_py311/
+- py311_bs/label/release
+typing_inspect:
+- ../ci_py311/
+- py311_bs/label/release
+tzlocal:
+- ../ci_py311/
+- py311_bs/label/release
+uc-micro-py:
+- ../ci_py311/
+- py311_bs/label/release
+ujson:
+- ../ci_py311/
+- py311_bs/label/release
+ukkonen:
+- ../ci_py311/
+- py311_bs/label/release
+unearth:
+- ../ci_py311/
+- py311_bs/label/release
+unicodecsv:
+- ../ci_py311/
+- py311_bs/label/release
+unicodedata2:
+- ../ci_py311/
+- py311_bs/label/release
+unidecode:
+- ../ci_py311/
+- py311_bs/label/release
+unittest2:
+- ../ci_py311/
+- py311_bs/label/release
+urllib3:
+- ../ci_py311/
+- py311_bs/label/release
+urwid:
+- ../ci_py311/
+- py311_bs/label/release
+uvicorn:
+- ../ci_py311/
+- py311_bs/label/release
+uvloop:
+- ../ci_py311/
+- py311_bs/label/release
+validators:
+- ../ci_py311/
+- py311_bs/label/release
+vcrpy:
+- ../ci_py311/
+- py311_bs/label/release
+vcversioner:
+- ../ci_py311/
+- py311_bs/label/release
+verboselogs:
+- ../ci_py311/
+- py311_bs/label/release
+vertica-python:
+- ../ci_py311/
+- py311_bs/label/release
+vine:
+- ../ci_py311/
+- py311_bs/label/release
+virtualenv:
+- ../ci_py311/
+- py311_bs/label/release
+virtualenv-clone:
+- ../ci_py311/
+- py311_bs/label/release
+visions:
+- ../ci_py311/
+- py311_bs/label/release
+vispy:
+- ../ci_py311/
+- py311_bs/label/release
+visvis:
+- ../ci_py311/
+- py311_bs/label/release
+vyper-config:
+- ../ci_py311/
+- py311_bs/label/release
+waf:
+- ../ci_py311/
+- py311_bs/label/release
+waitress:
+- ../ci_py311/
+- py311_bs/label/release
+wasabi:
+- ../ci_py311/
+- py311_bs/label/release
+watchdog:
+- ../ci_py311/
+- py311_bs/label/release
+wcwidth:
+- ../ci_py311/
+- py311_bs/label/release
+webencodings:
+- ../ci_py311/
+- py311_bs/label/release
+webob:
+- ../ci_py311/
+- py311_bs/label/release
+websocket-client:
+- ../ci_py311/
+- py311_bs/label/release
+werkzeug:
+- ../ci_py311/
+- py311_bs/label/release
+whatthepatch:
+- ../ci_py311/
+- py311_bs/label/release
+wheel:
+- ../ci_py311/
+- py311_bs/label/release
+whichcraft:
+- ../ci_py311/
+- py311_bs/label/release
+whoosh:
+- ../ci_py311/
+- py311_bs/label/release
+widgetsnbextension:
+- ../ci_py311/
+- py311_bs/label/release
+win32_setctime:
+- ../ci_py311/
+- py311_bs/label/release
+wrapt:
+- ../ci_py311/
+- py311_bs/label/release
+ws4py:
+- ../ci_py311/
+- py311_bs/label/release
+wsgiproxy2:
+- ../ci_py311/
+- py311_bs/label/release
+wtforms:
+- ../ci_py311/
+- py311_bs/label/release
+wurlitzer:
+- ../ci_py311/
+- py311_bs/label/release
+xarray:
+- ../ci_py311/
+- py311_bs/label/release
+xcb-proto:
+- ../ci_py311/
+- py311_bs/label/release
+xlrd:
+- ../ci_py311/
+- py311_bs/label/release
+xlsxwriter:
+- ../ci_py311/
+- py311_bs/label/release
+xlutils:
+- ../ci_py311/
+- py311_bs/label/release
+xlwings:
+- ../ci_py311/
+- py311_bs/label/release
+xlwt:
+- ../ci_py311/
+- py311_bs/label/release
+xmltodict:
+- ../ci_py311/
+- py311_bs/label/release
+xyzservices:
+- ../ci_py311/
+- py311_bs/label/release
+yacs:
+- ../ci_py311/
+- py311_bs/label/release
+yapf:
+- ../ci_py311/
+- py311_bs/label/release
+yarl:
+- ../ci_py311/
+- py311_bs/label/release
+yq:
+- ../ci_py311/
+- py311_bs/label/release
+yt:
+- ../ci_py311/
+- py311_bs/label/release
+zarr:
+- ../ci_py311/
+- py311_bs/label/release
+zc.lockfile:
+- ../ci_py311/
+- py311_bs/label/release
+zeep:
+- ../ci_py311/
+- py311_bs/label/release
+zfpy:
+- ../ci_py311/
+- py311_bs/label/release
+zict:
+- ../ci_py311/
+- py311_bs/label/release
+zipp:
+- ../ci_py311/
+- py311_bs/label/release
+zope.interface:
+- ../ci_py311/
+- py311_bs/label/release
+zstandard:
+- ../ci_py311/
+- py311_bs/label/release
