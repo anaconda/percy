@@ -5,8 +5,74 @@ import percy.render.aggregate as aggregate
 import argparse
 from pathlib import Path
 import yaml
+import requests
+import json
+import re
+import itertools
+
+def get_repodata_package_list(subdir):
+
+    session = requests.Session()
+
+    pkgs = {}
+
+    repodata_subdir = None
+    url = f"https://repo.anaconda.com/pkgs/main/{subdir}/repodata.json"
+    response = session.get(url)
+    if response.status_code != 200:
+        raise Exception()
+    else:
+        repodata_subdir = json.loads(response.text)
+    for v in repodata_subdir["packages"].values():
+        if v["name"] not in pkgs or compare_versions_str_to_int(pkgs[v["name"]]["version"], v["version"]):
+            pkgs[v["name"]] = { "version": v["version"], "noarch": False }
+    
+    repodata_noarch = None
+    url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
+    response = session.get(url)
+    if response.status_code != 200:
+        raise Exception()
+    else:
+        repodata_noarch = json.loads(response.text)
+    for v in repodata_noarch["packages"].values():
+        if v["name"] not in pkgs or compare_versions_str_to_int(pkgs[v["name"]]["version"], v["version"]):
+            pkgs[v["name"]] = { "version": v["version"], "noarch": True }
+
+    return pkgs
+
+def convert_int(s,p):
+    try:
+        i = int(s, p)
+    except ValueError:
+        i = 0
+    return i
+
+def compare_versions_str_to_int(version_1, version_2):
+    version_1 = version_1.replace("-", ".")
+    version_2 = version_2.replace("-", ".")
+    version_1 = re.sub("[^0-9\.]", "", version_1)
+    version_2 = re.sub("[^0-9\.]", "", version_2)
+    n = len(version_2.split(".")) - len(version_1.split("."))
+    if n > 0:
+        version_1 += ".0" * n
+    try:
+        l = [convert_int(x, 10) for x in version_1.split(".")]
+        l.reverse()
+        version_1 = sum(x * (100 ** i) for i, x in enumerate(l))
+    except:
+        version_2 = None
+    try:
+        l = [convert_int(x, 10) for x in version_2.split(".")]
+        l.reverse()
+        version_2 = sum(x * (100 ** i) for i, x in enumerate(l))
+    except:
+        version_2 = None
+    return version_1 < version_2
 
 def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
+
+    # load defaults
+    defaults_pkgs = get_repodata_package_list(subdir)
 
     # load aggregate
     aggregate_repo = aggregate.Aggregate(aggregate_path)
@@ -17,7 +83,7 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
 
     for name, rendered_pkg in aggregate_repo.rendered_packages.items():
 
-        # find feedstocks with cbc run dep not set in host
+        # find local feedstocks with cbc run dep not set in host
         run_deps = set([run_dep.pkg for run_dep in rendered_pkg.run])
         host_deps = set([host_dep.pkg for host_dep in rendered_pkg.host])
         for pkg in set(rendered_pkg.recipe.selector_dict.keys()).intersection(run_deps):
@@ -27,7 +93,7 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
                 if pkg not in rec:
                     rec.append(pkg)
 
-        # find feedstocks ignoring pinning of a host dependency
+        # find local feedstocks ignoring pinning of a host dependency
         pb = set(host_deps).intersection(rendered_pkg.ignore_run_exports)
         if pb:
             for pkg in pb:
@@ -35,6 +101,28 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
                     rec = issues["bad_ignore_run_exports"].setdefault(rendered_pkg.git_info.name,[])
                     if pkg not in rec:
                         rec.append(pkg)
+
+        # find local feedstocks with outdated version compared to defaults
+        if name in defaults_pkgs:
+            default_version = defaults_pkgs[name]["version"]
+            default_is_noarch = defaults_pkgs[name]["noarch"]
+            if compare_versions_str_to_int(rendered_pkg.version, default_version):
+                rec = issues["outdated_local"].setdefault(rendered_pkg.git_info.name,{}).setdefault(name,{ "subdir": [subdir], "aggregate_version": rendered_pkg.version, "defaults_version": default_version})
+                if subdir not in rec["subdir"]:
+                    rec["subdir"].append(subdir)
+                if rendered_pkg.has_dep("run", "python") and not default_is_noarch:
+                    rec = issues["outdated_py_local"].setdefault(rendered_pkg.git_info.name,{}).setdefault(name,{ "subdir": [subdir], "aggregate_version": rendered_pkg.version, "defaults_version": default_version})
+                    if subdir not in rec["subdir"]:
+                        rec["subdir"].append(subdir)
+            elif compare_versions_str_to_int(default_version, rendered_pkg.version):
+                rec = issues["outdated_defaults"].setdefault(rendered_pkg.git_info.name,{}).setdefault(subdir,[])
+                if rendered_pkg.name not in rec:
+                    rec.append({ "name": rendered_pkg.name, "aggregate_version": rendered_pkg.version, "defaults_version": default_version})
+        else:
+            rec = issues["not_in_defaults"].setdefault(rendered_pkg.git_info.name,[])
+            if rendered_pkg.name not in rec:
+                rec.append(rendered_pkg.name)
+
     
     return issues
 
@@ -80,12 +168,21 @@ if __name__ == "__main__":
     issues = {
         "bad_ignore_run_exports" : {},
         "missing_host" : {},
+        "outdated_local" : {},
+        "outdated_defaults" : {},
+        "outdated_py_local" : {},
+        "not_in_defaults" : {},
     }
     issues_no_numpy_python = {
         "bad_ignore_run_exports" : {},
         "missing_host" : {},
+        "outdated_local" : {},
+        "outdated_defaults" : {},
+        "outdated_py_local" : {},
+        "not_in_defaults" : {},
     }
-    for subdir, pyver in zip(subdirs, python):
+
+    for subdir, pyver in itertools.product(subdirs, python):
         find_issues(args.aggregate, subdir, pyver, issues, [])
         find_issues(args.aggregate, subdir, pyver, issues_no_numpy_python, ["numpy", "python"])
 
@@ -93,3 +190,5 @@ if __name__ == "__main__":
         yaml.dump(issues, f)
     with open(f"./issues_no_numpy_python.yaml", "w") as f:
         yaml.dump(issues_no_numpy_python, f)
+
+    print(f"Outdated: { len(issues['outdated_py_local']) }")

@@ -419,6 +419,7 @@ class Recipe:
 
         # read main package deps
         name = self.meta.get("package", {}).get("name", "unknown").strip()
+        version = self.meta.get("package", {}).get("version", "-1").strip()
         is_noarch = False
         ignore_run_exports = []
         main_build = self.meta.get("build", {})
@@ -444,6 +445,8 @@ class Recipe:
                 ]
         self.packages[name] = Package(
             self,
+            name,
+            version,
             set(pkg_reqs["build"]),
             set(pkg_reqs["host"]),
             set(pkg_reqs["run"]),
@@ -457,6 +460,7 @@ class Recipe:
         if outputs:
             for output in outputs:
                 name = output.get("name", "")
+                version = self.meta.get("package", {}).get("version", version).strip()
                 is_noarch = False
                 ignore_run_exports = []
                 main_build = output.get("build", {})
@@ -484,6 +488,8 @@ class Recipe:
                         ]
                 self.packages[name] = Package(
                     self,
+                    name,
+                    version,
                     set(output_pkg_reqs["build"]),
                     set(output_pkg_reqs["host"]),
                     set(output_pkg_reqs["run"]),
@@ -521,6 +527,8 @@ class Dep:
 @dataclass
 class Package:
     recipe: Recipe = None
+    name: str = None
+    version: str = None
     build: Set[Dep] = field(default_factory=set)
     host: Set[Dep] = field(default_factory=set)
     run: Set[Dep] = field(default_factory=set)
