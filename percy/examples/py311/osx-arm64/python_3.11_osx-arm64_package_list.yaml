@@ -564,6 +564,7 @@
 - requests-wsgi-adapter
 - resolvelib
 - rich
+- rope
 - routes
 - rtree
 - ruamel

@@ -198,6 +198,7 @@
 - docutils
 - doit
 - drmaa
+- easyocr
 - ecdsa
 - ecos
 - editables
@@ -666,6 +667,7 @@
 - requests-wsgi-adapter
 - resolvelib
 - rich
+- rope
 - routes
 - rtree
 - ruamel

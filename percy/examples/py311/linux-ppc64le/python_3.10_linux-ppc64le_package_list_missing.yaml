@@ -53,6 +53,8 @@
 - feedparser
 - ffmpeg
 - fuel
+- gdb
+- gdb-pretty-printer
 - gevent-websocket
 - gridmap
 - gst-plugins-good
@@ -73,7 +75,6 @@
 - neotime
 - neuralprophet
 - numba
-- opencv
 - optimum
 - pandasql
 - parsel

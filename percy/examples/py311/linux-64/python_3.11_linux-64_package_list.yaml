@@ -214,8 +214,6 @@
 - future
 - fuzzywuzzy
 - gdal
-- gdb
-- gdb-pretty-printer
 - gensim
 - geoviews-core
 - gevent
@@ -382,6 +380,7 @@
 - ninja
 - nodeenv
 - nose
+- nose-parameterized
 - notebook
 - notebook-shim
 - numcodecs
@@ -589,6 +588,7 @@
 - resolvelib
 - rich
 - rise
+- rope
 - routes
 - rtree
 - ruamel
@@ -716,6 +716,7 @@
 - websocket-client
 - werkzeug
 - whatthepatch
+- wheel
 - widgetsnbextension
 - wrapt
 - ws4py

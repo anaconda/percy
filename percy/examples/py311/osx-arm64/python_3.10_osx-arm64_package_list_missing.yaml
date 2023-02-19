@@ -43,6 +43,7 @@
 - cvxcanon
 - dask-ml
 - datashader
+- easyocr
 - ecdsa
 - expressions
 - fastparquet

@@ -1423,6 +1423,15 @@ if [[ ! -f pyclipper-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f pycurl-feedstock.mark ]]; then
+    if [[ -d pycurl-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pycurl-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pycurl-feedstock.mark ) && true) || ( (echo "pycurl-feedstock" >>failed.25 ) && (echo "pycurl-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "pycurl-feedstock not present" >>failed.25
+    fi
+fi
+
+
 if [[ ! -f pydot-feedstock.mark ]]; then
     if [[ -d pydot-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pydot-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pydot-feedstock.mark ) && true) || ( (echo "pydot-feedstock" >>failed.25 ) && (echo "pydot-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -2229,15 +2238,6 @@ if [[ ! -f vyper-config-feedstock.mark ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./vyper-config-feedstock >d 2>&1 && rm -f d && ( echo "done" >>vyper-config-feedstock.mark ) && true) || ( (echo "vyper-config-feedstock" >>failed.25 ) && (echo "vyper-config-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "vyper-config-feedstock not present" >>failed.25
-    fi
-fi
-
-
-if [[ ! -f whatthepatch-feedstock.mark ]]; then
-    if [[ -d whatthepatch-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./whatthepatch-feedstock >d 2>&1 && rm -f d && ( echo "done" >>whatthepatch-feedstock.mark ) && true) || ( (echo "whatthepatch-feedstock" >>failed.25 ) && (echo "whatthepatch-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "whatthepatch-feedstock not present" >>failed.25
     fi
 fi
 

@@ -149,8 +149,6 @@
 - frozenlist
 - fsspec
 - future
-- gdb
-- gdb-pretty-printer
 - geoviews-core
 - gevent
 - gitpython
@@ -210,7 +208,6 @@
 - jupyter_core
 - jupyter_kernel_gateway
 - jupyter_server
-- jupyterhub
 - jupyterlab_launcher
 - keyring
 - kiwisolver
@@ -329,6 +326,7 @@
 - pycrypto
 - pycryptodome
 - pycryptodomex
+- pycryptosat
 - pyct
 - pycurl
 - pydantic
@@ -405,6 +403,7 @@
 - requests-wsgi-adapter
 - resolvelib
 - rich
+- rope
 - routes
 - ruamel
 - ruamel.yaml
@@ -499,6 +498,7 @@
 - websocket-client
 - werkzeug
 - whatthepatch
+- wheel
 - widgetsnbextension
 - wrapt
 - wurlitzer

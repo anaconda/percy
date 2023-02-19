@@ -15,9 +15,12 @@
 - diffusers-base
 - diffusers-torch
 - ecdsa
+- gdb
+- gdb-pretty-printer
 - gst-plugins-good
 - hvplot
 - imagecodecs
+- jupyterhub
 - libpython-static
 - lockfile
 - lz4

@@ -51,6 +51,7 @@
 - diffusers-base
 - diffusers-torch
 - dpctl
+- easyocr
 - ecdsa
 - efficientnet
 - expressions
@@ -58,6 +59,8 @@
 - feedparser
 - ffmpeg
 - fuel
+- gdb
+- gdb-pretty-printer
 - gevent-websocket
 - gridmap
 - gst-plugins-good

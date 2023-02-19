@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to test local packages
 # If a test is successful, the package gets copied to the target dir.
-# Example of use: ./test_packages.sh /ci_py311/linux-64/ /ci_py311_tested/
+# Example of use: ./test_packages.sh ../ci_py311/linux-64/ ../ci_py311_tested/
 # author: cbousseau@anaconda.com
 
 SOURCE=$1

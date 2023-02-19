@@ -182,6 +182,7 @@
 - docutils
 - doit
 - drmaa
+- easyocr
 - ecdsa
 - ecos
 - editables
@@ -658,6 +659,7 @@
 - requests_download
 - resolvelib
 - rich
+- rope
 - routes
 - rtree
 - ruamel
@@ -808,6 +810,7 @@
 - webtest
 - werkzeug
 - whatthepatch
+- wheel
 - widgetsnbextension
 - win_inet_pton
 - win_unicode_console

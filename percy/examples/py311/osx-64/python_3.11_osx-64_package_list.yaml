@@ -468,6 +468,7 @@
 - pycrypto
 - pycryptodome
 - pycryptodomex
+- pycryptosat
 - pyct
 - pycurl
 - pydantic
@@ -585,6 +586,7 @@
 - resolvelib
 - rich
 - rise
+- rope
 - routes
 - rtree
 - ruamel
@@ -711,6 +713,7 @@
 - websocket-client
 - werkzeug
 - whatthepatch
+- wheel
 - widgetsnbextension
 - wrapt
 - ws4py

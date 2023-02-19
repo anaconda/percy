@@ -359,6 +359,7 @@
 - pycrypto
 - pycryptodome
 - pycryptodomex
+- pycryptosat
 - pyct
 - pycurl
 - pydantic
@@ -439,6 +440,7 @@
 - requests-wsgi-adapter
 - resolvelib
 - rich
+- rope
 - routes
 - ruamel
 - ruamel.yaml
@@ -538,6 +540,7 @@
 - websocket-client
 - werkzeug
 - whatthepatch
+- wheel
 - widgetsnbextension
 - wrapt
 - wurlitzer

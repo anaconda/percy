@@ -874,12 +874,6 @@ future:
 gast:
 - ../ci_py311/
 - py311_bs/label/release
-gdb:
-- ../ci_py311/
-- py311_bs/label/release
-gdb-pretty-printer:
-- ../ci_py311/
-- py311_bs/label/release
 genson:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1244,9 +1238,6 @@ jupyter_server:
 - ../ci_py311/
 - py311_bs/label/release
 jupyter_telemetry:
-- ../ci_py311/
-- py311_bs/label/release
-jupyterhub:
 - ../ci_py311/
 - py311_bs/label/release
 jupyterhub-ldapauthenticator:
@@ -1880,6 +1871,9 @@ pycryptodome:
 - ../ci_py311/
 - py311_bs/label/release
 pycryptodomex:
+- ../ci_py311/
+- py311_bs/label/release
+pycryptosat:
 - ../ci_py311/
 - py311_bs/label/release
 pyct:

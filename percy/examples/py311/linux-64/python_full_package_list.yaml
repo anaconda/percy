@@ -1063,12 +1063,6 @@ gast:
 gdal:
 - ../ci_py311/
 - py311_bs/label/release
-gdb:
-- ../ci_py311/
-- py311_bs/label/release
-gdb-pretty-printer:
-- ../ci_py311/
-- py311_bs/label/release
 gensim:
 - ../ci_py311/
 - py311_bs/label/release

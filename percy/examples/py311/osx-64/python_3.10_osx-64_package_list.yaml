@@ -211,6 +211,7 @@
 - docutils
 - doit
 - drmaa
+- easyocr
 - ecdsa
 - ecos
 - editables
@@ -562,6 +563,7 @@
 - pycrypto
 - pycryptodome
 - pycryptodomex
+- pycryptosat
 - pyct
 - pycurl
 - pydantic
@@ -694,6 +696,7 @@
 - resolvelib
 - rich
 - rise
+- rope
 - routes
 - rtree
 - ruamel
@@ -845,6 +848,7 @@
 - webtest
 - werkzeug
 - whatthepatch
+- wheel
 - whisper
 - widgetsnbextension
 - word2vec

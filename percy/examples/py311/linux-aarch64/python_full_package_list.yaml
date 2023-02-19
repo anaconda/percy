@@ -1036,12 +1036,6 @@ gast:
 gdal:
 - ../ci_py311/
 - py311_bs/label/release
-gdb:
-- ../ci_py311/
-- py311_bs/label/release
-gdb-pretty-printer:
-- ../ci_py311/
-- py311_bs/label/release
 gensim:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1876,6 +1870,9 @@ openapi-spec-validator:
 opencensus:
 - ../ci_py311/
 - py311_bs/label/release
+opencv:
+- ../ci_py311/
+- py311_bs/label/release
 openml:
 - ../ci_py311/
 - py311_bs/label/release
@@ -2237,6 +2234,9 @@ pycryptodome:
 - ../ci_py311/
 - py311_bs/label/release
 pycryptodomex:
+- ../ci_py311/
+- py311_bs/label/release
+pycryptosat:
 - ../ci_py311/
 - py311_bs/label/release
 pyct:

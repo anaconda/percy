@@ -2284,6 +2284,9 @@ pycryptodome:
 pycryptodomex:
 - ../ci_py311/
 - py311_bs/label/release
+pycryptosat:
+- ../ci_py311/
+- py311_bs/label/release
 pyct:
 - ../ci_py311/
 - py311_bs/label/release

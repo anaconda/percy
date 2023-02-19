@@ -203,8 +203,6 @@
 - future
 - fuzzywuzzy
 - gdal
-- gdb
-- gdb-pretty-printer
 - gensim
 - geoviews-core
 - gevent
@@ -375,6 +373,7 @@
 - onnxconverter-common
 - onnxmltools
 - onnxruntime
+- opencv
 - openpyxl
 - opentracing
 - opentsne
@@ -451,6 +450,7 @@
 - pycrypto
 - pycryptodome
 - pycryptodomex
+- pycryptosat
 - pyct
 - pycurl
 - pydantic
@@ -561,6 +561,7 @@
 - resolvelib
 - rich
 - rise
+- rope
 - routes
 - rtree
 - ruamel
@@ -681,6 +682,7 @@
 - websocket-client
 - werkzeug
 - whatthepatch
+- wheel
 - widgetsnbextension
 - wrapt
 - ws4py

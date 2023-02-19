@@ -214,6 +214,7 @@
 - dpctl
 - drmaa
 - dropbox
+- easyocr
 - ecdsa
 - ecos
 - editables
@@ -465,6 +466,7 @@
 - ninja
 - nodeenv
 - nose
+- nose-parameterized
 - notebook
 - notebook-shim
 - numba
@@ -710,6 +712,7 @@
 - resolvelib
 - rich
 - rise
+- rope
 - routes
 - rtree
 - ruamel
@@ -865,6 +868,7 @@
 - webtest
 - werkzeug
 - whatthepatch
+- wheel
 - whisper
 - widgetsnbextension
 - word2vec

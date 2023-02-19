@@ -433,6 +433,7 @@
 - neuralprophet
 - ninja
 - nodeenv
+- nose-parameterized
 - notebook
 - notebook-shim
 - numba
@@ -537,6 +538,7 @@
 - pycrypto
 - pycryptodome
 - pycryptodomex
+- pycryptosat
 - pyct
 - pycurl
 - pydantic
@@ -650,6 +652,7 @@
 - requests-wsgi-adapter
 - resolvelib
 - rich
+- rope
 - routes
 - rtree
 - ruamel
@@ -793,6 +796,7 @@
 - webtest
 - werkzeug
 - whatthepatch
+- wheel
 - whisper
 - widgetsnbextension
 - word2vec

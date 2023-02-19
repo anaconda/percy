@@ -43,10 +43,13 @@
 - diffusers
 - diffusers-base
 - diffusers-torch
+- easyocr
 - ecdsa
 - fastparquet
 - feedparser
 - ffmpeg
+- gdb
+- gdb-pretty-printer
 - gevent-websocket
 - gridmap
 - gst-plugins-good
@@ -67,7 +70,6 @@
 - neuralprophet
 - numba
 - onnxruntime-novec
-- opencv
 - optimum
 - orange3
 - pandasql
