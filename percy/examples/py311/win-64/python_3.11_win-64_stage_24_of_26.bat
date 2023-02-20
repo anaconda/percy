@@ -102,6 +102,8 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pycares-feedstock || echo "pycares-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pycryptodome-feedstock || echo "pycryptodome-feedstock" >>failed.24 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pydantic-feedstock || echo "pydantic-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyinstaller-feedstock || echo "pyinstaller-feedstock" >>failed.24 || cmd /K "exit /b 0"

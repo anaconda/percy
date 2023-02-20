@@ -1594,6 +1594,9 @@ lunarcalendar:
 lxml:
 - ../ci_py311/
 - py311_bs/label/release
+lz4:
+- ../ci_py311/
+- py311_bs/label/release
 macfsevents:
 - ../ci_py311/
 - py311_bs/label/release
@@ -2185,6 +2188,12 @@ py-lief:
 py-mxnet:
 - ../ci_py311/
 - py311_bs/label/release
+py-xgboost:
+- ../ci_py311/
+- py311_bs/label/release
+py-xgboost-cpu:
+- ../ci_py311/
+- py311_bs/label/release
 py4j:
 - ../ci_py311/
 - py311_bs/label/release
@@ -2747,6 +2756,9 @@ pyxdg:
 - ../ci_py311/
 - py311_bs/label/release
 pyyaml:
+- ../ci_py311/
+- py311_bs/label/release
+pyzmq:
 - ../ci_py311/
 - py311_bs/label/release
 pyzstd:
@@ -3500,6 +3512,9 @@ xarray:
 - ../ci_py311/
 - py311_bs/label/release
 xcb-proto:
+- ../ci_py311/
+- py311_bs/label/release
+xgboost:
 - ../ci_py311/
 - py311_bs/label/release
 xlrd:

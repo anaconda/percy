@@ -1,15 +1,6 @@
 #!/bin/bash
 CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0
 
-if [[ ! -f cython-feedstock.mark ]]; then
-    if [[ -d cython-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./cython-feedstock >d 2>&1 && rm -f d && ( echo "done" >>cython-feedstock.mark ) && true) || ( (echo "cython-feedstock" >>failed.15 ) && (echo "cython-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "cython-feedstock not present" >>failed.15
-    fi
-fi
-
-
 if [[ ! -f importlib_metadata-feedstock.mark ]]; then
     if [[ -d importlib_metadata-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./importlib_metadata-feedstock >d 2>&1 && rm -f d && ( echo "done" >>importlib_metadata-feedstock.mark ) && true) || ( (echo "importlib_metadata-feedstock" >>failed.15 ) && (echo "importlib_metadata-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

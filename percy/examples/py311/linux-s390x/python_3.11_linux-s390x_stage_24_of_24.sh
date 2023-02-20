@@ -1252,6 +1252,15 @@ if [[ ! -f prison-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f progressbar2-feedstock.mark ]]; then
+    if [[ -d progressbar2-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./progressbar2-feedstock >d 2>&1 && rm -f d && ( echo "done" >>progressbar2-feedstock.mark ) && true) || ( (echo "progressbar2-feedstock" >>failed.24 ) && (echo "progressbar2-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "progressbar2-feedstock not present" >>failed.24
+    fi
+fi
+
+
 if [[ ! -f proto-plus-feedstock.mark ]]; then
     if [[ -d proto-plus-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./proto-plus-feedstock >d 2>&1 && rm -f d && ( echo "done" >>proto-plus-feedstock.mark ) && true) || ( (echo "proto-plus-feedstock" >>failed.24 ) && (echo "proto-plus-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -1617,15 +1626,6 @@ if [[ ! -f python-snappy-feedstock.mark ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python-snappy-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python-snappy-feedstock.mark ) && true) || ( (echo "python-snappy-feedstock" >>failed.24 ) && (echo "python-snappy-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "python-snappy-feedstock not present" >>failed.24
-    fi
-fi
-
-
-if [[ ! -f python-utils-feedstock.mark ]]; then
-    if [[ -d python-utils-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python-utils-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python-utils-feedstock.mark ) && true) || ( (echo "python-utils-feedstock" >>failed.24 ) && (echo "python-utils-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "python-utils-feedstock not present" >>failed.24
     fi
 fi
 

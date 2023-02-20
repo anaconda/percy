@@ -58,7 +58,6 @@
 - line_profiler
 - llvmlite
 - lockfile
-- lz4
 - mdp
 - modin
 - modin-all
@@ -86,8 +85,6 @@
 - posix_ipc
 - priority
 - py-boost
-- py-xgboost
-- py-xgboost-cpu
 - pyhive
 - pyramid
 - pyramid_debugtoolbar
@@ -96,17 +93,18 @@
 - pythonanywhere
 - pytorch
 - pywget
-- pyzmq
 - quantecon
 - queuelib
 - readme_renderer
 - repoze.lru
+- ruamel.yaml.jinja2
 - shap
 - snakeviz
 - sockjs-tornado
 - spacy-transformers
 - sphinxcontrib
 - statistics
+- stdlib-list
 - tabpy-client
 - tabpy-server
 - tensorboard
@@ -129,7 +127,6 @@
 - whisper
 - word2vec
 - workerpool
-- xgboost
 - xmlrpc2
 - xmlsec
 - zope

@@ -12,8 +12,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./docutils-feedstock || echo "docutils-feedstock" >>failed.21 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./gobject-introspection-feedstock || echo "gobject-introspection-feedstock" >>failed.21 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./jupyterlab_server-feedstock || echo "jupyterlab_server-feedstock" >>failed.21 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./keyring-feedstock || echo "keyring-feedstock" >>failed.21 || cmd /K "exit /b 0"

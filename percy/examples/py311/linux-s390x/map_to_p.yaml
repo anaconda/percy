@@ -1,11 +1,15 @@
 _anaconda_depends:
 - ./anaconda-feedstock
+_go_select:
+- ./_go_select-feedstock
 _libarchive_static_for_cph:
 - ./_libarchive_static_for_cph-feedstock
 _libgcc_mutex:
 - ./_libgcc_mutex-feedstock
 _mutex_mxnet:
 - ./mxnet-feedstock
+_openmp_mutex:
+- ./gcc_toolchain-feedstock
 _py-xgboost-mutex:
 - ./xgboost-feedstock
 _r-xgboost-mutex:
@@ -16,6 +20,8 @@ access:
 - ./access-feedstock
 adal:
 - ./adal-feedstock
+adwaita-icon-theme:
+- ./adwaita-icon-theme-feedstock
 aenum:
 - ./aenum-feedstock
 affine:
@@ -372,6 +378,8 @@ cffi:
 - ./cffi-feedstock
 cfgv:
 - ./cfgv-feedstock
+cfitsio:
+- ./cfitsio-feedstock
 cfn-lint:
 - ./cfn-lint-feedstock
 cftime:
@@ -906,14 +914,22 @@ gawk:
 - ./gawk-feedstock
 gcab:
 - ./gcab-feedstock
+gcc-compiler:
+- ./gcc_toolchain-feedstock
 gcc_activation:
 - ./gcc_activation-feedstock
 gcc_bootstrap_linux-s390x:
 - ./gcc_activation-feedstock
+gcc_impl_linux-s390x:
+- ./gcc_toolchain-feedstock
 gcc_linux-s390x:
 - ./gcc_activation-feedstock
 gdata:
 - ./gdata-feedstock
+gdb:
+- ./gdb-feedstock
+gdb-pretty-printer:
+- ./gdb-feedstock
 gdbm:
 - ./gdbm-feedstock
 gdk-pixbuf:
@@ -938,6 +954,8 @@ geventhttpclient:
 - ./geventhttpclient-feedstock
 gflags:
 - ./gflags-feedstock
+gfortran_impl_linux-s390x:
+- ./gcc_toolchain-feedstock
 gfortran_linux-s390x:
 - ./gcc_activation-feedstock
 gh:
@@ -1064,6 +1082,8 @@ gts:
 - ./gts-feedstock
 gunicorn:
 - ./gunicorn-feedstock
+gxx_impl_linux-s390x:
+- ./gcc_toolchain-feedstock
 gxx_linux-s390x:
 - ./gcc_activation-feedstock
 h11:
@@ -1090,6 +1110,8 @@ hatchling:
 - ./hatchling-feedstock
 hdf4:
 - ./hdf4-feedstock
+hdf5:
+- ./hdf5-feedstock
 hdfeos2:
 - ./hdfeos2-feedstock
 hdfeos5:
@@ -1150,6 +1172,8 @@ idna_ssl:
 - ./idna_ssl-feedstock
 ijson:
 - ./ijson-feedstock
+imagecodecs:
+- ./imagecodecs-feedstock
 imagehash:
 - ./imagehash-feedstock
 imageio:
@@ -1368,8 +1392,12 @@ ld_impl_linux-s390x:
 - ./binutils-feedstock
 ldap3:
 - ./ldap3-feedstock
+ldid:
+- ./ldid-feedstock
 leather:
 - ./leather-feedstock
+leptonica:
+- ./leptonica-feedstock
 lerc:
 - ./lerc-feedstock
 leveldb:
@@ -1422,14 +1450,24 @@ libevent:
 - ./libevent-feedstock
 libffi:
 - ./libffi-feedstock
+libgcc-devel_linux-s390x:
+- ./gcc_toolchain-feedstock
+libgcc-ng:
+- ./gcc_toolchain-feedstock
 libgcrypt:
 - ./libgcrypt-feedstock
 libgd:
 - ./libgd-feedstock
+libgfortran:
+- ./gcc_toolchain-feedstock
+libgfortran-ng:
+- ./gcc_toolchain-feedstock
 libgit2:
 - ./libgit2-feedstock
 libglu:
 - ./libglu-feedstock
+libgomp:
+- ./gcc_toolchain-feedstock
 libgpg-error:
 - ./libgpg-error-feedstock
 libgpuarray:
@@ -1444,6 +1482,8 @@ libidn2:
 - ./libidn2-feedstock
 libjpeg-turbo:
 - ./libjpeg-turbo-feedstock
+libkml:
+- ./libkml-feedstock
 liblief:
 - ./lief-feedstock
 libllvm14:
@@ -1504,6 +1544,10 @@ libspatialindex:
 - ./libspatialindex-feedstock
 libssh2:
 - ./libssh2-feedstock
+libstdcxx-devel_linux-s390x:
+- ./gcc_toolchain-feedstock
+libstdcxx-ng:
+- ./gcc_toolchain-feedstock
 libtasn1:
 - ./libtasn1-feedstock
 libtheora:
@@ -1540,6 +1584,8 @@ libxkbcommon:
 - ./libxkbcommon-feedstock
 libxml2:
 - ./libxml2-feedstock
+libxslt:
+- ./libxslt-feedstock
 libzip:
 - ./libzip-feedstock
 libzopfli:
@@ -1582,6 +1628,8 @@ lunarcalendar:
 - ./lunarcalendar-feedstock
 lxml:
 - ./lxml-feedstock
+lz4:
+- ./lz4-feedstock
 lz4-c:
 - ./lz4-c-feedstock
 lz4-c-static:
@@ -1630,6 +1678,8 @@ matplotlib-suite:
 - ./matplotlib-feedstock
 matrixprofile:
 - ./matrixprofile-feedstock
+mayavi:
+- ./mayavi-feedstock
 mccabe:
 - ./mccabe-feedstock
 mdit-py-plugins:
@@ -2098,6 +2148,10 @@ portend:
 - ./portend-feedstock
 postgis:
 - ./postgis-feedstock
+postgresql:
+- ./postgresql-feedstock
+postgresql-split:
+- ./postgresql-feedstock
 poyo:
 - ./poyo-feedstock
 pre-commit:
@@ -2530,6 +2584,8 @@ pyxdg:
 - ./pyxdg-feedstock
 pyyaml:
 - ./pyyaml-feedstock
+pyzmq:
+- ./pyzmq-feedstock
 pyzstd:
 - ./pyzstd-feedstock
 qdarkstyle:

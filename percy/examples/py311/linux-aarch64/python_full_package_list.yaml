@@ -1036,6 +1036,12 @@ gast:
 gdal:
 - ../ci_py311/
 - py311_bs/label/release
+gdb:
+- ../ci_py311/
+- py311_bs/label/release
+gdb-pretty-printer:
+- ../ci_py311/
+- py311_bs/label/release
 gensim:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1256,6 +1262,9 @@ idna_ssl:
 - ../ci_py311/
 - py311_bs/label/release
 ijson:
+- ../ci_py311/
+- py311_bs/label/release
+imagecodecs:
 - ../ci_py311/
 - py311_bs/label/release
 imagehash:
@@ -1586,6 +1595,9 @@ lunarcalendar:
 - ../ci_py311/
 - py311_bs/label/release
 lxml:
+- ../ci_py311/
+- py311_bs/label/release
+lz4:
 - ../ci_py311/
 - py311_bs/label/release
 macholib:
@@ -2726,6 +2738,9 @@ pyxdg:
 - ../ci_py311/
 - py311_bs/label/release
 pyyaml:
+- ../ci_py311/
+- py311_bs/label/release
+pyzmq:
 - ../ci_py311/
 - py311_bs/label/release
 pyzstd:

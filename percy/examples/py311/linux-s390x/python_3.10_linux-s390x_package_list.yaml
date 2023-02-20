@@ -338,6 +338,7 @@
 - pretend
 - prettytable
 - prison
+- progressbar2
 - prometheus_client
 - prompt-toolkit
 - proto-plus
@@ -445,6 +446,7 @@
 - ruamel
 - ruamel.yaml
 - ruamel.yaml.clib
+- ruamel.yaml.jinja2
 - ruamel_yaml
 - runipy
 - s3fs
@@ -486,6 +488,7 @@
 - srsly
 - statistics
 - statsmodels
+- stdlib-list
 - swagger-ui-bundle
 - sympy
 - tabulate

@@ -419,13 +419,15 @@ class Recipe:
 
         # read main package deps
         name = self.meta.get("package", {}).get("name", "unknown").strip()
-        version = self.meta.get("package", {}).get("version", "-1").strip()
+        version = str(self.meta.get("package", {}).get("version", "-1")).strip()
         is_noarch = False
         ignore_run_exports = []
         main_build = self.meta.get("build", {})
         if main_build:
             is_noarch = main_build.get("noarch", False)
             ignore_run_exports = main_build.get("ignore_run_exports", [])
+            if not ignore_run_exports:
+                ignore_run_exports = []
         pkg_reqs = {"build": [], "host": [], "run": [], "run_constrained": []}
         requirements = self.meta.get("requirements", {})
         if requirements is not None:
@@ -460,13 +462,15 @@ class Recipe:
         if outputs:
             for output in outputs:
                 name = output.get("name", "")
-                version = self.meta.get("package", {}).get("version", version).strip()
+                version = str(self.meta.get("package", {}).get("version", version)).strip()
                 is_noarch = False
                 ignore_run_exports = []
                 main_build = output.get("build", {})
                 if main_build:
                     is_noarch = main_build.get("noarch", False)
                     ignore_run_exports = main_build.get("ignore_run_exports", [])
+                    if not ignore_run_exports:
+                        ignore_run_exports = []
                 output_pkg_reqs = deepcopy(pkg_reqs)
                 requirements = output.get("requirements", {})
                 if requirements is not None:

@@ -1,9 +1,15 @@
 _anaconda_depends:
 - ./anaconda-feedstock
+_go_select:
+- ./_go_select-feedstock
 _libarchive_static_for_cph:
 - ./_libarchive_static_for_cph-feedstock
 _mutex_mxnet:
 - ./mxnet-feedstock
+_py-xgboost-mutex:
+- ./xgboost-feedstock
+_r-xgboost-mutex:
+- ./xgboost-feedstock
 abseil-cpp:
 - ./abseil-cpp-feedstock
 absl-py:
@@ -12,6 +18,8 @@ access:
 - ./access-feedstock
 adal:
 - ./adal-feedstock
+adwaita-icon-theme:
+- ./adwaita-icon-theme-feedstock
 aenum:
 - ./aenum-feedstock
 affine:
@@ -282,6 +290,8 @@ bash:
 - ./bash-feedstock
 baycomp:
 - ./baycomp-feedstock
+bazel:
+- ./bazel-feedstock
 bcj-cffi:
 - ./bcj-cffi-feedstock
 bcrypt:
@@ -1037,7 +1047,9 @@ gawk:
 gcab:
 - ./gcab-feedstock
 gdal:
-- ./gdal-py-feedstock
+- ./gdal-feedstock
+gdal-split:
+- ./gdal-feedstock
 gdata:
 - ./gdata-feedstock
 gdbm:
@@ -1194,6 +1206,14 @@ grpcio-tools:
 - ./grpcio-tools-feedstock
 gsl:
 - ./gsl-feedstock
+gst-plugins-base:
+- ./gstreamer-feedstock
+gst-plugins-good:
+- ./gstreamer-feedstock
+gstreamer:
+- ./gstreamer-feedstock
+gstreamer_and_plugins:
+- ./gstreamer-feedstock
 gtest:
 - ./gtest-feedstock
 gtk2:
@@ -1294,6 +1314,8 @@ idna_ssl:
 - ./idna_ssl-feedstock
 ijson:
 - ./ijson-feedstock
+imagecodecs:
+- ./imagecodecs-feedstock
 imagehash:
 - ./imagehash-feedstock
 imageio:
@@ -1552,6 +1574,8 @@ ldid:
 - ./ldid-feedstock
 leather:
 - ./leather-feedstock
+leptonica:
+- ./leptonica-feedstock
 lerc:
 - ./lerc-feedstock
 leveldb:
@@ -1620,6 +1644,8 @@ libgd:
 - ./libgd-feedstock
 libgdal:
 - ./gdal-lib-feedstock
+libgdal-arrow-parquet:
+- ./gdal-feedstock
 libgfortran:
 - ./gfortran_impl_osx-64-feedstock
 libgfortran-devel_osx-64:
@@ -1740,6 +1766,8 @@ libwebp:
 - ./libwebp-feedstock
 libwebp-base:
 - ./libwebp-base-feedstock
+libxgboost:
+- ./xgboost-feedstock
 libxml2:
 - ./libxml2-feedstock
 libxslt:
@@ -1790,6 +1818,8 @@ lunarcalendar:
 - ./lunarcalendar-feedstock
 lxml:
 - ./lxml-feedstock
+lz4:
+- ./lz4-feedstock
 lz4-c:
 - ./lz4-c-feedstock
 lz4-c-static:
@@ -1848,6 +1878,8 @@ maturin-suite:
 - ./maturin-feedstock
 maven:
 - ./maven-feedstock
+mayavi:
+- ./mayavi-feedstock
 mccabe:
 - ./mccabe-feedstock
 mdit-py-plugins:
@@ -2052,6 +2084,8 @@ neuralprophet:
 - ./neuralprophet-feedstock
 nghttp2:
 - ./nghttp2-feedstock
+nginx:
+- ./nginx-feedstock
 ninja:
 - ./ninja-feedstock
 ninja-base:
@@ -2152,6 +2186,8 @@ openjdk:
 - ./openjdk-feedstock
 openjpeg:
 - ./openjpeg-feedstock
+openldap:
+- ./openldap-feedstock
 openml:
 - ./openml-feedstock
 openmpi:
@@ -2374,6 +2410,10 @@ portend:
 - ./portend-feedstock
 postgis:
 - ./postgis-feedstock
+postgresql:
+- ./postgresql-feedstock
+postgresql-split:
+- ./postgresql-feedstock
 poyo:
 - ./poyo-feedstock
 pre-commit:
@@ -2444,6 +2484,10 @@ py-opencv:
 - ./opencv-feedstock
 py-spy:
 - ./py-spy-feedstock
+py-xgboost:
+- ./xgboost-feedstock
+py-xgboost-cpu:
+- ./xgboost-feedstock
 py4j:
 - ./py4j-feedstock
 py7zr:
@@ -2848,6 +2892,8 @@ pyxdg:
 - ./pyxdg-feedstock
 pyyaml:
 - ./pyyaml-feedstock
+pyzmq:
+- ./pyzmq-feedstock
 pyzstd:
 - ./pyzstd-feedstock
 qasync:
@@ -2882,6 +2928,10 @@ quantecon:
 - ./quantecon-feedstock
 quilt3:
 - ./quilt-feedstock
+r-xgboost:
+- ./xgboost-feedstock
+r-xgboost-cpu:
+- ./xgboost-feedstock
 radon:
 - ./radon-feedstock
 rapidjson:
@@ -3546,6 +3596,10 @@ xcb-proto:
 - ./xcb-proto-feedstock
 xerces-c:
 - ./xerces-c-feedstock
+xgboost:
+- ./xgboost-feedstock
+xgboost-split:
+- ./xgboost-feedstock
 xlrd:
 - ./xlrd-feedstock
 xlsxwriter:

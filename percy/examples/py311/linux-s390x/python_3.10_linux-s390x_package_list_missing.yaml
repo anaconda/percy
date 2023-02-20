@@ -15,15 +15,11 @@
 - diffusers-base
 - diffusers-torch
 - ecdsa
-- gdb
-- gdb-pretty-printer
 - gst-plugins-good
 - hvplot
-- imagecodecs
 - jupyterhub
 - libpython-static
 - lockfile
-- lz4
 - modin
 - modin-all
 - modin-core
@@ -34,9 +30,10 @@
 - pyramid
 - pythonanywhere
 - pytorch
-- pyzmq
+- ruamel.yaml.jinja2
 - sphinxcontrib
 - statistics
+- stdlib-list
 - tensorboard-data-server
 - transformers
 - typed-ast

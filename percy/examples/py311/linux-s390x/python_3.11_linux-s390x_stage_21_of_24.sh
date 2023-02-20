@@ -181,11 +181,11 @@ if [[ ! -f pillow-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f poetry-feedstock.mark ]]; then
-    if [[ -d poetry-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./poetry-feedstock >d 2>&1 && rm -f d && ( echo "done" >>poetry-feedstock.mark ) && true) || ( (echo "poetry-feedstock" >>failed.21 ) && (echo "poetry-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f pkgconfig-feedstock.mark ]]; then
+    if [[ -d pkgconfig-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pkgconfig-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pkgconfig-feedstock.mark ) && true) || ( (echo "pkgconfig-feedstock" >>failed.21 ) && (echo "pkgconfig-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "poetry-feedstock not present" >>failed.21
+        echo "pkgconfig-feedstock not present" >>failed.21
     fi
 fi
 

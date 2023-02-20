@@ -66,10 +66,7 @@
 - portpicker
 - priority
 - py-boost
-- py-xgboost
-- py-xgboost-cpu
 - pyaudio
-- pycryptodome
 - pyhive
 - pyprof2calltree
 - pyramid
@@ -86,12 +83,14 @@
 - rbc
 - readme_renderer
 - repoze.lru
+- ruamel.yaml.jinja2
 - shap
 - snakeviz
 - sockjs-tornado
 - spacy-transformers
 - sphinxcontrib
 - statistics
+- stdlib-list
 - suds-jurko
 - tabpy-client
 - tabpy-server
@@ -117,7 +116,6 @@
 - winkerberos
 - word2vec
 - workerpool
-- xgboost
 - xmlrpc2
 - zope
 - zope.component

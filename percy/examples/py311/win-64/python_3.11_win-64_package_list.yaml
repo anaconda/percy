@@ -446,6 +446,8 @@
 - psutil
 - psycopg2
 - py-lief
+- py-xgboost
+- py-xgboost-cpu
 - py4j
 - pyamg
 - pyarrow
@@ -457,6 +459,7 @@
 - pycodestyle
 - pycosat
 - pycrypto
+- pycryptodome
 - pycryptodomex
 - pycryptosat
 - pyct
@@ -702,6 +705,7 @@
 - wrapt
 - ws4py
 - xarray
+- xgboost
 - xlwings
 - xlwt
 - xyzservices

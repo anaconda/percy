@@ -10,20 +10,11 @@ if [[ ! -f async-timeout-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f distlib-feedstock.mark ]]; then
-    if [[ -d distlib-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./distlib-feedstock >d 2>&1 && rm -f d && ( echo "done" >>distlib-feedstock.mark ) && true) || ( (echo "distlib-feedstock" >>failed.19 ) && (echo "distlib-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f cachecontrol-feedstock.mark ]]; then
+    if [[ -d cachecontrol-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./cachecontrol-feedstock >d 2>&1 && rm -f d && ( echo "done" >>cachecontrol-feedstock.mark ) && true) || ( (echo "cachecontrol-feedstock" >>failed.19 ) && (echo "cachecontrol-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "distlib-feedstock not present" >>failed.19
-    fi
-fi
-
-
-if [[ ! -f filelock-feedstock.mark ]]; then
-    if [[ -d filelock-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./filelock-feedstock >d 2>&1 && rm -f d && ( echo "done" >>filelock-feedstock.mark ) && true) || ( (echo "filelock-feedstock" >>failed.19 ) && (echo "filelock-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "filelock-feedstock not present" >>failed.19
+        echo "cachecontrol-feedstock not present" >>failed.19
     fi
 fi
 
@@ -37,20 +28,20 @@ if [[ ! -f gobject-introspection-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f keyring-feedstock.mark ]]; then
+    if [[ -d keyring-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./keyring-feedstock >d 2>&1 && rm -f d && ( echo "done" >>keyring-feedstock.mark ) && true) || ( (echo "keyring-feedstock" >>failed.19 ) && (echo "keyring-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "keyring-feedstock not present" >>failed.19
+    fi
+fi
+
+
 if [[ ! -f locket-feedstock.mark ]]; then
     if [[ -d locket-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./locket-feedstock >d 2>&1 && rm -f d && ( echo "done" >>locket-feedstock.mark ) && true) || ( (echo "locket-feedstock" >>failed.19 ) && (echo "locket-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "locket-feedstock not present" >>failed.19
-    fi
-fi
-
-
-if [[ ! -f msgpack-python-feedstock.mark ]]; then
-    if [[ -d msgpack-python-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./msgpack-python-feedstock >d 2>&1 && rm -f d && ( echo "done" >>msgpack-python-feedstock.mark ) && true) || ( (echo "msgpack-python-feedstock" >>failed.19 ) && (echo "msgpack-python-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "msgpack-python-feedstock not present" >>failed.19
     fi
 fi
 
@@ -73,6 +64,15 @@ if [[ ! -f pep517-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f pkginfo-feedstock.mark ]]; then
+    if [[ -d pkginfo-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pkginfo-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pkginfo-feedstock.mark ) && true) || ( (echo "pkginfo-feedstock" >>failed.19 ) && (echo "pkginfo-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "pkginfo-feedstock not present" >>failed.19
+    fi
+fi
+
+
 if [[ ! -f ply-feedstock.mark ]]; then
     if [[ -d ply-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./ply-feedstock >d 2>&1 && rm -f d && ( echo "done" >>ply-feedstock.mark ) && true) || ( (echo "ply-feedstock" >>failed.19 ) && (echo "ply-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -91,11 +91,20 @@ if [[ ! -f pybind11-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f secretstorage-feedstock.mark ]]; then
-    if [[ -d secretstorage-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./secretstorage-feedstock >d 2>&1 && rm -f d && ( echo "done" >>secretstorage-feedstock.mark ) && true) || ( (echo "secretstorage-feedstock" >>failed.19 ) && (echo "secretstorage-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f pyparsing-feedstock.mark ]]; then
+    if [[ -d pyparsing-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pyparsing-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pyparsing-feedstock.mark ) && true) || ( (echo "pyparsing-feedstock" >>failed.19 ) && (echo "pyparsing-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "secretstorage-feedstock not present" >>failed.19
+        echo "pyparsing-feedstock not present" >>failed.19
+    fi
+fi
+
+
+if [[ ! -f shellingham-feedstock.mark ]]; then
+    if [[ -d shellingham-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./shellingham-feedstock >d 2>&1 && rm -f d && ( echo "done" >>shellingham-feedstock.mark ) && true) || ( (echo "shellingham-feedstock" >>failed.19 ) && (echo "shellingham-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "shellingham-feedstock not present" >>failed.19
     fi
 fi
 
@@ -105,6 +114,15 @@ if [[ ! -f toolz-feedstock.mark ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./toolz-feedstock >d 2>&1 && rm -f d && ( echo "done" >>toolz-feedstock.mark ) && true) || ( (echo "toolz-feedstock" >>failed.19 ) && (echo "toolz-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "toolz-feedstock not present" >>failed.19
+    fi
+fi
+
+
+if [[ ! -f virtualenv-feedstock.mark ]]; then
+    if [[ -d virtualenv-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./virtualenv-feedstock >d 2>&1 && rm -f d && ( echo "done" >>virtualenv-feedstock.mark ) && true) || ( (echo "virtualenv-feedstock" >>failed.19 ) && (echo "virtualenv-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "virtualenv-feedstock not present" >>failed.19
     fi
 fi
 

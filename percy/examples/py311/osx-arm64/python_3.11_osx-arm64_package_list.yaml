@@ -315,6 +315,7 @@
 - loguru
 - luigi
 - lxml
+- lz4
 - macfsevents
 - macholib
 - mako
@@ -436,6 +437,8 @@
 - psycopg2
 - py-lief
 - py-mxnet
+- py-xgboost
+- py-xgboost-cpu
 - py4j
 - pyamg
 - pyarrow
@@ -546,6 +549,7 @@
 - pytz
 - pywavelets
 - pyyaml
+- pyzmq
 - pyzstd
 - qasync
 - qstylizer
@@ -694,6 +698,7 @@
 - wurlitzer
 - xarray
 - xcb-proto
+- xgboost
 - xlwings
 - xlwt
 - xyzservices

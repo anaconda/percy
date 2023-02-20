@@ -874,6 +874,12 @@ future:
 gast:
 - ../ci_py311/
 - py311_bs/label/release
+gdb:
+- ../ci_py311/
+- py311_bs/label/release
+gdb-pretty-printer:
+- ../ci_py311/
+- py311_bs/label/release
 genson:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1058,6 +1064,9 @@ idna:
 - ../ci_py311/
 - py311_bs/label/release
 ijson:
+- ../ci_py311/
+- py311_bs/label/release
+imagecodecs:
 - ../ci_py311/
 - py311_bs/label/release
 imagehash:
@@ -1322,6 +1331,9 @@ lunarcalendar:
 - ../ci_py311/
 - py311_bs/label/release
 lxml:
+- ../ci_py311/
+- py311_bs/label/release
+lz4:
 - ../ci_py311/
 - py311_bs/label/release
 macholib:
@@ -1775,6 +1787,9 @@ prettytable:
 - ../ci_py311/
 - py311_bs/label/release
 prison:
+- ../ci_py311/
+- py311_bs/label/release
+progressbar2:
 - ../ci_py311/
 - py311_bs/label/release
 prometheus_client:
@@ -2291,6 +2306,9 @@ pyxdg:
 - ../ci_py311/
 - py311_bs/label/release
 pyyaml:
+- ../ci_py311/
+- py311_bs/label/release
+pyzmq:
 - ../ci_py311/
 - py311_bs/label/release
 pyzstd:

@@ -91,15 +91,6 @@ if [[ ! -f mccabe-0.6.1-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f mkl_fft-feedstock.mark ]]; then
-    if [[ -d mkl_fft-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./mkl_fft-feedstock >d 2>&1 && rm -f d && ( echo "done" >>mkl_fft-feedstock.mark ) && true) || ( (echo "mkl_fft-feedstock" >>failed.23 ) && (echo "mkl_fft-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "mkl_fft-feedstock not present" >>failed.23
-    fi
-fi
-
-
 if [[ ! -f multidict-feedstock.mark ]]; then
     if [[ -d multidict-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./multidict-feedstock >d 2>&1 && rm -f d && ( echo "done" >>multidict-feedstock.mark ) && true) || ( (echo "multidict-feedstock" >>failed.23 ) && (echo "multidict-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

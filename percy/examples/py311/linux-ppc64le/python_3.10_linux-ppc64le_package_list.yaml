@@ -658,6 +658,7 @@
 - ruamel
 - ruamel.yaml
 - ruamel.yaml.clib
+- ruamel.yaml.jinja2
 - ruamel_yaml
 - runipy
 - s3fs
@@ -716,6 +717,7 @@
 - srsly
 - statistics
 - statsmodels
+- stdlib-list
 - streamlit
 - supervisor
 - swagger-ui-bundle

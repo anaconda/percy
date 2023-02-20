@@ -217,11 +217,20 @@ if [[ ! -f flask-compress-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f gdal-py-feedstock.mark ]]; then
-    if [[ -d gdal-py-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./gdal-py-feedstock >d 2>&1 && rm -f d && ( echo "done" >>gdal-py-feedstock.mark ) && true) || ( (echo "gdal-py-feedstock" >>failed.25 ) && (echo "gdal-py-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f gdal-feedstock.mark ]]; then
+    if [[ -d gdal-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./gdal-feedstock >d 2>&1 && rm -f d && ( echo "done" >>gdal-feedstock.mark ) && true) || ( (echo "gdal-feedstock" >>failed.25 ) && (echo "gdal-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "gdal-py-feedstock not present" >>failed.25
+        echo "gdal-feedstock not present" >>failed.25
+    fi
+fi
+
+
+if [[ ! -f gdb-feedstock.mark ]]; then
+    if [[ -d gdb-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./gdb-feedstock >d 2>&1 && rm -f d && ( echo "done" >>gdb-feedstock.mark ) && true) || ( (echo "gdb-feedstock" >>failed.25 ) && (echo "gdb-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "gdb-feedstock not present" >>failed.25
     fi
 fi
 

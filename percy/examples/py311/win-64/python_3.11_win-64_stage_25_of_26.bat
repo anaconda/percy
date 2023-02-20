@@ -74,7 +74,7 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./flask-wtf-feedstock || echo "flask-wtf-feedstock" >>failed.25 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./gdal-py-feedstock || echo "gdal-py-feedstock" >>failed.25 || cmd /K "exit /b 0"
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./gdal-feedstock || echo "gdal-feedstock" >>failed.25 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./gevent-feedstock || echo "gevent-feedstock" >>failed.25 || cmd /K "exit /b 0"
 
@@ -233,5 +233,7 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./vispy-feedstock || echo "vispy-feedstock" >>failed.25 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./watchdog-feedstock || echo "watchdog-feedstock" >>failed.25 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./xgboost-feedstock || echo "xgboost-feedstock" >>failed.25 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./zarr-feedstock || echo "zarr-feedstock" >>failed.25 || cmd /K "exit /b 0"

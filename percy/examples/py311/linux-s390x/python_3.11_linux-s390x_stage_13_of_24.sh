@@ -64,6 +64,15 @@ if [[ ! -f python-fastjsonschema-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f pyzmq-feedstock.mark ]]; then
+    if [[ -d pyzmq-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pyzmq-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pyzmq-feedstock.mark ) && true) || ( (echo "pyzmq-feedstock" >>failed.13 ) && (echo "pyzmq-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "pyzmq-feedstock not present" >>failed.13
+    fi
+fi
+
+
 if [[ ! -f requests-feedstock.mark ]]; then
     if [[ -d requests-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./requests-feedstock >d 2>&1 && rm -f d && ( echo "done" >>requests-feedstock.mark ) && true) || ( (echo "requests-feedstock" >>failed.13 ) && (echo "requests-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

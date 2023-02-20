@@ -28,11 +28,20 @@ if [[ ! -f jupyter_server-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f mkl_random-feedstock.mark ]]; then
-    if [[ -d mkl_random-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./mkl_random-feedstock >d 2>&1 && rm -f d && ( echo "done" >>mkl_random-feedstock.mark ) && true) || ( (echo "mkl_random-feedstock" >>failed.21 ) && (echo "mkl_random-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f numpy-feedstock.mark ]]; then
+    if [[ -d numpy-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./numpy-feedstock >d 2>&1 && rm -f d && ( echo "done" >>numpy-feedstock.mark ) && true) || ( (echo "numpy-feedstock" >>failed.21 ) && (echo "numpy-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "mkl_random-feedstock not present" >>failed.21
+        echo "numpy-feedstock not present" >>failed.21
+    fi
+fi
+
+
+if [[ ! -f numpy-1.22-feedstock.mark ]]; then
+    if [[ -d numpy-1.22-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./numpy-1.22-feedstock >d 2>&1 && rm -f d && ( echo "done" >>numpy-1.22-feedstock.mark ) && true) || ( (echo "numpy-1.22-feedstock" >>failed.21 ) && (echo "numpy-1.22-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "numpy-1.22-feedstock not present" >>failed.21
     fi
 fi
 

@@ -235,6 +235,15 @@ if [[ ! -f flask-compress-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f gdb-feedstock.mark ]]; then
+    if [[ -d gdb-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./gdb-feedstock >d 2>&1 && rm -f d && ( echo "done" >>gdb-feedstock.mark ) && true) || ( (echo "gdb-feedstock" >>failed.23 ) && (echo "gdb-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "gdb-feedstock not present" >>failed.23
+    fi
+fi
+
+
 if [[ ! -f gmpy2-feedstock.mark ]]; then
     if [[ -d gmpy2-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./gmpy2-feedstock >d 2>&1 && rm -f d && ( echo "done" >>gmpy2-feedstock.mark ) && true) || ( (echo "gmpy2-feedstock" >>failed.23 ) && (echo "gmpy2-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -388,15 +397,6 @@ if [[ ! -f phik-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f pkgconfig-feedstock.mark ]]; then
-    if [[ -d pkgconfig-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pkgconfig-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pkgconfig-feedstock.mark ) && true) || ( (echo "pkgconfig-feedstock" >>failed.23 ) && (echo "pkgconfig-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "pkgconfig-feedstock not present" >>failed.23
-    fi
-fi
-
-
 if [[ ! -f prettytable-feedstock.mark ]]; then
     if [[ -d prettytable-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./prettytable-feedstock >d 2>&1 && rm -f d && ( echo "done" >>prettytable-feedstock.mark ) && true) || ( (echo "prettytable-feedstock" >>failed.23 ) && (echo "prettytable-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -483,6 +483,15 @@ if [[ ! -f python-lsp-server-feedstock.mark ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python-lsp-server-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python-lsp-server-feedstock.mark ) && true) || ( (echo "python-lsp-server-feedstock" >>failed.23 ) && (echo "python-lsp-server-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "python-lsp-server-feedstock not present" >>failed.23
+    fi
+fi
+
+
+if [[ ! -f python-utils-feedstock.mark ]]; then
+    if [[ -d python-utils-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python-utils-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python-utils-feedstock.mark ) && true) || ( (echo "python-utils-feedstock" >>failed.23 ) && (echo "python-utils-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "python-utils-feedstock not present" >>failed.23
     fi
 fi
 

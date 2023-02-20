@@ -8,8 +8,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./jupyter_server-feedstock || echo "jupyter_server-feedstock" >>failed.18 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./meson-feedstock || echo "meson-feedstock" >>failed.18 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./numpy-feedstock || echo "numpy-feedstock" >>failed.18 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./numpy-1.22-feedstock || echo "numpy-1.22-feedstock" >>failed.18 || cmd /K "exit /b 0"

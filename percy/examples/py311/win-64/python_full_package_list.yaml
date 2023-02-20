@@ -2194,6 +2194,12 @@ py-cpuinfo:
 py-lief:
 - c:/ci_311/
 - py311_bs/label/release
+py-xgboost:
+- c:/ci_311/
+- py311_bs/label/release
+py-xgboost-cpu:
+- c:/ci_311/
+- py311_bs/label/release
 py4j:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2240,6 +2246,9 @@ pycparser:
 - c:/ci_311/
 - py311_bs/label/release
 pycrypto:
+- c:/ci_311/
+- py311_bs/label/release
+pycryptodome:
 - c:/ci_311/
 - py311_bs/label/release
 pycryptodomex:
@@ -3500,6 +3509,9 @@ wtforms:
 - c:/ci_311/
 - py311_bs/label/release
 xarray:
+- c:/ci_311/
+- py311_bs/label/release
+xgboost:
 - c:/ci_311/
 - py311_bs/label/release
 xlrd:

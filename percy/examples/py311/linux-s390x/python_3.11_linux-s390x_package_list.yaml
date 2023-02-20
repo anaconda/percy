@@ -149,6 +149,8 @@
 - frozenlist
 - fsspec
 - future
+- gdb
+- gdb-pretty-printer
 - geoviews-core
 - gevent
 - gitpython
@@ -184,6 +186,7 @@
 - humanfriendly
 - identify
 - ijson
+- imagecodecs
 - imageio
 - imagesize
 - immutables
@@ -224,6 +227,7 @@
 - locket
 - loguru
 - lxml
+- lz4
 - macholib
 - mapclassify
 - markdown
@@ -306,6 +310,7 @@
 - pretend
 - prettytable
 - prison
+- progressbar2
 - prometheus_client
 - prompt-toolkit
 - proto-plus
@@ -393,6 +398,7 @@
 - pytz
 - pywavelets
 - pyyaml
+- pyzmq
 - pyzstd
 - redis-py
 - regex

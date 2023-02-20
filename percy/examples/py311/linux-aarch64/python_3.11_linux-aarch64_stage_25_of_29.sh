@@ -109,6 +109,15 @@ if [[ ! -f httpcore-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f imagecodecs-feedstock.mark ]]; then
+    if [[ -d imagecodecs-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./imagecodecs-feedstock >d 2>&1 && rm -f d && ( echo "done" >>imagecodecs-feedstock.mark ) && true) || ( (echo "imagecodecs-feedstock" >>failed.25 ) && (echo "imagecodecs-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "imagecodecs-feedstock not present" >>failed.25
+    fi
+fi
+
+
 if [[ ! -f inflection-feedstock.mark ]]; then
     if [[ -d inflection-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./inflection-feedstock >d 2>&1 && rm -f d && ( echo "done" >>inflection-feedstock.mark ) && true) || ( (echo "inflection-feedstock" >>failed.25 ) && (echo "inflection-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

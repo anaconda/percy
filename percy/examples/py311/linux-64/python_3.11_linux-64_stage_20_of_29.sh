@@ -55,24 +55,6 @@ if [[ ! -f nbconvert-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f numpy-feedstock.mark ]]; then
-    if [[ -d numpy-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./numpy-feedstock >d 2>&1 && rm -f d && ( echo "done" >>numpy-feedstock.mark ) && true) || ( (echo "numpy-feedstock" >>failed.20 ) && (echo "numpy-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "numpy-feedstock not present" >>failed.20
-    fi
-fi
-
-
-if [[ ! -f numpy-1.22-feedstock.mark ]]; then
-    if [[ -d numpy-1.22-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./numpy-1.22-feedstock >d 2>&1 && rm -f d && ( echo "done" >>numpy-1.22-feedstock.mark ) && true) || ( (echo "numpy-1.22-feedstock" >>failed.20 ) && (echo "numpy-1.22-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "numpy-1.22-feedstock not present" >>failed.20
-    fi
-fi
-
-
 if [[ ! -f prometheus_client-feedstock.mark ]]; then
     if [[ -d prometheus_client-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./prometheus_client-feedstock >d 2>&1 && rm -f d && ( echo "done" >>prometheus_client-feedstock.mark ) && true) || ( (echo "prometheus_client-feedstock" >>failed.20 ) && (echo "prometheus_client-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

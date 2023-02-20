@@ -214,6 +214,8 @@
 - future
 - fuzzywuzzy
 - gdal
+- gdb
+- gdb-pretty-printer
 - gensim
 - geoviews-core
 - gevent
@@ -264,6 +266,7 @@
 - idna
 - idna_ssl
 - ijson
+- imagecodecs
 - imageio
 - imagesize
 - iminuit
@@ -328,6 +331,7 @@
 - loguru
 - luigi
 - lxml
+- lz4
 - macholib
 - mako
 - mapclassify
@@ -566,6 +570,7 @@
 - pytz
 - pywavelets
 - pyyaml
+- pyzmq
 - pyzstd
 - qasync
 - qgrid

@@ -64,6 +64,8 @@ block_list = [
     "anaconda-feedstock",
     "anaconda_custom-feedstock",
     # other
+    "libprotobuf-3.19-feedstock",
+    "gdal-py-feedstock",
     "14.3.0",
 ]
 
