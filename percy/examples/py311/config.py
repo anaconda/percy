@@ -19,6 +19,7 @@ block_list = [
     "dpctl-feedstock",
     # airflow and co --> likely requires an update to latest
     "airflow-feedstock",
+    "apache-airflow-providers-apache-hdfs-feedstock",
     # numba and co --> requires a new version of numba
     "llvmlite-feedstock",
     "numba-feedstock",
@@ -43,12 +44,13 @@ block_list = [
     "neuralprophet-feedstock",
     "optimum-feedstock",
     "diffusers-feedstock",
+    "accelerate-feedstock",
     # coremltools --> 3.11 not yet supported: https://github.com/apple/coremltools/issues/1730
     "coremltools-feedstock",
     # catboost --> repack of wheels !?!
     "catboost-feedstock",
     "orange3-feedstock",
-    # obslolete
+    # obslolete / deprecated
     "jupyterlab_widgets-feedstock",
     "thriftpy-feedstock",
     "theano-feedstock",
@@ -59,6 +61,13 @@ block_list = [
     "tempita-feedstock",
     "suds-jurko-feedstock",
     "typed-ast-feedstock",
+    "theano-feedstock",
+    "fabric3-feedstock",
+    "hdfs3-feedstock",
+    "elasticsearch-async-feedstock",
+    "pycrypto-feedstock",
+    "runipy-feedstock",
+    "odo-feedstock",
     # private
     "conda-repo-cli-feedstock",
     "anaconda-feedstock",
