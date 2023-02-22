@@ -8,6 +8,8 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./markupsafe-feedstock || echo "markupsafe-feedstock" >>failed.15 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./maturin-feedstock || echo "maturin-feedstock" >>failed.15 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./nbformat-feedstock || echo "nbformat-feedstock" >>failed.15 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./poetry-core-feedstock || echo "poetry-core-feedstock" >>failed.15 || cmd /K "exit /b 0"

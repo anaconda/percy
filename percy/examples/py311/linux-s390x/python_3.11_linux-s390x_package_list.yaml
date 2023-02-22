@@ -181,7 +181,6 @@
 - hiredis
 - holidays
 - hsluv
-- huggingface_accelerate
 - huggingface_hub
 - humanfriendly
 - identify
@@ -310,7 +309,6 @@
 - pretend
 - prettytable
 - prison
-- progressbar2
 - prometheus_client
 - prompt-toolkit
 - proto-plus
@@ -328,7 +326,6 @@
 - pyclipper
 - pycodestyle
 - pycosat
-- pycrypto
 - pycryptodome
 - pycryptodomex
 - pycryptosat
@@ -339,6 +336,7 @@
 - pydispatcher
 - pydocstyle
 - pydot
+- pyemd
 - pyerfa
 - pyface
 - pyflakes
@@ -415,7 +413,6 @@
 - ruamel.yaml
 - ruamel.yaml.clib
 - ruamel_yaml
-- runipy
 - s3fs
 - s3transfer
 - schema

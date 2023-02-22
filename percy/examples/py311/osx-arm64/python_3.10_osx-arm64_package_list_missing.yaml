@@ -22,6 +22,7 @@
 - anaconda
 - anaconda-navigator
 - apache-airflow
+- apache-airflow-providers-apache-hdfs
 - backports.lzma
 - boost
 - boto
@@ -37,6 +38,7 @@
 - colander
 - conda-audit
 - conda-repo-cli
+- conda-souschef
 - configobj
 - cryptacular
 - cubes
@@ -45,12 +47,15 @@
 - datashader
 - easyocr
 - ecdsa
+- elasticsearch-async
 - expressions
+- fabric3
 - fastparquet
 - feedparser
 - ffmpeg
 - fuel
 - gevent-websocket
+- grayskull
 - gridmap
 - hupper
 - jupyter_dashboards_bundlers
@@ -84,7 +89,9 @@
 - portpicker
 - posix_ipc
 - priority
+- progressbar2
 - py-boost
+- pycrypto
 - pyhive
 - pyramid
 - pyramid_debugtoolbar
@@ -95,9 +102,11 @@
 - pywget
 - quantecon
 - queuelib
+- rapidfuzz
 - readme_renderer
 - repoze.lru
 - ruamel.yaml.jinja2
+- runipy
 - shap
 - snakeviz
 - sockjs-tornado

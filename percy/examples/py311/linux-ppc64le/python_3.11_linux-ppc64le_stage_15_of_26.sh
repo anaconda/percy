@@ -63,12 +63,3 @@ if [[ ! -f webencodings-feedstock.mark ]]; then
     fi
 fi
 
-
-if [[ ! -f xcb-proto-feedstock.mark ]]; then
-    if [[ -d xcb-proto-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./xcb-proto-feedstock >d 2>&1 && rm -f d && ( echo "done" >>xcb-proto-feedstock.mark ) && true) || ( (echo "xcb-proto-feedstock" >>failed.15 ) && (echo "xcb-proto-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "xcb-proto-feedstock not present" >>failed.15
-    fi
-fi
-

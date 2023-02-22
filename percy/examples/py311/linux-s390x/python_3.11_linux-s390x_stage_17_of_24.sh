@@ -1,6 +1,15 @@
 #!/bin/bash
 CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0
 
+if [[ ! -f comm-feedstock.mark ]]; then
+    if [[ -d comm-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./comm-feedstock >d 2>&1 && rm -f d && ( echo "done" >>comm-feedstock.mark ) && true) || ( (echo "comm-feedstock" >>failed.17 ) && (echo "comm-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "comm-feedstock not present" >>failed.17
+    fi
+fi
+
+
 if [[ ! -f debugpy-feedstock.mark ]]; then
     if [[ -d debugpy-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./debugpy-feedstock >d 2>&1 && rm -f d && ( echo "done" >>debugpy-feedstock.mark ) && true) || ( (echo "debugpy-feedstock" >>failed.17 ) && (echo "debugpy-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

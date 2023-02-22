@@ -487,15 +487,6 @@ if [[ ! -f python-lsp-server-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f python-utils-feedstock.mark ]]; then
-    if [[ -d python-utils-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python-utils-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python-utils-feedstock.mark ) && true) || ( (echo "python-utils-feedstock" >>failed.23 ) && (echo "python-utils-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "python-utils-feedstock not present" >>failed.23
-    fi
-fi
-
-
 if [[ ! -f python3-openid-feedstock.mark ]]; then
     if [[ -d python3-openid-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python3-openid-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python3-openid-feedstock.mark ) && true) || ( (echo "python3-openid-feedstock" >>failed.23 ) && (echo "python3-openid-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

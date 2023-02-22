@@ -1604,8 +1604,6 @@ logilab-common:
 - ./logilab-common-feedstock
 loguru:
 - ./loguru-feedstock
-luigi:
-- ./luigi-feedstock
 lunarcalendar:
 - ./lunarcalendar-feedstock
 lxml:

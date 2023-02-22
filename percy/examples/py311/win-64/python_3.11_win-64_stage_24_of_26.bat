@@ -74,8 +74,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./mpmath-feedstock || echo "mpmath-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./multipledispatch-feedstock || echo "multipledispatch-feedstock" >>failed.24 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./multiprocess-feedstock || echo "multiprocess-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./netcdf4-feedstock || echo "netcdf4-feedstock" >>failed.24 || cmd /K "exit /b 0"

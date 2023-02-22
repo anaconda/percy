@@ -15,6 +15,7 @@ block_list = [
     "tensorflow-probability-feedstock",
     "tensorflow-estimator",
     "tensorboard-plugin-wit",
+    "keras-ocr-feedstock",
     # intel
     "dpctl-feedstock",
     # airflow and co --> likely requires an update to latest
@@ -47,9 +48,13 @@ block_list = [
     "accelerate-feedstock",
     # coremltools --> 3.11 not yet supported: https://github.com/apple/coremltools/issues/1730
     "coremltools-feedstock",
+    # pomegranate --> 3.11 not yet supported: https://github.com/jmschrei/pomegranate/issues/1009
+    "pomegranate-feedstock",
     # catboost --> repack of wheels !?!
     "catboost-feedstock",
     "orange3-feedstock",
+    # to be done later
+    "scikit-bio-feedstock",
     # obslolete / deprecated
     "jupyterlab_widgets-feedstock",
     "thriftpy-feedstock",
@@ -68,6 +73,12 @@ block_list = [
     "pycrypto-feedstock",
     "runipy-feedstock",
     "odo-feedstock",
+    "mdp-feedstock",
+    "quilt3-feedstock",
+    "quilt-feedstock",
+    "fuel-feedstock",
+    "progressbar2-feedstock",
+    "cryptacular-feedstock",
     # private
     "conda-repo-cli-feedstock",
     "anaconda-feedstock",

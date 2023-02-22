@@ -14,4 +14,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyzmq-feedstock || echo "pyzmq-feedstock" >>failed.14 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./setuptools-rust-feedstock || echo "setuptools-rust-feedstock" >>failed.14 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./tornado-feedstock || echo "tornado-feedstock" >>failed.14 || cmd /K "exit /b 0"

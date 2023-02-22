@@ -814,9 +814,6 @@ editdistance:
 elasticsearch:
 - c:/ci_311/
 - py311_bs/label/release
-elasticsearch-async:
-- c:/ci_311/
-- py311_bs/label/release
 elasticsearch-dsl:
 - c:/ci_311/
 - py311_bs/label/release
@@ -872,9 +869,6 @@ extension-helpers:
 - c:/ci_311/
 - py311_bs/label/release
 fabric:
-- c:/ci_311/
-- py311_bs/label/release
-fabric3:
 - c:/ci_311/
 - py311_bs/label/release
 factory_boy:
@@ -1579,9 +1573,6 @@ logilab-common:
 loguru:
 - c:/ci_311/
 - py311_bs/label/release
-luigi:
-- c:/ci_311/
-- py311_bs/label/release
 lunarcalendar:
 - c:/ci_311/
 - py311_bs/label/release
@@ -1867,9 +1858,6 @@ oauthenticator:
 oauthlib:
 - c:/ci_311/
 - py311_bs/label/release
-odo:
-- c:/ci_311/
-- py311_bs/label/release
 olefile:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2110,9 +2098,6 @@ poetry-core:
 pointpats:
 - c:/ci_311/
 - py311_bs/label/release
-pomegranate:
-- c:/ci_311/
-- py311_bs/label/release
 pooch:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2147,9 +2132,6 @@ prison:
 - c:/ci_311/
 - py311_bs/label/release
 progress:
-- c:/ci_311/
-- py311_bs/label/release
-progressbar2:
 - c:/ci_311/
 - py311_bs/label/release
 prometheus_client:
@@ -2243,9 +2225,6 @@ pycosat:
 - c:/ci_311/
 - py311_bs/label/release
 pycparser:
-- c:/ci_311/
-- py311_bs/label/release
-pycrypto:
 - c:/ci_311/
 - py311_bs/label/release
 pycryptodome:
@@ -2779,9 +2758,6 @@ qtpy:
 quandl:
 - c:/ci_311/
 - py311_bs/label/release
-quilt3:
-- c:/ci_311/
-- py311_bs/label/release
 radon:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2864,9 +2840,6 @@ ruamel.yaml.clib:
 - c:/ci_311/
 - py311_bs/label/release
 ruamel_yaml:
-- c:/ci_311/
-- py311_bs/label/release
-runipy:
 - c:/ci_311/
 - py311_bs/label/release
 s3fs:

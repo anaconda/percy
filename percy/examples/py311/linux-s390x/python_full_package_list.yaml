@@ -1033,9 +1033,6 @@ htmlmin:
 httpretty:
 - ../ci_py311/
 - py311_bs/label/release
-huggingface_accelerate:
-- ../ci_py311/
-- py311_bs/label/release
 huggingface_hub:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1789,9 +1786,6 @@ prettytable:
 prison:
 - ../ci_py311/
 - py311_bs/label/release
-progressbar2:
-- ../ci_py311/
-- py311_bs/label/release
 prometheus_client:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1879,9 +1873,6 @@ pycosat:
 pycparser:
 - ../ci_py311/
 - py311_bs/label/release
-pycrypto:
-- ../ci_py311/
-- py311_bs/label/release
 pycryptodome:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1922,6 +1913,9 @@ pydotplus:
 - ../ci_py311/
 - py311_bs/label/release
 pydruid:
+- ../ci_py311/
+- py311_bs/label/release
+pyemd:
 - ../ci_py311/
 - py311_bs/label/release
 pyepsg:
@@ -2399,9 +2393,6 @@ ruamel.yaml.clib:
 - ../ci_py311/
 - py311_bs/label/release
 ruamel_yaml:
-- ../ci_py311/
-- py311_bs/label/release
-runipy:
 - ../ci_py311/
 - py311_bs/label/release
 s3fs:

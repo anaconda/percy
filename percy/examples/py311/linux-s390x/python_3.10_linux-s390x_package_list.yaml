@@ -94,6 +94,7 @@
 - conda-package-handling
 - conda-package-streaming
 - conda-repo-cli
+- conda-souschef
 - configobj
 - configupdater
 - constantly
@@ -185,6 +186,7 @@
 - googleapis-common-protos
 - googleapis-common-protos-grpc
 - graphql-core
+- grayskull
 - greenlet
 - grpcio
 - grpcio-gcp
@@ -368,6 +370,7 @@
 - pydispatcher
 - pydocstyle
 - pydot
+- pyemd
 - pyerfa
 - pyface
 - pyflakes
@@ -432,6 +435,7 @@
 - pyyaml
 - pyzmq
 - pyzstd
+- rapidfuzz
 - redis-py
 - regex
 - reportlab

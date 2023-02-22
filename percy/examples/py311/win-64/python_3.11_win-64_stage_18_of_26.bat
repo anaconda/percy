@@ -2,6 +2,8 @@ set CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./brotlipy-feedstock || echo "brotlipy-feedstock" >>failed.18 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./comm-feedstock || echo "comm-feedstock" >>failed.18 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./debugpy-feedstock || echo "debugpy-feedstock" >>failed.18 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./ipython-feedstock || echo "ipython-feedstock" >>failed.18 || cmd /K "exit /b 0"

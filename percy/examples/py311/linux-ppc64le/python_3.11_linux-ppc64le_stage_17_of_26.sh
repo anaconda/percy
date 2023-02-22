@@ -55,15 +55,6 @@ if [[ ! -f matplotlib-inline-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f meson-feedstock.mark ]]; then
-    if [[ -d meson-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./meson-feedstock >d 2>&1 && rm -f d && ( echo "done" >>meson-feedstock.mark ) && true) || ( (echo "meson-feedstock" >>failed.17 ) && (echo "meson-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "meson-feedstock not present" >>failed.17
-    fi
-fi
-
-
 if [[ ! -f nbconvert-feedstock.mark ]]; then
     if [[ -d nbconvert-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./nbconvert-feedstock >d 2>&1 && rm -f d && ( echo "done" >>nbconvert-feedstock.mark ) && true) || ( (echo "nbconvert-feedstock" >>failed.17 ) && (echo "nbconvert-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -141,6 +132,15 @@ if [[ ! -f websocket-client-feedstock.mark ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./websocket-client-feedstock >d 2>&1 && rm -f d && ( echo "done" >>websocket-client-feedstock.mark ) && true) || ( (echo "websocket-client-feedstock" >>failed.17 ) && (echo "websocket-client-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "websocket-client-feedstock not present" >>failed.17
+    fi
+fi
+
+
+if [[ ! -f xcb-proto-feedstock.mark ]]; then
+    if [[ -d xcb-proto-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./xcb-proto-feedstock >d 2>&1 && rm -f d && ( echo "done" >>xcb-proto-feedstock.mark ) && true) || ( (echo "xcb-proto-feedstock" >>failed.17 ) && (echo "xcb-proto-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "xcb-proto-feedstock not present" >>failed.17
     fi
 fi
 

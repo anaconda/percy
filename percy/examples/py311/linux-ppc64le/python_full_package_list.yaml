@@ -91,9 +91,6 @@ anyio:
 anyjson:
 - ../ci_py311/
 - py311_bs/label/release
-apache-airflow-providers-apache-hdfs:
-- ../ci_py311/
-- py311_bs/label/release
 apache-airflow-providers-common-sql:
 - ../ci_py311/
 - py311_bs/label/release
@@ -805,9 +802,6 @@ editdistance:
 elasticsearch:
 - ../ci_py311/
 - py311_bs/label/release
-elasticsearch-async:
-- ../ci_py311/
-- py311_bs/label/release
 elasticsearch-dsl:
 - ../ci_py311/
 - py311_bs/label/release
@@ -860,9 +854,6 @@ extension-helpers:
 - ../ci_py311/
 - py311_bs/label/release
 fabric:
-- ../ci_py311/
-- py311_bs/label/release
-fabric3:
 - ../ci_py311/
 - py311_bs/label/release
 factory_boy:
@@ -1168,9 +1159,6 @@ hatch-vcs:
 hatchling:
 - ../ci_py311/
 - py311_bs/label/release
-hdfs3:
-- ../ci_py311/
-- py311_bs/label/release
 hdijupyterutils:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1211,9 +1199,6 @@ httpretty:
 - ../ci_py311/
 - py311_bs/label/release
 httpx:
-- ../ci_py311/
-- py311_bs/label/release
-huggingface_accelerate:
 - ../ci_py311/
 - py311_bs/label/release
 huggingface_hub:
@@ -2086,9 +2071,6 @@ poetry-core:
 pointpats:
 - ../ci_py311/
 - py311_bs/label/release
-pomegranate:
-- ../ci_py311/
-- py311_bs/label/release
 pooch:
 - ../ci_py311/
 - py311_bs/label/release
@@ -2117,9 +2099,6 @@ prison:
 - ../ci_py311/
 - py311_bs/label/release
 progress:
-- ../ci_py311/
-- py311_bs/label/release
-progressbar2:
 - ../ci_py311/
 - py311_bs/label/release
 prometheus_client:
@@ -2219,9 +2198,6 @@ pycosat:
 - ../ci_py311/
 - py311_bs/label/release
 pycparser:
-- ../ci_py311/
-- py311_bs/label/release
-pycrypto:
 - ../ci_py311/
 - py311_bs/label/release
 pycryptodome:
@@ -2810,9 +2786,6 @@ ruamel.yaml.clib:
 - ../ci_py311/
 - py311_bs/label/release
 ruamel_yaml:
-- ../ci_py311/
-- py311_bs/label/release
-runipy:
 - ../ci_py311/
 - py311_bs/label/release
 s3fs:

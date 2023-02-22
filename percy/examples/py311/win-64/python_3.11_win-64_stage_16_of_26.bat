@@ -20,8 +20,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pywinpty-feedstock || echo "pywinpty-feedstock" >>failed.16 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./setuptools-rust-feedstock || echo "setuptools-rust-feedstock" >>failed.16 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./sniffio-feedstock || echo "sniffio-feedstock" >>failed.16 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./tinycss2-feedstock || echo "tinycss2-feedstock" >>failed.16 || cmd /K "exit /b 0"

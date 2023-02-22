@@ -398,8 +398,6 @@ charset-normalizer:
 - ./charset-normalizer-feedstock
 cheroot:
 - ./cheroot-feedstock
-cherrypy:
-- ./cherrypy-feedstock
 chest:
 - ./chest-feedstock
 chromedriver-binary:
@@ -1622,8 +1620,6 @@ logilab-common:
 - ./logilab-common-feedstock
 loguru:
 - ./loguru-feedstock
-luigi:
-- ./luigi-feedstock
 lunarcalendar:
 - ./lunarcalendar-feedstock
 lxml:

@@ -147,6 +147,7 @@
 - conda-package-handling
 - conda-package-streaming
 - conda-repo-cli
+- conda-souschef
 - configobj
 - configupdater
 - connexion
@@ -279,6 +280,7 @@
 - googleapis-common-protos
 - googleapis-common-protos-grpc
 - graphql-core
+- grayskull
 - greenlet
 - gridmap
 - grpcio
@@ -654,6 +656,7 @@
 - quandl
 - quantecon
 - queuelib
+- rapidfuzz
 - rasterio
 - readme_renderer
 - redis-py

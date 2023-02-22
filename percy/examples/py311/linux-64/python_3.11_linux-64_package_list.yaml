@@ -13,7 +13,6 @@
 - anyio
 - anyjson
 - anyqt
-- apache-airflow-providers-apache-hdfs
 - apache-airflow-providers-common-sql
 - apache-airflow-providers-ftp
 - apache-airflow-providers-http
@@ -164,7 +163,6 @@
 - ecos
 - editables
 - editdistance
-- elasticsearch-async
 - elasticsearch-dsl
 - email-validator
 - enaml
@@ -177,7 +175,6 @@
 - eventlet
 - exceptiongroup
 - fabric
-- fabric3
 - factory_boy
 - fast-histogram
 - fastavro
@@ -248,7 +245,6 @@
 - hatch-requirements-txt
 - hatch-vcs
 - hatchling
-- hdfs3
 - hdijupyterutils
 - hdmedians
 - hiredis
@@ -257,7 +253,6 @@
 - hsluv
 - httpcore
 - httpx
-- huggingface_accelerate
 - huggingface_hub
 - humanfriendly
 - hvplot
@@ -394,7 +389,6 @@
 - numpydoc
 - oauthenticator
 - oauthlib
-- odo
 - onnx
 - onnxconverter-common
 - onnxmltools
@@ -444,7 +438,6 @@
 - pmdarima
 - poetry
 - poetry-core
-- pomegranate
 - portalocker
 - pre-commit
 - preshed
@@ -452,7 +445,6 @@
 - prettytable
 - prison
 - progress
-- progressbar2
 - prometheus_client
 - promise
 - prompt-toolkit
@@ -474,7 +466,6 @@
 - pyclipper
 - pycodestyle
 - pycosat
-- pycrypto
 - pycryptodome
 - pycryptodomex
 - pycryptosat
@@ -579,7 +570,6 @@
 - qtconsole
 - qtpy
 - quandl
-- quilt3
 - rasterio
 - redis-py
 - regex
@@ -600,12 +590,10 @@
 - ruamel.yaml
 - ruamel.yaml.clib
 - ruamel_yaml
-- runipy
 - s3fs
 - s3transfer
 - sasl
 - schema
-- scikit-bio
 - scikit-build
 - scikit-image
 - scikit-learn
