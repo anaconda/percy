@@ -40,6 +40,7 @@
 - conda-repo-cli
 - conda-souschef
 - configobj
+- constructor
 - cryptacular
 - cubes
 - cvxcanon
@@ -58,8 +59,10 @@
 - grayskull
 - gridmap
 - hupper
+- imbalanced-learn
 - jupyter_dashboards_bundlers
 - libpython-static
+- lightning-utilities
 - line_profiler
 - llvmlite
 - lockfile
@@ -73,6 +76,8 @@
 - neotime
 - neuralprophet
 - numba
+- onnxmltools
+- onnxruntime
 - onnxruntime-novec
 - optimum
 - orange3
@@ -108,6 +113,7 @@
 - ruamel.yaml.jinja2
 - runipy
 - shap
+- skl2onnx
 - snakeviz
 - sockjs-tornado
 - spacy-transformers

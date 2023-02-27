@@ -28,6 +28,15 @@ if [[ ! -f alembic-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f altgraph-feedstock.mark ]]; then
+    if [[ -d altgraph-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./altgraph-feedstock >d 2>&1 && rm -f d && ( echo "done" >>altgraph-feedstock.mark ) && true) || ( (echo "altgraph-feedstock" >>failed.26 ) && (echo "altgraph-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "altgraph-feedstock not present" >>failed.26
+    fi
+fi
+
+
 if [[ ! -f anyjson-feedstock.mark ]]; then
     if [[ -d anyjson-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./anyjson-feedstock >d 2>&1 && rm -f d && ( echo "done" >>anyjson-feedstock.mark ) && true) || ( (echo "anyjson-feedstock" >>failed.26 ) && (echo "anyjson-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -289,15 +298,6 @@ if [[ ! -f huggingface_hub-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f humanfriendly-feedstock.mark ]]; then
-    if [[ -d humanfriendly-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./humanfriendly-feedstock >d 2>&1 && rm -f d && ( echo "done" >>humanfriendly-feedstock.mark ) && true) || ( (echo "humanfriendly-feedstock" >>failed.26 ) && (echo "humanfriendly-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "humanfriendly-feedstock not present" >>failed.26
-    fi
-fi
-
-
 if [[ ! -f inflection-feedstock.mark ]]; then
     if [[ -d inflection-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./inflection-feedstock >d 2>&1 && rm -f d && ( echo "done" >>inflection-feedstock.mark ) && true) || ( (echo "inflection-feedstock" >>failed.26 ) && (echo "inflection-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -406,15 +406,6 @@ if [[ ! -f oauthlib-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f onnxconverter-common-feedstock.mark ]]; then
-    if [[ -d onnxconverter-common-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./onnxconverter-common-feedstock >d 2>&1 && rm -f d && ( echo "done" >>onnxconverter-common-feedstock.mark ) && true) || ( (echo "onnxconverter-common-feedstock" >>failed.26 ) && (echo "onnxconverter-common-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "onnxconverter-common-feedstock not present" >>failed.26
-    fi
-fi
-
-
 if [[ ! -f openpyxl-feedstock.mark ]]; then
     if [[ -d openpyxl-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./openpyxl-feedstock >d 2>&1 && rm -f d && ( echo "done" >>openpyxl-feedstock.mark ) && true) || ( (echo "openpyxl-feedstock" >>failed.26 ) && (echo "openpyxl-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -492,15 +483,6 @@ if [[ ! -f pydantic-feedstock.mark ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pydantic-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pydantic-feedstock.mark ) && true) || ( (echo "pydantic-feedstock" >>failed.26 ) && (echo "pydantic-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "pydantic-feedstock not present" >>failed.26
-    fi
-fi
-
-
-if [[ ! -f pyinstaller-feedstock.mark ]]; then
-    if [[ -d pyinstaller-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pyinstaller-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pyinstaller-feedstock.mark ) && true) || ( (echo "pyinstaller-feedstock" >>failed.26 ) && (echo "pyinstaller-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "pyinstaller-feedstock not present" >>failed.26
     fi
 fi
 

@@ -296,6 +296,7 @@
 - imagecodecs
 - imageio
 - imagesize
+- imbalanced-learn
 - iminuit
 - immutables
 - importlib-metadata
@@ -350,6 +351,7 @@
 - libpython-static
 - license-expression
 - lightgbm
+- lightning-utilities
 - line_profiler
 - linecache2
 - linkify-it-py

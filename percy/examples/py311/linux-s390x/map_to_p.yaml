@@ -943,7 +943,7 @@ geotiff:
 geoviews:
 - ./geoviews-feedstock
 geoviews-core:
-- ./geoviews-core-feedstock
+- ./geoviews-feedstock
 gettext:
 - ./gettext-feedstock
 gevent:
@@ -2520,8 +2520,6 @@ python-levenshtein:
 - ./python-levenshtein-feedstock
 python-libarchive-c:
 - ./python-libarchive-c-feedstock
-python-lmdb:
-- ./python-lmdb-feedstock
 python-louvain:
 - ./python-louvain-feedstock
 python-lsp-black:

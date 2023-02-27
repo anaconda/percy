@@ -116,7 +116,6 @@
 - configupdater
 - connexion
 - constantly
-- constructor
 - contextlib2
 - contourpy
 - coverage
@@ -134,12 +133,10 @@
 - cython
 - cython-blis
 - cytoolz
-- daal4py
 - dash
 - dask
 - dask-core
 - dask-glm
-- dask-searchcv
 - datasets
 - datashape
 - dateparser
@@ -336,7 +333,6 @@
 - matplotlib
 - matplotlib-base
 - matplotlib-inline
-- matrixprofile
 - maturin
 - mccabe
 - mdit-py-plugins
@@ -388,8 +384,6 @@
 - oauthlib
 - onnx
 - onnxconverter-common
-- onnxmltools
-- onnxruntime
 - opencensus-context
 - opencv
 - openpyxl
@@ -620,7 +614,6 @@
 - simplegeneric
 - simplejson
 - sip
-- skl2onnx
 - slack-sdk
 - slackclient
 - smart_open

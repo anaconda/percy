@@ -39,6 +39,7 @@
 - conda-souschef
 - configobj
 - console_shortcut
+- constructor
 - coremltools
 - dask-ml
 - datashader
@@ -59,10 +60,13 @@
 - hdfs3
 - huggingface_accelerate
 - hupper
+- imbalanced-learn
 - libpython-static
+- lightning-utilities
 - line_profiler
 - llvmlite
 - lockfile
+- matrixprofile
 - mdp
 - modin
 - modin-all
@@ -72,6 +76,8 @@
 - neotime
 - neuralprophet
 - numba
+- onnxmltools
+- onnxruntime
 - onnxruntime-novec
 - optimum
 - orange3
@@ -101,6 +107,7 @@
 - repoze.lru
 - ruamel.yaml.jinja2
 - shap
+- skl2onnx
 - snakeviz
 - spacy-transformers
 - sphinxcontrib

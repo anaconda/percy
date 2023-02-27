@@ -109,7 +109,6 @@
 - configupdater
 - connexion
 - constantly
-- constructor
 - contextlib2
 - contourpy
 - coverage
@@ -321,7 +320,6 @@
 - matplotlib
 - matplotlib-base
 - matplotlib-inline
-- matrixprofile
 - maturin
 - mccabe
 - mdit-py-plugins
@@ -368,7 +366,6 @@
 - oauthlib
 - onnx
 - onnxconverter-common
-- onnxmltools
 - opencensus-context
 - opencv
 - openpyxl
@@ -580,7 +577,6 @@
 - simplegeneric
 - simplejson
 - sip
-- skl2onnx
 - slack-sdk
 - slackclient
 - smart_open

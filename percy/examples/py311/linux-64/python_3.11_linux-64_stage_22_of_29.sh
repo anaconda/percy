@@ -19,6 +19,15 @@ if [[ ! -f ipykernel-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f mkl_fft-feedstock.mark ]]; then
+    if [[ -d mkl_fft-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./mkl_fft-feedstock >d 2>&1 && rm -f d && ( echo "done" >>mkl_fft-feedstock.mark ) && true) || ( (echo "mkl_fft-feedstock" >>failed.22 ) && (echo "mkl_fft-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "mkl_fft-feedstock not present" >>failed.22
+    fi
+fi
+
+
 if [[ ! -f mkl_random-feedstock.mark ]]; then
     if [[ -d mkl_random-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./mkl_random-feedstock >d 2>&1 && rm -f d && ( echo "done" >>mkl_random-feedstock.mark ) && true) || ( (echo "mkl_random-feedstock" >>failed.22 ) && (echo "mkl_random-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

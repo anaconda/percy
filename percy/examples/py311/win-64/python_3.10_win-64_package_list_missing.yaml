@@ -20,10 +20,13 @@
 - conda-repo-cli
 - conda-souschef
 - configobj
+- constructor
 - cryptacular
 - cubes
 - cvxcanon
+- daal4py
 - dask-ml
+- dask-searchcv
 - datashader
 - easyocr
 - ecdsa
@@ -37,13 +40,16 @@
 - grayskull
 - gridmap
 - hupper
+- imbalanced-learn
 - jupyter_dashboards_bundlers
 - libpython
 - libpython-static
+- lightning-utilities
 - line_profiler
 - llvmlite
 - lockfile
 - luigi
+- matrixprofile
 - mdp
 - modin
 - modin-all
@@ -55,6 +61,7 @@
 - neuralprophet
 - numba
 - odo
+- onnxmltools
 - onnxruntime
 - onnxruntime-novec
 - optimum
@@ -97,6 +104,7 @@
 - ruamel.yaml.jinja2
 - runipy
 - shap
+- skl2onnx
 - snakeviz
 - sockjs-tornado
 - spacy-transformers

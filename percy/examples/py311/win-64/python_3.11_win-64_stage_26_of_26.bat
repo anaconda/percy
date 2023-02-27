@@ -96,8 +96,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./console_shortcut_miniconda-feedstock || echo "console_shortcut_miniconda-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./constructor-feedstock || echo "constructor-feedstock" >>failed.26 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./coveralls-feedstock || echo "coveralls-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./cron-descriptor-feedstock || echo "cron-descriptor-feedstock" >>failed.26 || cmd /K "exit /b 0"
@@ -117,8 +115,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./dash-bio-feedstock || echo "dash-bio-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./dask-glm-feedstock || echo "dask-glm-feedstock" >>failed.26 || cmd /K "exit /b 0"
-
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./dask-searchcv-feedstock || echo "dask-searchcv-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./datashape-feedstock || echo "datashape-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
@@ -196,7 +192,7 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./gensim-feedstock || echo "gensim-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./geoviews-core-feedstock || echo "geoviews-core-feedstock" >>failed.26 || cmd /K "exit /b 0"
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./geoviews-feedstock || echo "geoviews-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./geventhttpclient-feedstock || echo "geventhttpclient-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
@@ -278,8 +274,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./marshmallow-oneofschema-feedstock || echo "marshmallow-oneofschema-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./matrixprofile-feedstock || echo "matrixprofile-feedstock" >>failed.26 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./mdit-py-plugins-feedstock || echo "mdit-py-plugins-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./meson-python-feedstock || echo "meson-python-feedstock" >>failed.26 || cmd /K "exit /b 0"
@@ -310,7 +304,7 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./oauthenticator-feedstock || echo "oauthenticator-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./onnxmltools-feedstock || echo "onnxmltools-feedstock" >>failed.26 || cmd /K "exit /b 0"
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./onnxconverter-common-feedstock || echo "onnxconverter-common-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./opencensus-context-feedstock || echo "opencensus-context-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
@@ -375,6 +369,8 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pygpu-feedstock || echo "pygpu-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pygraphviz-feedstock || echo "pygraphviz-feedstock" >>failed.26 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyinstaller-feedstock || echo "pyinstaller-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pykdtree-feedstock || echo "pykdtree-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
@@ -521,8 +517,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./thefuzz-feedstock || echo "thefuzz-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./thrift_sasl-feedstock || echo "thrift_sasl-feedstock" >>failed.26 || cmd /K "exit /b 0"
-
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./thriftpy2-feedstock || echo "thriftpy2-feedstock" >>failed.26 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./tokenizers-feedstock || echo "tokenizers-feedstock" >>failed.26 || cmd /K "exit /b 0"
 

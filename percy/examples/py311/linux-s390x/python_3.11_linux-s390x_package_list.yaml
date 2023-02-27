@@ -84,7 +84,6 @@
 - conda-package-streaming
 - configupdater
 - constantly
-- constructor
 - contextlib2
 - contourpy
 - coverage
@@ -190,6 +189,7 @@
 - imagesize
 - immutables
 - importlib-metadata
+- impyla
 - inflect
 - ipykernel
 - ipyparallel
@@ -237,7 +237,6 @@
 - matplotlib
 - matplotlib-base
 - matplotlib-inline
-- matrixprofile
 - mccabe
 - mdit-py-plugins
 - mdurl
@@ -273,7 +272,6 @@
 - oauthlib
 - onnx
 - onnxconverter-common
-- onnxmltools
 - openpyxl
 - packaging
 - pandarallel
@@ -434,7 +432,6 @@
 - simplegeneric
 - simplejson
 - sip
-- skl2onnx
 - slack-sdk
 - smart_open
 - smartypants

@@ -107,7 +107,6 @@
 - configupdater
 - connexion
 - constantly
-- constructor
 - contextlib2
 - contourpy
 - coverage
@@ -324,7 +323,6 @@
 - matplotlib
 - matplotlib-base
 - matplotlib-inline
-- matrixprofile
 - maturin
 - mccabe
 - mdit-py-plugins
@@ -370,8 +368,6 @@
 - oauthlib
 - onnx
 - onnxconverter-common
-- onnxmltools
-- onnxruntime
 - opencv
 - openpyxl
 - opentracing
@@ -523,6 +519,7 @@
 - python-ldap
 - python-leveldb
 - python-levenshtein
+- python-lmdb
 - python-lsp-black
 - python-lsp-server
 - python-rapidjson
@@ -594,7 +591,6 @@
 - simplegeneric
 - simplejson
 - sip
-- skl2onnx
 - slack-sdk
 - smart_open
 - smartypants

@@ -505,9 +505,6 @@ conllu:
 constantly:
 - ../ci_py311/
 - py311_bs/label/release
-constructor:
-- ../ci_py311/
-- py311_bs/label/release
 contextlib2:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1087,6 +1084,9 @@ importlib-metadata:
 importlib_resources:
 - ../ci_py311/
 - py311_bs/label/release
+impyla:
+- ../ci_py311/
+- py311_bs/label/release
 incremental:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1378,9 +1378,6 @@ matplotlib-base:
 matplotlib-inline:
 - ../ci_py311/
 - py311_bs/label/release
-matrixprofile:
-- ../ci_py311/
-- py311_bs/label/release
 mccabe:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1571,9 +1568,6 @@ onnx:
 - ../ci_py311/
 - py311_bs/label/release
 onnxconverter-common:
-- ../ci_py311/
-- py311_bs/label/release
-onnxmltools:
 - ../ci_py311/
 - py311_bs/label/release
 openapi-spec-validator:
@@ -2510,9 +2504,6 @@ sip:
 - ../ci_py311/
 - py311_bs/label/release
 six:
-- ../ci_py311/
-- py311_bs/label/release
-skl2onnx:
 - ../ci_py311/
 - py311_bs/label/release
 slack-sdk:

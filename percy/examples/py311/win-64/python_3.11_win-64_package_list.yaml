@@ -112,7 +112,6 @@
 - console_shortcut
 - console_shortcut_miniconda
 - constantly
-- constructor
 - contextlib2
 - contourpy
 - coverage
@@ -129,13 +128,11 @@
 - cython
 - cython-blis
 - cytoolz
-- daal4py
 - dash
 - dash-bio
 - dask
 - dask-core
 - dask-glm
-- dask-searchcv
 - datasets
 - datashape
 - dateparser
@@ -327,7 +324,6 @@
 - matplotlib
 - matplotlib-base
 - matplotlib-inline
-- matrixprofile
 - maturin
 - maturin-gnu
 - mccabe
@@ -378,7 +374,6 @@
 - oauthlib
 - onnx
 - onnxconverter-common
-- onnxmltools
 - opencensus-context
 - opencv
 - openpyxl
@@ -601,7 +596,6 @@
 - simplegeneric
 - simplejson
 - sip
-- skl2onnx
 - slack-sdk
 - slackclient
 - smart_open

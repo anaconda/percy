@@ -43,11 +43,14 @@
 - conda-souschef
 - configobj
 - console_shortcut
+- constructor
 - coremltools
 - cryptacular
 - cubes
 - cvxcanon
+- daal4py
 - dask-ml
+- dask-searchcv
 - datashader
 - diffusers
 - diffusers-base
@@ -70,12 +73,15 @@
 - hdfs3
 - huggingface_accelerate
 - hupper
+- imbalanced-learn
 - jupyter_dashboards_bundlers
 - keras-ocr
 - libpython-static
+- lightning-utilities
 - line_profiler
 - llvmlite
 - lockfile
+- matrixprofile
 - mdp
 - modin
 - modin-all
@@ -90,6 +96,8 @@
 - numba
 - odo
 - omniscidbe
+- onnxmltools
+- onnxruntime
 - onnxruntime-novec
 - optimum
 - orange3
@@ -134,6 +142,7 @@
 - runipy
 - scikit-bio
 - shap
+- skl2onnx
 - snakeviz
 - sockjs-tornado
 - spacy-transformers

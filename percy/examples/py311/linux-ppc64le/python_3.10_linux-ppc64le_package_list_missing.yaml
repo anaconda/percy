@@ -41,6 +41,7 @@
 - conda-souschef
 - configobj
 - console_shortcut
+- constructor
 - coremltools
 - cubes
 - cvxcanon
@@ -64,11 +65,14 @@
 - hdfs3
 - huggingface_accelerate
 - hupper
+- imbalanced-learn
 - jupyter_dashboards_bundlers
 - libpython-static
+- lightning-utilities
 - line_profiler
 - llvmlite
 - lockfile
+- matrixprofile
 - mdp
 - modin
 - modin-all
@@ -78,6 +82,7 @@
 - neotime
 - neuralprophet
 - numba
+- onnxmltools
 - optimum
 - pandasql
 - parsel
@@ -113,6 +118,7 @@
 - ruamel.yaml.jinja2
 - runipy
 - shap
+- skl2onnx
 - snakeviz
 - sockjs-tornado
 - spacy-transformers

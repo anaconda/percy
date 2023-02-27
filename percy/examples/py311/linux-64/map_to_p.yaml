@@ -1113,7 +1113,7 @@ geotiff:
 geoviews:
 - ./geoviews-feedstock
 geoviews-core:
-- ./geoviews-core-feedstock
+- ./geoviews-feedstock
 gettext:
 - ./gettext-feedstock
 gevent:

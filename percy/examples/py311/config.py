@@ -50,6 +50,12 @@ block_list = [
     "coremltools-feedstock",
     # pomegranate --> 3.11 not yet supported: https://github.com/jmschrei/pomegranate/issues/1009
     "pomegranate-feedstock",
+    # onnx --> skl2onnx pending 1.14 release
+    "onnxruntime-feedstock", # pending 3.11 support https://github.com/microsoft/onnxruntime/issues/13482
+    "skl2onnx-feedstock",
+    "onnxmltools-feedstock",
+    # constructor --> latest version needs old conda
+    "constructor-feedstock",
     # catboost --> repack of wheels !?!
     "catboost-feedstock",
     "orange3-feedstock",
@@ -79,6 +85,16 @@ block_list = [
     "fuel-feedstock",
     "progressbar2-feedstock",
     "cryptacular-feedstock",
+    "dask-searchcv-feedstock",
+    "tabpy-client-feedstock",
+    "tabpy-server-feedstock",
+    "tornado-json-feedstock",
+    "matrixprofile-feedstock",
+    "grako-feedstock",
+    "expressions-feedstock",
+    "cubes-feedstock",
+    "matrixprofile-feedstock",
+    "daal4py-feedstock",
     # private
     "conda-repo-cli-feedstock",
     "anaconda-feedstock",
@@ -86,6 +102,7 @@ block_list = [
     # other
     "libprotobuf-3.19-feedstock",
     "gdal-py-feedstock",
+    "geoviews-core-feedstock",
     "14.3.0",
 ]
 

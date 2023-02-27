@@ -210,8 +210,10 @@
 - imagecodecs
 - imageio
 - imagesize
+- imbalanced-learn
 - immutables
 - importlib-metadata
+- impyla
 - inflect
 - ipykernel
 - ipyparallel
@@ -244,6 +246,7 @@
 - libpython-static
 - license-expression
 - lightgbm
+- lightning-utilities
 - linecache2
 - linkify-it-py
 - lit

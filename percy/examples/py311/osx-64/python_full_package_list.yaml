@@ -598,9 +598,6 @@ connexion:
 constantly:
 - ../ci_py311/
 - py311_bs/label/release
-constructor:
-- ../ci_py311/
-- py311_bs/label/release
 contextlib2:
 - ../ci_py311/
 - py311_bs/label/release
@@ -679,9 +676,6 @@ cytoolz:
 d2to1:
 - ../ci_py311/
 - py311_bs/label/release
-daal4py:
-- ../ci_py311/
-- py311_bs/label/release
 dash:
 - ../ci_py311/
 - py311_bs/label/release
@@ -710,9 +704,6 @@ dask-image:
 - ../ci_py311/
 - py311_bs/label/release
 dask-jobqueue:
-- ../ci_py311/
-- py311_bs/label/release
-dask-searchcv:
 - ../ci_py311/
 - py311_bs/label/release
 dataclasses:
@@ -1660,9 +1651,6 @@ matplotlib-base:
 matplotlib-inline:
 - ../ci_py311/
 - py311_bs/label/release
-matrixprofile:
-- ../ci_py311/
-- py311_bs/label/release
 maturin:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1901,12 +1889,6 @@ onnx:
 - ../ci_py311/
 - py311_bs/label/release
 onnxconverter-common:
-- ../ci_py311/
-- py311_bs/label/release
-onnxmltools:
-- ../ci_py311/
-- py311_bs/label/release
-onnxruntime:
 - ../ci_py311/
 - py311_bs/label/release
 openapi-spec-validator:
@@ -3044,9 +3026,6 @@ sip:
 - ../ci_py311/
 - py311_bs/label/release
 six:
-- ../ci_py311/
-- py311_bs/label/release
-skl2onnx:
 - ../ci_py311/
 - py311_bs/label/release
 slack-sdk:

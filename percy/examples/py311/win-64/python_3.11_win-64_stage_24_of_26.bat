@@ -82,8 +82,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./oauthlib-feedstock/ || echo "oauthlib-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./onnxconverter-common-feedstock || echo "onnxconverter-common-feedstock" >>failed.24 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./openpyxl-feedstock || echo "openpyxl-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./panel-feedstock || echo "panel-feedstock" >>failed.24 || cmd /K "exit /b 0"
@@ -103,8 +101,6 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pycryptodome-feedstock || echo "pycryptodome-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pydantic-feedstock || echo "pydantic-feedstock" >>failed.24 || cmd /K "exit /b 0"
-
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyinstaller-feedstock || echo "pyinstaller-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyjsparser-feedstock || echo "pyjsparser-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
@@ -145,6 +141,8 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./srsly-feedstock || echo "srsly-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./tangled-up-in-unicode-feedstock || echo "tangled-up-in-unicode-feedstock" >>failed.24 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./thriftpy2-feedstock || echo "thriftpy2-feedstock" >>failed.24 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./twisted-iocpsupport-feedstock || echo "twisted-iocpsupport-feedstock" >>failed.24 || cmd /K "exit /b 0"
 

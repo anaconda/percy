@@ -574,9 +574,6 @@ connexion:
 constantly:
 - ../ci_py311/
 - py311_bs/label/release
-constructor:
-- ../ci_py311/
-- py311_bs/label/release
 contextlib2:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1630,9 +1627,6 @@ matplotlib-base:
 matplotlib-inline:
 - ../ci_py311/
 - py311_bs/label/release
-matrixprofile:
-- ../ci_py311/
-- py311_bs/label/release
 maturin:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1853,12 +1847,6 @@ onnx:
 - ../ci_py311/
 - py311_bs/label/release
 onnxconverter-common:
-- ../ci_py311/
-- py311_bs/label/release
-onnxmltools:
-- ../ci_py311/
-- py311_bs/label/release
-onnxruntime:
 - ../ci_py311/
 - py311_bs/label/release
 openapi-spec-validator:
@@ -2632,6 +2620,9 @@ python-levenshtein:
 python-libarchive-c:
 - ../ci_py311/
 - py311_bs/label/release
+python-lmdb:
+- ../ci_py311/
+- py311_bs/label/release
 python-louvain:
 - ../ci_py311/
 - py311_bs/label/release
@@ -2975,9 +2966,6 @@ sip:
 - ../ci_py311/
 - py311_bs/label/release
 six:
-- ../ci_py311/
-- py311_bs/label/release
-skl2onnx:
 - ../ci_py311/
 - py311_bs/label/release
 slack-sdk:

@@ -977,7 +977,7 @@ geotiff:
 geoviews:
 - ./geoviews-feedstock
 geoviews-core:
-- ./geoviews-core-feedstock
+- ./geoviews-feedstock
 getopt-win32:
 - ./getopt-win32-feedstock
 gevent:

@@ -12,6 +12,7 @@
 - conda-repo-cli
 - conda-souschef
 - configobj
+- constructor
 - diffusers
 - diffusers-base
 - diffusers-torch
@@ -20,13 +21,17 @@
 - gst-plugins-good
 - huggingface_accelerate
 - hvplot
+- imbalanced-learn
 - jupyterhub
 - libpython-static
+- lightning-utilities
 - lockfile
+- matrixprofile
 - modin
 - modin-all
 - modin-core
 - modin-dask
+- onnxmltools
 - optimum
 - parsel
 - progressbar2
@@ -38,6 +43,7 @@
 - rapidfuzz
 - ruamel.yaml.jinja2
 - runipy
+- skl2onnx
 - sphinxcontrib
 - statistics
 - stdlib-list

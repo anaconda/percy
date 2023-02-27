@@ -586,9 +586,6 @@ connexion:
 constantly:
 - ../ci_py311/
 - py311_bs/label/release
-constructor:
-- ../ci_py311/
-- py311_bs/label/release
 contextlib2:
 - ../ci_py311/
 - py311_bs/label/release
@@ -1861,12 +1858,6 @@ onnx:
 onnxconverter-common:
 - ../ci_py311/
 - py311_bs/label/release
-onnxmltools:
-- ../ci_py311/
-- py311_bs/label/release
-onnxruntime:
-- ../ci_py311/
-- py311_bs/label/release
 openapi-spec-validator:
 - ../ci_py311/
 - py311_bs/label/release
@@ -2996,9 +2987,6 @@ sip:
 - ../ci_py311/
 - py311_bs/label/release
 six:
-- ../ci_py311/
-- py311_bs/label/release
-skl2onnx:
 - ../ci_py311/
 - py311_bs/label/release
 slack-sdk:
