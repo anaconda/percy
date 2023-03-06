@@ -208,9 +208,9 @@ class Aggregate:
             feedstock_repo = self._get_feedstock_git_repo(feedstock_path_rel)
 
             # attempt to process only the latest feedstocks
-            if feedstock_repo.branch not in ("master", "main") or feedstock_repo.git_url.endswith("aggregate.git"):
+            if feedstock_repo.branch not in ("master", "main") and not feedstock_repo.git_url.endswith("aggregate.git"):
                 logging.warning(
-                    f"Skipping feedstock {feedstock_name} pinned to branch {feedstock_repo.branch}"
+                    f"Skipping feedstock {feedstock_name} pinned to branch {feedstock_repo.branch} ({feedstock_repo.git_url})"
                 )
                 continue
             if feedstock_name.startswith("ctng-compilers-"):

@@ -91,11 +91,11 @@ if [[ ! -f dnspython-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f findpython-feedstock.mark ]]; then
-    if [[ -d findpython-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./findpython-feedstock >d 2>&1 && rm -f d && ( echo "done" >>findpython-feedstock.mark ) && true) || ( (echo "findpython-feedstock" >>failed.22 ) && (echo "findpython-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f docstring-to-markdown-feedstock.mark ]]; then
+    if [[ -d docstring-to-markdown-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./docstring-to-markdown-feedstock >d 2>&1 && rm -f d && ( echo "done" >>docstring-to-markdown-feedstock.mark ) && true) || ( (echo "docstring-to-markdown-feedstock" >>failed.22 ) && (echo "docstring-to-markdown-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "findpython-feedstock not present" >>failed.22
+        echo "docstring-to-markdown-feedstock not present" >>failed.22
     fi
 fi
 
@@ -262,6 +262,15 @@ if [[ ! -f patsy-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f pkginfo-feedstock.mark ]]; then
+    if [[ -d pkginfo-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pkginfo-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pkginfo-feedstock.mark ) && true) || ( (echo "pkginfo-feedstock" >>failed.22 ) && (echo "pkginfo-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "pkginfo-feedstock not present" >>failed.22
+    fi
+fi
+
+
 if [[ ! -f plotly-feedstock.mark ]]; then
     if [[ -d plotly-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./plotly-feedstock >d 2>&1 && rm -f d && ( echo "done" >>plotly-feedstock.mark ) && true) || ( (echo "plotly-feedstock" >>failed.22 ) && (echo "plotly-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -307,47 +316,11 @@ if [[ ! -f pylint-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f python-dotenv-feedstock.mark ]]; then
-    if [[ -d python-dotenv-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python-dotenv-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python-dotenv-feedstock.mark ) && true) || ( (echo "python-dotenv-feedstock" >>failed.22 ) && (echo "python-dotenv-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "python-dotenv-feedstock not present" >>failed.22
-    fi
-fi
-
-
-if [[ ! -f python-installer-feedstock.mark ]]; then
-    if [[ -d python-installer-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./python-installer-feedstock >d 2>&1 && rm -f d && ( echo "done" >>python-installer-feedstock.mark ) && true) || ( (echo "python-installer-feedstock" >>failed.22 ) && (echo "python-installer-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "python-installer-feedstock not present" >>failed.22
-    fi
-fi
-
-
 if [[ ! -f pywavelets-feedstock.mark ]]; then
     if [[ -d pywavelets-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pywavelets-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pywavelets-feedstock.mark ) && true) || ( (echo "pywavelets-feedstock" >>failed.22 ) && (echo "pywavelets-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "pywavelets-feedstock not present" >>failed.22
-    fi
-fi
-
-
-if [[ ! -f resolvelib-feedstock.mark ]]; then
-    if [[ -d resolvelib-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./resolvelib-feedstock >d 2>&1 && rm -f d && ( echo "done" >>resolvelib-feedstock.mark ) && true) || ( (echo "resolvelib-feedstock" >>failed.22 ) && (echo "resolvelib-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "resolvelib-feedstock not present" >>failed.22
-    fi
-fi
-
-
-if [[ ! -f rich-feedstock.mark ]]; then
-    if [[ -d rich-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./rich-feedstock >d 2>&1 && rm -f d && ( echo "done" >>rich-feedstock.mark ) && true) || ( (echo "rich-feedstock" >>failed.22 ) && (echo "rich-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "rich-feedstock not present" >>failed.22
     fi
 fi
 
@@ -379,6 +352,24 @@ if [[ ! -f scikit-learn-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f secretstorage-feedstock.mark ]]; then
+    if [[ -d secretstorage-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./secretstorage-feedstock >d 2>&1 && rm -f d && ( echo "done" >>secretstorage-feedstock.mark ) && true) || ( (echo "secretstorage-feedstock" >>failed.22 ) && (echo "secretstorage-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "secretstorage-feedstock not present" >>failed.22
+    fi
+fi
+
+
+if [[ ! -f smartypants-feedstock.mark ]]; then
+    if [[ -d smartypants-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./smartypants-feedstock >d 2>&1 && rm -f d && ( echo "done" >>smartypants-feedstock.mark ) && true) || ( (echo "smartypants-feedstock" >>failed.22 ) && (echo "smartypants-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "smartypants-feedstock not present" >>failed.22
+    fi
+fi
+
+
 if [[ ! -f tangled-up-in-unicode-feedstock.mark ]]; then
     if [[ -d tangled-up-in-unicode-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./tangled-up-in-unicode-feedstock >d 2>&1 && rm -f d && ( echo "done" >>tangled-up-in-unicode-feedstock.mark ) && true) || ( (echo "tangled-up-in-unicode-feedstock" >>failed.22 ) && (echo "tangled-up-in-unicode-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -406,15 +397,6 @@ if [[ ! -f ukkonen-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f unearth-feedstock.mark ]]; then
-    if [[ -d unearth-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./unearth-feedstock >d 2>&1 && rm -f d && ( echo "done" >>unearth-feedstock.mark ) && true) || ( (echo "unearth-feedstock" >>failed.22 ) && (echo "unearth-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "unearth-feedstock not present" >>failed.22
-    fi
-fi
-
-
 if [[ ! -f whatthepatch-feedstock.mark ]]; then
     if [[ -d whatthepatch-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./whatthepatch-feedstock >d 2>&1 && rm -f d && ( echo "done" >>whatthepatch-feedstock.mark ) && true) || ( (echo "whatthepatch-feedstock" >>failed.22 ) && (echo "whatthepatch-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -424,11 +406,11 @@ if [[ ! -f whatthepatch-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f xarray-feedstock.mark ]]; then
-    if [[ -d xarray-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./xarray-feedstock >d 2>&1 && rm -f d && ( echo "done" >>xarray-feedstock.mark ) && true) || ( (echo "xarray-feedstock" >>failed.22 ) && (echo "xarray-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f zope-feedstock.mark ]]; then
+    if [[ -d zope-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./zope-feedstock >d 2>&1 && rm -f d && ( echo "done" >>zope-feedstock.mark ) && true) || ( (echo "zope-feedstock" >>failed.22 ) && (echo "zope-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "xarray-feedstock not present" >>failed.22
+        echo "zope-feedstock not present" >>failed.22
     fi
 fi
 

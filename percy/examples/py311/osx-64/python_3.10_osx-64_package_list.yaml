@@ -1,11 +1,13 @@
 - _anaconda_depends
 - _ipyw_jlab_nb_ext_conf
 - absl-py
+- adtk
 - aenum
 - agate
 - aiobotocore
 - aiohttp
 - aiopg
+- aiorwlock
 - airflow
 - airflow-with-apache-atlas
 - airflow-with-apache-webhdfs
@@ -277,6 +279,7 @@
 - gevent
 - gevent-websocket
 - geventhttpclient
+- gi-docgen
 - gitpython
 - glue-core
 - glue-vispy-viewers
@@ -300,6 +303,8 @@
 - grpcio
 - grpcio-gcp
 - gunicorn
+- gymnasium
+- gymnasium-notices
 - h2
 - h5py
 - hatch-nodejs-version
@@ -313,6 +318,7 @@
 - holoviews
 - hsluv
 - httpcore
+- httptools
 - httpx
 - huggingface_hub
 - humanfriendly
@@ -346,6 +352,7 @@
 - jaeger-client
 - jaraco.text
 - jax
+- jax-jumpy
 - jaxlib
 - jedi
 - jellyfish
@@ -602,6 +609,7 @@
 - pyobjc-framework-fsevents
 - pyodbc
 - pyopengl
+- pyopenssl
 - pyparsing
 - pypdf2
 - pyppmd
@@ -669,6 +677,7 @@
 - pytimeparse
 - pytoolconfig
 - pytorch
+- pytorch-lightning
 - pytz
 - pywavelets
 - pywget
@@ -804,6 +813,7 @@
 - tomli
 - tomlkit
 - toolz
+- torchmetrics
 - torchvision
 - tornado
 - tornado-json
@@ -828,6 +838,7 @@
 - typing
 - typing-extensions
 - typing_extensions
+- typogrify
 - tzlocal
 - uc-micro-py
 - ujson
@@ -837,6 +848,7 @@
 - unicodedata2
 - urllib3
 - urwid
+- uvicorn
 - uvloop
 - vcrpy
 - vcversioner
@@ -850,8 +862,10 @@
 - waf
 - wasabi
 - watchdog
+- watchfiles
 - webencodings
 - websocket-client
+- websockets
 - webtest
 - werkzeug
 - whatthepatch

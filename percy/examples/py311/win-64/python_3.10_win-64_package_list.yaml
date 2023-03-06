@@ -1,10 +1,12 @@
 - _anaconda_depends
 - absl-py
+- adtk
 - aenum
 - agate
 - aiobotocore
 - aiohttp
 - aiopg
+- aiorwlock
 - alembic
 - altair
 - altgraph
@@ -247,6 +249,7 @@
 - gevent
 - gevent-websocket
 - geventhttpclient
+- gi-docgen
 - gitpython
 - glue-core
 - glue-vispy-viewers
@@ -270,6 +273,8 @@
 - grpcio
 - grpcio-gcp
 - grpcio-tools
+- gymnasium
+- gymnasium-notices
 - h2
 - h5py
 - hatch-nodejs-version
@@ -283,6 +288,7 @@
 - holoviews
 - hsluv
 - httpcore
+- httptools
 - httpx
 - huggingface_hub
 - humanfriendly
@@ -314,6 +320,7 @@
 - ipython
 - ipython-sql
 - jaraco.text
+- jax-jumpy
 - jedi
 - jellyfish
 - jinja2
@@ -563,6 +570,7 @@
 - pynacl
 - pyodbc
 - pyopengl
+- pyopenssl
 - pyparsing
 - pypdf2
 - pyppmd
@@ -628,6 +636,7 @@
 - pytimeparse
 - pytoolconfig
 - pytorch
+- pytorch-lightning
 - pytz
 - pywavelets
 - pywget
@@ -767,6 +776,7 @@
 - tomli
 - tomlkit
 - toolz
+- torchmetrics
 - torchvision
 - tornado
 - tornado-json
@@ -792,6 +802,7 @@
 - typing
 - typing-extensions
 - typing_extensions
+- typogrify
 - tzlocal
 - uc-micro-py
 - ujson
@@ -800,6 +811,7 @@
 - unicodecsv
 - unicodedata2
 - urllib3
+- uvicorn
 - vcrpy
 - vcversioner
 - venusian
@@ -814,6 +826,7 @@
 - watchdog
 - webencodings
 - websocket-client
+- websockets
 - webtest
 - werkzeug
 - whatthepatch

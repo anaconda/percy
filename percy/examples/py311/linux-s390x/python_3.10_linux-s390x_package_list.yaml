@@ -1,9 +1,11 @@
 - _anaconda_depends
 - _ipyw_jlab_nb_ext_conf
 - absl-py
+- adtk
 - aiobotocore
 - aiohttp
 - aiopg
+- aiorwlock
 - airflow
 - alembic
 - altgraph
@@ -132,6 +134,7 @@
 - docstring-to-markdown
 - docutils
 - ecdsa
+- ecos
 - editables
 - editdistance
 - email-validator
@@ -171,6 +174,7 @@
 - gdb-pretty-printer
 - geoviews-core
 - gevent
+- gi-docgen
 - gitpython
 - gmpy2
 - gobject-introspection
@@ -191,6 +195,8 @@
 - grpcio
 - grpcio-gcp
 - gst-plugins-good
+- gymnasium
+- gymnasium-notices
 - h5py
 - hatch-nodejs-version
 - hatch-requirements-txt
@@ -201,6 +207,7 @@
 - hiredis
 - holidays
 - hsluv
+- httptools
 - huggingface_accelerate
 - huggingface_hub
 - humanfriendly
@@ -219,6 +226,7 @@
 - ipyparallel
 - ipython
 - ipython-sql
+- jax-jumpy
 - jedi
 - jellyfish
 - jinja2
@@ -391,6 +399,7 @@
 - pymssql
 - pynacl
 - pyodbc
+- pyopenssl
 - pyparsing
 - pypdf2
 - pyppmd
@@ -433,6 +442,7 @@
 - pythran
 - pytoolconfig
 - pytorch
+- pytorch-lightning
 - pytz
 - pywavelets
 - pyyaml
@@ -514,6 +524,7 @@
 - tomli
 - tomlkit
 - toolz
+- torchmetrics
 - tornado
 - toro
 - tqdm
@@ -530,6 +541,7 @@
 - typing
 - typing-extensions
 - typing_extensions
+- typogrify
 - tzlocal
 - uc-micro-py
 - ujson
@@ -538,6 +550,7 @@
 - unicodecsv
 - unicodedata2
 - urllib3
+- uvicorn
 - uvloop
 - virtualenv
 - virtualenv-clone
@@ -548,6 +561,7 @@
 - watchdog
 - webencodings
 - websocket-client
+- websockets
 - werkzeug
 - whatthepatch
 - wheel

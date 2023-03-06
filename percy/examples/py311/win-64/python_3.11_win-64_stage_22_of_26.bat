@@ -4,21 +4,19 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./astroid-feedstock || echo "astroid-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./click-feedstock || echo "click-feedstock" >>failed.22 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./coverage-feedstock || echo "coverage-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./dill-feedstock || echo "dill-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./filesystem-spec-feedstock || echo "filesystem-spec-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./future-feedstock || echo "future-feedstock" >>failed.22 || cmd /K "exit /b 0"
-
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./greenlet-feedstock || echo "greenlet-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./imagecodecs-feedstock || echo "imagecodecs-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./imagesize-feedstock || echo "imagesize-feedstock" >>failed.22 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./joblib-feedstock || echo "joblib-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./jupyter_console-feedstock || echo "jupyter_console-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
@@ -34,15 +32,19 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./param-feedstock || echo "param-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pastedeploy-feedstock || echo "pastedeploy-feedstock" >>failed.22 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./plaster-feedstock || echo "plaster-feedstock" >>failed.22 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./poetry-feedstock || echo "poetry-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./protobuf-feedstock || echo "protobuf-feedstock" >>failed.22 || cmd /K "exit /b 0"
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./protobuf-3.19-feedstock || echo "protobuf-3.19-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pycodestyle-feedstock || echo "pycodestyle-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyflakes-feedstock || echo "pyflakes-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pythran-feedstock || echo "pythran-feedstock" >>failed.22 || cmd /K "exit /b 0"
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pytoolconfig-feedstock || echo "pytoolconfig-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyyaml-feedstock || echo "pyyaml-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
@@ -54,6 +56,8 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./s3transfer-feedstock || echo "s3transfer-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./scipy-feedstock || echo "scipy-feedstock" >>failed.22 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./setuptools-git-versioning-feedstock || echo "setuptools-git-versioning-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./twine-feedstock || echo "twine-feedstock" >>failed.22 || cmd /K "exit /b 0"
@@ -63,3 +67,5 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./werkzeug-feedstock || echo "werkzeug-feedstock" >>failed.22 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./xyzservices-feedstock || echo "xyzservices-feedstock" >>failed.22 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./zope-feedstock || echo "zope-feedstock" >>failed.22 || cmd /K "exit /b 0"

@@ -10,6 +10,15 @@ if [[ ! -f babel-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f click-feedstock.mark ]]; then
+    if [[ -d click-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./click-feedstock >d 2>&1 && rm -f d && ( echo "done" >>click-feedstock.mark ) && true) || ( (echo "click-feedstock" >>failed.18 ) && (echo "click-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "click-feedstock not present" >>failed.18
+    fi
+fi
+
+
 if [[ ! -f distlib-feedstock.mark ]]; then
     if [[ -d distlib-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./distlib-feedstock >d 2>&1 && rm -f d && ( echo "done" >>distlib-feedstock.mark ) && true) || ( (echo "distlib-feedstock" >>failed.18 ) && (echo "distlib-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -100,11 +109,11 @@ if [[ ! -f numpy-1.22-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f secretstorage-feedstock.mark ]]; then
-    if [[ -d secretstorage-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./secretstorage-feedstock >d 2>&1 && rm -f d && ( echo "done" >>secretstorage-feedstock.mark ) && true) || ( (echo "secretstorage-feedstock" >>failed.18 ) && (echo "secretstorage-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f pdm-pep517-feedstock.mark ]]; then
+    if [[ -d pdm-pep517-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pdm-pep517-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pdm-pep517-feedstock.mark ) && true) || ( (echo "pdm-pep517-feedstock" >>failed.18 ) && (echo "pdm-pep517-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "secretstorage-feedstock not present" >>failed.18
+        echo "pdm-pep517-feedstock not present" >>failed.18
     fi
 fi
 

@@ -54,6 +54,8 @@ block_list = [
     "onnxruntime-feedstock", # pending 3.11 support https://github.com/microsoft/onnxruntime/issues/13482
     "skl2onnx-feedstock",
     "onnxmltools-feedstock",
+    # snowflake-connector-python 3.11 compatible depends on pyarrow 10.0.1
+    "snowflake-connector-python-feedstock",
     # constructor --> latest version needs old conda
     "constructor-feedstock",
     # catboost --> repack of wheels !?!
@@ -61,6 +63,9 @@ block_list = [
     "orange3-feedstock",
     # to be done later
     "scikit-bio-feedstock",
+    "ibis-framework-feedstock",
+    "pmdarima-feedstock",
+    "pymc3-feedstock",
     # obslolete / deprecated
     "jupyterlab_widgets-feedstock",
     "thriftpy-feedstock",
@@ -94,7 +99,6 @@ block_list = [
     "expressions-feedstock",
     "cubes-feedstock",
     "matrixprofile-feedstock",
-    "daal4py-feedstock",
     # private
     "conda-repo-cli-feedstock",
     "anaconda-feedstock",

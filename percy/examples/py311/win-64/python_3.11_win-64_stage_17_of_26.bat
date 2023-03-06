@@ -4,7 +4,7 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./argon2_cffi-feedstock || echo "argon2_cffi-feedstock" >>failed.17 || cmd /K "exit /b 0"
 
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./cryptography-feedstock || echo "cryptography-feedstock" >>failed.17 || cmd /K "exit /b 0"
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./brotlipy-feedstock || echo "brotlipy-feedstock" >>failed.17 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./jedi-feedstock || echo "jedi-feedstock" >>failed.17 || cmd /K "exit /b 0"
 
@@ -18,8 +18,10 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./prompt_toolkit-feedstock || echo "prompt_toolkit-feedstock" >>failed.17 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pyopenssl-feedstock || echo "pyopenssl-feedstock" >>failed.17 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./pysocks-feedstock || echo "pysocks-feedstock" >>failed.17 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./terminado-feedstock || echo "terminado-feedstock" >>failed.17 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./websocket-client-feedstock || echo "websocket-client-feedstock" >>failed.17 || cmd /K "exit /b 0"
-
-conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./win_inet_pton-feedstock || echo "win_inet_pton-feedstock" >>failed.17 || cmd /K "exit /b 0"

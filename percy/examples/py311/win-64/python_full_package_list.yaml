@@ -85,6 +85,9 @@ anaconda-project:
 aniso8601:
 - c:/ci_311/
 - py311_bs/label/release
+ansi2html:
+- c:/ci_311/
+- py311_bs/label/release
 anyio:
 - c:/ci_311/
 - py311_bs/label/release
@@ -128,6 +131,9 @@ apscheduler:
 - c:/ci_311/
 - py311_bs/label/release
 archspec:
+- c:/ci_311/
+- py311_bs/label/release
+aredis:
 - c:/ci_311/
 - py311_bs/label/release
 argcomplete:
@@ -247,6 +253,9 @@ babel:
 backcall:
 - c:/ci_311/
 - py311_bs/label/release
+backports:
+- c:/ci_311/
+- py311_bs/label/release
 backports.functools_lru_cache:
 - c:/ci_311/
 - py311_bs/label/release
@@ -266,6 +275,9 @@ backports.weakref:
 - c:/ci_311/
 - py311_bs/label/release
 backports_abc:
+- c:/ci_311/
+- py311_bs/label/release
+bandersnatch:
 - c:/ci_311/
 - py311_bs/label/release
 basemap:
@@ -328,6 +340,9 @@ boltons:
 boolean.py:
 - c:/ci_311/
 - py311_bs/label/release
+boto:
+- c:/ci_311/
+- py311_bs/label/release
 boto3:
 - c:/ci_311/
 - py311_bs/label/release
@@ -349,7 +364,16 @@ brotlicffi:
 brotlipy:
 - c:/ci_311/
 - py311_bs/label/release
+bsdiff4:
+- c:/ci_311/
+- py311_bs/label/release
+btrees:
+- c:/ci_311/
+- py311_bs/label/release
 bytecode:
+- c:/ci_311/
+- py311_bs/label/release
+bz2file:
 - c:/ci_311/
 - py311_bs/label/release
 cachecontrol:
@@ -421,6 +445,9 @@ chai:
 chainer:
 - c:/ci_311/
 - py311_bs/label/release
+chameleon:
+- c:/ci_311/
+- py311_bs/label/release
 chardet:
 - c:/ci_311/
 - py311_bs/label/release
@@ -484,7 +511,13 @@ clr_loader:
 clyent:
 - c:/ci_311/
 - py311_bs/label/release
+cmarkgfm:
+- c:/ci_311/
+- py311_bs/label/release
 codecov:
+- c:/ci_311/
+- py311_bs/label/release
+colander:
 - c:/ci_311/
 - py311_bs/label/release
 colorama:
@@ -556,6 +589,9 @@ conda-verify:
 configargparse:
 - c:/ci_311/
 - py311_bs/label/release
+configobj:
+- c:/ci_311/
+- py311_bs/label/release
 configparser:
 - c:/ci_311/
 - py311_bs/label/release
@@ -598,6 +634,9 @@ cookiecutter:
 cookies:
 - c:/ci_311/
 - py311_bs/label/release
+cornice:
+- c:/ci_311/
+- py311_bs/label/release
 coverage:
 - c:/ci_311/
 - py311_bs/label/release
@@ -634,7 +673,7 @@ csvkit:
 curio:
 - c:/ci_311/
 - py311_bs/label/release
-cvxopt:
+cvxcanon:
 - c:/ci_311/
 - py311_bs/label/release
 cx_oracle:
@@ -656,6 +695,9 @@ cytoolz:
 - c:/ci_311/
 - py311_bs/label/release
 d2to1:
+- c:/ci_311/
+- py311_bs/label/release
+daal4py:
 - c:/ci_311/
 - py311_bs/label/release
 dash:
@@ -790,6 +832,9 @@ doit:
 drmaa:
 - c:/ci_311/
 - py311_bs/label/release
+ecdsa:
+- c:/ci_311/
+- py311_bs/label/release
 echo:
 - c:/ci_311/
 - py311_bs/label/release
@@ -833,6 +878,9 @@ ephem:
 - c:/ci_311/
 - py311_bs/label/release
 esda:
+- c:/ci_311/
+- py311_bs/label/release
+essential_generators:
 - c:/ci_311/
 - py311_bs/label/release
 et_xmlfile:
@@ -890,6 +938,9 @@ fastrlock:
 - c:/ci_311/
 - py311_bs/label/release
 featuretools:
+- c:/ci_311/
+- py311_bs/label/release
+feedparser:
 - c:/ci_311/
 - py311_bs/label/release
 filelock:
@@ -1048,10 +1099,19 @@ geoviews-core:
 gevent:
 - c:/ci_311/
 - py311_bs/label/release
+gevent-websocket:
+- c:/ci_311/
+- py311_bs/label/release
 geventhttpclient:
 - c:/ci_311/
 - py311_bs/label/release
+gi-docgen:
+- c:/ci_311/
+- py311_bs/label/release
 giddy:
+- c:/ci_311/
+- py311_bs/label/release
+git-cola:
 - c:/ci_311/
 - py311_bs/label/release
 gitdb:
@@ -1127,6 +1187,9 @@ graphql-core:
 - c:/ci_311/
 - py311_bs/label/release
 greenlet:
+- c:/ci_311/
+- py311_bs/label/release
+gridmap:
 - c:/ci_311/
 - py311_bs/label/release
 grin:
@@ -1216,6 +1279,9 @@ humanfriendly:
 humanize:
 - c:/ci_311/
 - py311_bs/label/release
+hupper:
+- c:/ci_311/
+- py311_bs/label/release
 hvplot:
 - c:/ci_311/
 - py311_bs/label/release
@@ -1226,9 +1292,6 @@ hyperlink:
 - c:/ci_311/
 - py311_bs/label/release
 hypothesis:
-- c:/ci_311/
-- py311_bs/label/release
-ibis-framework:
 - c:/ci_311/
 - py311_bs/label/release
 icalendar:
@@ -1456,6 +1519,9 @@ jupyter_console:
 jupyter_core:
 - c:/ci_311/
 - py311_bs/label/release
+jupyter_dashboards_bundlers:
+- c:/ci_311/
+- py311_bs/label/release
 jupyter_kernel_gateway:
 - c:/ci_311/
 - py311_bs/label/release
@@ -1540,6 +1606,9 @@ libmambapy:
 libpysal:
 - c:/ci_311/
 - py311_bs/label/release
+libpython:
+- c:/ci_311/
+- py311_bs/label/release
 license-expression:
 - c:/ci_311/
 - py311_bs/label/release
@@ -1556,6 +1625,12 @@ lit:
 - c:/ci_311/
 - py311_bs/label/release
 locket:
+- c:/ci_311/
+- py311_bs/label/release
+lockfile:
+- c:/ci_311/
+- py311_bs/label/release
+locustio:
 - c:/ci_311/
 - py311_bs/label/release
 logilab-common:
@@ -1631,6 +1706,9 @@ mdit-py-plugins:
 - c:/ci_311/
 - py311_bs/label/release
 mdurl:
+- c:/ci_311/
+- py311_bs/label/release
+meld3:
 - c:/ci_311/
 - py311_bs/label/release
 memory_profiler:
@@ -1775,6 +1853,9 @@ ndg-httpsclient:
 - c:/ci_311/
 - py311_bs/label/release
 neo4j-python-driver:
+- c:/ci_311/
+- py311_bs/label/release
+neotime:
 - c:/ci_311/
 - py311_bs/label/release
 nest-asyncio:
@@ -1930,6 +2011,9 @@ pandas-profiling:
 pandas-stubs:
 - c:/ci_311/
 - py311_bs/label/release
+pandasql:
+- c:/ci_311/
+- py311_bs/label/release
 pandocfilters:
 - c:/ci_311/
 - py311_bs/label/release
@@ -1948,6 +2032,9 @@ paramiko:
 parsedatetime:
 - c:/ci_311/
 - py311_bs/label/release
+parsel:
+- c:/ci_311/
+- py311_bs/label/release
 parso:
 - c:/ci_311/
 - py311_bs/label/release
@@ -1958,6 +2045,9 @@ passlib:
 - c:/ci_311/
 - py311_bs/label/release
 paste:
+- c:/ci_311/
+- py311_bs/label/release
+pastedeploy:
 - c:/ci_311/
 - py311_bs/label/release
 pastel:
@@ -1990,6 +2080,9 @@ pathy:
 patsy:
 - c:/ci_311/
 - py311_bs/label/release
+pbkdf2:
+- c:/ci_311/
+- py311_bs/label/release
 pbr:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2017,6 +2110,12 @@ pep8:
 pep8-naming:
 - c:/ci_311/
 - py311_bs/label/release
+perf:
+- c:/ci_311/
+- py311_bs/label/release
+persistent:
+- c:/ci_311/
+- py311_bs/label/release
 petl:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2030,6 +2129,9 @@ phik:
 - c:/ci_311/
 - py311_bs/label/release
 phonenumbers:
+- c:/ci_311/
+- py311_bs/label/release
+picklable-itertools:
 - c:/ci_311/
 - py311_bs/label/release
 pickleshare:
@@ -2047,6 +2149,9 @@ pip:
 pipenv:
 - c:/ci_311/
 - py311_bs/label/release
+pivottablejs:
+- c:/ci_311/
+- py311_bs/label/release
 pkgconfig:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2054,6 +2159,12 @@ pkginfo:
 - c:/ci_311/
 - py311_bs/label/release
 plac:
+- c:/ci_311/
+- py311_bs/label/release
+plaster:
+- c:/ci_311/
+- py311_bs/label/release
+plaster_pastedeploy:
 - c:/ci_311/
 - py311_bs/label/release
 platformdirs:
@@ -2069,9 +2180,6 @@ ply:
 - c:/ci_311/
 - py311_bs/label/release
 plyvel:
-- c:/ci_311/
-- py311_bs/label/release
-pmdarima:
 - c:/ci_311/
 - py311_bs/label/release
 poetry:
@@ -2090,6 +2198,9 @@ portalocker:
 - c:/ci_311/
 - py311_bs/label/release
 portend:
+- c:/ci_311/
+- py311_bs/label/release
+portpicker:
 - c:/ci_311/
 - py311_bs/label/release
 powershell_shortcut:
@@ -2111,6 +2222,9 @@ pretend:
 - c:/ci_311/
 - py311_bs/label/release
 prettytable:
+- c:/ci_311/
+- py311_bs/label/release
+priority:
 - c:/ci_311/
 - py311_bs/label/release
 prison:
@@ -2186,6 +2300,9 @@ pyasn1:
 - c:/ci_311/
 - py311_bs/label/release
 pyasn1-modules:
+- c:/ci_311/
+- py311_bs/label/release
+pyaudio:
 - c:/ci_311/
 - py311_bs/label/release
 pybind11:
@@ -2284,6 +2401,9 @@ pygraphviz:
 pyhamcrest:
 - c:/ci_311/
 - py311_bs/label/release
+pyhive:
+- c:/ci_311/
+- py311_bs/label/release
 pyinstaller:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2312,9 +2432,6 @@ pylint-venv:
 - c:/ci_311/
 - py311_bs/label/release
 pyls-spyder:
-- c:/ci_311/
-- py311_bs/label/release
-pymc3:
 - c:/ci_311/
 - py311_bs/label/release
 pymeeus:
@@ -2359,7 +2476,13 @@ pypdf2:
 pyperf:
 - c:/ci_311/
 - py311_bs/label/release
+pyperformance:
+- c:/ci_311/
+- py311_bs/label/release
 pyppmd:
+- c:/ci_311/
+- py311_bs/label/release
+pyprof2calltree:
 - c:/ci_311/
 - py311_bs/label/release
 pyproj:
@@ -2387,6 +2510,21 @@ pyqtwebengine:
 - c:/ci_311/
 - py311_bs/label/release
 pyquery:
+- c:/ci_311/
+- py311_bs/label/release
+pyramid:
+- c:/ci_311/
+- py311_bs/label/release
+pyramid_debugtoolbar:
+- c:/ci_311/
+- py311_bs/label/release
+pyramid_jinja2:
+- c:/ci_311/
+- py311_bs/label/release
+pyramid_mako:
+- c:/ci_311/
+- py311_bs/label/release
+pyramid_tm:
 - c:/ci_311/
 - py311_bs/label/release
 pyreadline:
@@ -2462,6 +2600,9 @@ pytest-cache:
 - c:/ci_311/
 - py311_bs/label/release
 pytest-cov:
+- c:/ci_311/
+- py311_bs/label/release
+pytest-csv:
 - c:/ci_311/
 - py311_bs/label/release
 pytest-describe:
@@ -2662,6 +2803,9 @@ python-xxhash:
 python3-openid:
 - c:/ci_311/
 - py311_bs/label/release
+python3-saml:
+- c:/ci_311/
+- py311_bs/label/release
 python_http_client:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2693,6 +2837,9 @@ pyviz_comms:
 - c:/ci_311/
 - py311_bs/label/release
 pywavelets:
+- c:/ci_311/
+- py311_bs/label/release
+pywget:
 - c:/ci_311/
 - py311_bs/label/release
 pywin32:
@@ -2743,6 +2890,9 @@ qtpy:
 quandl:
 - c:/ci_311/
 - py311_bs/label/release
+queuelib:
+- c:/ci_311/
+- py311_bs/label/release
 radon:
 - c:/ci_311/
 - py311_bs/label/release
@@ -2750,6 +2900,15 @@ rasterio:
 - c:/ci_311/
 - py311_bs/label/release
 rasterstats:
+- c:/ci_311/
+- py311_bs/label/release
+readme_renderer:
+- c:/ci_311/
+- py311_bs/label/release
+recommonmark:
+- c:/ci_311/
+- py311_bs/label/release
+redis:
 - c:/ci_311/
 - py311_bs/label/release
 redis-py:
@@ -2761,7 +2920,13 @@ regex:
 reportlab:
 - c:/ci_311/
 - py311_bs/label/release
+repoze.lru:
+- c:/ci_311/
+- py311_bs/label/release
 requests:
+- c:/ci_311/
+- py311_bs/label/release
+requests-file:
 - c:/ci_311/
 - py311_bs/label/release
 requests-ftp:
@@ -2837,6 +3002,9 @@ sacrebleu:
 - c:/ci_311/
 - py311_bs/label/release
 sacremoses:
+- c:/ci_311/
+- py311_bs/label/release
+sas7bdat:
 - c:/ci_311/
 - py311_bs/label/release
 sasl:
@@ -2995,16 +3163,19 @@ smmap2:
 snakebite-py3:
 - c:/ci_311/
 - py311_bs/label/release
+snakeviz:
+- c:/ci_311/
+- py311_bs/label/release
 sniffio:
 - c:/ci_311/
 - py311_bs/label/release
 snowballstemmer:
 - c:/ci_311/
 - py311_bs/label/release
-snowflake-connector-python:
+snuggs:
 - c:/ci_311/
 - py311_bs/label/release
-snuggs:
+sockjs-tornado:
 - c:/ci_311/
 - py311_bs/label/release
 sortedcollections:
@@ -3053,6 +3224,9 @@ sphinx:
 - c:/ci_311/
 - py311_bs/label/release
 sphinx_rtd_theme:
+- c:/ci_311/
+- py311_bs/label/release
+sphinxcontrib:
 - c:/ci_311/
 - py311_bs/label/release
 sphinxcontrib-applehelp:
@@ -3136,6 +3310,9 @@ streamlit:
 streamz:
 - c:/ci_311/
 - py311_bs/label/release
+stripe:
+- c:/ci_311/
+- py311_bs/label/release
 stumpy:
 - c:/ci_311/
 - py311_bs/label/release
@@ -3179,6 +3356,9 @@ testfixtures:
 - c:/ci_311/
 - py311_bs/label/release
 testpath:
+- c:/ci_311/
+- py311_bs/label/release
+testscenarios:
 - c:/ci_311/
 - py311_bs/label/release
 testtools:
@@ -3283,6 +3463,9 @@ tranquilizer:
 transaction:
 - c:/ci_311/
 - py311_bs/label/release
+translationstring:
+- c:/ci_311/
+- py311_bs/label/release
 treelib:
 - c:/ci_311/
 - py311_bs/label/release
@@ -3331,6 +3514,9 @@ typing_extensions:
 typing_inspect:
 - c:/ci_311/
 - py311_bs/label/release
+typogrify:
+- c:/ci_311/
+- py311_bs/label/release
 tzlocal:
 - c:/ci_311/
 - py311_bs/label/release
@@ -3361,6 +3547,9 @@ unittest2:
 urllib3:
 - c:/ci_311/
 - py311_bs/label/release
+uvicorn:
+- c:/ci_311/
+- py311_bs/label/release
 validators:
 - c:/ci_311/
 - py311_bs/label/release
@@ -3368,6 +3557,12 @@ vcrpy:
 - c:/ci_311/
 - py311_bs/label/release
 vcversioner:
+- c:/ci_311/
+- py311_bs/label/release
+vega_datasets:
+- c:/ci_311/
+- py311_bs/label/release
+venusian:
 - c:/ci_311/
 - py311_bs/label/release
 verboselogs:
@@ -3397,6 +3592,9 @@ visvis:
 vyper-config:
 - c:/ci_311/
 - py311_bs/label/release
+w3lib:
+- c:/ci_311/
+- py311_bs/label/release
 waf:
 - c:/ci_311/
 - py311_bs/label/release
@@ -3419,6 +3617,9 @@ webob:
 - c:/ci_311/
 - py311_bs/label/release
 websocket-client:
+- c:/ci_311/
+- py311_bs/label/release
+webtest:
 - c:/ci_311/
 - py311_bs/label/release
 werkzeug:
@@ -3449,6 +3650,15 @@ win_unicode_console:
 - c:/ci_311/
 - py311_bs/label/release
 wincertstore:
+- c:/ci_311/
+- py311_bs/label/release
+winkerberos:
+- c:/ci_311/
+- py311_bs/label/release
+word2vec:
+- c:/ci_311/
+- py311_bs/label/release
+workerpool:
 - c:/ci_311/
 - py311_bs/label/release
 wrapt:
@@ -3482,6 +3692,9 @@ xlwings:
 - c:/ci_311/
 - py311_bs/label/release
 xlwt:
+- c:/ci_311/
+- py311_bs/label/release
+xmlrpc2:
 - c:/ci_311/
 - py311_bs/label/release
 xmltodict:
@@ -3523,7 +3736,22 @@ zict:
 zipp:
 - c:/ci_311/
 - py311_bs/label/release
+zope:
+- c:/ci_311/
+- py311_bs/label/release
+zope.component:
+- c:/ci_311/
+- py311_bs/label/release
+zope.deprecation:
+- c:/ci_311/
+- py311_bs/label/release
+zope.event:
+- c:/ci_311/
+- py311_bs/label/release
 zope.interface:
+- c:/ci_311/
+- py311_bs/label/release
+zope.sqlalchemy:
 - c:/ci_311/
 - py311_bs/label/release
 zstandard:

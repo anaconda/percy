@@ -19,6 +19,15 @@ if [[ ! -f hatch-vcs-feedstock.mark ]]; then
 fi
 
 
+if [[ ! -f pyopenssl-feedstock.mark ]]; then
+    if [[ -d pyopenssl-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pyopenssl-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pyopenssl-feedstock.mark ) && true) || ( (echo "pyopenssl-feedstock" >>failed.11 ) && (echo "pyopenssl-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "pyopenssl-feedstock not present" >>failed.11
+    fi
+fi
+
+
 if [[ ! -f pysocks-feedstock.mark ]]; then
     if [[ -d pysocks-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pysocks-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pysocks-feedstock.mark ) && true) || ( (echo "pysocks-feedstock" >>failed.11 ) && (echo "pysocks-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true

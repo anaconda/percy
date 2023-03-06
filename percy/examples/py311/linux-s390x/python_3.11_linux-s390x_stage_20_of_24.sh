@@ -46,15 +46,6 @@ if [[ ! -f filesystem-spec-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f future-feedstock.mark ]]; then
-    if [[ -d future-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./future-feedstock >d 2>&1 && rm -f d && ( echo "done" >>future-feedstock.mark ) && true) || ( (echo "future-feedstock" >>failed.20 ) && (echo "future-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "future-feedstock not present" >>failed.20
-    fi
-fi
-
-
 if [[ ! -f jupyter_console-feedstock.mark ]]; then
     if [[ -d jupyter_console-feedstock ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./jupyter_console-feedstock >d 2>&1 && rm -f d && ( echo "done" >>jupyter_console-feedstock.mark ) && true) || ( (echo "jupyter_console-feedstock" >>failed.20 ) && (echo "jupyter_console-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
@@ -91,20 +82,20 @@ if [[ ! -f numexpr-feedstock.mark ]]; then
 fi
 
 
-if [[ ! -f poetry-feedstock.mark ]]; then
-    if [[ -d poetry-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./poetry-feedstock >d 2>&1 && rm -f d && ( echo "done" >>poetry-feedstock.mark ) && true) || ( (echo "poetry-feedstock" >>failed.20 ) && (echo "poetry-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f pdm-feedstock.mark ]]; then
+    if [[ -d pdm-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./pdm-feedstock >d 2>&1 && rm -f d && ( echo "done" >>pdm-feedstock.mark ) && true) || ( (echo "pdm-feedstock" >>failed.20 ) && (echo "pdm-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "poetry-feedstock not present" >>failed.20
+        echo "pdm-feedstock not present" >>failed.20
     fi
 fi
 
 
-if [[ ! -f protobuf-feedstock.mark ]]; then
-    if [[ -d protobuf-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./protobuf-feedstock >d 2>&1 && rm -f d && ( echo "done" >>protobuf-feedstock.mark ) && true) || ( (echo "protobuf-feedstock" >>failed.20 ) && (echo "protobuf-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+if [[ ! -f protobuf-3.19-feedstock.mark ]]; then
+    if [[ -d protobuf-3.19-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./protobuf-3.19-feedstock >d 2>&1 && rm -f d && ( echo "done" >>protobuf-3.19-feedstock.mark ) && true) || ( (echo "protobuf-3.19-feedstock" >>failed.20 ) && (echo "protobuf-3.19-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
-        echo "protobuf-feedstock not present" >>failed.20
+        echo "protobuf-3.19-feedstock not present" >>failed.20
     fi
 fi
 
@@ -159,6 +150,15 @@ if [[ ! -f wrapt-feedstock.mark ]]; then
         (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./wrapt-feedstock >d 2>&1 && rm -f d && ( echo "done" >>wrapt-feedstock.mark ) && true) || ( (echo "wrapt-feedstock" >>failed.20 ) && (echo "wrapt-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
     else
         echo "wrapt-feedstock not present" >>failed.20
+    fi
+fi
+
+
+if [[ ! -f zipp-feedstock.mark ]]; then
+    if [[ -d zipp-feedstock ]]; then
+        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./zipp-feedstock >d 2>&1 && rm -f d && ( echo "done" >>zipp-feedstock.mark ) && true) || ( (echo "zipp-feedstock" >>failed.20 ) && (echo "zipp-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+    else
+        echo "zipp-feedstock not present" >>failed.20
     fi
 fi
 

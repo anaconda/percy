@@ -1,3 +1,4 @@
+- _ipyw_jlab_nb_ext_conf
 - aiobotocore
 - aiohttp
 - aiopg
@@ -82,6 +83,7 @@
 - conda-lock
 - conda-package-handling
 - conda-package-streaming
+- configobj
 - configupdater
 - constantly
 - contextlib2
@@ -113,6 +115,8 @@
 - docopt
 - docstring-to-markdown
 - docutils
+- ecdsa
+- ecos
 - editables
 - editdistance
 - email-validator
@@ -152,6 +156,7 @@
 - gdb-pretty-printer
 - geoviews-core
 - gevent
+- gi-docgen
 - gitpython
 - gmpy2
 - gobject-introspection
@@ -224,6 +229,7 @@
 - linkify-it-py
 - lit
 - locket
+- lockfile
 - loguru
 - lxml
 - lz4
@@ -279,6 +285,7 @@
 - pandas-profiling
 - pandocfilters
 - param
+- parsel
 - pathlib2
 - pathspec
 - patsy
@@ -300,7 +307,6 @@
 - pluggy
 - ply
 - plyvel
-- pmdarima
 - poetry
 - poetry-core
 - pre-commit
@@ -348,16 +354,17 @@
 - pykerberos
 - pylint
 - pylint-venv
-- pymc3
 - pymssql
 - pynacl
 - pyodbc
+- pyopenssl
 - pyparsing
 - pypdf2
 - pyppmd
 - pyproj
 - pyproject-metadata
 - pyqt-builder
+- pyramid
 - pyrsistent
 - pyserial
 - pysocks
@@ -442,6 +449,7 @@
 - spacy-legacy
 - sparkmagic
 - sphinx
+- sphinxcontrib
 - spyder-kernels
 - sqlalchemy
 - sqlparse
@@ -478,6 +486,7 @@
 - typing
 - typing-extensions
 - typing_extensions
+- typogrify
 - tzlocal
 - uc-micro-py
 - ujson
@@ -486,6 +495,7 @@
 - unicodecsv
 - unicodedata2
 - urllib3
+- uvicorn
 - uvloop
 - virtualenv
 - virtualenv-clone
@@ -511,5 +521,7 @@
 - zfpy
 - zict
 - zipp
+- zope
+- zope.event
 - zope.interface
 - zstandard

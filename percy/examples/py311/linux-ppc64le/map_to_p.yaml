@@ -1,25 +1,37 @@
+7za:
+- ./7za-feedstock
 _anaconda_depends:
 - ./anaconda-feedstock
 _go_select:
 - ./_go_select-feedstock
+_ipyw_jlab_nb_ext_conf:
+- ./_ipyw_jlab_nb_ext_conf-feedstock
 _libarchive_static_for_cph:
 - ./_libarchive_static_for_cph-feedstock
 _libgcc_mutex:
 - ./_libgcc_mutex-feedstock
+_low_priority:
+- ./_low_priority-feedstock
 _mutex_mxnet:
 - ./mxnet-feedstock
 _openmp_mutex:
 - ./gcc_toolchain-feedstock
 _py-xgboost-mutex:
 - ./xgboost-feedstock
+_pytorch_select:
+- ./_pytorch_select
 _r-xgboost-mutex:
 - ./xgboost-feedstock
+_tflow_select:
+- ./tensorflow_recipes/_tflow_select
 abseil-cpp:
 - ./abseil-cpp-feedstock
 absl-py:
 - ./absl-py-feedstock
 access:
 - ./access-feedstock
+acl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/acl-amzn2-aarch64
 adal:
 - ./adal-feedstock
 adwaita-icon-theme:
@@ -98,10 +110,40 @@ airflow-with-virtualenv:
 - ./airflow-feedstock
 alabaster:
 - ./alabaster-feedstock
+alacritty:
+- ./alacritty-feedstock
 alembic:
 - ./alembic-feedstock
+alsa-lib-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/alsa-lib-amzn2-aarch64
+alsa-lib-cos6-i686:
+- ./cdt_cos6_i686/alsa-lib-cos6-i686
+alsa-lib-cos6-x86_64:
+- ./cdt_cos6_x86_64/alsa-lib-cos6-x86_64
+alsa-lib-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/alsa-lib-cos7-ppc64le
+alsa-lib-cos7-s390x:
+- ./cdt_cos7_s390x/alsa-lib-cos7-s390x
+alsa-lib-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/alsa-lib-devel-amzn2-aarch64
+alsa-lib-devel-cos6-i686:
+- ./cdt_cos6_i686/alsa-lib-devel-cos6-i686
+alsa-lib-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/alsa-lib-devel-cos6-x86_64
+alsa-lib-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/alsa-lib-devel-cos7-ppc64le
+alsa-lib-devel-cos7-s390x:
+- ./cdt_cos7_s390x/alsa-lib-devel-cos7-s390x
+alsa-utils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/alsa-utils-amzn2-aarch64
+alsa-utils-cos6-i686:
+- ./cdt_cos6_i686/alsa-utils-cos6-i686
+alsa-utils-cos6-x86_64:
+- ./cdt_cos6_x86_64/alsa-utils-cos6-x86_64
+alsa-utils-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/alsa-utils-cos7-ppc64le
 altair:
-- ./altair-feedstock
+- ./altair3_2-feedstock
 altgraph:
 - ./altgraph-feedstock
 ampl-mp:
@@ -122,6 +164,8 @@ anaconda-split:
 - ./anaconda-feedstock
 aniso8601:
 - ./aniso8601-feedstock
+ansi2html:
+- ./ansi2html-feedstock
 anyio:
 - ./anyio-feedstock
 anyjson:
@@ -150,10 +194,14 @@ appdirs:
 - ./appdirs-feedstock
 apptools:
 - ./apptools-feedstock
+apr:
+- ./apr-feedstock
 apscheduler:
 - ./apscheduler-feedstock
 archspec:
 - ./archspec-feedstock
+aredis:
+- ./aredis-feedstock
 argcomplete:
 - ./argcomplete-feedstock
 argh:
@@ -196,6 +244,18 @@ asyncpgsa:
 - ./asyncpgsa-feedstock
 asynctest:
 - ./asynctest-feedstock
+at-spi-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/at-spi-amzn2-aarch64
+at-spi-cos6-i686:
+- ./cdt_cos6_i686/at-spi-cos6-i686
+at-spi-cos6-x86_64:
+- ./cdt_cos6_x86_64/at-spi-cos6-x86_64
+at-spi-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/at-spi-devel-amzn2-aarch64
+at-spi-devel-cos6-i686:
+- ./cdt_cos6_i686/at-spi-devel-cos6-i686
+at-spi-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/at-spi-devel-cos6-x86_64
 at-spi2-atk:
 - ./at-spi2-atk-feedstock
 at-spi2-core:
@@ -204,6 +264,30 @@ atk:
 - ./atk-feedstock
 atk-1.0:
 - ./atk-feedstock
+atk-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/atk-amzn2-aarch64
+atk-cos6-i686:
+- ./cdt_cos6_i686/atk-cos6-i686
+atk-cos6-x86_64:
+- ./cdt_cos6_x86_64/atk-cos6-x86_64
+atk-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/atk-cos7-ppc64le
+atk-cos7-s390x:
+- ./cdt_cos7_s390x/atk-cos7-s390x
+atk-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/atk-devel-amzn2-aarch64
+atk-devel-cos6-i686:
+- ./cdt_cos6_i686/atk-devel-cos6-i686
+atk-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/atk-devel-cos6-x86_64
+atk-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/atk-devel-cos7-ppc64le
+atk-devel-cos7-s390x:
+- ./cdt_cos7_s390x/atk-devel-cos7-s390x
+atkmm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/atkmm-amzn2-aarch64
+atkmm-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/atkmm-devel-amzn2-aarch64
 atlasclient:
 - ./atlasclient-feedstock
 atom:
@@ -212,24 +296,42 @@ atomicwrites:
 - ./atomicwrites-feedstock
 attrs:
 - ./attrs-feedstock
+audit-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/audit-libs-amzn2-aarch64
+audit-libs-cos6-i686:
+- ./cdt_cos6_i686/audit-libs-cos6-i686
+audit-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/audit-libs-cos6-x86_64
 authlib:
 - ./authlib-feedstock
 autocfg:
 - ./autocfg-feedstock
 autoconf:
 - ./autoconf-feedstock
+autoconf-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/autoconf-amzn2-aarch64
 autoconf-archive:
 - ./autoconf-archive-feedstock
 autograd:
 - ./autograd-feedstock
 automake:
 - ./automake-feedstock
+automake-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/automake-amzn2-aarch64
 automat:
 - ./automat-feedstock
 autopep8:
 - ./autopep8-feedstock
 autovizwidget:
 - ./autovizwidget-feedstock
+avahi-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/avahi-libs-amzn2-aarch64
+avahi-libs-cos6-i686:
+- ./cdt_cos6_i686/avahi-libs-cos6-i686
+avahi-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/avahi-libs-cos6-x86_64
+avahi-libs-cos7-s390x:
+- ./cdt_cos7_s390x/avahi-libs-cos7-s390x
 aws-c-common:
 - ./aws-c-common-feedstock
 aws-c-event-stream:
@@ -258,6 +360,8 @@ babel:
 - ./babel-feedstock
 backcall:
 - ./backcall-feedstock
+backports:
+- ./backports-feedstock
 backports.functools_lru_cache:
 - ./backports.functools_lru_cache-feedstock
 backports.lzma:
@@ -274,6 +378,8 @@ backports.weakref:
 - ./backports.weakref-feedstock
 backports_abc:
 - ./backports_abc-feedstock
+bandersnatch:
+- ./bandersnatch-feedstock
 basemap:
 - ./basemap-feedstock
 basemap-data:
@@ -282,6 +388,8 @@ basemap-data-hires:
 - ./basemap-feedstock
 basemap-split:
 - ./basemap-feedstock
+basesystem-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/basesystem-amzn2-aarch64
 bash:
 - ./bash-feedstock
 baycomp:
@@ -300,8 +408,12 @@ billiard:
 - ./billiard-feedstock
 binaryornot:
 - ./binaryornot-feedstock
+binsort:
+- ./binsort-feedstock
 binutils:
 - ./binutils-feedstock
+binutils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/binutils-amzn2-aarch64
 binutils-meta:
 - ./compilers-feedstock
 binutils_build:
@@ -333,7 +445,7 @@ blessings:
 blinker:
 - ./blinker-feedstock/
 blist:
-- ./blist-feedstock
+- ./blist-feedstock.old
 blosc:
 - ./blosc-feedstock
 bokeh:
@@ -346,10 +458,14 @@ boost:
 - ./boost-feedstock
 boost-cpp:
 - ./boost-feedstock
+boto:
+- ./boto-feedstock
 boto3:
 - ./boto3-feedstock
 botocore:
 - ./botocore-feedstock
+bottlechest:
+- ./bottlechest-feedstock
 bottleneck:
 - ./bottleneck-feedstock
 bpython:
@@ -372,12 +488,22 @@ brunsli:
 - ./brunsli-feedstock
 bs4:
 - ./beautifulsoup4-feedstock
+bsdiff4:
+- ./bsdiff4-feedstock
 bst:
 - ./boost-feedstock
+btrees:
+- ./btrees-feedstock
+bwidget:
+- ./bwidget-feedstock
 bytecode:
 - ./bytecode-feedstock
+bz2file:
+- ./bz2file-feedstock
 bzip2:
 - ./bzip2-feedstock
+bzip2-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/bzip2-libs-amzn2-aarch64
 c-ares:
 - ./c-ares-feedstock
 c-ares-static:
@@ -388,6 +514,16 @@ c99-to-c89:
 - ./c99-to-c89
 ca-certificates:
 - ./ca-certificates-feedstock
+ca-certificates-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ca-certificates-amzn2-aarch64
+ca-certificates-cos6-i686:
+- ./cdt_cos6_i686/ca-certificates-cos6-i686
+ca-certificates-cos6-x86_64:
+- ./cdt_cos6_x86_64/ca-certificates-cos6-x86_64
+ca-certificates-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/ca-certificates-cos7-ppc64le
+ca-certificates-cos7-s390x:
+- ./cdt_cos7_s390x/ca-certificates-cos7-s390x
 cachecontrol:
 - ./cachecontrol-feedstock
 cached-property:
@@ -400,8 +536,32 @@ cachy:
 - ./cachy-feedstock
 caffe:
 - ./caffe-feedstock
+caffe-gpu:
+- ./caffe-gpu-feedstock
 cairo:
 - ./cairo-feedstock
+cairo-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cairo-amzn2-aarch64
+cairo-cos6-i686:
+- ./cdt_cos6_i686/cairo-cos6-i686
+cairo-cos6-x86_64:
+- ./cdt_cos6_x86_64/cairo-cos6-x86_64
+cairo-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/cairo-cos7-ppc64le
+cairo-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cairo-devel-amzn2-aarch64
+cairo-devel-cos6-i686:
+- ./cdt_cos6_i686/cairo-devel-cos6-i686
+cairo-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/cairo-devel-cos6-x86_64
+cairo-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/cairo-devel-cos7-ppc64le
+cairo-devel-cos7-s390x:
+- ./cdt_cos7_s390x/cairo-devel-cos7-s390x
+cairomm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cairomm-amzn2-aarch64
+cairomm-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cairomm-devel-amzn2-aarch64
 capnproto:
 - ./capnproto-feedstock
 capstone:
@@ -427,15 +587,17 @@ cattrs:
 ccache:
 - ./ccache-feedstock
 cctools:
-- ./cctools-and-ld64-feedstock
+- ./cctools-ld64-feedstock
 cctools-and-ld64:
-- ./cctools-and-ld64-feedstock
+- ./cctools-ld64-feedstock
 cctools_osx-64:
 - ./cctools-and-ld64-feedstock
 celery:
 - ./celery-feedstock
 celery-redbeat:
 - ./celery-redbeat-feedstock
+centos-release-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/centos-release-cos7-ppc64le
 cerberus:
 - ./cerberus-feedstock
 certifi:
@@ -458,6 +620,10 @@ chai:
 - ./chai-feedstock
 chainer:
 - ./chainer-feedstock
+chameleon:
+- ./chameleon-feedstock
+characteristic:
+- ./characteristic-feedstock/14.3.0
 chardet:
 - ./chardet-feedstock
 charls:
@@ -470,6 +636,12 @@ cherrypy:
 - ./cherrypy-feedstock
 chest:
 - ./chest-feedstock
+chkconfig-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/chkconfig-amzn2-aarch64
+chkconfig-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/chkconfig-cos7-ppc64le
+chkconfig-cos7-s390x:
+- ./cdt_cos7_s390x/chkconfig-cos7-s390x
 chromedriver-binary:
 - ./python-chromedriver-binary-feedstock
 ciocheck:
@@ -524,12 +696,18 @@ clyent:
 - ./clyent-feedstock
 cmake:
 - ./cmake-feedstock
+cmake-binary:
+- ./cmake-binary-feedstock
 cmake-no-system:
 - ./cmake-no-system-feedstock
+cmarkgfm:
+- ./cmarkgfm-feedstock
 cmdstan:
 - ./cmdstan-feedstock
 codecov:
 - ./codecov-feedstock
+colander:
+- ./colander-feedstock
 colorama:
 - ./colorama-feedstock
 colorcet:
@@ -588,6 +766,8 @@ conda-verify:
 - ./conda-verify-feedstock
 configargparse:
 - ./configargparse-feedstock
+configobj:
+- ./configobj-feedstock
 configparser:
 - ./configparser-feedstock
 configspace:
@@ -616,10 +796,24 @@ cookiecutter:
 - ./cookiecutter-feedstock
 cookies:
 - ./cookies-feedstock
+copy-jdk-configs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/copy-jdk-configs-amzn2-aarch64
+copy-jdk-configs-cos6-i686:
+- ./cdt_cos6_i686/copy-jdk-configs-cos6-i686
+copy-jdk-configs-cos6-x86_64:
+- ./cdt_cos6_x86_64/copy-jdk-configs-cos6-x86_64
+copy-jdk-configs-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/copy-jdk-configs-cos7-ppc64le
+copy-jdk-configs-cos7-s390x:
+- ./cdt_cos7_s390x/copy-jdk-configs-cos7-s390x
 coremltools:
 - ./coremltools-feedstock
 coreutils:
 - ./coreutils-feedstock
+coreutils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/coreutils-amzn2-aarch64
+cornice:
+- ./cornice-feedstock
 coverage:
 - ./coverage-feedstock
 coveralls:
@@ -630,16 +824,34 @@ covid-sim-data:
 - ./covid-sim-suite-feedstock
 covid-sim-suite:
 - ./covid-sim-suite-feedstock
+cpp-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cpp-amzn2-aarch64
 cpp-expected:
 - ./cpp-expected-feedstock
 cpp-filesystem:
 - ./cpp-filesystem-feedstock
 cppy:
 - ./cppy-feedstock
+cracklib-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cracklib-amzn2-aarch64
+cracklib-cos6-i686:
+- ./cdt_cos6_i686/cracklib-cos6-i686
+cracklib-cos6-x86_64:
+- ./cdt_cos6_x86_64/cracklib-cos6-x86_64
+cracklib-dicts-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cracklib-dicts-amzn2-aarch64
+cracklib-dicts-cos6-i686:
+- ./cdt_cos6_i686/cracklib-dicts-cos6-i686
+cracklib-dicts-cos6-x86_64:
+- ./cdt_cos6_x86_64/cracklib-dicts-cos6-x86_64
 cram:
 - ./cram-feedstock
+crashpad:
+- ./crashpad-feedstock
 crashtest:
 - ./crashtest-feedstock
+creduce:
+- ./creduce-feedstock
 crender:
 - ./crender-feedstock
 cron-descriptor:
@@ -656,24 +868,48 @@ cryptominisat:
 - ./cryptominisat-feedstock
 cryptominisat-split:
 - ./cryptominisat-feedstock
+cryptsetup-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cryptsetup-libs-amzn2-aarch64
 cssselect:
 - ./cssselect-feedstock
 csvkit:
 - ./csvkit-feedstock
 ctng-compiler-activation:
 - ./ctng-compiler-activation-feedstock
+cubes:
+- ./cubes-feedstock
 cudatoolkit:
 - ./cudatoolkit-feedstock
 cunit:
 - ./cunit-feedstock
+cups-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cups-devel-amzn2-aarch64
+cups-devel-cos6-i686:
+- ./cdt_cos6_i686/cups-devel-cos6-i686
+cups-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/cups-devel-cos6-x86_64
+cups-devel-cos7-s390x:
+- ./cdt_cos7_s390x/cups-devel-cos7-s390x
+cups-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cups-libs-amzn2-aarch64
+cups-libs-cos6-i686:
+- ./cdt_cos6_i686/cups-libs-cos6-i686
+cups-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/cups-libs-cos6-x86_64
+cupti:
+- ./cupti-cuda11.3
 curio:
 - ./curio-feedstock
 curl:
 - ./curl-feedstock
+curl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/curl-amzn2-aarch64
 curl_split_recipe:
 - ./curl-feedstock
 curtsies:
 - ./curtsies-feedstock
+cvxcanon:
+- ./cvxcanon-feedstock
 cvxopt:
 - ./cvxopt-feedstock
 cx_oracle:
@@ -686,6 +922,8 @@ cymem:
 - ./cymem-feedstock
 cyrus-sasl:
 - ./cyrus-sasl-feedstock
+cyrus-sasl-lib-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/cyrus-sasl-lib-amzn2-aarch64
 cython:
 - ./cython-feedstock
 cython-blis:
@@ -736,12 +974,30 @@ datrie:
 - ./datrie-feedstock
 db:
 - ./libdb-feedstock
+db4-cos6-i686:
+- ./cdt_cos6_i686/db4-cos6-i686
+db4-cos6-x86_64:
+- ./cdt_cos6_x86_64/db4-cos6-x86_64
+db4-cxx-cos6-i686:
+- ./cdt_cos6_i686/db4-cxx-cos6-i686
+db4-cxx-cos6-x86_64:
+- ./cdt_cos6_x86_64/db4-cxx-cos6-x86_64
+db4-devel-cos6-i686:
+- ./cdt_cos6_i686/db4-devel-cos6-i686
+db4-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/db4-devel-cos6-x86_64
 dbf:
 - ./dbf-feedstock
 dbfread:
 - ./dbfread-feedstock
 dbus:
 - ./dbus-feedstock
+dbus-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/dbus-amzn2-aarch64
+dbus-glib-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/dbus-glib-amzn2-aarch64
+dbus-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/dbus-libs-amzn2-aarch64
 dbus-python:
 - ./dbus-python-feedstock
 debugpy:
@@ -750,12 +1006,20 @@ decorator:
 - ./decorator-feedstock
 defusedxml:
 - ./defusedxml-feedstock
+dejavu-fonts-common-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/dejavu-fonts-common-amzn2-aarch64
+dejavu-sans-fonts-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/dejavu-sans-fonts-amzn2-aarch64
 deprecated:
 - ./deprecated-feedstock
 deprecation:
 - ./deprecation-feedstock
 descartes:
 - ./descartes-feedstock
+device-mapper-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/device-mapper-amzn2-aarch64
+device-mapper-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/device-mapper-libs-amzn2-aarch64
 devil:
 - ./devil-feedstock
 dictdiffer:
@@ -772,6 +1036,8 @@ diffusers-suite:
 - ./diffusers-feedstock
 diffusers-torch:
 - ./diffusers-feedstock
+diffutils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/diffutils-amzn2-aarch64
 dill:
 - ./dill-feedstock
 distconfig3:
@@ -802,12 +1068,16 @@ doit:
 - ./doit-feedstock
 dos2unix:
 - ./dos2unix-feedstock
+double-conversion:
+- ./double-conversion-feedstock
 drmaa:
 - ./drmaa-feedstock
 dropbox:
 - ./dropbox-feedstock
 dsdp:
 - ./dsdp-feedstock
+ecdsa:
+- ./ecdsa-feedstock
 ecos:
 - ./ecos-feedstock
 editables:
@@ -822,6 +1092,14 @@ elasticsearch-async:
 - ./elasticsearch-async-feedstock
 elasticsearch-dsl:
 - ./elasticsearch-dsl-feedstock
+elfutils-default-yama-scope-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/elfutils-default-yama-scope-amzn2-aarch64
+elfutils-libelf-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/elfutils-libelf-amzn2-aarch64
+elfutils-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/elfutils-libs-amzn2-aarch64
+emacs-filesystem-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/emacs-filesystem-amzn2-aarch64
 email-validator:
 - ./email-validator-feedstock
 email-validator-meta:
@@ -844,6 +1122,8 @@ epoxy:
 - ./epoxy-feedstock
 esda:
 - ./esda-feedstock
+essential_generators:
+- ./essential_generators-feedstock
 et_xmlfile:
 - ./et_xmlfile-feedstock
 evaluate:
@@ -858,8 +1138,26 @@ executing:
 - ./executing-feedstock
 expat:
 - ./expat-feedstock
+expat-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/expat-amzn2-aarch64
+expat-cos6-i686:
+- ./cdt_cos6_i686/expat-cos6-i686
+expat-cos6-x86_64:
+- ./cdt_cos6_x86_64/expat-cos6-x86_64
+expat-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/expat-cos7-ppc64le
+expat-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/expat-devel-amzn2-aarch64
+expat-devel-cos6-i686:
+- ./cdt_cos6_i686/expat-devel-cos6-i686
+expat-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/expat-devel-cos6-x86_64
+expat-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/expat-devel-cos7-ppc64le
 expecttest:
 - ./expecttest-feedstock
+expressions:
+- ./expressions-feedstock
 extension-helpers:
 - ./extension-helpers-feedstock
 fabric:
@@ -890,20 +1188,32 @@ fastrlock:
 - ./fastrlock-feedstock
 fasttsne:
 - ./fasttsne-feedstock
+faulthandler:
+- ./faulthandler-feedstock
 fbprophet:
 - ./fbprophet-feedstock
 featuretools:
 - ./featuretools-feedstock
+feedparser:
+- ./feedparser-feedstock
 ffmpeg:
 - ./ffmpeg-feedstock
 fftw:
 - ./fftw-feedstock
 filelock:
 - ./filelock-feedstock
+filesystem-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/filesystem-amzn2-aarch64
 findpython:
 - ./findpython-feedstock
+findutils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/findutils-amzn2-aarch64
 fiona:
 - ./fiona-feedstock
+fipscheck-lib-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/fipscheck-lib-amzn2-aarch64
+flac-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/flac-libs-amzn2-aarch64
 flake8:
 - ./flake8-feedstock
 flake8-import-order:
@@ -966,14 +1276,56 @@ flit-core:
 - ./flit-feedstock
 flit-scm:
 - ./flit-scm-feedstock
+flite:
+- ./flite-feedstock
 flower:
 - ./flower-feedstock
+flutter-sdk:
+- ./flutter-sdk-feedstock
+flutter-sdk-suite:
+- ./flutter-sdk-feedstock
+flutter-sdk_android:
+- ./flutter-sdk-feedstock
+flutter-sdk_ios:
+- ./flutter-sdk-feedstock
+flutter-sdk_osx-64:
+- ./flutter-sdk-feedstock
+flutter-sdk_web:
+- ./flutter-sdk-feedstock
 fmt:
 - ./fmt-feedstock
 folium:
 - ./folium-feedstock
+font-ttf-dejavu-sans-mono:
+- ./font-ttf-dejavu-sans-mono-feedstock
+font-ttf-inconsolata:
+- ./font-ttf-inconsolata-feedstock
+font-ttf-source-code-pro:
+- ./font-ttf-source-code-pro-feedstock
+font-ttf-ubuntu:
+- ./font-ttf-ubuntu-feedstock
 fontconfig:
 - ./fontconfig-feedstock
+fontconfig-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/fontconfig-amzn2-aarch64
+fontconfig-cos6-i686:
+- ./cdt_cos6_i686/fontconfig-cos6-i686
+fontconfig-cos6-x86_64:
+- ./cdt_cos6_x86_64/fontconfig-cos6-x86_64
+fontconfig-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/fontconfig-cos7-ppc64le
+fontconfig-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/fontconfig-devel-amzn2-aarch64
+fontconfig-devel-cos6-i686:
+- ./cdt_cos6_i686/fontconfig-devel-cos6-i686
+fontconfig-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/fontconfig-devel-cos6-x86_64
+fontconfig-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/fontconfig-devel-cos7-ppc64le
+fontpackages-filesystem-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/fontpackages-filesystem-amzn2-aarch64
+fonts-anaconda:
+- ./fonts-anaconda-feedstock
 fonts-conda-ecosystem:
 - ./fonts-conda-ecosystem-feedstock
 fonttools:
@@ -988,6 +1340,22 @@ freetds:
 - ./freetds-feedstock
 freetype:
 - ./freetype-feedstock
+freetype-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/freetype-amzn2-aarch64
+freetype-cos6-i686:
+- ./cdt_cos6_i686/freetype-cos6-i686
+freetype-cos6-x86_64:
+- ./cdt_cos6_x86_64/freetype-cos6-x86_64
+freetype-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/freetype-cos7-ppc64le
+freetype-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/freetype-devel-amzn2-aarch64
+freetype-devel-cos6-i686:
+- ./cdt_cos6_i686/freetype-devel-cos6-i686
+freetype-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/freetype-devel-cos6-x86_64
+freetype-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/freetype-devel-cos7-ppc64le
 freetype-py:
 - ./freetype-py-feedstock
 freexl:
@@ -996,16 +1364,22 @@ freezegun:
 - ./freezegun-feedstock
 fribidi:
 - ./fribidi-feedstock
+fribidi-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/fribidi-amzn2-aarch64
 frozenlist:
 - ./frozenlist-feedstock
 fsspec:
 - ./filesystem-spec-feedstock
 ftfy:
 - ./ftfy-feedstock
+fuel:
+- ./fuel-feedstock
 func_timeout:
 - ./func_timeout-feedstock
 funcsigs:
 - ./funcsigs-feedstock
+functools_lru_cache:
+- ./functools_lru_cache-feedstock
 furl:
 - ./furl-feedstock
 future:
@@ -1018,10 +1392,18 @@ gast:
 - ./gast-feedstock
 gawk:
 - ./gawk-feedstock
+gawk-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gawk-amzn2-aarch64
 gcab:
 - ./gcab-feedstock
+gcc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gcc-amzn2-aarch64
 gcc-compiler:
 - ./gcc_toolchain-feedstock
+gcc-dbg_linux-ppc64le:
+- ./ctng-dbg-compilers-activation-feedstock
+gcc-osize_linux-ppc64le:
+- ./ctng-osize-compilers-activation-feedstock
 gcc_activation:
 - ./gcc_activation-feedstock
 gcc_bootstrap_linux-ppc64le:
@@ -1030,6 +1412,14 @@ gcc_impl_linux-ppc64le:
 - ./gcc_toolchain-feedstock
 gcc_linux-ppc64le:
 - ./gcc_activation-feedstock
+gconf2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gconf2-amzn2-aarch64
+gconf2-cos6-i686:
+- ./cdt_cos6_i686/gconf2-cos6-i686
+gconf2-cos6-x86_64:
+- ./cdt_cos6_x86_64/gconf2-cos6-x86_64
+gconf2-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gconf2-cos7-ppc64le
 gdal:
 - ./gdal-feedstock
 gdal-split:
@@ -1042,8 +1432,22 @@ gdb-pretty-printer:
 - ./gdb-feedstock
 gdbm:
 - ./gdbm-feedstock
+gdbm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gdbm-amzn2-aarch64
 gdk-pixbuf:
 - ./gdk-pixbuf-feedstock
+gdk-pixbuf2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gdk-pixbuf2-amzn2-aarch64
+gdk-pixbuf2-cos6-i686:
+- ./cdt_cos6_i686/gdk-pixbuf2-cos6-i686
+gdk-pixbuf2-cos6-x86_64:
+- ./cdt_cos6_x86_64/gdk-pixbuf2-cos6-x86_64
+gdk-pixbuf2-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gdk-pixbuf2-devel-amzn2-aarch64
+gdk-pixbuf2-devel-cos6-i686:
+- ./cdt_cos6_i686/gdk-pixbuf2-devel-cos6-i686
+gdk-pixbuf2-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/gdk-pixbuf2-devel-cos6-x86_64
 gensim:
 - ./gensim-feedstock
 genson:
@@ -1058,14 +1462,50 @@ geoviews:
 - ./geoviews-feedstock
 geoviews-core:
 - ./geoviews-feedstock
+get_terminal_size:
+- ./get_terminal_size-feedstock
 gettext:
 - ./gettext-feedstock
+gettext-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gettext-amzn2-aarch64
+gettext-common-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gettext-common-devel-amzn2-aarch64
+gettext-common-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gettext-common-devel-cos7-ppc64le
+gettext-cos6-i686:
+- ./cdt_cos6_i686/gettext-cos6-i686
+gettext-cos6-x86_64:
+- ./cdt_cos6_x86_64/gettext-cos6-x86_64
+gettext-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gettext-cos7-ppc64le
+gettext-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gettext-devel-amzn2-aarch64
+gettext-devel-cos6-i686:
+- ./cdt_cos6_i686/gettext-devel-cos6-i686
+gettext-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/gettext-devel-cos6-x86_64
+gettext-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gettext-devel-cos7-ppc64le
+gettext-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gettext-libs-amzn2-aarch64
+gettext-libs-cos6-i686:
+- ./cdt_cos6_i686/gettext-libs-cos6-i686
+gettext-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/gettext-libs-cos6-x86_64
+gettext-libs-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gettext-libs-cos7-ppc64le
 gevent:
 - ./gevent-feedstock
+gevent-websocket:
+- ./gevent-websocket-feedstock
 geventhttpclient:
 - ./geventhttpclient-feedstock
 gflags:
 - ./gflags-feedstock
+gfortran-dbg_linux-ppc64le:
+- ./ctng-dbg-compilers-activation-feedstock
+gfortran-osize_linux-ppc64le:
+- ./ctng-osize-compilers-activation-feedstock
 gfortran_impl_linux-ppc64le:
 - ./gcc_toolchain-feedstock
 gfortran_linux-ppc64le:
@@ -1080,6 +1520,12 @@ giflib:
 - ./giflib-feedstock
 git:
 - ./git-feedstock
+git-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/git-amzn2-aarch64
+git-core-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/git-core-amzn2-aarch64
+git-core-doc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/git-core-doc-amzn2-aarch64
 git-lfs:
 - ./git-lfs-feedstock
 gitdb:
@@ -1090,8 +1536,50 @@ gitea:
 - ./gitea-feedstock
 gitpython:
 - ./gitpython-feedstock
+gl-manpages-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gl-manpages-amzn2-aarch64
 gl2ps:
 - ./gl2ps-feedstock
+glib-networking-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glib-networking-amzn2-aarch64
+glib-networking-cos6-i686:
+- ./cdt_cos6_i686/glib-networking-cos6-i686
+glib-networking-cos6-x86_64:
+- ./cdt_cos6_x86_64/glib-networking-cos6-x86_64
+glib2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glib2-amzn2-aarch64
+glib2-cos6-i686:
+- ./cdt_cos6_i686/glib2-cos6-i686
+glib2-cos6-x86_64:
+- ./cdt_cos6_x86_64/glib2-cos6-x86_64
+glib2-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/glib2-cos7-ppc64le
+glib2-cos7-s390x:
+- ./cdt_cos7_s390x/glib2-cos7-s390x
+glib2-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glib2-devel-amzn2-aarch64
+glib2-devel-cos6-i686:
+- ./cdt_cos6_i686/glib2-devel-cos6-i686
+glib2-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/glib2-devel-cos6-x86_64
+glib2-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/glib2-devel-cos7-ppc64le
+glib2-devel-cos7-s390x:
+- ./cdt_cos7_s390x/glib2-devel-cos7-s390x
+glibc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glibc-amzn2-aarch64
+glibc-common-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glibc-common-amzn2-aarch64
+glibc-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glibc-devel-amzn2-aarch64
+glibc-headers-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glibc-headers-amzn2-aarch64
+glibc-minimal-langpack-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glibc-minimal-langpack-amzn2-aarch64
+glibmm24-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glibmm24-amzn2-aarch64
+glibmm24-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/glibmm24-devel-amzn2-aarch64
 glob2:
 - ./glob2-feedstock
 glog:
@@ -1108,6 +1596,8 @@ gmock:
 - ./gtest-feedstock
 gmp:
 - ./gmp-feedstock
+gmp-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gmp-amzn2-aarch64
 gmpy2:
 - ./gmpy2-feedstock
 gn:
@@ -1116,6 +1606,14 @@ gnuconfig:
 - ./gnuconfig-feedstock
 gnutls:
 - ./gnutls-feedstock
+gnutls-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gnutls-amzn2-aarch64
+gnutls-cos6-i686:
+- ./cdt_cos6_i686/gnutls-cos6-i686
+gnutls-cos6-x86_64:
+- ./cdt_cos6_x86_64/gnutls-cos6-x86_64
+gnutls-cos7-s390x:
+- ./cdt_cos7_s390x/gnutls-cos7-s390x
 go:
 - ./go-feedstock
 go-:
@@ -1152,24 +1650,44 @@ googleapis-common-protos-grpc:
 - ./googleapis-common-protos-feedstock
 gperf:
 - ./gperf-feedstock
+gperf-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gperf-amzn2-aarch64
+gperf-cos6-i686:
+- ./cdt_cos6_i686/gperf-cos6-i686
+gperf-cos6-x86_64:
+- ./cdt_cos6_x86_64/gperf-cos6-x86_64
+gperf-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gperf-cos7-ppc64le
 gperftools:
 - ./gperftools-feedstock
+gptfdisk:
+- ./gptfdisk-feedstock
 gpustat:
 - ./gpustat-feedstock
+grako:
+- ./grako-feedstock
 graphene:
 - ./graphene-feedstock
 graphite2:
 - ./graphite2-feedstock
+graphite2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/graphite2-amzn2-aarch64
 graphql-core:
 - ./graphql-core-feedstock
 graphviz:
 - ./graphviz-feedstock
 greenlet:
 - ./greenlet-feedstock
+grep-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/grep-amzn2-aarch64
+gridmap:
+- ./gridmap-feedstock
 grin:
 - ./grin-feedstock
 groff:
 - ./groff-feedstock
+groff-base-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/groff-base-amzn2-aarch64
 grpc-cpp:
 - ./grpc-cpp-feedstock
 grpc_java_plugin:
@@ -1182,8 +1700,12 @@ grpcio-status:
 - ./grpcio-status-feedstock
 grpcio-tools:
 - ./grpcio-tools-feedstock
+gsettings-desktop-schemas-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gsettings-desktop-schemas-amzn2-aarch64
 gsl:
 - ./gsl-feedstock
+gsm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gsm-amzn2-aarch64
 gst-plugins-base:
 - ./gstreamer-feedstock
 gst-plugins-good:
@@ -1194,16 +1716,58 @@ gstreamer_and_plugins:
 - ./gstreamer-feedstock
 gtest:
 - ./gtest-feedstock
+gtk-update-icon-cache-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gtk-update-icon-cache-amzn2-aarch64
 gtk2:
 - ./gtk2-feedstock
+gtk2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gtk2-amzn2-aarch64
+gtk2-cos6-i686:
+- ./cdt_cos6_i686/gtk2-cos6-i686
+gtk2-cos6-x86_64:
+- ./cdt_cos6_x86_64/gtk2-cos6-x86_64
+gtk2-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gtk2-cos7-ppc64le
+gtk2-cos7-s390x:
+- ./cdt_cos7_s390x/gtk2-cos7-s390x
+gtk2-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gtk2-devel-amzn2-aarch64
+gtk2-devel-cos6-i686:
+- ./cdt_cos6_i686/gtk2-devel-cos6-i686
+gtk2-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/gtk2-devel-cos6-x86_64
+gtk2-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/gtk2-devel-cos7-ppc64le
+gtk2-devel-cos7-s390x:
+- ./cdt_cos7_s390x/gtk2-devel-cos7-s390x
+gtkmm24-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gtkmm24-amzn2-aarch64
+gtkmm24-cos6-i686:
+- ./cdt_cos6_i686/gtkmm24-cos6-i686
+gtkmm24-cos6-x86_64:
+- ./cdt_cos6_x86_64/gtkmm24-cos6-x86_64
+gtkmm24-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gtkmm24-devel-amzn2-aarch64
+gtkmm24-devel-cos6-i686:
+- ./cdt_cos6_i686/gtkmm24-devel-cos6-i686
+gtkmm24-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/gtkmm24-devel-cos6-x86_64
+gtkmm24-devel-cos7-s390x:
+- ./cdt_cos7_s390x/gtkmm24-devel-cos7-s390x
 gts:
 - ./gts-feedstock
 gunicorn:
 - ./gunicorn-feedstock
+gxx-dbg_linux-ppc64le:
+- ./ctng-dbg-compilers-activation-feedstock
+gxx-osize_linux-ppc64le:
+- ./ctng-osize-compilers-activation-feedstock
 gxx_impl_linux-ppc64le:
 - ./gcc_toolchain-feedstock
 gxx_linux-ppc64le:
 - ./gcc_activation-feedstock
+gzip-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/gzip-amzn2-aarch64
 h11:
 - ./h11-feedstock
 h2:
@@ -1218,6 +1782,10 @@ h5py:
 - ./h5py-feedstock
 harfbuzz:
 - ./harfbuzz-feedstock
+harfbuzz-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/harfbuzz-amzn2-aarch64
+harfbuzz-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/harfbuzz-cos7-ppc64le
 hatch-nodejs-version:
 - ./hatch-nodejs-version-feedstock
 hatch-requirements-txt:
@@ -1246,6 +1814,8 @@ help2man:
 - ./help2man-feedstock
 hicolor-icon-theme:
 - ./hicolor-icon-theme-feedstock
+hicolor-icon-theme-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/hicolor-icon-theme-amzn2-aarch64
 hijri-converter:
 - ./hijri-converter-feedstock
 hiredis:
@@ -1262,6 +1832,8 @@ html5lib:
 - ./html5lib-feedstock
 htmlmin:
 - ./htmlmin-feedstock
+htslib:
+- ./htslib-feedstock
 httpcore:
 - ./httpcore-feedstock
 httpretty:
@@ -1278,8 +1850,12 @@ humanize:
 - ./humanize-feedstock
 hunspell:
 - ./hunspell-feedstock
+hupper:
+- ./hupper-feedstock
 hvplot:
 - ./hvplot-feedstock
+hwdata-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/hwdata-amzn2-aarch64
 hyperframe:
 - ./hyperframe-feedstock
 hyperlink:
@@ -1324,6 +1900,8 @@ impyla:
 - ./impyla-feedstock
 incremental:
 - ./incremental-feedstock
+indent-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/indent-amzn2-aarch64
 inequality:
 - ./inequality-feedstock
 infinity:
@@ -1332,6 +1910,8 @@ inflect:
 - ./inflect-feedstock
 inflection:
 - ./inflection-feedstock
+info-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/info-amzn2-aarch64
 iniconfig:
 - ./iniconfig-feedstock
 intake:
@@ -1340,6 +1920,8 @@ intake-parquet:
 - ./intake-parquet-feedstock
 intake-xarray:
 - ./intake-xarray-feedstock
+intellij-idea:
+- ./intellij-idea-ce-feedstock
 intervals:
 - ./intervals-feedstock
 intervaltree:
@@ -1398,12 +1980,42 @@ jaraco.text:
 - ./jaraco.text-feedstock
 jasper:
 - ./jasper-feedstock
+jasper-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/jasper-libs-amzn2-aarch64
+java-1.7.0-openjdk-cos6-i686:
+- ./cdt_cos6_i686/java-1.7.0-openjdk-cos6-i686
+java-1.7.0-openjdk-cos6-x86_64:
+- ./cdt_cos6_x86_64/java-1.7.0-openjdk-cos6-x86_64
+java-1.7.0-openjdk-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/java-1.7.0-openjdk-cos7-ppc64le
+java-1.7.0-openjdk-devel-cos6-i686:
+- ./cdt_cos6_i686/java-1.7.0-openjdk-devel-cos6-i686
+java-1.7.0-openjdk-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/java-1.7.0-openjdk-devel-cos6-x86_64
+java-1.7.0-openjdk-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/java-1.7.0-openjdk-devel-cos7-ppc64le
+java-1.7.0-openjdk-headless-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/java-1.7.0-openjdk-headless-cos7-ppc64le
+java-1.8.0-openjdk-cos7-s390x:
+- ./cdt_cos7_s390x/java-1.8.0-openjdk-cos7-s390x
+java-1.8.0-openjdk-devel-cos7-s390x:
+- ./cdt_cos7_s390x/java-1.8.0-openjdk-devel-cos7-s390x
+java-1.8.0-openjdk-headless-cos7-s390x:
+- ./cdt_cos7_s390x/java-1.8.0-openjdk-headless-cos7-s390x
 javaobj-py3:
 - ./javaobj-py3-feedstock
+javapackages-tools-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/javapackages-tools-amzn2-aarch64
+javapackages-tools-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/javapackages-tools-cos7-ppc64le
+javapackages-tools-cos7-s390x:
+- ./cdt_cos7_s390x/javapackages-tools-cos7-s390x
 jaydebeapi:
 - ./jaydebeapi-feedstock
 jbig:
 - ./jbig-feedstock
+jbigkit-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/jbigkit-libs-amzn2-aarch64
 jdcal:
 - ./jdcal-feedstock
 jedi:
@@ -1424,6 +2036,10 @@ jmespath:
 - ./jmespath-feedstock
 joblib:
 - ./joblib-feedstock
+jpackage-utils-cos6-i686:
+- ./cdt_cos6_i686/jpackage-utils-cos6-i686
+jpackage-utils-cos6-x86_64:
+- ./cdt_cos6_x86_64/jpackage-utils-cos6-x86_64
 jpeg:
 - ./jpeg-feedstock
 jpype1:
@@ -1468,6 +2084,8 @@ jupyter_console:
 - ./jupyter_console-feedstock
 jupyter_core:
 - ./jupyter_core-feedstock
+jupyter_dashboards_bundlers:
+- ./jupyter_dashboards_bundlers-feedstock
 jupyter_kernel_gateway:
 - ./jupyter_kernel_gateway-feedstock
 jupyter_server:
@@ -1504,20 +2122,56 @@ keras-preprocessing:
 - ./keras-preprocessing-feedstock
 keras_split:
 - ./keras-feedstock
+kernel-headers-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/kernel-headers-amzn2-aarch64
+kernel-headers-cos6-i686:
+- ./cdt_cos6_i686/kernel-headers-cos6-i686
+kernel-headers-cos6-x86_64:
+- ./cdt_cos6_x86_64/kernel-headers-cos6-x86_64
+kernel-headers-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/kernel-headers-cos7-ppc64le
 kernel-headers_linux-ppc64le:
 - ./linux-sysroot-feedstock
 keyring:
 - ./keyring-feedstock
 keyrings.alt:
 - ./keyrings.alt-feedstock
+keyutils-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/keyutils-libs-amzn2-aarch64
+keyutils-libs-cos6-i686:
+- ./cdt_cos6_i686/keyutils-libs-cos6-i686
+keyutils-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/keyutils-libs-cos6-x86_64
+keyutils-libs-cos7-s390x:
+- ./cdt_cos7_s390x/keyutils-libs-cos7-s390x
+keyutils-libs-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/keyutils-libs-devel-amzn2-aarch64
+kitty:
+- ./kitty-feedstock
 kiwisolver:
 - ./kiwisolver-feedstock
+kmod-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/kmod-amzn2-aarch64
+kmod-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/kmod-cos7-ppc64le
+kmod-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/kmod-libs-amzn2-aarch64
 kombu:
 - ./kombu-feedstock
 korean_lunar_calendar:
 - ./korean_lunar_calendar-feedstock
 krb5:
 - ./krb5-feedstock
+krb5-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/krb5-devel-amzn2-aarch64
+krb5-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/krb5-libs-amzn2-aarch64
+krb5-libs-cos6-i686:
+- ./cdt_cos6_i686/krb5-libs-cos6-i686
+krb5-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/krb5-libs-cos6-x86_64
+krb5-libs-cos7-s390x:
+- ./cdt_cos7_s390x/krb5-libs-cos7-s390x
 lame:
 - ./lame-feedstock
 lancet:
@@ -1533,7 +2187,7 @@ lbzip2:
 lcms2:
 - ./lcms2-feedstock
 ld64:
-- ./cctools-and-ld64-feedstock
+- ./cctools-ld64-feedstock
 ld64_osx-64:
 - ./cctools-and-ld64-feedstock
 ld_impl_linux-ppc64le:
@@ -1548,16 +2202,56 @@ leptonica:
 - ./leptonica-feedstock
 lerc:
 - ./lerc-feedstock
+less-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/less-amzn2-aarch64
 leveldb:
 - ./leveldb-feedstock
 liac-arff:
 - ./liac-arff-feedstock
+libacl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libacl-amzn2-aarch64
 libaec:
 - ./libaec-feedstock
 libaio:
 - ./libaio-feedstock
+libapr:
+- ./apr-feedstock
+libapriconv:
+- ./apr-feedstock
+libaprutil:
+- ./apr-feedstock
 libarchive:
 - ./libarchive-feedstock
+libart_lgpl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libart_lgpl-amzn2-aarch64
+libart_lgpl-cos6-i686:
+- ./cdt_cos6_i686/libart_lgpl-cos6-i686
+libart_lgpl-cos6-x86_64:
+- ./cdt_cos6_x86_64/libart_lgpl-cos6-x86_64
+libasyncns-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libasyncns-amzn2-aarch64
+libatomic-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libatomic-amzn2-aarch64
+libattr-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libattr-amzn2-aarch64
+libblkid-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libblkid-amzn2-aarch64
+libblkid-cos6-i686:
+- ./cdt_cos6_i686/libblkid-cos6-i686
+libblkid-cos6-x86_64:
+- ./cdt_cos6_x86_64/libblkid-cos6-x86_64
+libbonobo-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libbonobo-amzn2-aarch64
+libbonobo-cos6-i686:
+- ./cdt_cos6_i686/libbonobo-cos6-i686
+libbonobo-cos6-x86_64:
+- ./cdt_cos6_x86_64/libbonobo-cos6-x86_64
+libbonobo-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libbonobo-devel-amzn2-aarch64
+libbonobo-devel-cos6-i686:
+- ./cdt_cos6_i686/libbonobo-devel-cos6-i686
+libbonobo-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libbonobo-devel-cos6-x86_64
 libboost:
 - ./boost-feedstock
 libbrotlicommon:
@@ -1566,6 +2260,10 @@ libbrotlidec:
 - ./brotli-feedstock
 libbrotlienc:
 - ./brotli-feedstock
+libcap-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libcap-amzn2-aarch64
+libcap-ng-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libcap-ng-amzn2-aarch64
 libclang:
 - ./clangdev-feedstock
 libclang-cpp:
@@ -1574,8 +2272,20 @@ libclang-cpp14:
 - ./clangdev-feedstock
 libclang13:
 - ./clangdev-feedstock
+libcom_err-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libcom_err-amzn2-aarch64
+libcom_err-cos6-i686:
+- ./cdt_cos6_i686/libcom_err-cos6-i686
+libcom_err-cos6-x86_64:
+- ./cdt_cos6_x86_64/libcom_err-cos6-x86_64
+libcom_err-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libcom_err-devel-amzn2-aarch64
 libcrc32c:
 - ./libcrc32c-feedstock
+libcroco-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libcroco-amzn2-aarch64
+libcrypt-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libcrypt-amzn2-aarch64
 libcryptominisat:
 - ./cryptominisat-feedstock
 libcst:
@@ -1584,6 +2294,8 @@ libcups:
 - ./libcups-feedstock
 libcurl:
 - ./curl-feedstock
+libcurl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libcurl-amzn2-aarch64
 libcurl-static:
 - ./curl-feedstock
 libcxx:
@@ -1598,10 +2310,32 @@ libdate:
 - ./libdate-feedstock
 libdb:
 - ./libdb-feedstock
+libdb-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libdb-amzn2-aarch64
 libdeflate:
 - ./libdeflate-feedstock
+libdrm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libdrm-amzn2-aarch64
+libdrm-cos6-i686:
+- ./cdt_cos6_i686/libdrm-cos6-i686
+libdrm-cos6-x86_64:
+- ./cdt_cos6_x86_64/libdrm-cos6-x86_64
+libdrm-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libdrm-cos7-ppc64le
+libdrm-cos7-s390x:
+- ./cdt_cos7_s390x/libdrm-cos7-s390x
+libdrm-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libdrm-devel-amzn2-aarch64
+libdrm-devel-cos6-i686:
+- ./cdt_cos6_i686/libdrm-devel-cos6-i686
+libdrm-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libdrm-devel-cos6-x86_64
+libdrm-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libdrm-devel-cos7-ppc64le
 libedit:
 - ./libedit-feedstock
+libedit-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libedit-amzn2-aarch64
 libev:
 - ./libev-feedstock
 libev-libevent:
@@ -1610,14 +2344,36 @@ libev-static:
 - ./libev-feedstock
 libevent:
 - ./libevent-feedstock
+libfdisk-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libfdisk-amzn2-aarch64
 libffi:
 - ./libffi-feedstock
+libffi-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libffi-amzn2-aarch64
+libfontenc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libfontenc-amzn2-aarch64
+libgcc:
+- ./libgcc-feedstock
+libgcc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libgcc-amzn2-aarch64
 libgcc-devel_linux-ppc64le:
 - ./gcc_toolchain-feedstock
 libgcc-ng:
 - ./gcc_toolchain-feedstock
+libgcj-cos6-i686:
+- ./cdt_cos6_i686/libgcj-cos6-i686
+libgcj-cos6-x86_64:
+- ./cdt_cos6_x86_64/libgcj-cos6-x86_64
 libgcrypt:
 - ./libgcrypt-feedstock
+libgcrypt-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libgcrypt-amzn2-aarch64
+libgcrypt-cos6-i686:
+- ./cdt_cos6_i686/libgcrypt-cos6-i686
+libgcrypt-cos6-x86_64:
+- ./cdt_cos6_x86_64/libgcrypt-cos6-x86_64
+libgcrypt-cos7-s390x:
+- ./cdt_cos7_s390x/libgcrypt-cos7-s390x
 libgd:
 - ./libgd-feedstock
 libgdal:
@@ -1632,10 +2388,36 @@ libgit2:
 - ./libgit2-feedstock
 libglu:
 - ./libglu-feedstock
+libglvnd-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libglvnd-amzn2-aarch64
+libglvnd-core-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libglvnd-core-devel-amzn2-aarch64
+libglvnd-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libglvnd-cos7-ppc64le
+libglvnd-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libglvnd-devel-amzn2-aarch64
+libglvnd-egl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libglvnd-egl-amzn2-aarch64
+libglvnd-gles-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libglvnd-gles-amzn2-aarch64
+libglvnd-glx-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libglvnd-glx-amzn2-aarch64
+libglvnd-glx-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libglvnd-glx-cos7-ppc64le
+libglvnd-opengl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libglvnd-opengl-amzn2-aarch64
 libgomp:
 - ./gcc_toolchain-feedstock
+libgomp-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libgomp-amzn2-aarch64
 libgpg-error:
 - ./libgpg-error-feedstock
+libgpg-error-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libgpg-error-amzn2-aarch64
+libgpg-error-cos6-i686:
+- ./cdt_cos6_i686/libgpg-error-cos6-i686
+libgpg-error-cos6-x86_64:
+- ./cdt_cos6_x86_64/libgpg-error-cos6-x86_64
 libgpuarray:
 - ./libgpuarray-feedstock
 libgsasl:
@@ -1644,14 +2426,56 @@ libgsf:
 - ./libgsf-feedstock
 libhdfs3:
 - ./libhdfs3-feedstock
+libice-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libice-amzn2-aarch64
+libice-cos6-i686:
+- ./cdt_cos6_i686/libice-cos6-i686
+libice-cos6-x86_64:
+- ./cdt_cos6_x86_64/libice-cos6-x86_64
+libice-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libice-cos7-ppc64le
+libice-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libice-devel-amzn2-aarch64
+libice-devel-cos6-i686:
+- ./cdt_cos6_i686/libice-devel-cos6-i686
+libice-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libice-devel-cos6-x86_64
+libice-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libice-devel-cos7-ppc64le
+libice-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libice-devel-cos7-s390x
 libiconv:
 - ./libiconv-feedstock
+libidl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libidl-amzn2-aarch64
+libidl-cos6-i686:
+- ./cdt_cos6_i686/libidl-cos6-i686
+libidl-cos6-x86_64:
+- ./cdt_cos6_x86_64/libidl-cos6-x86_64
+libidl-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libidl-devel-amzn2-aarch64
+libidl-devel-cos6-i686:
+- ./cdt_cos6_i686/libidl-devel-cos6-i686
+libidl-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libidl-devel-cos6-x86_64
 libidn11:
 - ./libidn11-feedstock
 libidn2:
 - ./libidn2-feedstock
+libitm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libitm-amzn2-aarch64
 libjpeg-turbo:
 - ./libjpeg-turbo-feedstock
+libjpeg-turbo-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libjpeg-turbo-amzn2-aarch64
+libjpeg-turbo-cos6-i686:
+- ./cdt_cos6_i686/libjpeg-turbo-cos6-i686
+libjpeg-turbo-cos6-x86_64:
+- ./cdt_cos6_x86_64/libjpeg-turbo-cos6-x86_64
+libjpeg-turbo-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libjpeg-turbo-cos7-ppc64le
+libkadm5-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libkadm5-amzn2-aarch64
 libkml:
 - ./libkml-feedstock
 liblief:
@@ -1664,12 +2488,20 @@ libmamba:
 - ./libmambapy-feedstock
 libmambapy:
 - ./libmambapy-feedstock
+libmetalink-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libmetalink-amzn2-aarch64
 libmlir:
 - ./mlir-feedstock
 libmlir14:
 - ./mlir-feedstock
 libmng:
 - ./libmng-feedstock
+libmodman-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libmodman-amzn2-aarch64
+libmount-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libmount-amzn2-aarch64
+libmpc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libmpc-amzn2-aarch64
 libmxnet:
 - ./mxnet-feedstock
 libnghttp2:
@@ -1682,16 +2514,34 @@ libntlm:
 - ./libntlm-feedstock
 libogg:
 - ./libogg-feedstock
+libogg-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libogg-amzn2-aarch64
 libopenblas:
 - ./openblas-feedstock
 libopenblas-static:
 - ./openblas-feedstock
 libopencv:
 - ./opencv-feedstock
+libopus:
+- ./libopus-feedstock
 libpcap:
 - ./libpcap-feedstock
 libpng:
 - ./libpng-feedstock
+libpng-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libpng-amzn2-aarch64
+libpng-cos6-i686:
+- ./cdt_cos6_i686/libpng-cos6-i686
+libpng-cos6-x86_64:
+- ./cdt_cos6_x86_64/libpng-cos6-x86_64
+libpng-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libpng-devel-amzn2-aarch64
+libpng-devel-cos6-i686:
+- ./cdt_cos6_i686/libpng-devel-cos6-i686
+libpng-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libpng-devel-cos6-x86_64
+libpng-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libpng-devel-cos7-s390x
 libpq:
 - ./libpq-feedstock
 libprotobuf:
@@ -1700,12 +2550,86 @@ libprotobuf-static:
 - ./libprotobuf-feedstock
 libprotobuf-suite:
 - ./libprotobuf-feedstock
+libproxy-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libproxy-amzn2-aarch64
+libpwquality-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libpwquality-amzn2-aarch64
 libpysal:
 - ./libpysal-feedstock
 librdkafka:
 - ./librdkafka-feedstock
 librsvg:
 - ./librsvg-feedstock
+libsamplerate-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsamplerate-amzn2-aarch64
+libsanitizer-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsanitizer-amzn2-aarch64
+libsecret-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsecret-amzn2-aarch64
+libselinux-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libselinux-amzn2-aarch64
+libselinux-cos6-i686:
+- ./cdt_cos6_i686/libselinux-cos6-i686
+libselinux-cos6-x86_64:
+- ./cdt_cos6_x86_64/libselinux-cos6-x86_64
+libselinux-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libselinux-cos7-ppc64le
+libselinux-cos7-s390x:
+- ./cdt_cos7_s390x/libselinux-cos7-s390x
+libselinux-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libselinux-devel-amzn2-aarch64
+libselinux-devel-cos6-i686:
+- ./cdt_cos6_i686/libselinux-devel-cos6-i686
+libselinux-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libselinux-devel-cos6-x86_64
+libselinux-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libselinux-devel-cos7-ppc64le
+libselinux-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libselinux-devel-cos7-s390x
+libsemanage-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsemanage-amzn2-aarch64
+libsepol-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsepol-amzn2-aarch64
+libsepol-cos6-i686:
+- ./cdt_cos6_i686/libsepol-cos6-i686
+libsepol-cos6-x86_64:
+- ./cdt_cos6_x86_64/libsepol-cos6-x86_64
+libsepol-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libsepol-cos7-ppc64le
+libsepol-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsepol-devel-amzn2-aarch64
+libsepol-devel-cos6-i686:
+- ./cdt_cos6_i686/libsepol-devel-cos6-i686
+libsepol-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libsepol-devel-cos6-x86_64
+libsepol-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libsepol-devel-cos7-ppc64le
+libsigcxx20-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsigcxx20-amzn2-aarch64
+libsm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsm-amzn2-aarch64
+libsm-cos6-i686:
+- ./cdt_cos6_i686/libsm-cos6-i686
+libsm-cos6-x86_64:
+- ./cdt_cos6_x86_64/libsm-cos6-x86_64
+libsm-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libsm-cos7-ppc64le
+libsm-cos7-s390x:
+- ./cdt_cos7_s390x/libsm-cos7-s390x
+libsm-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsm-devel-amzn2-aarch64
+libsm-devel-cos6-i686:
+- ./cdt_cos6_i686/libsm-devel-cos6-i686
+libsm-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libsm-devel-cos6-x86_64
+libsm-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libsm-devel-cos7-ppc64le
+libsm-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libsm-devel-cos7-s390x
+libsmartcols-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsmartcols-amzn2-aarch64
+libsndfile-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsndfile-amzn2-aarch64
 libsodium:
 - ./libsodium-feedstock
 libsolv:
@@ -1714,58 +2638,472 @@ libsolv-static:
 - ./libsolv-feedstock
 libsolv-suite:
 - ./libsolv-feedstock
+libsoup-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsoup-amzn2-aarch64
+libsoup-cos6-i686:
+- ./cdt_cos6_i686/libsoup-cos6-i686
+libsoup-cos6-x86_64:
+- ./cdt_cos6_x86_64/libsoup-cos6-x86_64
+libsoup-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libsoup-devel-amzn2-aarch64
+libsoup-devel-cos6-i686:
+- ./cdt_cos6_i686/libsoup-devel-cos6-i686
+libsoup-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libsoup-devel-cos6-x86_64
+libsoup-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libsoup-devel-cos7-s390x
 libspatialindex:
 - ./libspatialindex-feedstock
 libspatialite:
 - ./libspatialite-feedstock
 libssh2:
 - ./libssh2-feedstock
+libstdcxx-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libstdcxx-amzn2-aarch64
 libstdcxx-devel_linux-ppc64le:
 - ./gcc_toolchain-feedstock
 libstdcxx-ng:
 - ./gcc_toolchain-feedstock
 libtasn1:
 - ./libtasn1-feedstock
+libtasn1-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libtasn1-amzn2-aarch64
+libtasn1-cos6-i686:
+- ./cdt_cos6_i686/libtasn1-cos6-i686
+libtasn1-cos6-x86_64:
+- ./cdt_cos6_x86_64/libtasn1-cos6-x86_64
+libtasn1-cos7-s390x:
+- ./cdt_cos7_s390x/libtasn1-cos7-s390x
+libthai-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libthai-amzn2-aarch64
+libthai-cos6-i686:
+- ./cdt_cos6_i686/libthai-cos6-i686
+libthai-cos6-x86_64:
+- ./cdt_cos6_x86_64/libthai-cos6-x86_64
+libthai-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libthai-cos7-ppc64le
 libtheora:
 - ./libtheora-feedstock
 libthrift:
 - ./thrift-cpp-feedstock
 libtiff:
 - ./libtiff-feedstock
+libtiff-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libtiff-amzn2-aarch64
+libtiff-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libtiff-cos7-ppc64le
+libtiff-cos7-s390x:
+- ./cdt_cos7_s390x/libtiff-cos7-s390x
+libtirpc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libtirpc-amzn2-aarch64
 libtool:
 - ./libtool-feedstock
+libtool-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libtool-amzn2-aarch64
 libtvm:
 - ./libtvm-feedstock
+libudev-cos6-i686:
+- ./cdt_cos6_i686/libudev-cos6-i686
+libudev-cos6-x86_64:
+- ./cdt_cos6_x86_64/libudev-cos6-x86_64
+libudev-devel-cos6-i686:
+- ./cdt_cos6_i686/libudev-devel-cos6-i686
+libudev-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libudev-devel-cos6-x86_64
 libunistring:
 - ./libunistring-feedstock
+libunistring-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libunistring-amzn2-aarch64
 libunwind:
-- ./libunwind-feedstock
+- ./llvm-compilers-feedstock
+libutempter-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libutempter-amzn2-aarch64
 libutf8proc:
-- ./libutf8proc-feedstock
+- ./libutf8proc-feedstock.embedded
 libuuid:
 - ./libuuid-feedstock
+libuuid-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libuuid-amzn2-aarch64
+libuuid-cos6-i686:
+- ./cdt_cos6_i686/libuuid-cos6-i686
+libuuid-cos6-x86_64:
+- ./cdt_cos6_x86_64/libuuid-cos6-x86_64
+libuuid-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libuuid-cos7-ppc64le
+libuuid-cos7-s390x:
+- ./cdt_cos7_s390x/libuuid-cos7-s390x
+libuuid-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libuuid-devel-amzn2-aarch64
+libuuid-devel-cos6-i686:
+- ./cdt_cos6_i686/libuuid-devel-cos6-i686
+libuuid-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libuuid-devel-cos6-x86_64
+libuuid-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libuuid-devel-cos7-ppc64le
+libuuid-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libuuid-devel-cos7-s390x
 libuv:
 - ./libuv-feedstock
+libverto-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libverto-amzn2-aarch64
+libverto-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libverto-devel-amzn2-aarch64
 libvorbis:
 - ./libvorbis-feedstock
+libvorbis-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libvorbis-amzn2-aarch64
 libvpx:
-- ./libvpx-feedstock
+- ./libvpx-1.10.0-feedstock
+libwayland-client-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libwayland-client-amzn2-aarch64
+libwayland-server-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libwayland-server-amzn2-aarch64
 libwebp:
 - ./libwebp-feedstock
 libwebp-base:
 - ./libwebp-base-feedstock
+libx11-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libx11-amzn2-aarch64
+libx11-common-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libx11-common-amzn2-aarch64
+libx11-common-cos6-i686:
+- ./cdt_cos6_i686/libx11-common-cos6-i686
+libx11-common-cos6-x86_64:
+- ./cdt_cos6_x86_64/libx11-common-cos6-x86_64
+libx11-common-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libx11-common-cos7-ppc64le
+libx11-common-cos7-s390x:
+- ./cdt_cos7_s390x/libx11-common-cos7-s390x
+libx11-cos6-i686:
+- ./cdt_cos6_i686/libx11-cos6-i686
+libx11-cos6-x86_64:
+- ./cdt_cos6_x86_64/libx11-cos6-x86_64
+libx11-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libx11-cos7-ppc64le
+libx11-cos7-s390x:
+- ./cdt_cos7_s390x/libx11-cos7-s390x
+libx11-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libx11-devel-amzn2-aarch64
+libx11-devel-cos6-i686:
+- ./cdt_cos6_i686/libx11-devel-cos6-i686
+libx11-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libx11-devel-cos6-x86_64
+libx11-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libx11-devel-cos7-ppc64le
+libx11-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libx11-devel-cos7-s390x
+libxau-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxau-amzn2-aarch64
+libxau-cos6-i686:
+- ./cdt_cos6_i686/libxau-cos6-i686
+libxau-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxau-cos6-x86_64
+libxau-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxau-cos7-ppc64le
+libxau-cos7-s390x:
+- ./cdt_cos7_s390x/libxau-cos7-s390x
+libxau-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxau-devel-amzn2-aarch64
+libxau-devel-cos6-i686:
+- ./cdt_cos6_i686/libxau-devel-cos6-i686
+libxau-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxau-devel-cos6-x86_64
+libxau-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxau-devel-cos7-ppc64le
+libxau-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxau-devel-cos7-s390x
 libxcb:
 - ./libxcb-feedstock
+libxcb-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxcb-amzn2-aarch64
+libxcb-cos6-i686:
+- ./cdt_cos6_i686/libxcb-cos6-i686
+libxcb-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxcb-cos7-ppc64le
+libxcb-cos7-s390x:
+- ./cdt_cos7_s390x/libxcb-cos7-s390x
+libxcb-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxcb-devel-cos6-x86_64
 libxcb_and_xcb-proto:
 - ./libxcb-feedstock
+libxcomposite-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxcomposite-amzn2-aarch64
+libxcomposite-cos6-i686:
+- ./cdt_cos6_i686/libxcomposite-cos6-i686
+libxcomposite-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxcomposite-cos6-x86_64
+libxcomposite-cos7-s390x:
+- ./cdt_cos7_s390x/libxcomposite-cos7-s390x
+libxcomposite-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxcomposite-devel-amzn2-aarch64
+libxcomposite-devel-cos6-i686:
+- ./cdt_cos6_i686/libxcomposite-devel-cos6-i686
+libxcomposite-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxcomposite-devel-cos6-x86_64
+libxcomposite-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxcomposite-devel-cos7-s390x
+libxcursor-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxcursor-amzn2-aarch64
+libxcursor-cos6-i686:
+- ./cdt_cos6_i686/libxcursor-cos6-i686
+libxcursor-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxcursor-cos6-x86_64
+libxcursor-cos7-s390x:
+- ./cdt_cos7_s390x/libxcursor-cos7-s390x
+libxcursor-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxcursor-devel-amzn2-aarch64
+libxcursor-devel-cos6-i686:
+- ./cdt_cos6_i686/libxcursor-devel-cos6-i686
+libxcursor-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxcursor-devel-cos6-x86_64
+libxcursor-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxcursor-devel-cos7-s390x
+libxdamage-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxdamage-amzn2-aarch64
+libxdamage-cos6-i686:
+- ./cdt_cos6_i686/libxdamage-cos6-i686
+libxdamage-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxdamage-cos6-x86_64
+libxdamage-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxdamage-cos7-ppc64le
+libxdamage-cos7-s390x:
+- ./cdt_cos7_s390x/libxdamage-cos7-s390x
+libxdamage-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxdamage-devel-amzn2-aarch64
+libxdamage-devel-cos6-i686:
+- ./cdt_cos6_i686/libxdamage-devel-cos6-i686
+libxdamage-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxdamage-devel-cos6-x86_64
+libxdamage-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxdamage-devel-cos7-ppc64le
+libxdamage-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxdamage-devel-cos7-s390x
+libxdmcp-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxdmcp-amzn2-aarch64
+libxext-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxext-amzn2-aarch64
+libxext-cos6-i686:
+- ./cdt_cos6_i686/libxext-cos6-i686
+libxext-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxext-cos6-x86_64
+libxext-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxext-cos7-ppc64le
+libxext-cos7-s390x:
+- ./cdt_cos7_s390x/libxext-cos7-s390x
+libxext-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxext-devel-amzn2-aarch64
+libxext-devel-cos6-i686:
+- ./cdt_cos6_i686/libxext-devel-cos6-i686
+libxext-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxext-devel-cos6-x86_64
+libxext-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxext-devel-cos7-ppc64le
+libxext-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxext-devel-cos7-s390x
+libxfixes-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxfixes-amzn2-aarch64
+libxfixes-cos6-i686:
+- ./cdt_cos6_i686/libxfixes-cos6-i686
+libxfixes-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxfixes-cos6-x86_64
+libxfixes-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxfixes-cos7-ppc64le
+libxfixes-cos7-s390x:
+- ./cdt_cos7_s390x/libxfixes-cos7-s390x
+libxfixes-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxfixes-devel-amzn2-aarch64
+libxfixes-devel-cos6-i686:
+- ./cdt_cos6_i686/libxfixes-devel-cos6-i686
+libxfixes-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxfixes-devel-cos6-x86_64
+libxfixes-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxfixes-devel-cos7-ppc64le
+libxfixes-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxfixes-devel-cos7-s390x
+libxfont2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxfont2-amzn2-aarch64
+libxft-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxft-amzn2-aarch64
+libxft-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxft-cos7-ppc64le
 libxgboost:
 - ./xgboost-feedstock
+libxi-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxi-amzn2-aarch64
+libxi-cos6-i686:
+- ./cdt_cos6_i686/libxi-cos6-i686
+libxi-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxi-cos6-x86_64
+libxi-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxi-cos7-ppc64le
+libxi-cos7-s390x:
+- ./cdt_cos7_s390x/libxi-cos7-s390x
+libxi-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxi-devel-amzn2-aarch64
+libxi-devel-cos6-i686:
+- ./cdt_cos6_i686/libxi-devel-cos6-i686
+libxi-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxi-devel-cos6-x86_64
+libxi-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxi-devel-cos7-ppc64le
+libxi-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxi-devel-cos7-s390x
+libxinerama-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxinerama-amzn2-aarch64
+libxinerama-cos6-i686:
+- ./cdt_cos6_i686/libxinerama-cos6-i686
+libxinerama-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxinerama-cos6-x86_64
+libxinerama-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxinerama-devel-amzn2-aarch64
+libxinerama-devel-cos6-i686:
+- ./cdt_cos6_i686/libxinerama-devel-cos6-i686
+libxinerama-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxinerama-devel-cos6-x86_64
 libxkbcommon:
 - ./libxkbcommon-feedstock
+libxkbfile-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxkbfile-amzn2-aarch64
 libxml2:
 - ./libxml2-feedstock
+libxml2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxml2-amzn2-aarch64
+libxml2-bootstrap:
+- ./libxml2-bootstrap-feedstock
+libxml2-cos6-i686:
+- ./cdt_cos6_i686/libxml2-cos6-i686
+libxml2-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxml2-cos6-x86_64
+libxml2-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxml2-devel-amzn2-aarch64
+libxml2-devel-cos6-i686:
+- ./cdt_cos6_i686/libxml2-devel-cos6-i686
+libxml2-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxml2-devel-cos6-x86_64
+libxmlsec1:
+- ./libxmlsec1-feedstock
+libxmu-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxmu-amzn2-aarch64
+libxrandr-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxrandr-amzn2-aarch64
+libxrandr-cos6-i686:
+- ./cdt_cos6_i686/libxrandr-cos6-i686
+libxrandr-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxrandr-cos6-x86_64
+libxrandr-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxrandr-cos7-ppc64le
+libxrandr-cos7-s390x:
+- ./cdt_cos7_s390x/libxrandr-cos7-s390x
+libxrandr-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxrandr-devel-amzn2-aarch64
+libxrandr-devel-cos6-i686:
+- ./cdt_cos6_i686/libxrandr-devel-cos6-i686
+libxrandr-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxrandr-devel-cos6-x86_64
+libxrandr-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxrandr-devel-cos7-ppc64le
+libxrandr-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxrandr-devel-cos7-s390x
+libxrender-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxrender-amzn2-aarch64
+libxrender-cos6-i686:
+- ./cdt_cos6_i686/libxrender-cos6-i686
+libxrender-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxrender-cos6-x86_64
+libxrender-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxrender-cos7-ppc64le
+libxrender-cos7-s390x:
+- ./cdt_cos7_s390x/libxrender-cos7-s390x
+libxrender-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxrender-devel-amzn2-aarch64
+libxrender-devel-cos6-i686:
+- ./cdt_cos6_i686/libxrender-devel-cos6-i686
+libxrender-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxrender-devel-cos6-x86_64
+libxrender-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxrender-devel-cos7-ppc64le
+libxrender-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxrender-devel-cos7-s390x
+libxscrnsaver-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxscrnsaver-amzn2-aarch64
+libxscrnsaver-cos6-i686:
+- ./cdt_cos6_i686/libxscrnsaver-cos6-i686
+libxscrnsaver-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxscrnsaver-cos6-x86_64
+libxscrnsaver-cos7-s390x:
+- ./cdt_cos7_s390x/libxscrnsaver-cos7-s390x
+libxscrnsaver-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxscrnsaver-devel-amzn2-aarch64
+libxscrnsaver-devel-cos6-i686:
+- ./cdt_cos6_i686/libxscrnsaver-devel-cos6-i686
+libxscrnsaver-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxscrnsaver-devel-cos6-x86_64
+libxscrnsaver-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxscrnsaver-devel-cos7-s390x
+libxshmfence-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxshmfence-amzn2-aarch64
+libxshmfence-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxshmfence-cos7-ppc64le
+libxshmfence-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxshmfence-devel-amzn2-aarch64
+libxshmfence-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxshmfence-devel-cos7-ppc64le
 libxslt:
 - ./libxslt-feedstock
+libxslt-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxslt-amzn2-aarch64
+libxt-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxt-amzn2-aarch64
+libxt-cos6-i686:
+- ./cdt_cos6_i686/libxt-cos6-i686
+libxt-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxt-cos6-x86_64
+libxt-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxt-cos7-ppc64le
+libxt-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxt-devel-amzn2-aarch64
+libxt-devel-cos6-i686:
+- ./cdt_cos6_i686/libxt-devel-cos6-i686
+libxt-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxt-devel-cos6-x86_64
+libxt-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxt-devel-cos7-ppc64le
+libxtst-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxtst-amzn2-aarch64
+libxtst-cos6-i686:
+- ./cdt_cos6_i686/libxtst-cos6-i686
+libxtst-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxtst-cos6-x86_64
+libxtst-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxtst-devel-amzn2-aarch64
+libxtst-devel-cos6-i686:
+- ./cdt_cos6_i686/libxtst-devel-cos6-i686
+libxtst-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxtst-devel-cos6-x86_64
+libxtst-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxtst-devel-cos7-s390x
+libxxf86vm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxxf86vm-amzn2-aarch64
+libxxf86vm-cos6-i686:
+- ./cdt_cos6_i686/libxxf86vm-cos6-i686
+libxxf86vm-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxxf86vm-cos6-x86_64
+libxxf86vm-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxxf86vm-cos7-ppc64le
+libxxf86vm-cos7-s390x:
+- ./cdt_cos7_s390x/libxxf86vm-cos7-s390x
+libxxf86vm-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libxxf86vm-devel-amzn2-aarch64
+libxxf86vm-devel-cos6-i686:
+- ./cdt_cos6_i686/libxxf86vm-devel-cos6-i686
+libxxf86vm-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/libxxf86vm-devel-cos6-x86_64
+libxxf86vm-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/libxxf86vm-devel-cos7-ppc64le
+libxxf86vm-devel-cos7-s390x:
+- ./cdt_cos7_s390x/libxxf86vm-devel-cos7-s390x
+libyaml-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/libyaml-amzn2-aarch64
 libzip:
 - ./libzip-feedstock
 libzopfli:
@@ -1786,14 +3124,26 @@ linux-sysroot:
 - ./linux-sysroot-feedstock
 lit:
 - ./llvmdev-feedstock
+lizzy-dbg:
+- ./ctng-dbg-compilers-activation-feedstock
+lizzy-osize:
+- ./ctng-osize-compilers-activation-feedstock
 lld:
 - ./lld-feedstock
 llvm:
-- ./llvmdev-feedstock
+- ./llvm-compilers-feedstock
+llvm-lto:
+- ./llvm-compilers-feedstock
+llvm-openmp:
+- ./llvm-compilers-feedstock
 llvm-package:
 - ./llvmdev-feedstock
+llvm-private-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/llvm-private-amzn2-aarch64
 llvm-spirv:
 - ./llvm-spirv-feedstock
+llvm-suite:
+- ./llvm-compilers-feedstock
 llvm-tools:
 - ./llvmdev-feedstock
 llvmdev:
@@ -1804,10 +3154,16 @@ lmdb:
 - ./lmdb-feedstock
 locket:
 - ./locket-feedstock
+lockfile:
+- ./lockfile-feedstock
+locustio:
+- ./locustio-feedstock
 logilab-common:
 - ./logilab-common-feedstock
 loguru:
 - ./loguru-feedstock
+lua-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/lua-amzn2-aarch64
 luigi:
 - ./luigi-feedstock
 lunarcalendar:
@@ -1816,20 +3172,32 @@ lxml:
 - ./lxml-feedstock
 lz4:
 - ./lz4-feedstock
+lz4-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/lz4-amzn2-aarch64
 lz4-c:
 - ./lz4-c-feedstock
 lz4-c-static:
 - ./lz4-c-feedstock
 lzo:
 - ./lzo-feedstock
+m2w64-libxml2:
+- ./m2w64-libxml2
 m4:
 - ./m4-feedstock
+m4-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/m4-amzn2-aarch64
 m4ri:
 - ./m4ri-feedstock
 macholib:
 - ./macholib-feedstock
+magma:
+- ./magma-feedstock
 make:
 - ./make-feedstock
+makedev-cos6-i686:
+- ./cdt_cos6_i686/makedev-cos6-i686
+makedev-cos6-x86_64:
+- ./cdt_cos6_x86_64/makedev-cos6-x86_64
 mako:
 - ./mako-feedstock
 mamba-split:
@@ -1874,10 +3242,84 @@ mccabe:
 - ./mccabe-feedstock
 mdit-py-plugins:
 - ./mdit-py-plugins-feedstock
+mdp:
+- ./mdp-feedstock
 mdurl:
 - ./mdurl-feedstock
+meld3:
+- ./meld3-feedstock
 memory_profiler:
 - ./memory_profiler-feedstock
+mesa-dri-drivers-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-dri-drivers-amzn2-aarch64
+mesa-dri-drivers-cos6-i686:
+- ./cdt_cos6_i686/mesa-dri-drivers-cos6-i686
+mesa-dri-drivers-cos6-x86_64:
+- ./cdt_cos6_x86_64/mesa-dri-drivers-cos6-x86_64
+mesa-dri-drivers-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/mesa-dri-drivers-cos7-ppc64le
+mesa-dri-drivers-cos7-s390x:
+- ./cdt_cos7_s390x/mesa-dri-drivers-cos7-s390x
+mesa-dri1-drivers-cos6-i686:
+- ./cdt_cos6_i686/mesa-dri1-drivers-cos6-i686
+mesa-dri1-drivers-cos6-x86_64:
+- ./cdt_cos6_x86_64/mesa-dri1-drivers-cos6-x86_64
+mesa-filesystem-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-filesystem-amzn2-aarch64
+mesa-khr-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-khr-devel-amzn2-aarch64
+mesa-khr-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/mesa-khr-devel-cos7-ppc64le
+mesa-libegl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-libegl-amzn2-aarch64
+mesa-libegl-cos6-i686:
+- ./cdt_cos6_i686/mesa-libegl-cos6-i686
+mesa-libegl-cos6-x86_64:
+- ./cdt_cos6_x86_64/mesa-libegl-cos6-x86_64
+mesa-libegl-cos7-s390x:
+- ./cdt_cos7_s390x/mesa-libegl-cos7-s390x
+mesa-libegl-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-libegl-devel-amzn2-aarch64
+mesa-libegl-devel-cos6-i686:
+- ./cdt_cos6_i686/mesa-libegl-devel-cos6-i686
+mesa-libegl-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/mesa-libegl-devel-cos6-x86_64
+mesa-libegl-devel-cos7-s390x:
+- ./cdt_cos7_s390x/mesa-libegl-devel-cos7-s390x
+mesa-libgbm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-libgbm-amzn2-aarch64
+mesa-libgbm-cos6-i686:
+- ./cdt_cos6_i686/mesa-libgbm-cos6-i686
+mesa-libgbm-cos6-x86_64:
+- ./cdt_cos6_x86_64/mesa-libgbm-cos6-x86_64
+mesa-libgbm-cos7-s390x:
+- ./cdt_cos7_s390x/mesa-libgbm-cos7-s390x
+mesa-libgl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-libgl-amzn2-aarch64
+mesa-libgl-cos6-i686:
+- ./cdt_cos6_i686/mesa-libgl-cos6-i686
+mesa-libgl-cos6-x86_64:
+- ./cdt_cos6_x86_64/mesa-libgl-cos6-x86_64
+mesa-libgl-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/mesa-libgl-cos7-ppc64le
+mesa-libgl-cos7-s390x:
+- ./cdt_cos7_s390x/mesa-libgl-cos7-s390x
+mesa-libgl-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-libgl-devel-amzn2-aarch64
+mesa-libgl-devel-cos6-i686:
+- ./cdt_cos6_i686/mesa-libgl-devel-cos6-i686
+mesa-libgl-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/mesa-libgl-devel-cos6-x86_64
+mesa-libgl-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/mesa-libgl-devel-cos7-ppc64le
+mesa-libgl-devel-cos7-s390x:
+- ./cdt_cos7_s390x/mesa-libgl-devel-cos7-s390x
+mesa-libglapi-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mesa-libglapi-amzn2-aarch64
+mesa-libglapi-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/mesa-libglapi-cos7-ppc64le
+mesa-libglapi-cos7-s390x:
+- ./cdt_cos7_s390x/mesa-libglapi-cos7-s390x
 meson:
 - ./meson-feedstock
 meson-python:
@@ -1916,6 +3358,8 @@ modin-packages:
 - ./modin-feedstock
 modin-ray:
 - ./modin-feedstock
+mongodb:
+- ./mongodb-feedstock
 monotonic:
 - ./monotonic-feedstock
 more-itertools:
@@ -1924,10 +3368,14 @@ morfessor:
 - ./morfessor-feedstock
 moto:
 - ./moto-feedstock
+mozjs17-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mozjs17-amzn2-aarch64
 mpc:
 - ./mpc-feedstock
 mpfr:
 - ./mpfr-feedstock
+mpfr-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/mpfr-amzn2-aarch64
 mpg123:
 - ./mpg123-feedstock
 mpi:
@@ -2032,12 +3480,24 @@ nbserverproxy:
 - ./nbserverproxy-feedstock
 nbsmoke:
 - ./nbsmoke-feedstock
+nccl:
+- ./nccl-feedstock.old
 ncurses:
 - ./ncurses-feedstock
+ncurses-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ncurses-amzn2-aarch64
+ncurses-base-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ncurses-base-amzn2-aarch64
+ncurses-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ncurses-libs-amzn2-aarch64
 ndg-httpsclient:
 - ./ndg-httpsclient-feedstock
 neo4j-python-driver:
 - ./neo4j-python-driver-feedstock
+neon:
+- ./neon-feedstock
+neotime:
+- ./neotime-feedstock
 nest-asyncio:
 - ./nest-asyncio-feedstock
 netcdf4:
@@ -2046,6 +3506,8 @@ netifaces:
 - ./netifaces-feedstock
 nettle:
 - ./nettle-feedstock
+nettle-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nettle-amzn2-aarch64
 networkx:
 - ./networkx-feedstock
 neuralprophet:
@@ -2086,14 +3548,54 @@ notebook-shim:
 - ./notebook-shim-feedstock
 nspr:
 - ./nspr-feedstock
+nspr-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nspr-amzn2-aarch64
+nspr-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/nspr-cos7-ppc64le
+nspr-cos7-s390x:
+- ./cdt_cos7_s390x/nspr-cos7-s390x
 nss:
 - ./nss-feedstock
+nss-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nss-amzn2-aarch64
+nss-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/nss-cos7-ppc64le
+nss-cos7-s390x:
+- ./cdt_cos7_s390x/nss-cos7-s390x
+nss-pem-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nss-pem-amzn2-aarch64
+nss-softokn-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nss-softokn-amzn2-aarch64
+nss-softokn-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/nss-softokn-cos7-ppc64le
+nss-softokn-cos7-s390x:
+- ./cdt_cos7_s390x/nss-softokn-cos7-s390x
+nss-softokn-freebl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nss-softokn-freebl-amzn2-aarch64
+nss-softokn-freebl-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/nss-softokn-freebl-cos7-ppc64le
+nss-softokn-freebl-cos7-s390x:
+- ./cdt_cos7_s390x/nss-softokn-freebl-cos7-s390x
+nss-sysinit-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nss-sysinit-amzn2-aarch64
+nss-tools-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nss-tools-amzn2-aarch64
+nss-util-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/nss-util-amzn2-aarch64
+nss-util-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/nss-util-cos7-ppc64le
+nss-util-cos7-s390x:
+- ./cdt_cos7_s390x/nss-util-cos7-s390x
 nsync:
 - ./nsync-feedstock
 ntlm-auth:
 - ./ntlm-auth-feedstock
 nuitka:
 - ./nuitka-feedstock
+numactl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/numactl-amznt2-aarch64
+numactl-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/numactl-devel-amznt2-aarch64
 numba:
 - ./numba-feedstock
 numcodecs:
@@ -2150,10 +3652,14 @@ opencv-suite:
 - ./opencv-feedstock
 openh264:
 - ./openh264-feedstock
+openhmd:
+- ./openhmd-feedstock
 openjpeg:
 - ./openjpeg-feedstock
 openldap:
 - ./openldap-feedstock
+openldap-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/openldap-amzn2-aarch64
 openml:
 - ./openml-feedstock
 openmpi:
@@ -2170,8 +3676,16 @@ openpyxl:
 - ./openpyxl-feedstock
 openrefine:
 - ./openrefine-feedstock
+openssh-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/openssh-amzn2-aarch64
+openssh-clients-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/openssh-clients-amzn2-aarch64
 openssl:
 - ./openssl-feedstock
+openssl-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/openssl-devel-amzn2-aarch64
+openssl-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/openssl-libs-amzn2-aarch64
 opentracing:
 - ./opentracing-feedstock
 opentracing_instrumentation:
@@ -2184,6 +3698,20 @@ optimum:
 - ./optimum-feedstock
 optional-lite:
 - ./optional-lite-feedstock
+orbit2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/orbit2-amzn2-aarch64
+orbit2-cos6-i686:
+- ./cdt_cos6_i686/orbit2-cos6-i686
+orbit2-cos6-x86_64:
+- ./cdt_cos6_x86_64/orbit2-cos6-x86_64
+orbit2-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/orbit2-cos7-ppc64le
+orbit2-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/orbit2-devel-amzn2-aarch64
+orbit2-devel-cos6-i686:
+- ./cdt_cos6_i686/orbit2-devel-cos6-i686
+orbit2-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/orbit2-devel-cos6-x86_64
 orc:
 - ./orc-feedstock
 orderedmultidict:
@@ -2192,10 +3720,32 @@ orjson:
 - ./orjson-feedstock
 oscrypto:
 - ./oscrypto-feedstock
+otter-browser:
+- ./otter-browser-feedstock
 outcome:
 - ./outcome-feedstock
 owslib:
 - ./owslib-feedstock
+p11-kit-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/p11-kit-amzn2-aarch64
+p11-kit-cos6-i686:
+- ./cdt_cos6_i686/p11-kit-cos6-i686
+p11-kit-cos6-x86_64:
+- ./cdt_cos6_x86_64/p11-kit-cos6-x86_64
+p11-kit-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/p11-kit-cos7-ppc64le
+p11-kit-cos7-s390x:
+- ./cdt_cos7_s390x/p11-kit-cos7-s390x
+p11-kit-trust-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/p11-kit-trust-amzn2-aarch64
+p11-kit-trust-cos6-i686:
+- ./cdt_cos6_i686/p11-kit-trust-cos6-i686
+p11-kit-trust-cos6-x86_64:
+- ./cdt_cos6_x86_64/p11-kit-trust-cos6-x86_64
+p11-kit-trust-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/p11-kit-trust-cos7-ppc64le
+p11-kit-trust-cos7-s390x:
+- ./cdt_cos7_s390x/p11-kit-trust-cos7-s390x
 p7zip:
 - ./p7zip-feedstock
 packaging:
@@ -2206,6 +3756,18 @@ pagmo-devel:
 - ./pagmo-feedstock
 palettable:
 - ./palettable-feedstock
+pam-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pam-amzn2-aarch64
+pam-cos6-i686:
+- ./cdt_cos6_i686/pam-cos6-i686
+pam-cos6-x86_64:
+- ./cdt_cos6_x86_64/pam-cos6-x86_64
+pam-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pam-devel-amzn2-aarch64
+pam-devel-cos6-i686:
+- ./cdt_cos6_i686/pam-devel-cos6-i686
+pam-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/pam-devel-cos6-x86_64
 pamela:
 - ./pamela-feedstock
 pandarallel:
@@ -2218,6 +3780,8 @@ pandas-profiling:
 - ./pandas-profiling-feedstock
 pandas-stubs:
 - ./pandas-stubs-feedstock
+pandasql:
+- ./pandasql-feedstock
 pandoc:
 - ./pandoc-feedstock
 pandocfilters:
@@ -2226,6 +3790,30 @@ panel:
 - ./panel-feedstock
 pango:
 - ./pango-feedstock
+pango-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pango-amzn2-aarch64
+pango-cos6-i686:
+- ./cdt_cos6_i686/pango-cos6-i686
+pango-cos6-x86_64:
+- ./cdt_cos6_x86_64/pango-cos6-x86_64
+pango-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/pango-cos7-ppc64le
+pango-cos7-s390x:
+- ./cdt_cos7_s390x/pango-cos7-s390x
+pango-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pango-devel-amzn2-aarch64
+pango-devel-cos6-i686:
+- ./cdt_cos6_i686/pango-devel-cos6-i686
+pango-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/pango-devel-cos6-x86_64
+pango-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/pango-devel-cos7-ppc64le
+pango-devel-cos7-s390x:
+- ./cdt_cos7_s390x/pango-devel-cos7-s390x
+pangomm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pangomm-amzn2-aarch64
+pangomm-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pangomm-devel-amzn2-aarch64
 param:
 - ./param-feedstock
 parameterized:
@@ -2236,6 +3824,8 @@ parquet-cpp:
 - ./parquet-cpp-feedstock
 parsedatetime:
 - ./parsedatetime-feedstock
+parsel:
+- ./parsel-feedstock
 parso:
 - ./parso-feedstock
 partd:
@@ -2244,6 +3834,8 @@ passlib:
 - ./passlib-feedstock
 paste:
 - ./paste-feedstock
+pastedeploy:
+- ./pastedeploy-feedstock
 pastel:
 - ./pastel-feedstock
 patch:
@@ -2268,12 +3860,44 @@ pathy:
 - ./pathy-feedstock
 patsy:
 - ./patsy-feedstock
+pbkdf2:
+- ./pbkdf2-feedstock
 pbr:
 - ./pbr-feedstock
+pciutils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pciutils-amzn2-aarch64
+pciutils-cos7-s390x:
+- ./cdt_cos7_s390x/pciutils-cos7-s390x
+pciutils-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pciutils-devel-amzn2-aarch64
+pciutils-devel-cos6-i686:
+- ./cdt_cos6_i686/pciutils-devel-cos6-i686
+pciutils-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/pciutils-devel-cos6-x86_64
+pciutils-devel-cos7-s390x:
+- ./cdt_cos7_s390x/pciutils-devel-cos7-s390x
+pciutils-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pciutils-libs-amzn2-aarch64
+pciutils-libs-cos6-i686:
+- ./cdt_cos6_i686/pciutils-libs-cos6-i686
+pciutils-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/pciutils-libs-cos6-x86_64
+pciutils-libs-cos7-s390x:
+- ./cdt_cos7_s390x/pciutils-libs-cos7-s390x
 pcre:
 - ./pcre-feedstock
+pcre-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pcre-amzn2-aarch64
+pcre-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/pcre-cos7-ppc64le
+pcre-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pcre-devel-amzn2-aarch64
+pcre-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/pcre-devel-cos7-ppc64le
 pcre2:
 - ./pcre2-feedstock
+pcre2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pcre2-amzn2-aarch64
 pdm:
 - ./pdm-feedstock
 pdm-pep517:
@@ -2283,19 +3907,105 @@ pdoc3:
 pefile:
 - ./pefile-feedstock
 pendulum:
-- ./pendulum-feedstock
+- ./pendulum-1.4.4-feedstock
 pep517:
 - ./pep517-feedstock
 pep8:
 - ./pep8-feedstock
 pep8-naming:
 - ./pep8-naming-feedstock
+perf:
+- ./perf-feedstock
 performance:
 - ./performance-feedstock
 perl:
 - ./perl-feedstock
+perl-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-amzn2-aarch64
+perl-carp:
+- ./perl-carp-feedstock
+perl-carp-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-carp-amzn2-aarch64
+perl-constant-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-constant-amzn2-aarch64
+perl-data-dumper-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-data-dumper-amzn2-aarch64
+perl-encode-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-encode-amzn2-aarch64
+perl-error-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-error-amzn2-aarch64
+perl-exporter-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-exporter-amzn2-aarch64
+perl-exporter-lite:
+- ./perl-exporter-lite-feedstock
+perl-extutils-makemaker:
+- ./perl-extutils-makemaker-feedstock
+perl-file-path-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-file-path-amzn2-aarch64
+perl-file-temp-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-file-temp-amzn2-aarch64
+perl-file-which:
+- ./perl-file-which-feedstock
+perl-filter-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-filter-amzn2-aarch64
+perl-getopt-long-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-getopt-long-amzn2-aarch64
+perl-getopt-tabular:
+- ./perl-getopt-tabular-feedstock
+perl-git-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-git-amzn2-aarch64
+perl-http-tiny-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-http-tiny-amzn2-aarch64
+perl-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-libs-amzn2-aarch64
+perl-macros-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-macros-amzn2-aarch64
+perl-parent-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-parent-amzn2-aarch64
+perl-pathtools-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-pathtools-amzn2-aarch64
+perl-pod-escapes-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-pod-escapes-amzn2-aarch64
+perl-pod-perldoc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-pod-perldoc-amzn2-aarch64
+perl-pod-simple-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-pod-simple-amzn2-aarch64
+perl-pod-usage-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-pod-usage-amzn2-aarch64
+perl-podlators-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-podlators-amzn2-aarch64
+perl-regexp-common:
+- ./perl-regexp-common-feedstock
+perl-scalar-list-utils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-scalar-list-utils-amzn2-aarch64
+perl-socket-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-socket-amzn2-aarch64
+perl-storable-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-storable-amzn2-aarch64
+perl-sys-cpu:
+- ./perl-sys-cpu-feedstock
+perl-termreadkey-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-termreadkey-amzn2-aarch64
+perl-test-harness-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-test-harness-amzn2-aarch64
+perl-text-parsewords-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-text-parsewords-amzn2-aarch64
+perl-thread-queue-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-thread-queue-amzn2-aarch64
+perl-threads-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-threads-amzn2-aarch64
+perl-threads-shared-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-threads-shared-amzn2-aarch64
+perl-time-hires-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-time-hires-amzn2-aarch64
+perl-time-local-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-time-local-amzn2-aarch64
 perl-xml-parser:
 - ./perl-xml-parser-feedstock
+perl-xml-parser-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/perl-xml-parser-amzn2-aarch64
+persistent:
+- ./persistent-feedstock
 petl:
 - ./petl-feedstock
 pexpect:
@@ -2306,6 +4016,8 @@ phik:
 - ./phik-feedstock
 phonenumbers:
 - ./phonenumbers-feedstock
+picklable-itertools:
+- ./picklable-itertools-feedstock
 pickleshare:
 - ./pickleshare-feedstock
 pigz:
@@ -2318,16 +4030,44 @@ pip:
 - ./pip-feedstock
 pipenv:
 - ./pipenv-feedstock
+pivottablejs:
+- ./pivottablejs-feedstock
+pivottablejs-airgap:
+- ./pivottablejs-airgap-feedstock
+pixman-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pixman-amzn2-aarch64
+pixman-cos6-i686:
+- ./cdt_cos6_i686/pixman-cos6-i686
+pixman-cos6-x86_64:
+- ./cdt_cos6_x86_64/pixman-cos6-x86_64
+pixman-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/pixman-cos7-ppc64le
+pixman-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pixman-devel-amzn2-aarch64
+pixman-devel-cos6-i686:
+- ./cdt_cos6_i686/pixman-devel-cos6-i686
+pixman-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/pixman-devel-cos6-x86_64
 pkg-config:
 - ./pkg-config-feedstock
 pkgconfig:
 - ./pkgconfig-feedstock
+pkgconfig-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pkgconfig-amzn2-aarch64
+pkgconfig-cos6-i686:
+- ./cdt_cos6_i686/pkgconfig-cos6-i686
+pkgconfig-cos6-x86_64:
+- ./cdt_cos6_x86_64/pkgconfig-cos6-x86_64
 pkginfo:
 - ./pkginfo-feedstock
 pkgutil-resolve-name:
 - ./pkgutil-resolve-name-feedstock
 plac:
 - ./plac-feedstock
+plaster:
+- ./plaster-feedstock
+plaster_pastedeploy:
+- ./plaster_pastedeploy-feedstock
 platformdirs:
 - ./platformdirs-feedstock
 plotly:
@@ -2346,6 +4086,12 @@ poetry-core:
 - ./poetry-core-feedstock
 pointpats:
 - ./pointpats-feedstock
+polkit-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/polkit-amzn2-aarch64
+polkit-pkla-compat-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/polkit-pkla-compat-amzn2-aarch64
+polly:
+- ./llvm-compilers-feedstock
 pomegranate:
 - ./pomegranate-feedstock
 pooch:
@@ -2358,12 +4104,20 @@ poppler-qt:
 - ./poppler-feedstock
 poppler-split:
 - ./poppler-feedstock
+popt-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/popt-amzn2-aarch64
+popt-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/popt-devel-amzn2-aarch64
 portalocker:
 - ./portalocker-feedstock
 portaudio:
 - ./portaudio-feedstock
 portend:
 - ./portend-feedstock
+portpicker:
+- ./portpicker-feedstock
+posix_ipc:
+- ./posix_ipc-feedstock
 postgis:
 - ./postgis-feedstock
 postgresql:
@@ -2384,6 +4138,8 @@ pretend:
 - ./pretend-feedstock
 prettytable:
 - ./prettytable-feedstock
+priority:
+- ./priority-feedstock
 prison:
 - ./prison-feedstock
 progress:
@@ -2405,7 +4161,7 @@ protego:
 proto-plus:
 - ./proto-plus-feedstock
 protobuf:
-- ./protobuf-feedstock
+- ./protobuf-3.19-feedstock
 pscript:
 - ./pscript-feedstock
 psqlodbc:
@@ -2422,6 +4178,20 @@ ptyprocess:
 - ./ptyprocess-feedstock
 pugixml:
 - ./pugixml-feedstock
+pulseaudio-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pulseaudio-libs-amzn2-aarch64
+pulseaudio-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/pulseaudio-libs-cos6-x86_64
+pulseaudio-libs-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pulseaudio-libs-devel-amzn2-aarch64
+pulseaudio-libs-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/pulseaudio-libs-devel-cos6-x86_64
+pulseaudio-libs-glib2-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/pulseaudio-libs-glib2-amzn2-aarch64
+pulseaudio-libs-glib2-cos6-x86_64:
+- ./cdt_cos6_x86_64/pulseaudio-libs-glib2-cos6-x86_64
+pulseaudio-libs-zeroconf-cos6-x86_64:
+- ./cdt_cos6_x86_64/pulseaudio-libs-zeroconf-cos6-x86_64
 pure-sasl:
 - ./pure-sasl-feedstock
 pure_eval:
@@ -2458,6 +4228,8 @@ pyasn1:
 - ./pyasn1-feedstock
 pyasn1-modules:
 - ./pyasn1-modules-feedstock
+pyaudio:
+- ./pyaudio-feedstock
 pybind11:
 - ./pybind11-feedstock
 pybind11-abi:
@@ -2530,6 +4302,8 @@ pygraphviz:
 - ./pygraphviz-feedstock
 pyhamcrest:
 - ./pyhamcrest-feedstock
+pyhive:
+- ./pyhive-feedstock
 pyicu:
 - ./pyicu-feedstock
 pyinotify:
@@ -2578,10 +4352,14 @@ pynndescent:
 - ./pynndescent-feedstock
 pynomaly:
 - ./pynomaly-feedstock
+pyo3-pack:
+- ./pyo3-pack-feedstock
 pyodbc:
 - ./pyodbc-feedstock
 pyopengl:
 - ./pyopengl-feedstock
+pyopengl-accelerate:
+- ./pyopengl-accelerate-feedstock
 pyopenssl:
 - ./pyopenssl-feedstock
 pypandoc:
@@ -2592,6 +4370,8 @@ pypdf2:
 - ./pypdf2-feedstock
 pyperf:
 - ./pyperf-feedstock
+pyperformance:
+- ./pyperformance-feedstock
 pyppeteer:
 - ./pyppeteer-feedstock
 pyppmd:
@@ -2604,6 +4384,16 @@ pyqt-builder:
 - ./pyqt-builder-feedstock
 pyquery:
 - ./pyquery-feedstock
+pyramid:
+- ./pyramid-feedstock
+pyramid_debugtoolbar:
+- ./pyramid_debugtoolbar-feedstock
+pyramid_jinja2:
+- ./pyramid_jinja2-feedstock
+pyramid_mako:
+- ./pyramid_mako-feedstock
+pyramid_tm:
+- ./pyramid_tm-feedstock
 pyrsistent:
 - ./pyrsistent-feedstock
 pysal:
@@ -2654,6 +4444,8 @@ pytest-cache:
 - ./pytest-cache-feedstock
 pytest-cov:
 - ./pytest-cov-feedstock
+pytest-csv:
+- ./pytest-csv-feedstock
 pytest-describe:
 - ./pytest-describe-feedstock
 pytest-doctestplus:
@@ -2704,6 +4496,8 @@ pytest-variables:
 - ./pytest-variables-feedstock
 pytest-xdist:
 - ./pytest-xdist-feedstock
+python-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python-amzn2-aarch64
 python-bidi:
 - ./python-bidi-feedstock
 python-blosc:
@@ -2744,6 +4538,12 @@ python-hdfs:
 - ./python-hdfs-feedstock
 python-installer:
 - ./python-installer-feedstock
+python-javapackages-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python-javapackages-amzn2-aarch64
+python-javapackages-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/python-javapackages-cos7-ppc64le
+python-javapackages-cos7-s390x:
+- ./cdt_cos7_s390x/python-javapackages-cos7-s390x
 python-jenkins:
 - ./python-jenkins-feedstock
 python-jose:
@@ -2764,6 +4564,8 @@ python-levenshtein:
 - ./python-levenshtein-feedstock
 python-libarchive-c:
 - ./python-libarchive-c-feedstock
+python-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python-libs-amzn2-aarch64
 python-lmdb:
 - ./python-lmdb-feedstock
 python-louvain:
@@ -2774,6 +4576,8 @@ python-lsp-jsonrpc:
 - ./python-lsp-jsonrpc-feedstock
 python-lsp-server:
 - ./python-lsp-server-feedstock
+python-lxml-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python-lxml-amzn2-aarch64
 python-memcached:
 - ./python-memcached-feedstock
 python-multipart:
@@ -2796,8 +4600,18 @@ python-utils:
 - ./python-utils-feedstock
 python-xxhash:
 - ./python-xxhash-feedstock
+python3-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python3-amzn2-aarch64
+python3-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python3-libs-amzn2-aarch64
 python3-openid:
 - ./python3-openid-feedstock
+python3-pip-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python3-pip-amzn2-aarch64
+python3-saml:
+- ./python3-saml-feedstock
+python3-setuptools-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/python3-setuptools-amzn2-aarch64
 python_http_client:
 - ./python_http_client-feedstock
 pythran:
@@ -2810,6 +4624,10 @@ pytoolconfig:
 - ./pytoolconfig-feedstock
 pytorch:
 - ./pytorch-feedstock
+pytorch-cpu:
+- ./pytorch-cpu
+pytorch-gpu:
+- ./pytorch-gpu
 pytz:
 - ./pytz-feedstock
 pytzdata:
@@ -2820,6 +4638,8 @@ pyviz_comms:
 - ./pyviz_comms-feedstock
 pywavelets:
 - ./pywavelets-feedstock
+pywget:
+- ./pywget-feedstock
 pywinrm:
 - ./pywinrm-feedstock
 pyxdg:
@@ -2830,6 +4650,8 @@ pyzmq:
 - ./pyzmq-feedstock
 pyzstd:
 - ./pyzstd-feedstock
+qbs:
+- ./qbs-feedstock
 qdarkstyle:
 - ./qdarkstyle-feedstock
 qds-sdk:
@@ -2838,14 +4660,24 @@ qgrid:
 - ./qgrid-feedstock
 qhull:
 - ./qhull-feedstock
+qrencode-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/qrencode-libs-amzn2-aarch64
 qstylizer:
 - ./qstylizer-feedstock
+qt3dstudio:
+- ./qt3dstudio-feedstock
+qtcreator:
+- ./qtcreator-feedstock
 quandl:
 - ./quandl-feedstock
 quantecon:
 - ./quantecon-feedstock
+queuelib:
+- ./queuelib-feedstock
 quilt3:
 - ./quilt-feedstock
+quiver_engine:
+- ./quiver_engine-feedstock
 r-xgboost:
 - ./xgboost-feedstock
 r-xgboost-cpu:
@@ -2866,12 +4698,22 @@ re2:
 - ./re2-feedstock
 readline:
 - ./readline-feedstock
+readline-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/readline-amzn2-aarch64
+readme_renderer:
+- ./readme_renderer-feedstock
+recommonmark:
+- ./recommonmark-feedstock
+redis:
+- ./redis-feedstock
 redis-py:
 - ./redis-py-feedstock
 regex:
 - ./regex-feedstock
 reportlab:
 - ./reportlab-feedstock
+repoze.lru:
+- ./repoze.lru-feedstock
 reproc:
 - ./reproc-feedstock
 reproc-cpp:
@@ -2882,6 +4724,8 @@ reproc-static:
 - ./reproc-feedstock
 requests:
 - ./requests-feedstock
+requests-file:
+- ./requests-file-feedstock
 requests-ftp:
 - ./requests-ftp-feedstock
 requests-futures:
@@ -2901,7 +4745,7 @@ requests_ntlm:
 resolvelib:
 - ./resolvelib-feedstock
 responses:
-- ./responses-feedstock
+- ./responses-feedstock.embedded
 retrying:
 - ./retrying-feedstock
 rfc3986:
@@ -2910,12 +4754,18 @@ rhash:
 - ./rhash-feedstock
 rich:
 - ./rich-feedstock
+ripgrep:
+- ./ripgrep-feedstock
 rise:
 - ./rise-feedstock
 rope:
 - ./rope-feedstock
 routes:
 - ./routes-feedstock
+rpm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rpm-amzn2-aarch64
+rpm-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rpm-libs-amzn2-aarch64
 rsa:
 - ./rsa-feedstock
 rsync:
@@ -2932,10 +4782,44 @@ ruamel_yaml:
 - ./ruamel_yaml-feedstock
 ruby:
 - ./ruby-feedstock
+ruby-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ruby-amzn2-aarch64
+ruby-cos6-i686:
+- ./cdt_cos6_i686/ruby-cos6-i686
+ruby-cos6-x86_64:
+- ./cdt_cos6_x86_64/ruby-cos6-x86_64
+ruby-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/ruby-cos7-ppc64le
+ruby-irb-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ruby-irb-amzn2-aarch64
+ruby-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ruby-libs-amzn2-aarch64
+ruby-libs-cos6-i686:
+- ./cdt_cos6_i686/ruby-libs-cos6-i686
+ruby-libs-cos6-x86_64:
+- ./cdt_cos6_x86_64/ruby-libs-cos6-x86_64
+ruby-libs-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/ruby-libs-cos7-ppc64le
+rubygem-bigdecimal-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rubygem-bigdecimal-amzn2-aarch64
+rubygem-io-console-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rubygem-io-console-amzn2-aarch64
+rubygem-json-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rubygem-json-amzn2-aarch64
+rubygem-json-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/rubygem-json-cos7-ppc64le
+rubygem-psych-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rubygem-psych-amzn2-aarch64
+rubygem-rdoc-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rubygem-rdoc-amzn2-aarch64
+rubygems-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/rubygems-amzn2-aarch64
 runipy:
 - ./runipy-feedstock
 rust:
 - ./rust-feedstock
+rust-nightly_linux-ppc64le:
+- ./rust-nightly-activation-feedstock
 rust-suite:
 - ./rust-feedstock
 rust_linux-ppc64le:
@@ -2954,6 +4838,8 @@ safeint:
 - ./safeint-feedstock
 salt:
 - ./salt-feedstock
+sas7bdat:
+- ./sas7bdat-feedstock
 sas_kernel:
 - ./sas_kernel-feedstock
 sasl:
@@ -2996,6 +4882,8 @@ secretstorage:
 - ./secretstorage-feedstock
 sed:
 - ./sed-feedstock
+sed-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/sed-amzn2-aarch64
 segregation:
 - ./segregation-feedstock
 selenium:
@@ -3012,12 +4900,16 @@ sentencepiece:
 - ./sentencepiece-feedstock
 sentry-sdk:
 - ./sentry-sdk-feedstock
+serf:
+- ./serf-feedstock
 serverfiles:
 - ./serverfiles-feedstock
 service_identity:
 - ./service_identity-feedstock
 setproctitle:
 - ./setproctitle-feedstock
+setup-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/setup-amzn2-aarch64
 setuptools:
 - ./setuptools-feedstock
 setuptools-git:
@@ -3038,10 +4930,14 @@ sgmllib3k:
 - ./sgmllib3k-feedstock
 sh:
 - ./sh-feedstock
+shadow-utils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/shadow-utils-amzn2-aarch64
 shap:
 - ./shap-feedstock
 shapely:
 - ./shapely-feedstock
+shared-mime-info-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/shared-mime-info-amzn2-aarch64
 shellingham:
 - ./shellingham-feedstock
 simple-salesforce:
@@ -3080,6 +4976,8 @@ smmap2:
 - ./smmap2-feedstock
 snakebite-py3:
 - ./snakebite-py3-feedstock
+snakeviz:
+- ./snakeviz-feedstock
 snappy:
 - ./snappy-feedstock
 sniffio:
@@ -3090,6 +4988,8 @@ snowflake-connector-python:
 - ./snowflake-connector-python-feedstock
 snuggs:
 - ./snuggs-feedstock
+sockjs-tornado:
+- ./sockjs-tornado-feedstock
 sortedcollections:
 - ./sortedcollections-feedstock
 sortedcontainers:
@@ -3130,6 +5030,8 @@ sphinx:
 - ./sphinx-feedstock
 sphinx_rtd_theme:
 - ./sphinx_rtd_theme-feedstock
+sphinxcontrib:
+- ./sphinxcontrib-feedstock
 sphinxcontrib-applehelp:
 - ./sphinxcontrib-applehelp-feedstock
 sphinxcontrib-devhelp:
@@ -3158,6 +5060,8 @@ spvcm:
 - ./spvcm-feedstock
 spyder-kernels:
 - ./spyder-kernels-feedstock
+spyder_parso_requirement:
+- ./spyder_parso_requirement-feedstock
 sqlalchemy:
 - ./sqlalchemy-feedstock
 sqlalchemy-jsonfield:
@@ -3166,6 +5070,8 @@ sqlalchemy-utils:
 - ./sqlalchemy-utils-feedstock
 sqlite:
 - ./sqlite-feedstock
+sqlite-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/sqlite-amzn2-aarch64
 sqlparse:
 - ./sqlparse-feedstock
 srsly:
@@ -3194,6 +5100,8 @@ streamlit:
 - ./streamlit-feedstock
 streamz:
 - ./streamz-feedstock
+stripe:
+- ./stripe-feedstock
 stumpy:
 - ./stumpy-feedstock
 suds-jurko:
@@ -3202,6 +5110,8 @@ suitesparse:
 - ./suitesparse-feedstock
 supervisor:
 - ./supervisor-feedstock
+svn:
+- ./svn-feedstock
 swagger-ui-bundle:
 - ./swagger-ui-bundle-feedstock
 swig:
@@ -3212,12 +5122,30 @@ sysroot--:
 - ./linux-sysroot-feedstock
 sysroot_linux-ppc64le:
 - ./linux-sysroot-feedstock
+system-release-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/system-release-amzn2-aarch64
+systemd-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/systemd-amzn2-aarch64
+systemd-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/systemd-cos7-ppc64le
+systemd-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/systemd-devel-amzn2-aarch64
+systemd-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/systemd-libs-amzn2-aarch64
+systemd-libs-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/systemd-libs-cos7-ppc64le
+tabpy-client:
+- ./tabpy-client-feedstock
+tabpy-server:
+- ./tabpy-server-feedstock
 tabulate:
 - ./tabulate-feedstock
 tangled-up-in-unicode:
 - ./tangled-up-in-unicode-feedstock
 tapi:
 - ./tapi-feedstock
+tar-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/tar-amzn2-aarch64
 tbb:
 - ./tbb-feedstock
 tbb-devel:
@@ -3226,20 +5154,32 @@ tbb4py:
 - ./tbb-feedstock
 tblib:
 - ./tblib-feedstock
+tcp_wrappers-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/tcp_wrappers-libs-amzn2-aarch64
 tempita:
 - ./tempita-feedstock
 tempora:
 - ./tempora-feedstock
 tenacity:
 - ./tenacity-feedstock
+tensorboard:
+- ./tensorflow_recipes/tensorboard
 tensorboard-data-server:
 - ./tensorboard-data-server-feedstock
+tensorboard-plugin-wit:
+- ./tensorflow_recipes/tensorboard-plugin-wit
 tensorboardx:
 - ./tensorboardx-feedstock
+tensorflow-estimator:
+- ./tensorflow_recipes/tensorflow-estimator
 tensorflow-hub:
 - ./tensorflow-hub-feedstock
+tensorflow-metadata:
+- ./tensorflow-metadata-feedstock
 tensorflow-probability:
 - ./tensorflow-probability-feedstock
+teradata:
+- ./teradata-feedstock
 termcolor:
 - ./termcolor-feedstock
 termcolor-cpp:
@@ -3252,6 +5192,8 @@ testfixtures:
 - ./testfixtures-feedstock
 testpath:
 - ./testpath-feedstock
+testscenarios:
+- ./testscenarios-feedstock
 testtools:
 - ./testtools-feedstock
 texinfo:
@@ -3304,6 +5246,8 @@ tinycss2:
 - ./tinycss2-feedstock
 tk:
 - ./tk-feedstock
+tktable:
+- ./tktable-feedstock
 tldextract:
 - ./tldextract-feedstock
 tmux:
@@ -3334,6 +5278,8 @@ torch-lr-finder:
 - ./torch-lr-finder-feedstock
 tornado:
 - ./tornado-feedstock
+tornado-json:
+- ./tornado-json-feedstock
 toro:
 - ./toro-feedstock
 tqdm:
@@ -3352,10 +5298,16 @@ transaction:
 - ./transaction-feedstock
 transformers:
 - ./transformers-feedstock
+translationstring:
+- ./translationstring-feedstock
 treelib:
 - ./treelib-feedstock
 trio:
 - ./trio-feedstock
+trousers-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/trousers-amzn2-aarch64
+trousers-cos7-s390x:
+- ./cdt_cos7_s390x/trousers-cos7-s390x
 trustme:
 - ./trustme-feedstock
 tsfresh:
@@ -3390,10 +5342,18 @@ typing_inspect:
 - ./typing_inspect-feedstock
 typogrify:
 - ./typogrify-feedstock
+tzdata-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/tzdata-amzn2-aarch64
+tzdata-java-cos7-s390x:
+- ./cdt_cos7_s390x/tzdata-java-cos7-s390x
 tzlocal:
 - ./tzlocal-feedstock
 uc-micro-py:
 - ./uc-micro-py-feedstock
+udev-cos6-i686:
+- ./cdt_cos6_i686/udev-cos6-i686
+udev-cos6-x86_64:
+- ./cdt_cos6_x86_64/udev-cos6-x86_64
 udunits2:
 - ./udunits2-feedstock
 ujson:
@@ -3409,7 +5369,7 @@ unicodedata2:
 unidecode:
 - ./unidecode-feedstock
 unittest2:
-- ./unittest2-feedstock
+- ./unittest2-feedstock.embedded
 unixodbc:
 - ./unixodbc-feedstock
 unzip:
@@ -3420,8 +5380,18 @@ urllib3:
 - ./urllib3-feedstock
 urwid:
 - ./urwid-feedstock
+ustr-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/ustr-amzn2-aarch64
+utf8proc:
+- ./utf8proc-feedstock
 utfcpp:
 - ./utfcpp-feedstock
+util-linux-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/util-linux-amzn2-aarch64
+util-linux-ng-cos6-i686:
+- ./cdt_cos6_i686/util-linux-ng-cos6-i686
+util-linux-ng-cos6-x86_64:
+- ./cdt_cos6_x86_64/util-linux-ng-cos6-x86_64
 uvicorn:
 - ./uvicorn-feedstock
 uvloop:
@@ -3434,6 +5404,10 @@ vcrpy:
 - ./vcrpy-feedstock
 vcversioner:
 - ./vcversioner-feedstock
+vega_datasets:
+- ./vega_datasets-feedstock
+venusian:
+- ./venusian-feedstock
 verboselogs:
 - ./verboselogs-feedstock
 vertica-python:
@@ -3452,6 +5426,8 @@ visvis:
 - ./visvis-feedstock
 vyper-config:
 - ./vyper-config-feedstock
+w3lib:
+- ./w3lib-feedstock
 waf:
 - ./waf-feedstock
 waitress:
@@ -3464,10 +5440,24 @@ wcwidth:
 - ./wcwidth-feedstock
 webencodings:
 - ./webencodings-feedstock
+webkitgtk-cos6-i686:
+- ./cdt_cos6_i686/webkitgtk-cos6-i686
+webkitgtk-cos6-x86_64:
+- ./cdt_cos6_x86_64/webkitgtk-cos6-x86_64
+webkitgtk-devel-cos6-i686:
+- ./cdt_cos6_i686/webkitgtk-devel-cos6-i686
+webkitgtk-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/webkitgtk-devel-cos6-x86_64
+webkitgtk3-cos7-s390x:
+- ./cdt_cos7_s390x/webkitgtk3-cos7-s390x
+webkitgtk3-devel-cos7-s390x:
+- ./cdt_cos7_s390x/webkitgtk3-devel-cos7-s390x
 webob:
 - ./webob-feedstock
 websocket-client:
 - ./websocket-client-feedstock
+webtest:
+- ./webtest-feedstock
 werkzeug:
 - ./werkzeug-feedstock
 wget:
@@ -3478,12 +5468,18 @@ wheel:
 - ./wheel-feedstock
 whichcraft:
 - ./whichcraft-feedstock
+whisper:
+- ./whisper-feedstock
 whoosh:
 - ./whoosh-feedstock
 widgetsnbextension:
 - ./widgetsnbextension-feedstock
 win32_setctime:
 - ./win32_setctime-feedstock
+word2vec:
+- ./word2vec-feedstock
+workerpool:
+- ./workerpool-feedstock
 wrapt:
 - ./wrapt-feedstock
 ws4py:
@@ -3498,16 +5494,62 @@ wxpython:
 - ./wxpython-feedstock
 x264:
 - ./x264-feedstock
+xar:
+- ./xar-feedstock
+xar-bootstrap:
+- ./xar-bootstrap-feedstock
 xarray:
 - ./xarray-feedstock
 xcb-proto:
 - ./xcb-proto-feedstock
+xcb-util-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-amzn2-aarch64
+xcb-util-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-cos6-x86_64
+xcb-util-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-devel-amzn2-aarch64
+xcb-util-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-devel-cos6-x86_64
+xcb-util-image-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-image-amzn2-aarch64
+xcb-util-image-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-image-cos6-x86_64
+xcb-util-image-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-image-devel-amzn2-aarch64
+xcb-util-image-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-image-devel-cos6-x86_64
+xcb-util-keysyms-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-keysyms-amzn2-aarch64
+xcb-util-keysyms-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-keysyms-cos6-x86_64
+xcb-util-keysyms-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-keysyms-devel-amzn2-aarch64
+xcb-util-keysyms-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-keysyms-devel-cos6-x86_64
+xcb-util-renderutil-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-renderutil-amzn2-aarch64
+xcb-util-renderutil-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-renderutil-cos6-x86_64
+xcb-util-renderutil-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-renderutil-devel-amzn2-aarch64
+xcb-util-renderutil-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-renderutil-devel-cos6-x86_64
+xcb-util-wm-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-wm
+xcb-util-wm-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-wm-cos6-x86_64
+xcb-util-wm-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xcb-util-wm-devel
+xcb-util-wm-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/xcb-util-wm-devel-cos6-x86_64
 xerces-c:
 - ./xerces-c-feedstock
 xgboost:
 - ./xgboost-feedstock
 xgboost-split:
 - ./xgboost-feedstock
+xkeyboard-config-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xkeyboard-config-amzn2-aarch64
 xlrd:
 - ./xlrd-feedstock
 xlsxwriter:
@@ -3516,10 +5558,64 @@ xlutils:
 - ./xlutils-feedstock
 xlwt:
 - ./xlwt-feedstock
+xmlrpc2:
+- ./xmlrpc2-feedstock
+xmlsec:
+- ./xmlsec-feedstock
 xmltodict:
 - ./xmltodict-feedstock
 xorg-util-macros:
 - ./xorg-util-macros-feedstock
+xorg-x11-proto-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xorg-x11-proto-devel-amzn2-aarch64
+xorg-x11-proto-devel-cos6-i686:
+- ./cdt_cos6_i686/xorg-x11-proto-devel-cos6-i686
+xorg-x11-proto-devel-cos6-x86_64:
+- ./cdt_cos6_x86_64/xorg-x11-proto-devel-cos6-x86_64
+xorg-x11-proto-devel-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/xorg-x11-proto-devel-cos7-ppc64le
+xorg-x11-proto-devel-cos7-s390x:
+- ./cdt_cos7_s390x/xorg-x11-proto-devel-cos7-s390x
+xorg-x11-server-common-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xorg-x11-server-common-amzn2-aarch64
+xorg-x11-server-common-cos6-i686:
+- ./cdt_cos6_i686/xorg-x11-server-common-cos6-i686
+xorg-x11-server-common-cos6-x86_64:
+- ./cdt_cos6_x86_64/xorg-x11-server-common-cos6-x86_64
+xorg-x11-server-common-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/xorg-x11-server-common-cos7-ppc64le
+xorg-x11-server-utils-cos7-s390x:
+- ./cdt_cos7_s390x/xorg-x11-server-utils-cos7-s390x
+xorg-x11-server-xvfb-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xorg-x11-server-xvfb-amzn2-aarch64
+xorg-x11-server-xvfb-cos6-i686:
+- ./cdt_cos6_i686/xorg-x11-server-xvfb-cos6-i686
+xorg-x11-server-xvfb-cos6-x86_64:
+- ./cdt_cos6_x86_64/xorg-x11-server-xvfb-cos6-x86_64
+xorg-x11-server-xvfb-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/xorg-x11-server-xvfb-cos7-ppc64le
+xorg-x11-util-macros-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xorg-x11-util-macros-amzn2-aarch64
+xorg-x11-util-macros-cos6-i686:
+- ./cdt_cos6_i686/xorg-x11-util-macros-cos6-i686
+xorg-x11-util-macros-cos6-x86_64:
+- ./cdt_cos6_x86_64/xorg-x11-util-macros-cos6-x86_64
+xorg-x11-util-macros-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/xorg-x11-util-macros-cos7-ppc64le
+xorg-x11-util-macros-cos7-s390x:
+- ./cdt_cos7_s390x/xorg-x11-util-macros-cos7-s390x
+xorg-x11-xauth-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xorg-x11-xauth-amzn2-aarch64
+xorg-x11-xauth-cos6-i686:
+- ./cdt_cos6_i686/xorg-x11-xauth-cos6-i686
+xorg-x11-xauth-cos6-x86_64:
+- ./cdt_cos6_x86_64/xorg-x11-xauth-cos6-x86_64
+xorg-x11-xauth-cos7-ppc64le:
+- ./cdt_cos7_ppc64le/xorg-x11-xauth-cos7-ppc64le
+xorg-x11-xauth-cos7-s390x:
+- ./cdt_cos7_s390x/xorg-x11-xauth-cos7-s390x
+xorg-x11-xkb-utils-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xorg-x11-xkb-utils-amzn2-aarch64
 xorg-xproto:
 - ./xorg-xproto-feedstock
 xsimd:
@@ -3530,6 +5626,12 @@ xyzservices:
 - ./xyzservices-feedstock
 xz:
 - ./xz-feedstock
+xz-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xz-amzn2-aarch64
+xz-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xz-devel-amzn2-aarch64
+xz-libs-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/xz-libs-amzn2-aarch64
 yacs:
 - ./yacs-feedstock
 yajl:
@@ -3572,12 +5674,34 @@ zict:
 - ./zict-feedstock
 zip:
 - ./zip-feedstock
+zip-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/zip-amzn2-aarch64
+zip-cos6-i686:
+- ./cdt_cos6_i686/zip-cos6-i686
+zip-cos6-x86_64:
+- ./cdt_cos6_x86_64/zip-cos6-x86_64
+zip-cos7-s390x:
+- ./cdt_cos7_s390x/zip-cos7-s390x
 zipp:
 - ./zipp-feedstock
 zlib:
 - ./zlib-feedstock
+zlib-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/zlib-amzn2-aarch64
+zlib-devel-amzn2-aarch64:
+- ./cdt_amzn2_aarch64/zlib-devel-amzn2-aarch64
+zope:
+- ./zope-feedstock
+zope.component:
+- ./zope.component-feedstock
+zope.deprecation:
+- ./zope.deprecation-feedstock
+zope.event:
+- ./zope.event-feedstock
 zope.interface:
 - ./zope.interface-feedstock
+zope.sqlalchemy:
+- ./zope.sqlalchemy-feedstock
 zstandard:
 - ./zstandard-feedstock
 zstd:

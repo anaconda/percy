@@ -99,12 +99,3 @@ if [[ ! -f xcb-proto-feedstock.mark ]]; then
     fi
 fi
 
-
-if [[ ! -f zipp-feedstock.mark ]]; then
-    if [[ -d zipp-feedstock ]]; then
-        (conda-build --python=3.11 --numpy=1.22 --croot=../ci_py311/ -c py311_bs/label/release --use-local --no-test ./zipp-feedstock >d 2>&1 && rm -f d && ( echo "done" >>zipp-feedstock.mark ) && true) || ( (echo "zipp-feedstock" >>failed.16 ) && (echo "zipp-feedstock" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
-    else
-        echo "zipp-feedstock not present" >>failed.16
-    fi
-fi
-

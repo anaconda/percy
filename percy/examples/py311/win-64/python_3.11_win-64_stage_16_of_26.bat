@@ -4,6 +4,8 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./beautifulsoup4-feedstock || echo "beautifulsoup4-feedstock" >>failed.16 || cmd /K "exit /b 0"
 
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./cryptography-feedstock || echo "cryptography-feedstock" >>failed.16 || cmd /K "exit /b 0"
+
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./idna-feedstock || echo "idna-feedstock" >>failed.16 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./jinja2-feedstock || echo "jinja2-feedstock" >>failed.16 || cmd /K "exit /b 0"
@@ -25,3 +27,5 @@ conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/rele
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./tinycss2-feedstock || echo "tinycss2-feedstock" >>failed.16 || cmd /K "exit /b 0"
 
 conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./tomlkit-feedstock || echo "tomlkit-feedstock" >>failed.16 || cmd /K "exit /b 0"
+
+conda-build --python=3.11 --numpy=1.22 --croot=c:/ci_311/ -c py311_bs/label/release --use-local --no-test ./win_inet_pton-feedstock || echo "win_inet_pton-feedstock" >>failed.16 || cmd /K "exit /b 0"
