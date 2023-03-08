@@ -9,6 +9,7 @@ import requests
 import json
 import re
 import itertools
+from conda.models.version import VersionOrder
 
 def get_repodata_package_list(subdir):
 
@@ -24,7 +25,7 @@ def get_repodata_package_list(subdir):
     else:
         repodata_subdir = json.loads(response.text)
     for v in repodata_subdir["packages"].values():
-        if v["name"] not in pkgs or compare_versions_str_to_int(pkgs[v["name"]]["version"], v["version"]):
+        if v["name"] not in pkgs or VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
             pkgs[v["name"]] = { "version": v["version"], "noarch": False }
     
     repodata_noarch = None
@@ -35,39 +36,10 @@ def get_repodata_package_list(subdir):
     else:
         repodata_noarch = json.loads(response.text)
     for v in repodata_noarch["packages"].values():
-        if v["name"] not in pkgs or compare_versions_str_to_int(pkgs[v["name"]]["version"], v["version"]):
+        if v["name"] not in pkgs or VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
             pkgs[v["name"]] = { "version": v["version"], "noarch": True }
 
     return pkgs
-
-def convert_int(s,p):
-    try:
-        i = int(s, p)
-    except ValueError:
-        i = 0
-    return i
-
-def compare_versions_str_to_int(version_1, version_2):
-    version_1 = version_1.replace("-", ".")
-    version_2 = version_2.replace("-", ".")
-    version_1 = re.sub("[^0-9\.]", "", version_1)
-    version_2 = re.sub("[^0-9\.]", "", version_2)
-    n = len(version_2.split(".")) - len(version_1.split("."))
-    if n > 0:
-        version_1 += ".0" * n
-    try:
-        l = [convert_int(x, 10) for x in version_1.split(".")]
-        l.reverse()
-        version_1 = sum(x * (100 ** i) for i, x in enumerate(l))
-    except:
-        version_2 = None
-    try:
-        l = [convert_int(x, 10) for x in version_2.split(".")]
-        l.reverse()
-        version_2 = sum(x * (100 ** i) for i, x in enumerate(l))
-    except:
-        version_2 = None
-    return version_1 < version_2
 
 def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
 
@@ -106,7 +78,9 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
         if name in defaults_pkgs:
             default_version = defaults_pkgs[name]["version"]
             default_is_noarch = defaults_pkgs[name]["noarch"]
-            if compare_versions_str_to_int(rendered_pkg.version, default_version):
+            if rendered_pkg.version == "-1":
+                rendered_pkg.version = "0a"
+            if VersionOrder(rendered_pkg.version) < VersionOrder(default_version):
                 rec = issues["outdated_local"].setdefault(rendered_pkg.git_info.name,{}).setdefault(name,{ "subdir": [subdir], "aggregate_version": rendered_pkg.version, "defaults_version": default_version})
                 if subdir not in rec["subdir"]:
                     rec["subdir"].append(subdir)
@@ -114,7 +88,7 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
                     rec = issues["outdated_py_local"].setdefault(rendered_pkg.git_info.name,{}).setdefault(name,{ "subdir": [subdir], "aggregate_version": rendered_pkg.version, "defaults_version": default_version})
                     if subdir not in rec["subdir"]:
                         rec["subdir"].append(subdir)
-            elif compare_versions_str_to_int(default_version, rendered_pkg.version):
+            elif VersionOrder(rendered_pkg.version) > VersionOrder(default_version):
                 rec = issues["outdated_defaults"].setdefault(rendered_pkg.git_info.name,{}).setdefault(subdir,[])
                 if rendered_pkg.name not in rec:
                     rec.append({ "name": rendered_pkg.name, "aggregate_version": rendered_pkg.version, "defaults_version": default_version})
