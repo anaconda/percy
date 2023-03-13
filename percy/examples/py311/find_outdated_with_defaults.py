@@ -66,8 +66,10 @@ def compare_repodata(subdir, local_repodata, python_ref, block_list, include_noa
         repodata_subdir = json.loads(response.text)
     for v in repodata_subdir["packages"].values():
         if depends_on_python(v, python_ref) and v["name"] not in block_list:
-            if v["name"] not in defaults_pkgs or VersionOrder(defaults_pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
-                defaults_pkgs[v["name"]] = { "version": v["version"], "noarch": False }
+            if (v["name"] not in defaults_pkgs) \
+                or (VersionOrder(defaults_pkgs[v["name"]]["version"]) < VersionOrder(v["version"])) \
+                or (VersionOrder(defaults_pkgs[v["name"]]["version"]) == VersionOrder(v["version"]) and defaults_pkgs[v["name"]]["build_number"] < v["build_number"]):
+                defaults_pkgs[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
     if include_noarch:
         repodata_noarch = None
         url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
@@ -78,29 +80,36 @@ def compare_repodata(subdir, local_repodata, python_ref, block_list, include_noa
             repodata_noarch = json.loads(response.text)
         for v in repodata_noarch["packages"].values():
             if depends_on_python(v, python_ref) and v["name"] not in block_list:
-                if v["name"] not in defaults_pkgs or VersionOrder(defaults_pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
-                    defaults_pkgs[v["name"]] = { "version": v["version"], "noarch": True }
+                if (v["name"] not in defaults_pkgs) \
+                    or (VersionOrder(defaults_pkgs[v["name"]]["version"]) < VersionOrder(v["version"])) \
+                    or (VersionOrder(defaults_pkgs[v["name"]]["version"]) == VersionOrder(v["version"]) and defaults_pkgs[v["name"]]["build_number"] < v["build_number"]):
+                    defaults_pkgs[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": True }
 
     # load local repodata
     local_pkgs = {}
     with open(local_repodata) as f:
         repodata_subdir = json.load(f)
         for v in repodata_subdir["packages"].values():
-            if v["name"] not in local_pkgs or VersionOrder(local_pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
-                local_pkgs[v["name"]] = { "version": v["version"], "noarch": False }
+            if (v["name"] not in local_pkgs) \
+                or (VersionOrder(local_pkgs[v["name"]]["version"]) < VersionOrder(v["version"])) \
+                or (VersionOrder(local_pkgs[v["name"]]["version"]) == VersionOrder(v["version"]) and local_pkgs[v["name"]]["build_number"] < v["build_number"]):
+                local_pkgs[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
 
     # compare local with defaults
     for local_name, local_data in local_pkgs.items():
         local_version = local_data["version"]
+        local_build_number = int(local_data["build_number"])
         if local_name in defaults_pkgs:
             defaults_version = defaults_pkgs[local_name]["version"]
-            if VersionOrder(local_version) < VersionOrder(defaults_version):
-                results[local_name] = {"local_version": local_version, "defaults_version": defaults_version,}
+            defaults_build_number = int(defaults_pkgs[local_name]["build_number"])
+            if (VersionOrder(local_version) < VersionOrder(defaults_version)) \
+                or (VersionOrder(local_version) == VersionOrder(defaults_version) and local_build_number < defaults_build_number):
+                results[local_name] = {"local_version": local_version, "local_build_number": local_build_number, "defaults_version": defaults_version, "defaults_build_number": defaults_build_number}
 
     # find missing from local
     for defaults_name in defaults_pkgs.keys() - local_pkgs.keys():
         defaults_version = defaults_pkgs[defaults_name]["version"]
-        results[defaults_name] = {"local_version": None, "defaults_version": defaults_version,}
+        results[defaults_name] = {"local_version": None, "local_build_number": None, "defaults_version": defaults_version, "defaults_build_number": defaults_build_number}
 
 
     return results
