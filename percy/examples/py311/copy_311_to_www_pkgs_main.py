@@ -53,7 +53,7 @@ logger.addHandler(ch)
 logger.setLevel(logging.INFO)
 
 
-def filter_repodata(subdir, local_dir, target_dir):
+def filter_repodata(subdir, local_dir):
 
     has_errors = False
     has_warnings = False
@@ -127,8 +127,8 @@ def filter_repodata(subdir, local_dir, target_dir):
     filter_to_copy = set()
     filter_copied = set()
     for k in results["to_copy"]:
-        fpathtarbz2 = target_dir / subdir / k
-        fpathconda = target_dir / subdir / k.replace(".tar.bz2", ".conda")
+        fpathtarbz2 = ZEUS_DEST / subdir / k
+        fpathconda = ZEUS_DEST / subdir / k.replace(".tar.bz2", ".conda")
         if fpathtarbz2.is_file() or fpathconda.is_file():
             logger.warning(f"Package in target folder! {fpathtarbz2} {fpathconda}")
             has_warnings = True
@@ -252,13 +252,6 @@ def create_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
-        "-t",
-        "--target_dir",
-        type=Path,
-        help="target_dir",
-    )
-
-    parser.add_argument(
         "-n",
         "--dry-run",
         help="run in dry-run mode, where everything except the actual transfer occurs",
@@ -273,9 +266,7 @@ if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
 
-    results, has_errors, has_warnings = filter_repodata(
-        args.subdir, args.local_dir, args.target_dir
-    )
+    results, has_errors, has_warnings = filter_repodata(args.subdir, args.local_dir)
     if has_errors:
         logger.error("Errors were found. Abort...")
         if input("Do you wish to continue? (y/n)").lower() != "y":
