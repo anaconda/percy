@@ -62,6 +62,7 @@ def filter_repodata(subdir, local_dir):
         "to_copy": set(),
         "present": set(),
         "missing": set(),
+        "skip": set(),
     }
 
     # load defaults repodata
@@ -92,7 +93,12 @@ def filter_repodata(subdir, local_dir):
                         for l, m in repodata_subdir_defaults["packages"].items()
                     ]
                 ):
-                    results["to_copy"].add(k)
+                    if subdir == "osx-64" and ("blas 1.0 mkl" in v["depends"] or "mkl >=2021.4.0,<2022.0a0" in v["depends"]):
+                        logger.warning(f"Skipping osx-64 mkl related package { k }")
+                        has_warnings = True
+                        results["skip"].add(k)
+                    else:
+                        results["to_copy"].add(k)
                 else:
                     results["present"].add(k)
             else:
