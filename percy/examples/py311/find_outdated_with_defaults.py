@@ -50,13 +50,30 @@ def depends_on_python(repo_package, python_ref):
 
     return False
 
-def compare_repodata(subdir, local_repodata, python_ref, block_list, include_noarch=False):
+def compare_repodata(subdir, python_ref, python_target, block_list):
     
     results = {}
-
-    # load default repodata
     session = requests.Session()
-    defaults_pkgs = {}
+
+    # load noarch repodata
+    pkgs_noarch = {}
+    repodata_subdir = None
+    url = f"https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
+    response = session.get(url)
+    if response.status_code != 200:
+        raise Exception()
+    else:
+        repodata_subdir = json.loads(response.text)
+    for v in repodata_subdir["packages"].values():
+        if depends_on_python(v, python_target) and v["name"] not in block_list:
+            if (v["name"] not in pkgs_noarch) \
+                or (VersionOrder(pkgs_noarch[v["name"]]["version"]) < VersionOrder(v["version"])) \
+                or (VersionOrder(pkgs_noarch[v["name"]]["version"]) == VersionOrder(v["version"]) and pkgs_noarch[v["name"]]["build_number"] < v["build_number"]):
+                pkgs_noarch[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": True }
+
+
+    # load 310 repodata
+    pkgs_310 = {}
     repodata_subdir = None
     url = f"https://repo.anaconda.com/pkgs/main/{subdir}/repodata.json"
     response = session.get(url)
@@ -66,51 +83,56 @@ def compare_repodata(subdir, local_repodata, python_ref, block_list, include_noa
         repodata_subdir = json.loads(response.text)
     for v in repodata_subdir["packages"].values():
         if depends_on_python(v, python_ref) and v["name"] not in block_list:
-            if (v["name"] not in defaults_pkgs) \
-                or (VersionOrder(defaults_pkgs[v["name"]]["version"]) < VersionOrder(v["version"])) \
-                or (VersionOrder(defaults_pkgs[v["name"]]["version"]) == VersionOrder(v["version"]) and defaults_pkgs[v["name"]]["build_number"] < v["build_number"]):
-                defaults_pkgs[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
-    if include_noarch:
-        repodata_noarch = None
-        url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
-        response = session.get(url)
-        if response.status_code != 200:
-            raise Exception()
-        else:
-            repodata_noarch = json.loads(response.text)
-        for v in repodata_noarch["packages"].values():
-            if depends_on_python(v, python_ref) and v["name"] not in block_list:
-                if (v["name"] not in defaults_pkgs) \
-                    or (VersionOrder(defaults_pkgs[v["name"]]["version"]) < VersionOrder(v["version"])) \
-                    or (VersionOrder(defaults_pkgs[v["name"]]["version"]) == VersionOrder(v["version"]) and defaults_pkgs[v["name"]]["build_number"] < v["build_number"]):
-                    defaults_pkgs[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": True }
+            if (v["name"] not in pkgs_310) \
+                or (VersionOrder(pkgs_310[v["name"]]["version"]) < VersionOrder(v["version"])) \
+                or (VersionOrder(pkgs_310[v["name"]]["version"]) == VersionOrder(v["version"]) and pkgs_310[v["name"]]["build_number"] < v["build_number"]):
+                pkgs_310[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
 
-    # load local repodata
-    local_pkgs = {}
-    with open(local_repodata) as f:
-        repodata_subdir = json.load(f)
-        for v in repodata_subdir["packages"].values():
-            if (v["name"] not in local_pkgs) \
-                or (VersionOrder(local_pkgs[v["name"]]["version"]) < VersionOrder(v["version"])) \
-                or (VersionOrder(local_pkgs[v["name"]]["version"]) == VersionOrder(v["version"]) and local_pkgs[v["name"]]["build_number"] < v["build_number"]):
-                local_pkgs[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
+    # merge defaults noarch 310
+    pkgs_defaults = pkgs_310
+    for name, info in pkgs_noarch.items():
+        if name in pkgs_defaults and \
+            ((VersionOrder(info["version"]) > VersionOrder(pkgs_defaults[name]["version"])) \
+            or (VersionOrder(info["version"]) == VersionOrder(pkgs_defaults[name]["version"]) and info["build_number"] > pkgs_defaults[name]["build_number"])):
+            print(f"Found {name} {pkgs_noarch[name]}")
+            print(f"Removing {name} {pkgs_defaults[name]}")
+            del pkgs_defaults[name]
+
+    # load 311 repodata
+    pkgs_311 = {}
+    repodata_subdir = None
+    url = f"https://repo.anaconda.com/pkgs/main/{subdir}/repodata.json"
+    response = session.get(url)
+    if response.status_code != 200:
+        raise Exception()
+    else:
+        repodata_subdir = json.loads(response.text)
+    for v in repodata_subdir["packages"].values():
+        if depends_on_python(v, python_target) and v["name"] not in block_list:
+            if (v["name"] not in pkgs_311) \
+                or (VersionOrder(pkgs_311[v["name"]]["version"]) < VersionOrder(v["version"])) \
+                or (VersionOrder(pkgs_311[v["name"]]["version"]) == VersionOrder(v["version"]) and pkgs_311[v["name"]]["build_number"] < v["build_number"]):
+                pkgs_311[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
 
     # compare local with defaults
-    for local_name, local_data in local_pkgs.items():
+    git_cmds = []
+    condabuild_cmds = []
+    for local_name, local_data in pkgs_311.items():
         local_version = local_data["version"]
         local_build_number = int(local_data["build_number"])
-        if local_name in defaults_pkgs:
-            defaults_version = defaults_pkgs[local_name]["version"]
-            defaults_build_number = int(defaults_pkgs[local_name]["build_number"])
+        if local_name in pkgs_defaults:
+            defaults_version = pkgs_defaults[local_name]["version"]
+            defaults_build_number = int(pkgs_defaults[local_name]["build_number"])
             if (VersionOrder(local_version) < VersionOrder(defaults_version)) \
                 or (VersionOrder(local_version) == VersionOrder(defaults_version) and local_build_number < defaults_build_number):
-                results[local_name] = {"local_version": local_version, "local_build_number": local_build_number, "defaults_version": defaults_version, "defaults_build_number": defaults_build_number}
+                results[local_name] = {"311_version": local_version, "311_build_number": local_build_number, "310_version": defaults_version, "310_build_number": defaults_build_number}
 
     # find missing from local
-    for defaults_name in defaults_pkgs.keys() - local_pkgs.keys():
-        defaults_version = defaults_pkgs[defaults_name]["version"]
-        results[defaults_name] = {"local_version": None, "local_build_number": None, "defaults_version": defaults_version, "defaults_build_number": defaults_build_number}
+    for defaults_name in pkgs_defaults.keys() - pkgs_311.keys():
+        defaults_version = pkgs_defaults[defaults_name]["version"]
+        results[defaults_name] = {"311_version": None, "311_build_number": None, "310_version": defaults_version, "310_build_number": defaults_build_number}
 
+    session.close()
 
     return results
 
@@ -127,22 +149,6 @@ def create_parser() -> argparse.ArgumentParser:
         default="osx-arm64",
     )
 
-    parser.add_argument(
-        "-r",
-        "--repodata",
-        type=Path,
-        help="local repodata",
-        default="repodata.json",
-    )
-
-    parser.add_argument(
-        "-p",
-        "--python_ref",
-        type=str,
-        help="python ref",
-        default="3.10",
-    )
-
     return parser
 
 
@@ -155,6 +161,6 @@ if __name__ == "__main__":
     with open(f"{args.subdir}/python_3.10_{args.subdir}_package_list_missing.yaml", "r") as file:
         block_list = yaml.safe_load(file)
 
-    results = compare_repodata(args.subdir, args.repodata, args.python_ref, block_list)
+    results = compare_repodata(args.subdir, "3.10", "3.11", block_list)
     with open(f"./oudated_{args.subdir}.json", "w") as f:
         json.dump(results, f, indent=4)
