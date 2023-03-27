@@ -13,8 +13,8 @@
   ## Installation
   
     conda env create -f environment.yaml --name percy
-    pip install .
     conda activate percy
+    pip install .
     
   ## Render examples
   
@@ -27,11 +27,11 @@
   
   ### Python 3.11 buildout
 
-    See percy/examples/py311 [here](percy/examples/py311/README.md)
+  See percy/examples/py311 [here](percy/examples/py311/README.md)
 
   ### Build order examples
 
-    See percy/examples/blts
+  See percy/examples/blts
 
   ### Test install examples
 
