@@ -6,6 +6,7 @@ import logging
 import os
 import re
 from typing import List, Sequence, Dict
+from pathlib import Path
 import logging
 import itertools
 import copy
@@ -16,13 +17,17 @@ try:
 except:
     loader = yaml.Loader
 
+Variant = dict[
+    str,
+]
 
-def ensure_list(obj):
+
+def _ensure_list(obj):
     """Wraps **obj** in a list if necessary
 
-    >>> ensure_list("one")
+    >>> _ensure_list("one")
     ["one"]
-    >>> ensure_list(["one", "two"])
+    >>> _ensure_list(["one", "two"])
     ["one", "two"]
     """
     if isinstance(obj, Sequence) and not isinstance(obj, str):
@@ -31,7 +36,7 @@ def ensure_list(obj):
 
 
 # copied and adapted from conda-build
-def find_config_files(metadata_or_path, variant_config_files, exclusive_config_files):
+def _find_config_files(metadata_or_path, variant_config_files, exclusive_config_files):
     """
     Find config files to load. Config files are stacked in the following order:
         1. exclusive config files (see config.exclusive_config_files)
@@ -56,7 +61,7 @@ def find_config_files(metadata_or_path, variant_config_files, exclusive_config_f
         return os.path.abspath(os.path.expanduser(os.path.expandvars(p)))
 
     # exclusive configs
-    files = [resolve(f) for f in ensure_list(exclusive_config_files)]
+    files = [resolve(f) for f in _ensure_list(exclusive_config_files)]
 
     if not files:
         # if not files and not config.ignore_system_variants:
@@ -87,7 +92,7 @@ def find_config_files(metadata_or_path, variant_config_files, exclusive_config_f
     if os.path.isfile(cfg):
         files.append(cfg)
 
-    files.extend([resolve(f) for f in ensure_list(variant_config_files)])
+    files.extend([resolve(f) for f in _ensure_list(variant_config_files)])
 
     return files
 
@@ -107,7 +112,7 @@ class CBCRenderError(Exception):
             super().__init__()
 
 
-def apply_selector(data, selector_dict):
+def _apply_selector(data, selector_dict):
     """Apply selectors # [...]"""
     updated_data = []
     for line in data.splitlines():
@@ -129,13 +134,29 @@ def apply_selector(data, selector_dict):
 
 
 def read_conda_build_config(
-    recipe_path,
+    recipe_path: Path,
     subdir: List[str] = None,
     python: List[str] = None,
     others: Dict[str, str] = None,
     variant_config_files: List[str] = [],
     exclusive_config_files: List[str] = [],
-):
+) -> list[tuple[str, Variant]]:
+    """Read conda build config into a list of variants.
+
+    Args:
+        recipe_path (Path): Path to a recipe meta.yaml file.
+        subdir (List[str], optional): A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+        python (List[str], optional): A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+        others (Dict[str, ], optional): Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+        variant_config_files (List[str], optional): Additional cbc files to use. Defaults to [].
+        exclusive_config_files (List[str], optional): If specified, only use these cbc files. Defaults to [].
+
+    Raises:
+        CBCRenderError: Failed to render cbc file.
+
+    Returns:
+        list[tuple[str, dict[str,str]]]: A list of tuples, where the first value is a variant id and the second value a variant dictionary.
+    """
     recipe_dir = recipe_path.parent
     variants = []
 
@@ -150,9 +171,9 @@ def read_conda_build_config(
             "win-64",
         ]
     else:
-        subdir = ensure_list(subdir)
+        subdir = _ensure_list(subdir)
     if python is not None:
-        python = ensure_list(python)
+        python = _ensure_list(python)
 
     for arch in subdir:
 
@@ -197,7 +218,7 @@ def read_conda_build_config(
             base_selector_dict[f"py3{i}"] = False
 
         # List conda_build_config files for linter render.
-        conda_build_config_files = find_config_files(
+        conda_build_config_files = _find_config_files(
             recipe_dir, variant_config_files, exclusive_config_files
         )
         logging.info(f"cbc files: {conda_build_config_files}")
@@ -206,7 +227,9 @@ def read_conda_build_config(
         for cbc in conda_build_config_files:
             with open(cbc) as f_cbc:
                 try:
-                    cbc_selectors_str = apply_selector(f_cbc.read(), base_selector_dict)
+                    cbc_selectors_str = _apply_selector(
+                        f_cbc.read(), base_selector_dict
+                    )
                     cbc_selectors_yml = yaml.load(
                         "\n".join(cbc_selectors_str), Loader=loader
                     )
@@ -279,7 +302,7 @@ def read_conda_build_config(
             variant_selector_dict[f"py{python_short}"] = True
             perm["subdir"] = arch
             for k, v in perm.items():
-                perm[k] = set(ensure_list(v))
+                perm[k] = set(_ensure_list(v))
             variants.append((perm, variant_selector_dict))
 
     return variants

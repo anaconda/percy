@@ -6,7 +6,7 @@ Not as accurate as conda-build render, but faster and architecture independent.
 import sys
 import re
 from copy import deepcopy
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
 from dataclasses import dataclass, field
 import jinja2
@@ -14,7 +14,7 @@ import argparse
 import contextlib
 import yaml
 
-from percy.render.variants import read_conda_build_config
+from percy.render.variants import read_conda_build_config, Variant
 
 try:
     loader = yaml.CLoader
@@ -171,11 +171,31 @@ class Recipe:
      1. Selecting lines using ``# [expression]``
      2. Rendering as Jinja2 template
 
-    Arguments:
-      recipe_dir: path to specific recipe
+    Args:
+        recipe_file (Path): Path to meta.yaml
+        variant_id (str): configuration id
+        variant (Variant): Variant configuration
+
+    Attributes:
+        recipe_file (Path): The recipe file
+        recipe_dir (Path): The recipe directory
+        variant_id (str): configuration id
+        selector_dict (Variant): Variant configuration
+        meta (Dict[str, Any]): Rendered recipe in as a dictionary
+        skip (bool): Whether this variant is skipped.
+        packages (Dict[str:Package]): Rendered Packages.
+        meta_yaml (List[str]): Lines of the raw recipe file
+        orig (Recipe): Original recipe before modifications
     """
 
-    def __init__(self, recipe_file, variant_id, variant):
+    def __init__(self, recipe_file: Path, variant_id: str, variant: Variant):
+        """Constructor
+
+        Args:
+            recipe_file (Path): Path to meta.yaml
+            variant_id (str): configuration id
+            variant (Variant): Variant configuration
+        """
         #: recipe dir
         if recipe_file:
             self.recipe_file = recipe_file
@@ -194,10 +214,10 @@ class Recipe:
         self.skip = False
         self.packages: Dict[str:Package] = dict()
 
-        # These will be filled in by load_from_string()
+        # These will be filled in by _load_from_string()
         #: Lines of the raw recipe file
         self.meta_yaml: List[str] = []
-        #: Original recipe before modifications (updated by load_from_string)
+        #: Original recipe before modifications (updated by _load_from_string)
         self.orig: Recipe = deepcopy(self)
 
     @property
@@ -216,8 +236,18 @@ class Recipe:
     def __repr__(self) -> str:
         return f'{self.__class__.__name__} "{self.recipe_dir}"'
 
-    def load_from_string(self, data) -> "Recipe":
-        """Load and `render` recipe contents from disk"""
+    def _load_from_string(self, data: str) -> "Recipe":
+        """Load and `render` recipe contents from disk
+
+        Args:
+            data (str): raw meta.yaml as string.
+
+        Raises:
+            EmptyRecipe: The recipe is empty
+
+        Returns:
+            Recipe: This recipe object.
+        """
         self.meta_yaml = data
         if not self.meta_yaml:
             raise EmptyRecipe(self)
@@ -227,41 +257,65 @@ class Recipe:
     @classmethod
     def from_string(
         cls,
-        recipe_text,
-        variant_id,
-        variant,
-        return_exceptions=False,
+        recipe_text: str,
+        variant_id: str,
+        variant: Variant,
+        return_exceptions: bool = False,
     ) -> "Recipe":
-        """Create new `Recipe` object from string"""
+        """Create new `Recipe` object from string
+
+        Args:
+            recipe_text (str): A raw recipe as a string.
+            variant_id (str): Variant id
+            variant (Variant): Variant configuration.
+            return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
+
+        Raises:
+            MissingMetaYaml: Missing meta.yaml
+            Exception: An exception
+
+        Returns:
+            Recipe: A Recipe object.
+        """
         try:
             recipe = cls("", variant_id, variant)
-            recipe.load_from_string(recipe_text)
+            recipe._load_from_string(recipe_text)
         except Exception as exc:
             if return_exceptions:
                 return exc
             raise exc
-        recipe.set_original()
+        recipe._set_original()
         return recipe
 
     @classmethod
     def from_file(
         cls,
-        recipe_fname,
-        variant_id,
-        variant,
-        return_exceptions=False,
+        recipe_fname: str,
+        variant_id: str,
+        variant: Variant,
+        return_exceptions: bool = False,
     ) -> "Recipe":
         """Create new `Recipe` object from file
 
         Args:
-           recipe_fname: Relative path to recipe (folder or meta.yaml)
+            recipe_fname (str): Path to recipe meta.yaml
+            variant_id (str): Variant id
+            variant (Variant): Variant configuration.
+            return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
+
+        Raises:
+            MissingMetaYaml: Missing meta.yaml
+            Exception: An exception
+
+        Returns:
+            Recipe: A Recipe object.
         """
         recipe_fname = Path(recipe_fname)
         recipe = cls(recipe_fname, variant_id, variant)
         try:
             if recipe_fname.is_file():
                 with open(recipe_fname) as text:
-                    recipe.load_from_string(text.read())
+                    recipe._load_from_string(text.read())
         except FileNotFoundError:
             exc = MissingMetaYaml(recipe_fname)
             if return_exceptions:
@@ -271,26 +325,40 @@ class Recipe:
             if return_exceptions:
                 return exc
             raise exc
-        recipe.set_original()
+        recipe._set_original()
         return recipe
 
     def save(self):
+        """Save recipe dump to file"""
         with open(self.path, "w", encoding="utf-8") as fdes:
             fdes.write(self.dump())
 
-    def set_original(self) -> None:
+    def _set_original(self) -> None:
         """Store the current state of the recipe as "original" version"""
         self.orig = deepcopy(self)
 
     def is_modified(self) -> bool:
+        """Has recipe been modified.
+
+        Returns:
+            bool: True if recipe has been modified.
+        """
         return self.meta_yaml != self.orig.meta_yaml
 
     def dump(self):
         """Dump recipe content"""
         return "\n".join(self.meta_yaml) + "\n"
 
-    def apply_selector(self, data, selector_dict):
-        """Apply selectors # [...]"""
+    def _apply_selector(self, data: str, selector_dict: dict) -> list[str]:
+        """Apply selectors # [...]
+
+        Args:
+            data (str): Raw meta yaml string
+            selector_dict (dict): Selector configuration.
+
+        Returns:
+            list[str]: meta yaml filtered based on selectors, as a list of string.
+        """
         updated_data = []
         for line in data.splitlines():
             if (match := re.search(r"^(\s*)#.*$", line)) is not None:
@@ -312,13 +380,13 @@ class Recipe:
             updated_data.append(line)
         return updated_data
 
-    def get_template(self):
+    def _get_template(self):
         """Create a Jinja2 template from the current raw recipe"""
         # This function exists because the template cannot be pickled.
         # Storing it means the recipe cannot be pickled, which in turn
         # means we cannot pass it to ProcessExecutors.
         try:
-            meta_yaml_selectors_applied = self.apply_selector(
+            meta_yaml_selectors_applied = self._apply_selector(
                 self.meta_yaml, self.selector_dict
             )
             return jinja_silent_undef.from_string(
@@ -382,7 +450,7 @@ class Recipe:
                 "os.environ.get": lambda name, default="": "",
                 "ccache": lambda name, method="": "ccache",
             }
-            yaml_text = self.get_template().render(JINJA_VARS)
+            yaml_text = self._get_template().render(JINJA_VARS)
         except jinja2.exceptions.TemplateSyntaxError as exc:
             raise JinjaRenderFailure(self, message=exc.message, line=exc.lineno)
         except jinja2.exceptions.TemplateError as exc:
@@ -462,7 +530,9 @@ class Recipe:
         if outputs:
             for output in outputs:
                 name = output.get("name", "")
-                version = str(self.meta.get("package", {}).get("version", version)).strip()
+                version = str(
+                    self.meta.get("package", {}).get("version", version)
+                ).strip()
                 is_noarch = False
                 ignore_run_exports = []
                 main_build = output.get("build", {})
@@ -513,7 +583,23 @@ class Recipe:
 
 
 class Dep:
-    def __init__(self, raw_dep):
+    """A dependency
+
+    Args:
+        raw_dep (str): A dependency string. E.g. "numpy <1.24"
+
+    Attributes:
+        raw_dep (str): A dependency string. E.g. "numpy <1.24"
+        pkg (str): The package part. E.g. "numpy"
+        variable (str): The constraint part. E.g. "<1.24"
+    """
+
+    def __init__(self, raw_dep: str):
+        """A dependency
+
+        Args:
+            raw_dep (str): A dependency string. E.g. "numpy <1.24"
+        """
         self.raw_dep = str(raw_dep)
         splits = re.split(r"[\s<=>]", self.raw_dep, 1)
         self.pkg = splits[0].strip()
@@ -530,6 +616,8 @@ class Dep:
 
 @dataclass
 class Package:
+    """A rendered package."""
+
     recipe: Recipe = None
     name: str = None
     version: str = None
@@ -538,22 +626,54 @@ class Package:
     run: Set[Dep] = field(default_factory=set)
     run_constrained: Set[Dep] = field(default_factory=set)
     ignore_run_exports: Set[str] = field(default_factory=set)
-    is_noarch = False
+    is_noarch: bool = False
     git_info: object = None
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: str) -> Any:
+        """Access this dataclass attributes through square brackets.
+
+        Args:
+            key (str): An attribute name of this data class.
+
+        Returns:
+            Any: The value of the attribute.
+        """
         return getattr(self, key)
 
-    def get(self, key, default=None):
+    def get(self, key: str, default=None) -> Any:
+        """Access this dataclass attributes through a getter.
+
+        Args:
+            key (str): An attribute name of this data class.
+            default (_type_, optional): Default value. Defaults to None.
+
+        Returns:
+            Any: The value of the attribute.
+        """
         try:
             return getattr(self, key, default)
         except KeyError:
             return default
 
-    def has_dep(self, section, pkg_name):
+    def has_dep(self, section: str, pkg_name: str) -> bool:
+        """Returns true if the package is present in the given section.
+
+        Args:
+            section (str): A section. E.g. "build", "host", "run", "run_constrained
+            pkg_name (str): A package name.
+
+        Returns:
+            bool: True if the package is present in the given section.
+        """
         return any([pkg_name.lower() == dep.pkg.lower() for dep in self[section]])
 
-    def merge_deps(self, other):
+    def merge_deps(self, other: "Package"):
+        """Merge dependency list of another Package object into this Package.
+        This is especially useful to create an aggregate of multiple variants.
+
+        Args:
+            other (Package): The other Package.
+        """
         self.build.update(other.build)
         self.host.update(other.host)
         self.run.update(other.run)
@@ -561,7 +681,26 @@ class Package:
         self.ignore_run_exports.update(other.ignore_run_exports)
 
 
-def render(recipe_path, subdir=None, python=None, others=None, return_exceptions=False):
+def render(
+    recipe_path: Path,
+    subdir: List[str] = None,
+    python: List[str] = None,
+    others: Dict[str, Any] = None,
+    return_exceptions: bool = False,
+) -> List[Recipe]:
+    """Render a recipe
+
+    Args:
+        recipe_path (Path): Path to a recipe.
+        subdir (List[str], optional): A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+        python (List[str], optional): A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+        others (Dict[str,Any], optional): Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+        return_exceptions (bool, optional): Whether to handle errors as exceptions. Defaults to False.
+
+    Returns:
+        List[Recipe]: A list of rendered Recipe, one per variant.
+    """
+
     # gather all possible variants
     if others is None:
         others = {"r_implementation": "r-base", "rust_compiler": "rust"}
@@ -579,8 +718,14 @@ def render(recipe_path, subdir=None, python=None, others=None, return_exceptions
     return render_results
 
 
-def dump_render_results(render_results, out=sys.stdout):
+def dump_render_results(render_results: List[Recipe], out: TextIO = sys.stdout) -> None:
+    """Dumps a list of rendered variants of a recipe.
 
+    Args:
+        render_results (List[Recipe]): List of rendered variants.
+        out (TextIO, optional): Output stream. Defaults to sys.stdout.
+
+    """
     FIELDS = [
         "variant",
         "package",
@@ -629,6 +774,7 @@ def dump_render_results(render_results, out=sys.stdout):
 
 
 def main_cli():
+    """The recipe render command line interface"""
     parser = argparse.ArgumentParser(
         prog="render",
         description="An alternate, less accurate but faster render tool for conda recipes",

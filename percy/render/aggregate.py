@@ -1,5 +1,5 @@
 """ A representation of aggregate.
-    May be used to get a rough build order of packages.
+    May be used to get a rough build order of packages or gather health information.
 """
 
 from collections import namedtuple
@@ -8,16 +8,33 @@ import subprocess
 from pathlib import Path
 import logging
 import configparser
+from typing import Any
 
-from percy.render.recipe import render
+from percy.render.recipe import render, Package
 
 
 class PackageNode:
+    """A node representing a package"""
+
     aggregate = None
     nodes = {}
     bootstrap_nodes = {}
 
-    def __init__(self, parent, package_name, rendered_package, is_run):
+    def __init__(
+        self,
+        parent: "PackageNode",
+        package_name: str,
+        rendered_package: Package,
+        is_run: bool,
+    ):
+        """PackageNode constructor
+
+        Args:
+            parent (PackageNode): The parent node.
+            package_name (str): The package name.
+            rendered_package (Package): The corresponding rendered package.
+            is_run (bool): If this is coming from a run dependency.
+        """
         self.parents = set([parent])
         self.package_name = package_name
         self.rendered_package = rendered_package
@@ -33,13 +50,35 @@ class PackageNode:
         logging.info(f"New node {package_name}")
 
     @classmethod
-    def init(cls, aggregate):
+    def init(cls, aggregate: "Aggregate"):
+        """Initialize a dependency tree.
+
+        Args:
+            aggregate (Aggregate): The aggregate object.
+        """
         PackageNode.aggregate = aggregate
         PackageNode.nodes = {}
         PackageNode.bootstrap_nodes = {}
 
     @classmethod
-    def make_node(cls, package_name, walk_up, origin_section="run", parent=None):
+    def make_node(
+        cls,
+        package_name: str,
+        walk_up: bool,
+        origin_section: str = "run",
+        parent: "PackageNode" = None,
+    ) -> "PackageNode":
+        """Make a node representing a package.
+
+        Args:
+            package_name (str): The name of the package.
+            walk_up (bool): Whether to create to call make_node on dependencies of the package.
+            origin_section (str, optional): If the package was used in a run section or other. Defaults to "run".
+            parent (PackageNode, optional): Parent node. Defaults to None.
+
+        Returns:
+            PackageNode: The package node.
+        """
 
         node = None
         package_name = package_name.strip()
@@ -127,17 +166,34 @@ class Feedstock:
     git_url: str
     branch: str
     path: str
-    packages: set
+    packages: set[Package]
     weight: int
 
 
 class Aggregate:
+    """An object to handle a repository of feedstocks.
+
+    Args:
+        aggregate_path (str): Aggregate local path.
+
+    Attributes:
+        local_path (Path): Aggregate path.
+        git_url (str): Aggregate git url.
+        git_branch (str): Aggregate git branch.
+        rendered_packages (dict[str,Package]): Rendered packages. (Populated after calling load_local_feedstocks.)
+    """
 
     FeedstockGitRepo = namedtuple(
         "FeedstockGitRepo", ["name", "git_url", "branch", "path"]
     )
 
-    def __init__(self, aggregate_path):
+    def __init__(self, aggregate_path: str):
+        """Constructor
+
+        Args:
+            aggregate_path (str): Aggregate local path.
+        """
+
         # get local aggregate info
         self.local_path = Path(aggregate_path)
         x = subprocess.run(
@@ -176,8 +232,15 @@ class Aggregate:
         # packages
         self.rendered_packages = {}
 
-    def _get_feedstock_git_repo(self, feedstock_path_rel):
+    def _get_feedstock_git_repo(self, feedstock_path_rel: Path) -> Feedstock:
+        """Get Feedsotck object from feedstock local path.
 
+        Args:
+            feedstock_path_rel (Path): Feedsotck local path.
+
+        Returns:
+            Feedstock: Feedstock representation.
+        """
         feedstock = self.submodules.get(feedstock_path_rel.name, None)
         if feedstock:
             return feedstock
@@ -189,7 +252,28 @@ class Aggregate:
                 f"./{str(feedstock_path_rel)}",
             )
 
-    def load_local_feedstocks(self, subdir="linux-64", python="3.10", others=None):
+    def load_local_feedstocks(
+        self,
+        subdir: str = "linux-64",
+        python: str = "3.10",
+        others: dict[str, Any] = None,
+    ) -> dict[str, Package]:
+        """Load aggregate feedstocks.
+
+            Only load feedstocks being on master or main branch.
+            If feedstocks are already loaded, rendered packages will be merged.
+
+            This populates attribute rendered_packages.
+
+        Args:
+            subdir (str, optional): The subdir for which to load the feedstocks. Defaults to "linux-64".
+            python (str, optional): The python version for which to load the feedstocks. Defaults to "3.10".
+            others (dict[str, Any], optional): A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
+
+        Returns:
+            dict[str, Package]: Rendered packages contained in aggregate (also available as aggregate rendered_packages attribute).
+        """
+
         if others is None:
             others = {"r_implementation": "r-base"}
             if subdir == "win-64":
@@ -208,7 +292,10 @@ class Aggregate:
             feedstock_repo = self._get_feedstock_git_repo(feedstock_path_rel)
 
             # attempt to process only the latest feedstocks
-            if feedstock_repo.branch not in ("master", "main") and not feedstock_repo.git_url.endswith("aggregate.git"):
+            if feedstock_repo.branch not in (
+                "master",
+                "main",
+            ) and not feedstock_repo.git_url.endswith("aggregate.git"):
                 logging.warning(
                     f"Skipping feedstock {feedstock_name} pinned to branch {feedstock_repo.branch} ({feedstock_repo.git_url})"
                 )
@@ -240,7 +327,14 @@ class Aggregate:
                         else:
                             self.rendered_packages[name] = rendered_pkg
 
-    def package_to_feedstock_path(self):
+        return self.rendered_packages
+
+    def package_to_feedstock_path(self) -> dict[str, str]:
+        """Returns a mapping of package name to feedstock path.
+
+        Returns:
+            dict[str, str]: mapping of package name to feedstock path.
+        """
         package_to_feedstock = {}
         for name, rendered_package in self.rendered_packages.items():
             package_to_feedstock.setdefault(name, []).append(
@@ -248,7 +342,12 @@ class Aggregate:
             )
         return dict(sorted(package_to_feedstock.items()))
 
-    def _build_order(self):
+    def _build_order(self) -> dict[str, Feedstock]:
+        """Computes a feedstock build order.
+
+        Returns:
+            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        """
         # feedstock build order
         feedstocks = {}
         for pkg, node in sorted(
@@ -270,8 +369,15 @@ class Aggregate:
             v.packages.add(node)
         return sorted(feedstocks.values(), key=lambda x: (1.0 / (x.weight + 1), x.name))
 
-    def get_build_order(self, packages):
+    def get_build_order(self, packages: list[str]) -> dict[str, Feedstock]:
+        """Creates a Feedstock builder order based on a list of leaf packages.
 
+        Args:
+            packages (list[str]): List of leaf package names.
+
+        Returns:
+            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        """
         PackageNode.init(self)
 
         # build graph walking up from packages
@@ -282,8 +388,23 @@ class Aggregate:
         return self._build_order()
 
     def get_depends_build_order(
-        self, target, package_allowlist=[], feedstock_blocklist=[], drop_noarch=True
-    ):
+        self,
+        target: str,
+        package_allowlist: list[str] = [],
+        feedstock_blocklist: list[str] = [],
+        drop_noarch: bool = True,
+    ) -> dict[str, Feedstock]:
+        """Creates a Feedstock builder order based on packages having target as a dependency.
+
+        Args:
+            target (str): The target package.
+            package_allowlist (list[str], optional): List of package names to consider. Defaults to [].
+            feedstock_blocklist (list[str], optional): List of feedstock names to exclude. Defaults to [].
+            drop_noarch (bool, optional): Whether to include noarch packages. Defaults to True.
+
+        Returns:
+            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        """
 
         PackageNode.init(self)
 
