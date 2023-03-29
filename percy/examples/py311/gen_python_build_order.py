@@ -124,14 +124,14 @@ def gen_python_build_order(
     allow_list = repodata_package_list  # only packages already in subdir defaults
     allow_list_noarch = repodata_package_list_with_noarch  # only packages already in subdir and noarch defaults
     python_buildout = aggregate_repo.get_depends_build_order(
-        "python", allow_list, block_list, True
+        [], ["python"], allow_list, block_list, True
     )
 
     # compare local aggregate package list to repodata package list - for reference
     aggregate_package_list = []
     for feedstock in python_buildout:
-        for pkg_node in feedstock.packages:
-            aggregate_package_list.append(pkg_node.package_name)
+        for pkg_name in feedstock.packages.keys():
+            aggregate_package_list.append(pkg_name)
     aggregate_package_list = sorted(aggregate_package_list)
     with open(
         f"./{subdir}/python_{python_target}_{subdir}_package_list.yaml", "w"
@@ -155,12 +155,12 @@ def gen_python_build_order(
 
     # also export subdir + noarch list
     python_buildout_with_noarch = aggregate_repo.get_depends_build_order(
-        "python", allow_list_noarch, block_list, False
+        [], ["python"], allow_list_noarch, block_list, False
     )
     aggregate_package_list_with_noarch = []
     for feedstock in python_buildout_with_noarch:
-        for pkg_node in feedstock.packages:
-            aggregate_package_list_with_noarch.append(pkg_node.package_name)
+        for pkg_name in feedstock.packages.keys():
+            aggregate_package_list_with_noarch.append(pkg_name)
     aggregate_package_list_with_noarch = sorted(aggregate_package_list_with_noarch)
     with open(f"./{subdir}/python_full_package_list.yaml", "w") as f:
         yaml.dump(

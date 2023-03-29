@@ -24,7 +24,7 @@ class PackageNode:
         self,
         parent: "PackageNode",
         package_name: str,
-        rendered_package: Package,
+        package: Package,
         is_run: bool,
     ):
         """PackageNode constructor
@@ -32,13 +32,13 @@ class PackageNode:
         Args:
             parent (PackageNode): The parent node.
             package_name (str): The package name.
-            rendered_package (Package): The corresponding rendered package.
+            package (Package): The corresponding rendered package.
             is_run (bool): If this is coming from a run dependency.
         """
         self.parents = set([parent])
         self.package_name = package_name
-        self.rendered_package = rendered_package
-        self.feedstock = self.aggregate.rendered_packages[package_name].git_info
+        self.package = package
+        self.feedstock = self.aggregate.packages[package_name].git_info
         self.is_run = False
         if is_run:
             self.is_run = True
@@ -97,10 +97,8 @@ class PackageNode:
                             return r
             return ancestors
 
-        rendered_package = PackageNode.aggregate.rendered_packages.get(
-            package_name, None
-        )
-        if not rendered_package:
+        package = PackageNode.aggregate.packages.get(package_name, None)
+        if not package:
             logging.warning(f"No information for {package_name}")
         else:
 
@@ -120,7 +118,7 @@ class PackageNode:
                     node._update_weight(parent.weight)
             else:
                 # new package
-                node = cls(parent, package_name, rendered_package, is_run)
+                node = cls(parent, package_name, package, is_run)
                 PackageNode.nodes[package_name] = node
                 if walk_up:
                     node._walk_up_requirements()
@@ -156,7 +154,7 @@ class PackageNode:
 
     def _walk_up_requirements(self):
         for section in ["build", "host", "run"]:
-            for dep in self.rendered_package[section]:
+            for dep in self.package[section]:
                 PackageNode.make_node(dep.pkg, True, section, self)
 
 
@@ -166,7 +164,7 @@ class Feedstock:
     git_url: str
     branch: str
     path: str
-    packages: set[Package]
+    packages: dict[str, Package]
     weight: int
 
 
@@ -180,7 +178,8 @@ class Aggregate:
         local_path (Path): Aggregate path.
         git_url (str): Aggregate git url.
         git_branch (str): Aggregate git branch.
-        rendered_packages (dict[str,Package]): Rendered packages. (Populated after calling load_local_feedstocks.)
+        packages (dict[str,Package]): Rendered packages. (Populated after calling load_local_feedstocks.)
+        feedstocks (dict[str,Feedstock]): Feedstocks. (Populated after calling load_local_feedstocks.)
     """
 
     FeedstockGitRepo = namedtuple(
@@ -229,8 +228,9 @@ class Aggregate:
                 name, git_url, git_branch, path
             )
 
-        # packages
-        self.rendered_packages = {}
+        # packages and feedstocks
+        self.packages = {}
+        self.feedstocks = {}
 
     def _get_feedstock_git_repo(self, feedstock_path_rel: Path) -> Feedstock:
         """Get Feedsotck object from feedstock local path.
@@ -263,7 +263,7 @@ class Aggregate:
             Only load feedstocks being on master or main branch.
             If feedstocks are already loaded, rendered packages will be merged.
 
-            This populates attribute rendered_packages.
+            This populates attributes packages and feedstocks.
 
         Args:
             subdir (str, optional): The subdir for which to load the feedstocks. Defaults to "linux-64".
@@ -271,7 +271,7 @@ class Aggregate:
             others (dict[str, Any], optional): A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
 
         Returns:
-            dict[str, Package]: Rendered packages contained in aggregate (also available as aggregate rendered_packages attribute).
+            dict[str, Package]: Rendered packages contained in aggregate (also available as aggregate packages attribute).
         """
 
         if others is None:
@@ -292,10 +292,15 @@ class Aggregate:
             feedstock_repo = self._get_feedstock_git_repo(feedstock_path_rel)
 
             # attempt to process only the latest feedstocks
-            if feedstock_repo.branch not in (
-                "master",
-                "main",
-            ) and not feedstock_repo.git_url.endswith("aggregate.git"):
+            if (
+                feedstock_repo.branch
+                not in (
+                    "master",
+                    "main",
+                )
+                and not feedstock_repo.git_url.endswith("aggregate.git")
+                and not feedstock_name == f"python-{python}-feedstock"
+            ):
                 logging.warning(
                     f"Skipping feedstock {feedstock_name} pinned to branch {feedstock_repo.branch} ({feedstock_repo.git_url})"
                 )
@@ -319,15 +324,37 @@ class Aggregate:
 
                     for name, rendered_pkg in recipe.packages.items():
                         rendered_pkg.git_info = feedstock_repo
-                        if len(rendered_recipes) > 1 and name in self.rendered_packages:
+                        if len(rendered_recipes) > 1 and name in self.packages:
                             logging.warn(
                                 f"Merging deps of other variant {recipe.variant_id} : {feedstock_name} : {name}"
                             )
-                            self.rendered_packages[name].merge_deps(rendered_pkg)
+                            self.packages[name].merge_deps(rendered_pkg)
                         else:
-                            self.rendered_packages[name] = rendered_pkg
+                            self.packages[name] = rendered_pkg
 
-        return self.rendered_packages
+        # process run_exports
+        for rendered_pkg in self.packages.values():
+            for dep in rendered_pkg.host:
+                if dep.pkg in self.packages:
+                    for run_export in self.packages[dep.pkg].run_exports:
+                        rendered_pkg.run.add(run_export)
+
+        # fill feedstocks
+        for name, rendered_pkg in self.packages.items():
+            v = self.feedstocks.setdefault(
+                rendered_pkg.git_info.name,
+                Feedstock(
+                    rendered_pkg.git_info.name,
+                    rendered_pkg.git_info.git_url,
+                    rendered_pkg.git_info.branch,
+                    rendered_pkg.git_info.path,
+                    dict(),
+                    0,
+                ),
+            )
+            v.packages[name] = rendered_pkg
+
+        return self.packages
 
     def package_to_feedstock_path(self) -> dict[str, str]:
         """Returns a mapping of package name to feedstock path.
@@ -336,10 +363,8 @@ class Aggregate:
             dict[str, str]: mapping of package name to feedstock path.
         """
         package_to_feedstock = {}
-        for name, rendered_package in self.rendered_packages.items():
-            package_to_feedstock.setdefault(name, []).append(
-                rendered_package.git_info.path
-            )
+        for name, package in self.packages.items():
+            package_to_feedstock.setdefault(name, []).append(package.git_info.path)
         return dict(sorted(package_to_feedstock.items()))
 
     def _build_order(self) -> dict[str, Feedstock]:
@@ -361,27 +386,35 @@ class Aggregate:
                     node.feedstock.git_url,
                     node.feedstock.branch,
                     node.feedstock.path,
-                    set(),
+                    dict(),
                     0,
                 ),
             )
             v.weight = max(v.weight, node.weight)
-            v.packages.add(node)
+            v.packages[pkg] = self.packages[pkg]
         return sorted(feedstocks.values(), key=lambda x: (1.0 / (x.weight + 1), x.name))
 
-    def get_build_order(self, packages: list[str]) -> dict[str, Feedstock]:
+    def get_build_order(
+        self, target_feedstocks: list[str] = [], target_packages: list[str] = []
+    ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on a list of leaf packages.
 
         Args:
-            packages (list[str]): List of leaf package names.
+            target_feedstocks (list[str], optional): List of target feedstocks.
+            target_packages (list[str]): List of leaf package names.
 
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
         """
         PackageNode.init(self)
 
+        # expand target_packages with packages from target_feedstocks
+        for feedstock in target_feedstocks:
+            if feedstock in self.feedstocks.keys():
+                target_packages.extend(self.feedstocks[feedstock].packages.keys())
+
         # build graph walking up from packages
-        for pkg in packages:
+        for pkg in target_packages:
             PackageNode.make_node(pkg, True)
 
         # feedstock build order
@@ -389,7 +422,8 @@ class Aggregate:
 
     def get_depends_build_order(
         self,
-        target: str,
+        target_feedstocks: list[str] = [],
+        target_packages: list[str] = [],
         package_allowlist: list[str] = [],
         feedstock_blocklist: list[str] = [],
         drop_noarch: bool = True,
@@ -397,7 +431,8 @@ class Aggregate:
         """Creates a Feedstock builder order based on packages having target as a dependency.
 
         Args:
-            target (str): The target package.
+            target_feedstocks (list[str], optional): List of target feedstocks.
+            target_packages (list[str], optional): List of target packages.
             package_allowlist (list[str], optional): List of package names to consider. Defaults to [].
             feedstock_blocklist (list[str], optional): List of feedstock names to exclude. Defaults to [].
             drop_noarch (bool, optional): Whether to include noarch packages. Defaults to True.
@@ -408,36 +443,40 @@ class Aggregate:
 
         PackageNode.init(self)
 
+        # expand target_packages with packages from target_feedstocks
+        for feedstock in target_feedstocks:
+            if feedstock in self.feedstocks.keys():
+                target_packages.extend(self.feedstocks[feedstock].packages.keys())
+
         # build graph with packages having package as a dependency
-        for name, rendered_package in self.rendered_packages.items():
-            if (
-                name in package_allowlist
-                and rendered_package.git_info.name not in feedstock_blocklist
-            ):
-                for dep in rendered_package.run:
-                    if dep.pkg == target:
-                        PackageNode.make_node(name, True, "run")
+        for target in target_packages:
+            for name, package in self.packages.items():
+                if (
+                    package_allowlist == [] or name in package_allowlist
+                ) and package.git_info.name not in feedstock_blocklist:
+                    for dep in package.run:
+                        if dep.pkg == target:
+                            PackageNode.make_node(name, True, "run")
 
         # drop graph nodes in blocklist or not in allowlist
         PackageNode.nodes = {
             k: v
             for k, v in PackageNode.nodes.items()
-            if k in package_allowlist and v.feedstock.name not in feedstock_blocklist
+            if (package_allowlist == [] or k in package_allowlist)
+            and v.feedstock.name not in feedstock_blocklist
         }
 
         # drop graph nodes not having package as a run dependency
         PackageNode.nodes = {
             k: v
             for k, v in PackageNode.nodes.items()
-            if v.rendered_package.has_dep("run", target)
+            if any([v.package.has_dep("run", target) for target in target_packages])
         }
 
         # drop noarch graph nodes
         if drop_noarch:
             PackageNode.nodes = {
-                k: v
-                for k, v in PackageNode.nodes.items()
-                if not v.rendered_package.is_noarch
+                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
             }
 
         # feedstock build order

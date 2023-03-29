@@ -27,7 +27,7 @@ def gen_blts_build_order(
         yaml.dump(aggregate_repo.package_to_feedstock_path(), f)
 
     # get feedstock build order
-    blts_buildout = aggregate_repo.get_build_order(packages)
+    blts_buildout = aggregate_repo.get_build_order([], packages)
 
     # write stage build order
     stages = [

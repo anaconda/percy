@@ -53,7 +53,7 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
         others["rust_compiler"] = "rust"
     aggregate_repo.load_local_feedstocks(subdir, python_ref, others)
 
-    for name, rendered_pkg in aggregate_repo.rendered_packages.items():
+    for name, rendered_pkg in aggregate_repo.packages.items():
 
         # find local feedstocks with cbc run dep not set in host
         run_deps = set([run_dep.pkg for run_dep in rendered_pkg.run])
@@ -133,10 +133,10 @@ if __name__ == "__main__":
     ]
 
     python = [
-        "3.7",
         "3.8",
         "3.9",
         "3.10",
+        "3.11",
     ]
 
     issues = {
