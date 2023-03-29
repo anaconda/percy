@@ -489,10 +489,17 @@ class Recipe:
         name = self.meta.get("package", {}).get("name", "unknown").strip()
         version = str(self.meta.get("package", {}).get("version", "-1")).strip()
         is_noarch = False
+        run_exports = []
         ignore_run_exports = []
         main_build = self.meta.get("build", {})
         if main_build:
             is_noarch = main_build.get("noarch", False)
+            run_exports = main_build.get("run_exports", [])
+            if not run_exports:
+                run_exports = []
+            run_exports = [
+                Dep(i) for i in run_exports if (i is not None and str(i).strip())
+            ]
             ignore_run_exports = main_build.get("ignore_run_exports", [])
             if not ignore_run_exports:
                 ignore_run_exports = []
@@ -521,6 +528,7 @@ class Recipe:
             set(pkg_reqs["host"]),
             set(pkg_reqs["run"]),
             set(pkg_reqs["run_constrained"]),
+            set(run_exports),
             set(ignore_run_exports),
             is_noarch,
         )
@@ -534,10 +542,19 @@ class Recipe:
                     self.meta.get("package", {}).get("version", version)
                 ).strip()
                 is_noarch = False
+                run_exports = []
                 ignore_run_exports = []
                 main_build = output.get("build", {})
                 if main_build:
                     is_noarch = main_build.get("noarch", False)
+                    run_exports = main_build.get("run_exports", [])
+                    if not run_exports:
+                        run_exports = []
+                    run_exports = [
+                        Dep(i)
+                        for i in run_exports
+                        if (i is not None and str(i).strip())
+                    ]
                     ignore_run_exports = main_build.get("ignore_run_exports", [])
                     if not ignore_run_exports:
                         ignore_run_exports = []
@@ -568,6 +585,7 @@ class Recipe:
                     set(output_pkg_reqs["host"]),
                     set(output_pkg_reqs["run"]),
                     set(output_pkg_reqs["run_constrained"]),
+                    set(run_exports),
                     set(ignore_run_exports),
                     is_noarch,
                 )
@@ -625,6 +643,7 @@ class Package:
     host: Set[Dep] = field(default_factory=set)
     run: Set[Dep] = field(default_factory=set)
     run_constrained: Set[Dep] = field(default_factory=set)
+    run_exports: Set[str] = field(default_factory=set)
     ignore_run_exports: Set[str] = field(default_factory=set)
     is_noarch: bool = False
     git_info: object = None
@@ -678,6 +697,7 @@ class Package:
         self.host.update(other.host)
         self.run.update(other.run)
         self.run_constrained.update(other.run_constrained)
+        self.run_exports.update(other.run_exports)
         self.ignore_run_exports.update(other.ignore_run_exports)
 
 
