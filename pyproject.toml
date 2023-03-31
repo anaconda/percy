@@ -18,9 +18,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-  "pyyaml",
-  "jinja2",
   "click",
+  "conda",
+  "jinja2",
+  "pyyaml",
+  "requests",
 ]
 
 [project.scripts]

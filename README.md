@@ -16,12 +16,16 @@
     conda activate percy
     pip install .
     
-  ## Render examples
-  
-    prender --help
-    prender ./numpy-feedstock/recipe/meta.yaml
-    prender ./numpy-feedstock/recipe/meta.yaml -p 3.10 -s linux-aarch64
-    prender ./numpy-feedstock/recipe/meta.yaml -p 3.10 -s linux-64 -s osx-64 -s win-64 -k blas_impl mkl
+  ## Command line examples
+
+  From within a feedstock:
+    percy recipe --help
+    percy recipe render --help
+    percy recipe outdated --help
+    percy aggregate downstream --help
+    percy aggregate order --help
+    percy aggregate upstream --help
+    percy aggregate outdated --help
 
   ## Other examples
   
