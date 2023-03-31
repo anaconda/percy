@@ -337,7 +337,11 @@ class Aggregate:
             for dep in rendered_pkg.host:
                 if dep.pkg in self.packages:
                     for run_export in self.packages[dep.pkg].run_exports:
-                        rendered_pkg.run.add(run_export)
+                        if (
+                            not "*" in rendered_pkg.ignore_run_exports
+                            or not run_export in rendered_pkg.ignore_run_exports
+                        ):
+                            rendered_pkg.run.add(run_export)
 
         # fill feedstocks
         for name, rendered_pkg in self.packages.items():
