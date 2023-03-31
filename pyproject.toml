@@ -20,10 +20,11 @@ classifiers = [
 dependencies = [
   "pyyaml",
   "jinja2",
+  "click",
 ]
 
 [project.scripts]
-prender = "percy.render.recipe:main_cli"
+percy = "percy.commands.main:cli"
 
 [project.urls]
 "Homepage" = "https://github.com/anaconda-distribution/percy"

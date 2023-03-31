@@ -395,13 +395,19 @@ class Aggregate:
         return sorted(feedstocks.values(), key=lambda x: (1.0 / (x.weight + 1), x.name))
 
     def get_build_order(
-        self, target_feedstocks: list[str] = [], target_packages: list[str] = []
+        self,
+        target_feedstocks: list[str] = [],
+        target_packages: list[str] = [],
+        drop_noarch: bool = False,
+        no_upstream: bool = False,
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on a list of leaf packages.
 
         Args:
             target_feedstocks (list[str], optional): List of target feedstocks.
             target_packages (list[str]): List of leaf package names.
+            drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
+            no_upstream (bool, optional): Whether to drop unspecified packages. Defaults to False.
 
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
@@ -409,6 +415,7 @@ class Aggregate:
         PackageNode.init(self)
 
         # expand target_packages with packages from target_feedstocks
+        target_packages = list(target_packages)
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
@@ -416,6 +423,18 @@ class Aggregate:
         # build graph walking up from packages
         for pkg in target_packages:
             PackageNode.make_node(pkg, True)
+
+        # drop graph nodes not having package as a run dependency
+        if no_upstream:
+            PackageNode.nodes = {
+                k: v for k, v in PackageNode.nodes.items() if k in target_packages
+            }
+
+        # drop noarch graph nodes
+        if drop_noarch:
+            PackageNode.nodes = {
+                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
+            }
 
         # feedstock build order
         return self._build_order()
@@ -426,7 +445,7 @@ class Aggregate:
         target_packages: list[str] = [],
         package_allowlist: list[str] = [],
         feedstock_blocklist: list[str] = [],
-        drop_noarch: bool = True,
+        drop_noarch: bool = False,
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on packages having target as a dependency.
 
@@ -435,7 +454,7 @@ class Aggregate:
             target_packages (list[str], optional): List of target packages.
             package_allowlist (list[str], optional): List of package names to consider. Defaults to [].
             feedstock_blocklist (list[str], optional): List of feedstock names to exclude. Defaults to [].
-            drop_noarch (bool, optional): Whether to include noarch packages. Defaults to True.
+            drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
 
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
@@ -444,6 +463,7 @@ class Aggregate:
         PackageNode.init(self)
 
         # expand target_packages with packages from target_feedstocks
+        target_packages = list(target_packages)
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
@@ -452,7 +472,7 @@ class Aggregate:
         for target in target_packages:
             for name, package in self.packages.items():
                 if (
-                    package_allowlist == [] or name in package_allowlist
+                    not package_allowlist or name in package_allowlist
                 ) and package.git_info.name not in feedstock_blocklist:
                     for dep in package.run:
                         if dep.pkg == target:
@@ -462,7 +482,7 @@ class Aggregate:
         PackageNode.nodes = {
             k: v
             for k, v in PackageNode.nodes.items()
-            if (package_allowlist == [] or k in package_allowlist)
+            if (not package_allowlist or k in package_allowlist)
             and v.feedstock.name not in feedstock_blocklist
         }
 
@@ -481,33 +501,3 @@ class Aggregate:
 
         # feedstock build order
         return self._build_order()
-
-
-if __name__ == "__main__":
-
-    aggregate = Aggregate("/Users/cbousseau/work/recipes/aggregate/")
-    aggregate.load_local_feedstocks(
-        "linux-64", "3.10", {"r_implementation": "r-base", "blas_impl": "openblas"}
-    )
-
-    print("\n\nBLTS build order:")
-    for feedstock in aggregate.get_build_order(
-        [
-            "python",
-            "numpy",
-            "scikit-learn",
-            "pandas",
-            "scikit-image",
-            "xgboost",
-            "scipy",
-            "conda",
-            "conda-build",
-        ]
-    ):
-        print(f"{feedstock.weight:02} {feedstock.name:25} {feedstock.packages}")
-
-    print("\n\npython 3.11 build order:")
-    python_buildout = aggregate.get_depends_build_order("python")
-    for feedstock in python_buildout:
-        print(f"{feedstock.weight:02} {feedstock.name:25} {feedstock.packages}")
-    print(f"python 3.11 : {len(python_buildout)} to build")
