@@ -1,0 +1,48 @@
+package:
+  name: percy
+  version: 0.0.1
+
+source:
+  path: ../
+
+build:
+  number: 0
+  noarch: python
+  script: pip install . --no-deps -vv
+  entry_points:
+    - percy = percy.commands.main:cli
+
+requirements:
+  host:
+    - python {{ python }}
+    - pip
+    - setuptools
+    - wheel
+  run:
+    - python
+    - click
+    - conda
+    - jinja2
+    - pyyaml
+    - requests
+
+test:
+  imports:
+    - percy.render.recipe
+    - percy.render.aggregate
+    - percy.repodata.repodata
+  requires:
+    - pip
+  commands:
+    - pip check
+
+about:
+  home: https://github.com/anaconda-distribution/percy
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Helper tool for recipes on aggregate.
+  description: |
+    Renders local recipes, provides build orders, find outdated recipes.
+  doc_url: https://github.com/anaconda-distribution/percy
+  dev_url: https://github.com/anaconda-distribution/percy

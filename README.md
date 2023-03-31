@@ -5,17 +5,20 @@
   It can be used as a command line tool but is mostly intended to be used as a library.
   
   Why not using conda build to render? 
-  conda build can only render for the architecture it is being run from. 
   conda build resolves dependencies to qualify versions and process run_exports and other keys.
   This library renders without querying a channel, and is more suited for development phase.
 
 
   ## Installation
+
+    conda create -n percy -c cbouss/label/percy percy
+  
+  ## Installation for development
   
     conda env create -f environment.yaml --name percy
     conda activate percy
-    pip install .
-    
+    pip install -e .   
+
   ## Command line examples
 
   From within a feedstock:
