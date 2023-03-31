@@ -10,7 +10,6 @@ from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
 from dataclasses import dataclass, field
 import jinja2
-import argparse
 import contextlib
 import yaml
 
@@ -472,7 +471,7 @@ class Recipe:
 
             # extract package info
             if not self.skip:
-                self.render_packages()
+                self._render_packages()
         except yaml.error.YAMLError as exc:
             if hasattr(exc, "problem_mark"):
                 raise YAMLRenderFailure(
@@ -483,11 +482,12 @@ class Recipe:
             else:
                 raise YAMLRenderFailure(self, f"{str(exc.problem)}")
 
-    def render_packages(self):
+    def _render_packages(self):
 
         # read main package deps
         name = self.meta.get("package", {}).get("name", "unknown").strip()
         version = str(self.meta.get("package", {}).get("version", "-1")).strip()
+        number = str(self.meta.get("build", {}).get("number", "0")).strip()
         is_noarch = False
         run_exports = []
         ignore_run_exports = []
@@ -524,6 +524,7 @@ class Recipe:
             self,
             name,
             version,
+            number,
             set(pkg_reqs["build"]),
             set(pkg_reqs["host"]),
             set(pkg_reqs["run"]),
@@ -581,6 +582,7 @@ class Recipe:
                     self,
                     name,
                     version,
+                    number,
                     set(output_pkg_reqs["build"]),
                     set(output_pkg_reqs["host"]),
                     set(output_pkg_reqs["run"]),
@@ -639,6 +641,7 @@ class Package:
     recipe: Recipe = None
     name: str = None
     version: str = None
+    number: str = None
     build: Set[Dep] = field(default_factory=set)
     host: Set[Dep] = field(default_factory=set)
     run: Set[Dep] = field(default_factory=set)

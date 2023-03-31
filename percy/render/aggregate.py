@@ -229,8 +229,8 @@ class Aggregate:
             )
 
         # packages and feedstocks
-        self.packages = {}
-        self.feedstocks = {}
+        self.packages: dict[str:Package] = {}
+        self.feedstocks: dict[str:Feedstock] = {}
 
     def _get_feedstock_git_repo(self, feedstock_path_rel: Path) -> Feedstock:
         """Get Feedsotck object from feedstock local path.

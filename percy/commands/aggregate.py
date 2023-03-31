@@ -1,9 +1,11 @@
 from pathlib import Path
 import click
-import os
+import os, sys
 import functools
+import yaml
 from itertools import groupby
 import percy.render.aggregate
+import percy.repodata.repodata
 
 
 def get_configured_aggregate(cmd_line=None):
@@ -27,6 +29,18 @@ def get_configured_aggregate(cmd_line=None):
     if (cwd / "aggregate" / ".git").exists():
         return cwd / "aggregate"
     return cwd
+
+
+def load_aggregate(obj, subdir, python, others):
+    aggregate_path = obj["aggregate_directory"]
+    aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
+    if not others:
+        others = {}
+        if subdir.startswith("win-"):
+            others["rust_compiler"] = "rust"
+    others["r_implementation"] = "r-base"
+    aggregate_repo.load_local_feedstocks(subdir, python, others)
+    return aggregate_repo
 
 
 def print_build_order(buildout):
@@ -68,7 +82,7 @@ def base_options(f):
     return wrapper_base_options
 
 
-def common_options(f):
+def order_options(f):
     @click.option(
         "--feedstocks",
         "-f",
@@ -88,15 +102,17 @@ def common_options(f):
     @click.option(
         "--drop_noarch",
         type=bool,
-        multiple=False,
+        is_flag=True,
+        show_default=True,
         default=False,
+        multiple=False,
         help="Drop noarch",
     )
     @functools.wraps(f)
-    def wrapper_common_options(*args, **kwargs):
+    def wrapper_order_options(*args, **kwargs):
         return f(*args, **kwargs)
 
-    return wrapper_common_options
+    return wrapper_order_options
 
 
 @click.group(short_help="Commands for operating on aggregates.")
@@ -124,7 +140,7 @@ def aggregate(ctx, aggregate):
 @aggregate.command(short_help="Print downstream build order")
 @click.pass_obj
 @base_options
-@common_options
+@order_options
 @click.option(
     "--allow_list",
     type=str,
@@ -153,14 +169,7 @@ def downstream(
     """Prints build order of feedstock downstream dependencies"""
 
     # load aggregate
-    aggregate_path = obj["aggregate_directory"]
-    aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
-    others = {"r_implementation": "r-base", "blas_impl": "mkl"}
-    if subdir.startswith("win-"):
-        others["rust_compiler"] = "rust"
-        aggregate_repo.load_local_feedstocks(subdir, python, others)
-    else:
-        aggregate_repo.load_local_feedstocks(subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others)
 
     # get feedstock build order
     buildout = aggregate_repo.get_depends_build_order(
@@ -177,19 +186,12 @@ def downstream(
 @aggregate.command(short_help="Print upstream build order")
 @click.pass_obj
 @base_options
-@common_options
+@order_options
 def upstream(obj, subdir, python, others, feedstocks, packages, drop_noarch):
     """Prints build order of feedstock upstream dependencies"""
 
     # load aggregate
-    aggregate_path = obj["aggregate_directory"]
-    aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
-    others = {"r_implementation": "r-base", "blas_impl": "mkl"}
-    if subdir.startswith("win-"):
-        others["rust_compiler"] = "rust"
-        aggregate_repo.load_local_feedstocks(subdir, python, others)
-    else:
-        aggregate_repo.load_local_feedstocks(subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others)
 
     # get feedstock build order
     buildout = aggregate_repo.get_build_order(feedstocks, packages, drop_noarch, False)
@@ -204,19 +206,12 @@ def upstream(obj, subdir, python, others, feedstocks, packages, drop_noarch):
 @aggregate.command(short_help="Print build order")
 @click.pass_obj
 @base_options
-@common_options
+@order_options
 def order(obj, subdir, python, others, feedstocks, packages, drop_noarch):
     """Prints build order of specified feedstocks"""
 
     # load aggregate
-    aggregate_path = obj["aggregate_directory"]
-    aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
-    others = {"r_implementation": "r-base", "blas_impl": "mkl"}
-    if subdir.startswith("win-"):
-        others["rust_compiler"] = "rust"
-        aggregate_repo.load_local_feedstocks(subdir, python, others)
-    else:
-        aggregate_repo.load_local_feedstocks(subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others)
 
     # get feedstock build order
     buildout = aggregate_repo.get_build_order(feedstocks, packages, drop_noarch, True)
@@ -226,3 +221,80 @@ def order(obj, subdir, python, others, feedstocks, packages, drop_noarch):
         f"\n\nBuild order (feedstocks:{feedstocks} packages:{packages} drop_noarch:{drop_noarch})):"
     )
     print_build_order(buildout)
+
+
+@aggregate.command(short_help="Print outdated with defaults")
+@click.pass_obj
+@base_options
+@click.option(
+    "--missing_local",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    multiple=False,
+    help="Identify packages from defaults not pinned on aggregate.",
+)
+@click.option(
+    "--missing_defaults",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    multiple=False,
+    help="Identify packages from aggregate not on defaults",
+)
+def outdated(obj, subdir, python, others, missing_local, missing_defaults):
+    """Prints outdated with defaults"""
+
+    results = {}
+
+    # load aggregate
+    aggregate_repo = load_aggregate(obj, subdir, python, others)
+
+    # load defaults
+    defaults_pkgs = percy.repodata.repodata.get_latest_package_list(subdir, True)
+
+    # compare aggregate with defaults
+    for local_name, package in aggregate_repo.packages.items():
+        result = percy.repodata.repodata.compare_package_with_defaults(
+            package, defaults_pkgs
+        )
+        if result:
+            results[local_name] = result
+
+    # find missing from local
+    if missing_local:
+        for name in defaults_pkgs.keys() - aggregate_repo.packages.keys():
+            defaults_version = defaults_pkgs[name]["version"]
+            defaults_build_number = int(defaults_pkgs[name]["build_number"])
+            results[name] = {
+                "local_version": None,
+                "local_build_number": None,
+                "defaults_version": defaults_version,
+                "defaults_build_number": defaults_build_number,
+            }
+
+    # find missing from defaults
+    if missing_defaults:
+        for name in aggregate_repo.packages.keys() - defaults_pkgs.keys():
+            local_version = package.version
+            local_build_number = int(package.number)
+            results[name] = {
+                "local_version": local_version,
+                "local_build_number": local_build_number,
+                "defaults_version": None,
+                "defaults_build_number": None,
+            }
+
+    # dump result
+    def noop(self, *args, **kw):
+        pass
+
+    yaml.emitter.Emitter.process_tag = noop
+    yaml.dump(
+        results,
+        sys.stdout,
+        default_flow_style=False,
+        indent=2,
+    )
