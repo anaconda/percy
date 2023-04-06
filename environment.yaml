@@ -2,5 +2,8 @@ name: percy
 
 dependencies:
   - python
-  - pyyaml
+  - click
+  - conda
   - jinja2
+  - pyyaml
+  - requests

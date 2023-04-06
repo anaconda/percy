@@ -22,13 +22,42 @@
   ## Command line examples
 
   From within a feedstock:
+
     percy recipe --help
-    percy recipe render --help
-    percy recipe outdated --help
-    percy aggregate downstream --help
-    percy aggregate order --help
-    percy aggregate upstream --help
-    percy aggregate outdated --help
+
+  - Render the recipe
+  
+          percy recipe render --help
+          percy recipe render -s linux-64 -p 3.10 -k blas_impl openblas
+
+  - Identify if the feedstock is pinned to the latest, compared to defautls:
+  
+          percy recipe outdated --help
+          percy recipe outdated
+
+  From within aggregate:
+
+    percy aggregate --help
+
+  - When updating a package pinned in cbc, show rebuild order:
+  
+          percy aggregate downstream --help
+          percy aggregate downstream -f libxml2-feedstock
+
+  - When working on a group of packages, show build order:
+  
+          percy aggregate order --help
+          percy aggregate order -f dask-feedstock -f dask-core-feedstock -f distributed-feedstock
+
+  - When building from scratch, show what to build based on leaf packages:
+  
+          percy aggregate upstream --help
+          percy aggregate upstream -f pytorch-feedstock
+
+  - Identify which feedstocks are not pinned to the latest, compared to defautls:
+  
+          percy aggregate outdated --help
+          percy aggregate outdated
 
   ## Other examples
   
