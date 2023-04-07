@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 import jinja2
 import contextlib
 import yaml
+from urllib.parse import urlparse
 
 from percy.render.variants import read_conda_build_config, Variant
 
@@ -483,11 +484,23 @@ class Recipe:
                 raise YAMLRenderFailure(self, f"{str(exc.problem)}")
 
     def _render_packages(self):
+        def get_group_from_dev_url(meta, default):
+            if not meta:
+                return default
+            dev_url = str(meta.get("about", {}).get("dev_url", "") or "").strip()
+            if dev_url:
+                org = next(iter(urlparse(dev_url).path.lstrip("/").split("/")), "")
+                org = str(org or "").strip().lower()
+                if org:
+                    return org
+            else:
+                return default
 
         # read main package deps
         name = self.meta.get("package", {}).get("name", "unknown").strip()
         version = str(self.meta.get("package", {}).get("version", "-1")).strip()
-        number = str(self.meta.get("build", {}).get("number", "0")).strip()
+        number = str(dict(self.meta.get("build", {}) or {}).get("number", "0")).strip()
+        group = get_group_from_dev_url(self.meta, name)
         is_noarch = False
         run_exports = []
         ignore_run_exports = []
@@ -525,6 +538,7 @@ class Recipe:
             name,
             version,
             number,
+            group,
             set(pkg_reqs["build"]),
             set(pkg_reqs["host"]),
             set(pkg_reqs["run"]),
@@ -539,14 +553,14 @@ class Recipe:
         if outputs:
             for output in outputs:
                 name = output.get("name", "")
-                version = str(
-                    self.meta.get("package", {}).get("version", version)
-                ).strip()
+                version = str(output.get("version", version)).strip()
+                group = get_group_from_dev_url(output, group)
                 is_noarch = False
                 run_exports = []
                 ignore_run_exports = []
                 main_build = output.get("build", {})
                 if main_build:
+                    number = str(main_build.get("number", number) or number).strip()
                     is_noarch = main_build.get("noarch", False)
                     run_exports = main_build.get("run_exports", [])
                     if not run_exports:
@@ -583,6 +597,7 @@ class Recipe:
                     name,
                     version,
                     number,
+                    group,
                     set(output_pkg_reqs["build"]),
                     set(output_pkg_reqs["host"]),
                     set(output_pkg_reqs["run"]),
@@ -642,6 +657,7 @@ class Package:
     name: str = None
     version: str = None
     number: str = None
+    group: str = None
     build: Set[Dep] = field(default_factory=set)
     host: Set[Dep] = field(default_factory=set)
     run: Set[Dep] = field(default_factory=set)

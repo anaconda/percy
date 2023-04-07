@@ -84,6 +84,14 @@ def base_options(f):
 
 def order_options(f):
     @click.option(
+        "--groups",
+        "-g",
+        type=str,
+        multiple=True,
+        default=[],
+        help="List of groups",
+    )
+    @click.option(
         "--feedstocks",
         "-f",
         type=str,
@@ -160,6 +168,7 @@ def downstream(
     subdir,
     python,
     others,
+    groups,
     feedstocks,
     packages,
     allow_list,
@@ -173,12 +182,12 @@ def downstream(
 
     # get feedstock build order
     buildout = aggregate_repo.get_depends_build_order(
-        feedstocks, packages, allow_list, block_list, drop_noarch
+        groups, feedstocks, packages, allow_list, block_list, drop_noarch
     )
 
     # print build order
     print(
-        f"\n\nDownstream build order (feedstocks:{feedstocks} packages:{packages} allow_list:{allow_list} block_list:{block_list} drop_noarch:{drop_noarch}):"
+        f"\n\nDownstream build order (groups:{groups} feedstocks:{feedstocks} packages:{packages} allow_list:{allow_list} block_list:{block_list} drop_noarch:{drop_noarch}):"
     )
     print_build_order(buildout)
 
@@ -187,18 +196,20 @@ def downstream(
 @click.pass_obj
 @base_options
 @order_options
-def upstream(obj, subdir, python, others, feedstocks, packages, drop_noarch):
+def upstream(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch):
     """Prints build order of feedstock upstream dependencies"""
 
     # load aggregate
     aggregate_repo = load_aggregate(obj, subdir, python, others)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_build_order(feedstocks, packages, drop_noarch, False)
+    buildout = aggregate_repo.get_build_order(
+        groups, feedstocks, packages, drop_noarch, False
+    )
 
     # print build order
     print(
-        f"\n\nUpstream build order (feedstocks:{feedstocks} packages:{packages} drop_noarch:{drop_noarch})):"
+        f"\n\nUpstream build order (groups:{groups} feedstocks:{feedstocks} packages:{packages} drop_noarch:{drop_noarch})):"
     )
     print_build_order(buildout)
 
@@ -207,18 +218,22 @@ def upstream(obj, subdir, python, others, feedstocks, packages, drop_noarch):
 @click.pass_obj
 @base_options
 @order_options
-def order(obj, subdir, python, others, feedstocks, packages, drop_noarch):
+def order(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch):
     """Prints build order of specified feedstocks"""
 
     # load aggregate
     aggregate_repo = load_aggregate(obj, subdir, python, others)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_build_order(feedstocks, packages, drop_noarch, True)
+    if not groups and not feedstocks and not packages:
+        feedstocks = aggregate_repo.feedstocks.keys()
+    buildout = aggregate_repo.get_build_order(
+        groups, feedstocks, packages, drop_noarch, True
+    )
 
     # print build order
     print(
-        f"\n\nBuild order (feedstocks:{feedstocks} packages:{packages} drop_noarch:{drop_noarch})):"
+        f"\n\nBuild order (groups:{groups} feedstocks:{feedstocks} packages:{packages} drop_noarch:{drop_noarch})):"
     )
     print_build_order(buildout)
 

@@ -37,6 +37,9 @@
 
   From within aggregate:
 
+  Queries can be performed on feedstock names (-f), package names (-pkg) and group names (-g).
+  A group name corresponds to the github/gitlab... organization name, extracted from dev_url.
+
     percy aggregate --help
 
   - When updating a package pinned in cbc, show rebuild order:
@@ -48,6 +51,7 @@
   
           percy aggregate order --help
           percy aggregate order -f dask-feedstock -f dask-core-feedstock -f distributed-feedstock
+          percy aggregate order -g dask
 
   - When building from scratch, show what to build based on leaf packages:
   

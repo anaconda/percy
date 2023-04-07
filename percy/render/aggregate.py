@@ -228,9 +228,10 @@ class Aggregate:
                 name, git_url, git_branch, path
             )
 
-        # packages and feedstocks
+        # packages, feedstocks and groups
         self.packages: dict[str:Package] = {}
         self.feedstocks: dict[str:Feedstock] = {}
+        self.groups: dict[str : list[Feedstock]] = {}
 
     def _get_feedstock_git_repo(self, feedstock_path_rel: Path) -> Feedstock:
         """Get Feedsotck object from feedstock local path.
@@ -358,6 +359,13 @@ class Aggregate:
             )
             v.packages[name] = rendered_pkg
 
+        # fill groups
+        for name, feedstock in self.feedstocks.items():
+            v = self.groups.setdefault(
+                next(iter(feedstock.packages.values())).group, []
+            )
+            v.append(feedstock)
+
         return self.packages
 
     def package_to_feedstock_path(self) -> dict[str, str]:
@@ -400,6 +408,7 @@ class Aggregate:
 
     def get_build_order(
         self,
+        target_groups: list[str] = [],
         target_feedstocks: list[str] = [],
         target_packages: list[str] = [],
         drop_noarch: bool = False,
@@ -408,6 +417,7 @@ class Aggregate:
         """Creates a Feedstock builder order based on a list of leaf packages.
 
         Args:
+            target_groups (list[str], optional): List of target groups.
             target_feedstocks (list[str], optional): List of target feedstocks.
             target_packages (list[str]): List of leaf package names.
             drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
@@ -418,8 +428,13 @@ class Aggregate:
         """
         PackageNode.init(self)
 
-        # expand target_packages with packages from target_feedstocks
+        # expand target_packages with packages from target_feedstocks and target_groups
         target_packages = list(target_packages)
+        target_feedstocks = list(target_feedstocks)
+        target_groups = list(target_groups)
+        for group in target_groups:
+            if group in self.groups:
+                target_feedstocks.extend([f.name for f in self.groups[group]])
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
@@ -445,6 +460,7 @@ class Aggregate:
 
     def get_depends_build_order(
         self,
+        target_groups: list[str] = [],
         target_feedstocks: list[str] = [],
         target_packages: list[str] = [],
         package_allowlist: list[str] = [],
@@ -454,6 +470,7 @@ class Aggregate:
         """Creates a Feedstock builder order based on packages having target as a dependency.
 
         Args:
+            target_groups (list[str], optional): List of target groups.
             target_feedstocks (list[str], optional): List of target feedstocks.
             target_packages (list[str], optional): List of target packages.
             package_allowlist (list[str], optional): List of package names to consider. Defaults to [].
@@ -466,8 +483,13 @@ class Aggregate:
 
         PackageNode.init(self)
 
-        # expand target_packages with packages from target_feedstocks
+        # expand target_packages with packages from target_feedstocks and target_groups
         target_packages = list(target_packages)
+        target_feedstocks = list(target_feedstocks)
+        target_groups = list(target_groups)
+        for group in target_groups:
+            if group in self.groups:
+                target_feedstocks.extend([f.name for f in self.groups[group]])
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
