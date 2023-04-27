@@ -188,7 +188,7 @@ class Recipe:
         orig (Recipe): Original recipe before modifications
     """
 
-    def __init__(self, recipe_file: Path, variant_id: str, variant: Variant):
+    def __init__(self, recipe_file: Path, variant_id: str = None, variant: Variant = None):
         """Constructor
 
         Args:
@@ -205,6 +205,10 @@ class Recipe:
             self.recipe_dir = ""
 
         #: Selectors configuration
+        if not variant_id:
+            variant_id = "empty_variant"
+        if not variant:
+            variant = {}
         self.variant_id = variant_id
         self.selector_dict: Dict[str, Any] = variant
 
@@ -258,8 +262,8 @@ class Recipe:
     def from_string(
         cls,
         recipe_text: str,
-        variant_id: str,
-        variant: Variant,
+        variant_id: str = None,
+        variant: Variant = None,
         return_exceptions: bool = False,
     ) -> "Recipe":
         """Create new `Recipe` object from string
@@ -291,8 +295,8 @@ class Recipe:
     def from_file(
         cls,
         recipe_fname: str,
-        variant_id: str,
-        variant: Variant,
+        variant_id: str = None,
+        variant: Variant = None,
         return_exceptions: bool = False,
     ) -> "Recipe":
         """Create new `Recipe` object from file
@@ -487,7 +491,10 @@ class Recipe:
         def get_group_from_dev_url(meta, default):
             if not meta:
                 return default
-            dev_url = str(meta.get("about", {}).get("dev_url", "") or "").strip()
+            try:
+                dev_url = str(meta.get("about", {}).get("dev_url", "") or "").strip()
+            except AttributeError:
+                dev_url = ""
             if dev_url:
                 org = next(iter(urlparse(dev_url).path.lstrip("/").split("/")), "")
                 org = str(org or "").strip().lower()
@@ -511,7 +518,7 @@ class Recipe:
             if not run_exports:
                 run_exports = []
             run_exports = [
-                Dep(i) for i in run_exports if (i is not None and str(i).strip())
+                Dep(i, "build/run_exports") for i in run_exports if (i is not None and str(i).strip())
             ]
             ignore_run_exports = main_build.get("ignore_run_exports", [])
             if not ignore_run_exports:
@@ -531,7 +538,7 @@ class Recipe:
                             pkg_reqs[s].extend([l])
             for s in pkg_reqs.keys():
                 pkg_reqs[s] = [
-                    Dep(i) for i in pkg_reqs[s] if (i is not None and str(i).strip())
+                    Dep(i, f"requirements/{s}") for i in pkg_reqs[s] if (i is not None and str(i).strip())
                 ]
         self.packages[name] = Package(
             self,
@@ -551,7 +558,7 @@ class Recipe:
         # read output package deps
         outputs = self.meta.get("outputs", [])
         if outputs:
-            for output in outputs:
+            for n, output in enumerate(outputs):
                 name = output.get("name", "")
                 version = str(output.get("version", version)).strip()
                 group = get_group_from_dev_url(output, group)
@@ -566,7 +573,7 @@ class Recipe:
                     if not run_exports:
                         run_exports = []
                     run_exports = [
-                        Dep(i)
+                        Dep(i, f"outputs/{n}/run_exports")
                         for i in run_exports
                         if (i is not None and str(i).strip())
                     ]
@@ -588,7 +595,7 @@ class Recipe:
                                     output_pkg_reqs[s].extend([l])
                     for s in output_pkg_reqs.keys():
                         output_pkg_reqs[s] = [
-                            Dep(i)
+                            Dep(i, f"outputs/{n}/requirements/{s}")
                             for i in output_pkg_reqs[s]
                             if (i is not None and str(i).strip())
                         ]
@@ -610,26 +617,153 @@ class Recipe:
     def __getitem__(self, key):
         return self.meta[key]
 
-    def get(self, key, default=None):
-        try:
-            return self.__getitem__(key)
-        except KeyError:
-            return default
+    def _walk(self, path, noraise=False):
+        nodes = [self.meta]
+        keys = []
+        for key in path.split("/"):
+            last = nodes[-1]
+            if key.isdigit():
+                number = int(key)
+                if isinstance(last, list):
+                    if noraise and len(last) < number:
+                        break
+                    nodes.append(last[number])
+                    keys.append(number)
+                    continue
+                if isinstance(last, dict) and number == 0:
+                    continue
+            if noraise and key not in last:
+                break
+            nodes.append(last[key])
+            keys.append(key)
+        return nodes, keys
 
+    def get_raw_range(self, path):
+        """Locate the position of a node in the YAML within the raw text
+
+        See also `get_raw()` if you want to get the content of the unparsed
+        meta.yaml at a specific key.
+
+        Args:
+          path: The "path" to the node. Use numbers for lists ('source/1/url')
+
+        Returns:
+          a tuple of first_row, first_column, last_row, last_column
+        """
+        if not path:
+            return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
+
+        nodes, keys = self._walk(path)
+        nodes.pop()  # pop parsed value
+
+        # TODO
+        return (0, 0, 0, 0)
+
+        # get the start row/col for the value
+        if isinstance(keys[-1], int):
+            start_row, start_col = nodes[-1].lc.key(keys[-1])
+        else:
+            start_row, start_col = nodes[-1].lc.value(keys[-1])
+
+        # getting the end is more complicated, we need to move
+        # up the tree to the next item in order until one is not the last
+        # item in its collection
+        while nodes:
+            node = nodes.pop()
+            key = keys.pop()
+            if isinstance(key, int):
+                if key + 1 < len(node):
+                    end_row, end_col = node.lc.key(key + 1)
+                    break
+            else:
+                node_keys = list(node.keys())
+                if key != node_keys[-1]:
+                    next_key = node_keys[node_keys.index(key) + 1]
+                    end_row, end_col = node.lc.key(next_key)
+                    break
+        else:  # reached end of file
+            end_row = len(self.meta_yaml) - 1
+            end_col = len(self.meta_yaml[end_row])
+
+        # now go backward
+        return (start_row, start_col, end_row, end_col)
+
+    def get_raw(self, path):
+        """Extracts the unparsed text for a node in the meta.yaml
+
+        This may contain separators and other characters from
+        the yaml!
+
+        Args:
+          path: Slash-separated path to the node. Numbers can be used
+                to access indices in lists. A number '0' is ignored if
+                the node is a dict (so 'source/0/url' will work even if
+                there is only one url).
+
+        Returns:
+          Extracted raw text
+        """
+        start_row, start_col, end_row, end_col = self.get_raw_range(path)
+        if start_row == end_row:
+            return self.meta_yaml[start_row][start_col:end_col]
+
+        lines = []
+        # first row
+        lines.append(self.meta_yaml[start_row][start_col:])
+        # middle rows if any
+        for row in range(start_row + 1, end_row):
+            lines.append(self.meta_yaml[row])
+        lines.append(self.meta_yaml[end_row][:end_col])
+        return "\n".join(lines).strip()
+
+    def get(self, path: str, default: Any = KeyError) -> Any:
+        """Get a value or section from the recipe
+
+        >>> recipe.get('requirements/build')
+        ['setuptools]
+        >>> recipe.get('source/0/url')
+        'https://somewhere'
+
+        The **path** is a ``/`` separated list of dictionary keys to
+        be walked in the recipe meta data. Numeric sections in the path
+        access list elements. Using ``0`` in the path will get the first
+        element in a list or the contents directly if there is no list.
+        I.e., `source/0/url` will always get the first url, whether or
+        not the source section is a list.
+
+        Args:
+          path: Path through YAML
+          default: If not KeyError, this value will be returned
+                   if the path does not exist in the recipe
+        Raises:
+          KeyError if no default given and the path does not exist.
+        """
+        try:
+            nodes, keys = self._walk(path)
+        except (KeyError, TypeError):
+            if default is not KeyError:
+                return default
+            raise KeyError(f"No '{path}' in Recipe {self}") from None
+        res = nodes[-1]
+        if default is not KeyError and res is None:
+            return default
+        return res
 
 class Dep:
     """A dependency
 
     Args:
         raw_dep (str): A dependency string. E.g. "numpy <1.24"
+        path (str): Path in the recipe. E.g. outputs/1/requirements/run
 
     Attributes:
         raw_dep (str): A dependency string. E.g. "numpy <1.24"
         pkg (str): The package part. E.g. "numpy"
         variable (str): The constraint part. E.g. "<1.24"
+        path (str): Path in the recipe. E.g. outputs/1/requirements/run
     """
 
-    def __init__(self, raw_dep: str):
+    def __init__(self, raw_dep: str, path: str):
         """A dependency
 
         Args:
@@ -641,6 +775,7 @@ class Dep:
         self.constraint = ""
         if len(splits) > 1:
             self.constraint = splits[1]
+        self.path = path
 
     def __str__(self) -> str:
         return str(self.raw_dep)
