@@ -7,3 +7,4 @@ dependencies:
   - jinja2
   - pyyaml
   - requests
+  - ruamel.yaml

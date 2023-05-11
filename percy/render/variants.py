@@ -17,9 +17,7 @@ try:
 except:
     loader = yaml.Loader
 
-Variant = dict[
-    str,
-]
+Variant = dict[str,]
 
 
 def _ensure_list(obj):
@@ -176,7 +174,6 @@ def read_conda_build_config(
         python = _ensure_list(python)
 
     for arch in subdir:
-
         # Set base configuration
         base_selector_dict = {
             "ccache_method": None,
