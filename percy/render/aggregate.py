@@ -101,7 +101,6 @@ class PackageNode:
         if not package:
             logging.warning(f"No information for {package_name}")
         else:
-
             # check cycle
             cycle = check_cycle(package_name, parent)
             if cycle:
@@ -284,7 +283,6 @@ class Aggregate:
 
         aggregate_path = self.local_path
         for recipe_path in aggregate_path.glob("**/meta.yaml"):
-
             # base feedstock info
             feedstock_path_rel = recipe_path.relative_to(aggregate_path).parent
             if feedstock_path_rel.name == "recipe":
@@ -322,7 +320,6 @@ class Aggregate:
             for recipe in rendered_recipes:
                 # read recipe packages info
                 if recipe and not recipe.skip:
-
                     for name, rendered_pkg in recipe.packages.items():
                         rendered_pkg.git_info = feedstock_repo
                         if len(rendered_recipes) > 1 and name in self.packages:

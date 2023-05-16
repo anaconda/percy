@@ -5,159 +5,18 @@ Not as accurate as conda-build render, but faster and architecture independent.
 
 import sys
 import re
+import itertools
 from copy import deepcopy
 from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
 from dataclasses import dataclass, field
-import jinja2
-import contextlib
-import yaml
 from urllib.parse import urlparse
 
 from percy.render.variants import read_conda_build_config, Variant
-
-try:
-    loader = yaml.CLoader
-except:
-    loader = yaml.Loader
-
-
-@contextlib.contextmanager
-def stringify_numbers():
-    # ensure that numbers are not interpreted as ints or floats.  That trips up versions
-    #     with trailing zeros.
-    implicit_resolver_backup = loader.yaml_implicit_resolvers.copy()
-    for ch in list("0123456789"):
-        if ch in loader.yaml_implicit_resolvers:
-            del loader.yaml_implicit_resolvers[ch]
-    yield
-    for ch in list("0123456789"):
-        if ch in implicit_resolver_backup:
-            loader.yaml_implicit_resolvers[ch] = implicit_resolver_backup[ch]
-
-
-class JinjaSilentUndefined(jinja2.Undefined):
-    def _fail_with_undefined_error(self, *args, **kwargs):
-        class EmptyString(str):
-            def __call__(self, *args, **kwargs):
-                return ""
-
-        return EmptyString()
-
-    __add__ = (
-        __radd__
-    ) = (
-        __mul__
-    ) = (
-        __rmul__
-    ) = (
-        __div__
-    ) = (
-        __rdiv__
-    ) = (
-        __truediv__
-    ) = (
-        __rtruediv__
-    ) = (
-        __floordiv__
-    ) = (
-        __rfloordiv__
-    ) = (
-        __mod__
-    ) = (
-        __rmod__
-    ) = (
-        __pos__
-    ) = (
-        __neg__
-    ) = (
-        __call__
-    ) = (
-        __getitem__
-    ) = (
-        __lt__
-    ) = (
-        __le__
-    ) = (
-        __gt__
-    ) = (
-        __ge__
-    ) = (
-        __int__
-    ) = __float__ = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
-
-
-jinja = jinja2.Environment(
-    trim_blocks=True,
-    lstrip_blocks=True,
-)
-jinja_silent_undef = jinja2.Environment(undefined=JinjaSilentUndefined)
-
-
-class RecipeError(Exception):
-    def __init__(self, item, message=None, line=None, column=None):
-        self.line = line
-        self.column = column
-        if message is not None:
-            if line is not None:
-                if column is not None:
-                    message += " (at line %i / column %i)" % (line, column)
-                else:
-                    message += " (at line %i)" % line
-            super().__init__(item, message)
-        else:
-            super().__init__(item)
-
-
-class DuplicateKey(RecipeError):
-    """Raised for recipes with duplicate keys in the meta.yaml. YAML
-    does not allow those, but the PyYAML parser silently overwrites
-    previous keys.
-
-    For duplicate keys that are a result of ``# [osx]`` style line selectors,
-    `Recipe` attempts to resolve them as a list of dictionaries instead.
-    """
-
-    template = "has duplicate key"
-
-
-class MissingKey(RecipeError):
-    """Raised if a recipe is missing package/version or package/name"""
-
-    template = "has missing key"
-
-
-class EmptyRecipe(RecipeError):
-    """Raised if the recipe file is empty"""
-
-    template = "is empty"
-
-
-class MissingMetaYaml(RecipeError):
-    """Raised when FileNotFoundError is encountered
-
-    self.item is NOT a Recipe but a str here
-    """
-
-    template = "has missing file `meta.yaml`"
-
-
-class JinjaRenderFailure(RecipeError):
-    """Raised on Jinja rendering problems
-
-    May have self.line
-    """
-
-    template = "failed to render in Jinja2. Error was: %s"
-
-
-class YAMLRenderFailure(RecipeError):
-    """Raised on YAML parsing problems
-
-    May have self.line
-    """
-
-    template = "failed to load YAML. Error was: %s"
+from percy.render.exceptions import *
+import percy.render._renderer as renderer
+from percy.render._renderer import RendererType
+import percy.render._dumper as dumper
 
 
 class Recipe:
@@ -175,6 +34,7 @@ class Recipe:
         recipe_file (Path): Path to meta.yaml
         variant_id (str): configuration id
         variant (Variant): Variant configuration
+        backend (RendererType, optional): Renderer backend.
 
     Attributes:
         recipe_file (Path): The recipe file
@@ -188,7 +48,13 @@ class Recipe:
         orig (Recipe): Original recipe before modifications
     """
 
-    def __init__(self, recipe_file: Path, variant_id: str, variant: Variant):
+    def __init__(
+        self,
+        recipe_file: Path,
+        variant_id: str = None,
+        variant: Variant = None,
+        renderer: RendererType = None,
+    ):
         """Constructor
 
         Args:
@@ -205,8 +71,17 @@ class Recipe:
             self.recipe_dir = ""
 
         #: Selectors configuration
+        if not variant_id:
+            variant_id = "empty_variant"
+        if not variant:
+            variant = {}
         self.variant_id = variant_id
         self.selector_dict: Dict[str, Any] = variant
+
+        #: render configuration
+        self.renderer = renderer
+        if not self.renderer:
+            self.renderer = RendererType.PYYAML
 
         # Filled in by render()
         #: Parsed recipe YAML
@@ -258,9 +133,10 @@ class Recipe:
     def from_string(
         cls,
         recipe_text: str,
-        variant_id: str,
-        variant: Variant,
+        variant_id: str = None,
+        variant: Variant = None,
         return_exceptions: bool = False,
+        renderer: RendererType = None,
     ) -> "Recipe":
         """Create new `Recipe` object from string
 
@@ -269,6 +145,7 @@ class Recipe:
             variant_id (str): Variant id
             variant (Variant): Variant configuration.
             return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
+            renderer (RendererType, optional): Renderer backend. Defaults to PYYAML.
 
         Raises:
             MissingMetaYaml: Missing meta.yaml
@@ -278,7 +155,7 @@ class Recipe:
             Recipe: A Recipe object.
         """
         try:
-            recipe = cls("", variant_id, variant)
+            recipe = cls("", variant_id, variant, renderer)
             recipe._load_from_string(recipe_text)
         except Exception as exc:
             if return_exceptions:
@@ -291,9 +168,10 @@ class Recipe:
     def from_file(
         cls,
         recipe_fname: str,
-        variant_id: str,
-        variant: Variant,
+        variant_id: str = None,
+        variant: Variant = None,
         return_exceptions: bool = False,
+        renderer: RendererType = None,
     ) -> "Recipe":
         """Create new `Recipe` object from file
 
@@ -302,6 +180,7 @@ class Recipe:
             variant_id (str): Variant id
             variant (Variant): Variant configuration.
             return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
+            renderer (RendererType, optional): Renderer backend. Defaults to PYYAML.
 
         Raises:
             MissingMetaYaml: Missing meta.yaml
@@ -311,7 +190,7 @@ class Recipe:
             Recipe: A Recipe object.
         """
         recipe_fname = Path(recipe_fname)
-        recipe = cls(recipe_fname, variant_id, variant)
+        recipe = cls(recipe_fname, variant_id, variant, renderer)
         try:
             if recipe_fname.is_file():
                 with open(recipe_fname) as text:
@@ -349,54 +228,6 @@ class Recipe:
         """Dump recipe content"""
         return "\n".join(self.meta_yaml) + "\n"
 
-    def _apply_selector(self, data: str, selector_dict: dict) -> list[str]:
-        """Apply selectors # [...]
-
-        Args:
-            data (str): Raw meta yaml string
-            selector_dict (dict): Selector configuration.
-
-        Returns:
-            list[str]: meta yaml filtered based on selectors, as a list of string.
-        """
-        updated_data = []
-        for line in data.splitlines():
-            if (match := re.search(r"^(\s*)#.*$", line)) is not None:
-                line = f"{match.group(1)}# comment "  # <-- this is to ignore potential bad jinja in comments
-            elif (
-                match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)
-            ) is not None:
-                cond_str = match.group(3)
-                try:
-                    if not eval(cond_str, None, selector_dict):
-                        line = f"{match.group(1)}"
-                    else:
-                        line = line.replace(
-                            match.group(2), ""
-                        )  # <-- comments sometimes causes trouble in jinja
-                except Exception:
-                    # todo: load selector with cbc content
-                    continue
-            updated_data.append(line)
-        return updated_data
-
-    def _get_template(self):
-        """Create a Jinja2 template from the current raw recipe"""
-        # This function exists because the template cannot be pickled.
-        # Storing it means the recipe cannot be pickled, which in turn
-        # means we cannot pass it to ProcessExecutors.
-        try:
-            meta_yaml_selectors_applied = self._apply_selector(
-                self.meta_yaml, self.selector_dict
-            )
-            return jinja_silent_undef.from_string(
-                "\n".join(meta_yaml_selectors_applied)
-            )
-        except jinja2.exceptions.TemplateSyntaxError as exc:
-            raise JinjaRenderFailure(self, message=exc.message, line=exc.lineno)
-        except jinja2.exceptions.TemplateError as exc:
-            raise JinjaRenderFailure(self, message=exc.message)
-
     def render(self) -> None:
         """Convert recipe text into data structure
 
@@ -405,89 +236,29 @@ class Recipe:
         - parse yaml
         - normalize
         """
-        try:
-            #: Variables to pass to Jinja when rendering recipe
-            def expand_compiler(lang):
-                compiler = self.selector_dict.get(f"{lang}_compiler", None)
-                if not compiler:
-                    return compiler
-                else:
-                    return f"{compiler}_{self.selector_dict.get('target_platform', 'win-64')}"
 
-            JINJA_VARS = {
-                "unix": self.selector_dict.get("unix", False),
-                "win": self.selector_dict.get("win", False),
-                "PYTHON": self.selector_dict.get(
-                    "PYTHON",
-                    "%PYTHON%" if self.selector_dict.get("win", False) else "${PYTHON}",
-                ),
-                "py": int(self.selector_dict.get("py", "39")),
-                "py3k": self.selector_dict.get("py3k", "0") == "1",
-                "py2k": self.selector_dict.get("py3k", "0") == "0",
-                "build_platform": self.selector_dict.get("target_platform", "win-64"),
-                "target_platform": self.selector_dict.get("target_platform", "win-64"),
-                "ctng_target_platform": self.selector_dict.get(
-                    "target_platform", "win-64"
-                ),
-                "cross_target_platform": self.selector_dict.get(
-                    "target_platform", "win-64"
-                ),
-                "ctng_gcc": self.selector_dict.get("c_compiler_version", "7.3.0"),
-                "ctng_binutils": self.selector_dict.get("c_compiler_version", "2.35"),
-                "numpy": self.selector_dict.get("numpy", "1.16"),
-                "np": self.selector_dict.get("np", "116"),
-                "pl": self.selector_dict.get("pl", "5"),
-                "lua": self.selector_dict.get("lua", "5"),
-                "luajit": self.selector_dict.get("lua", "5")[0] == "2",
-                "linux64": self.selector_dict.get("linux-64", "0") == "1",
-                "aarch64": self.selector_dict.get("aarch64", "0") == "1",
-                "ppcle64": self.selector_dict.get("ppcle64", "0") == "1",
-                "cran_mirror": "https://cloud.r-project.org",
-                "compiler": expand_compiler,
-                "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x}",
-                "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x}",
-                "cdt": lambda x: f"{x}-cos6-x86_64",
-                "os.environ.get": lambda name, default="": "",
-                "ccache": lambda name, method="": "ccache",
-            }
-            yaml_text = self._get_template().render(JINJA_VARS)
-        except jinja2.exceptions.TemplateSyntaxError as exc:
-            raise JinjaRenderFailure(self, message=exc.message, line=exc.lineno)
-        except jinja2.exceptions.TemplateError as exc:
-            raise JinjaRenderFailure(self, message=exc.message)
-        except TypeError as exc:
-            raise JinjaRenderFailure(self, message=str(exc))
+        # render meta.yaml
+        self.meta = renderer.render(
+            self.recipe_dir, self.meta_yaml, self.selector_dict, self.renderer
+        )
 
-        try:
-            # load yaml
-            with stringify_numbers():
-                self.meta = yaml.load(
-                    yaml_text.replace("\t", " ").replace("%", " "), Loader=loader
-                )
+        # should this be skipped?
+        bld = self.meta.get("build", {})
+        if bld and bld.get("skip", False):
+            self.skip = True
 
-            # should this be skipped?
-            bld = self.meta.get("build", {})
-            if bld and bld.get("skip", False):
-                self.skip = True
-
-            # extract package info
-            if not self.skip:
-                self._render_packages()
-        except yaml.error.YAMLError as exc:
-            if hasattr(exc, "problem_mark"):
-                raise YAMLRenderFailure(
-                    self,
-                    f"{str(exc.problem)} {str(exc.context)}",
-                    line=exc.problem_mark.line,
-                )
-            else:
-                raise YAMLRenderFailure(self, f"{str(exc.problem)}")
+        # extract package info
+        if not self.skip:
+            self._render_packages()
 
     def _render_packages(self):
         def get_group_from_dev_url(meta, default):
             if not meta:
                 return default
-            dev_url = str(meta.get("about", {}).get("dev_url", "") or "").strip()
+            try:
+                dev_url = str(meta.get("about", {}).get("dev_url", "") or "").strip()
+            except AttributeError:
+                dev_url = ""
             if dev_url:
                 org = next(iter(urlparse(dev_url).path.lstrip("/").split("/")), "")
                 org = str(org or "").strip().lower()
@@ -511,7 +282,9 @@ class Recipe:
             if not run_exports:
                 run_exports = []
             run_exports = [
-                Dep(i) for i in run_exports if (i is not None and str(i).strip())
+                Dep(i, "build/run_exports")
+                for i in run_exports
+                if (i is not None and str(i).strip())
             ]
             ignore_run_exports = main_build.get("ignore_run_exports", [])
             if not ignore_run_exports:
@@ -531,7 +304,9 @@ class Recipe:
                             pkg_reqs[s].extend([l])
             for s in pkg_reqs.keys():
                 pkg_reqs[s] = [
-                    Dep(i) for i in pkg_reqs[s] if (i is not None and str(i).strip())
+                    Dep(i, f"requirements/{s}")
+                    for i in pkg_reqs[s]
+                    if (i is not None and str(i).strip())
                 ]
         self.packages[name] = Package(
             self,
@@ -551,7 +326,7 @@ class Recipe:
         # read output package deps
         outputs = self.meta.get("outputs", [])
         if outputs:
-            for output in outputs:
+            for n, output in enumerate(outputs):
                 name = output.get("name", "")
                 version = str(output.get("version", version)).strip()
                 group = get_group_from_dev_url(output, group)
@@ -566,7 +341,7 @@ class Recipe:
                     if not run_exports:
                         run_exports = []
                     run_exports = [
-                        Dep(i)
+                        Dep(i, f"outputs/{n}/run_exports")
                         for i in run_exports
                         if (i is not None and str(i).strip())
                     ]
@@ -588,7 +363,7 @@ class Recipe:
                                     output_pkg_reqs[s].extend([l])
                     for s in output_pkg_reqs.keys():
                         output_pkg_reqs[s] = [
-                            Dep(i)
+                            Dep(i, f"outputs/{n}/requirements/{s}")
                             for i in output_pkg_reqs[s]
                             if (i is not None and str(i).strip())
                         ]
@@ -610,11 +385,134 @@ class Recipe:
     def __getitem__(self, key):
         return self.meta[key]
 
-    def get(self, key, default=None):
+    def _walk(self, path, noraise=False):
+        nodes = [self.meta]
+        keys = []
+        for key in path.split("/"):
+            last = nodes[-1]
+            if key.isdigit():
+                number = int(key)
+                if isinstance(last, list):
+                    if noraise and len(last) < number:
+                        break
+                    nodes.append(last[number])
+                    keys.append(number)
+                    continue
+                if isinstance(last, dict) and number == 0:
+                    continue
+            if noraise and key not in last:
+                break
+            nodes.append(last[key])
+            keys.append(key)
+        return nodes, keys
+
+    def get_raw_range(self, path):
+        """Locate the position of a node in the YAML within the raw text
+
+        See also `get_raw()` if you want to get the content of the unparsed
+        meta.yaml at a specific key.
+
+        Args:
+          path: The "path" to the node. Use numbers for lists ('source/1/url')
+
+        Returns:
+          a tuple of first_row, first_column, last_row, last_column
+        """
+        if not path or not self.renderer == RendererType.RUAMEL:
+            return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
+
+        nodes, keys = self._walk(path)
+        nodes.pop()  # pop parsed value
+
+        # get the start row/col for the value
+        if isinstance(keys[-1], int):
+            start_row, start_col = nodes[-1].lc.key(keys[-1])
+        else:
+            start_row, start_col = nodes[-1].lc.value(keys[-1])
+
+        # getting the end is more complicated, we need to move
+        # up the tree to the next item in order until one is not the last
+        # item in its collection
+        while nodes:
+            node = nodes.pop()
+            key = keys.pop()
+            if isinstance(key, int):
+                if key + 1 < len(node):
+                    end_row, end_col = node.lc.key(key + 1)
+                    break
+            else:
+                node_keys = list(node.keys())
+                if key != node_keys[-1]:
+                    next_key = node_keys[node_keys.index(key) + 1]
+                    end_row, end_col = node.lc.key(next_key)
+                    break
+        else:  # reached end of file
+            end_row = len(self.meta_yaml) - 1
+            end_col = len(self.meta_yaml[end_row])
+
+        # now go backward
+        return (start_row, start_col, end_row, end_col)
+
+    def get_raw(self, path):
+        """Extracts the unparsed text for a node in the meta.yaml
+
+        This may contain separators and other characters from
+        the yaml!
+
+        Args:
+          path: Slash-separated path to the node. Numbers can be used
+                to access indices in lists. A number '0' is ignored if
+                the node is a dict (so 'source/0/url' will work even if
+                there is only one url).
+
+        Returns:
+          Extracted raw text
+        """
+        start_row, start_col, end_row, end_col = self.get_raw_range(path)
+        if start_row == end_row:
+            return self.meta_yaml[start_row][start_col:end_col]
+
+        lines = []
+        # first row
+        lines.append(self.meta_yaml[start_row][start_col:])
+        # middle rows if any
+        for row in range(start_row + 1, end_row):
+            lines.append(self.meta_yaml[row])
+        lines.append(self.meta_yaml[end_row][:end_col])
+        return "\n".join(lines).strip()
+
+    def get(self, path: str, default: Any = KeyError) -> Any:
+        """Get a value or section from the recipe
+
+        >>> recipe.get('requirements/build')
+        ['setuptools]
+        >>> recipe.get('source/0/url')
+        'https://somewhere'
+
+        The **path** is a ``/`` separated list of dictionary keys to
+        be walked in the recipe meta data. Numeric sections in the path
+        access list elements. Using ``0`` in the path will get the first
+        element in a list or the contents directly if there is no list.
+        I.e., `source/0/url` will always get the first url, whether or
+        not the source section is a list.
+
+        Args:
+          path: Path through YAML
+          default: If not KeyError, this value will be returned
+                   if the path does not exist in the recipe
+        Raises:
+          KeyError if no default given and the path does not exist.
+        """
         try:
-            return self.__getitem__(key)
-        except KeyError:
+            nodes, keys = self._walk(path)
+        except (KeyError, TypeError):
+            if default is not KeyError:
+                return default
+            raise KeyError(f"No '{path}' in Recipe {self}") from None
+        res = nodes[-1]
+        if default is not KeyError and res is None:
             return default
+        return res
 
 
 class Dep:
@@ -622,14 +520,16 @@ class Dep:
 
     Args:
         raw_dep (str): A dependency string. E.g. "numpy <1.24"
+        path (str): Path in the recipe. E.g. outputs/1/requirements/run
 
     Attributes:
         raw_dep (str): A dependency string. E.g. "numpy <1.24"
         pkg (str): The package part. E.g. "numpy"
         variable (str): The constraint part. E.g. "<1.24"
+        path (str): Path in the recipe. E.g. outputs/1/requirements/run
     """
 
-    def __init__(self, raw_dep: str):
+    def __init__(self, raw_dep: str, path: str):
         """A dependency
 
         Args:
@@ -641,6 +541,7 @@ class Dep:
         self.constraint = ""
         if len(splits) > 1:
             self.constraint = splits[1]
+        self.path = path
 
     def __str__(self) -> str:
         return str(self.raw_dep)
@@ -726,6 +627,7 @@ def render(
     python: List[str] = None,
     others: Dict[str, Any] = None,
     return_exceptions: bool = False,
+    renderer: RendererType = None,
 ) -> List[Recipe]:
     """Render a recipe
 
@@ -735,6 +637,7 @@ def render(
         python (List[str], optional): A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
         others (Dict[str,Any], optional): Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
         return_exceptions (bool, optional): Whether to handle errors as exceptions. Defaults to False.
+        renderer (RendererType, optional): Renderer backend. Defautls to PYYAML.
 
     Returns:
         List[Recipe]: A list of rendered Recipe, one per variant.
@@ -743,12 +646,24 @@ def render(
     # gather all possible variants
     if others is None:
         others = {"r_implementation": "r-base", "rust_compiler": "rust"}
-    variants = read_conda_build_config(recipe_path, subdir, python, others)
+    if renderer != RendererType.CONDA:
+        variants = read_conda_build_config(recipe_path, subdir, python, others)
+    else:
+        variants = []
+        if not python:
+            python = ["3.8", "3.9", "3.10", "3.11"]
+        for s, p in list(itertools.product(subdir, python)):
+            variant = {"subdir": s, "python": [p]}
+            variant.update(others)
+            variant_id = {"subdir": [s], "python": [p]}
+            variants.append((variant_id, variant))
 
     # render for each variant and combine similar results
     render_results = []
     for variant_id, variant in variants:
-        r = Recipe.from_file(recipe_path, variant_id, variant, return_exceptions)
+        r = Recipe.from_file(
+            recipe_path, variant_id, variant, return_exceptions, renderer
+        )
         if match := next((x for x in render_results if r.meta == x.meta), None):
             for key, value in r.variant_id.items():
                 match.variant_id.get(key, set()).update(value)
@@ -765,48 +680,4 @@ def dump_render_results(render_results: List[Recipe], out: TextIO = sys.stdout) 
         out (TextIO, optional): Output stream. Defaults to sys.stdout.
 
     """
-    FIELDS = [
-        "variant",
-        "package",
-        "source",
-        "build",
-        "requirements",
-        "test",
-        "app",
-        "outputs",
-        "about",
-        "extra",
-    ]
-
-    class _MetaYaml(dict):
-        fields = FIELDS
-
-        def to_omap(self):
-            return [(field, self[field]) for field in _MetaYaml.fields if field in self]
-
-    def _represent_omap(dumper, data):
-        return dumper.represent_mapping("tag:yaml.org,2002:map", data.to_omap())
-
-    yaml.add_representer(_MetaYaml, _represent_omap)
-
-    class _IndentDumper(yaml.Dumper):
-        def increase_indent(self, flow=False, indentless=False):
-            return super().increase_indent(flow, False)
-
-        def ignore_aliases(self, data):
-            return True
-
-    data_to_dump = []
-    for render_result in render_results:
-        render_dump = render_result.meta
-        render_dump["variant"] = render_result.variant_id
-        for k, v in render_dump["variant"].items():
-            render_dump["variant"][k] = list(v)
-        data_to_dump.append(_MetaYaml(render_dump))
-    yaml.dump(
-        data_to_dump,
-        out,
-        Dumper=_IndentDumper,
-        default_flow_style=False,
-        indent=2,
-    )
+    dumper.dump_render_results(render_results, out)

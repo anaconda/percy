@@ -22,7 +22,9 @@ dependencies = [
   "conda",
   "jinja2",
   "pyyaml",
+  "ruamel.yaml",
   "requests",
+  "conda-build",
 ]
 
 [project.scripts]
