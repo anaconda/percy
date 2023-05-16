@@ -3,6 +3,8 @@ from typing import List, TextIO
 import yaml
 from ruamel.yaml import YAML
 
+from percy.render._renderer import RendererType
+
 # Ruamel configuration
 ruamel = YAML(typ="rt")
 ruamel.version = (1, 1)
@@ -25,6 +27,7 @@ def _dump_render_results_ruamel(render_results: List, out: TextIO = sys.stdout) 
     for render_result in render_results:
         render_dump = render_result.meta
         render_dump["variant"] = render_result.variant_id
+        render_dump["renderer"] = str(render_result.renderer)
         for k, v in render_dump["variant"].items():
             render_dump["variant"][k] = list(v)
         data_to_dump.append(render_dump)
@@ -74,6 +77,7 @@ def _dump_render_results_yaml(render_results: List, out: TextIO = sys.stdout) ->
     for render_result in render_results:
         render_dump = render_result.meta
         render_dump["variant"] = render_result.variant_id
+        render_dump["renderer"] = str(render_result.renderer)
         for k, v in render_dump["variant"].items():
             render_dump["variant"][k] = list(v)
         data_to_dump.append(_MetaYaml(render_dump))
@@ -87,7 +91,7 @@ def _dump_render_results_yaml(render_results: List, out: TextIO = sys.stdout) ->
 
 
 def dump_render_results(render_results: List, out: TextIO = sys.stdout) -> None:
-    if render_results and render_results[0].use_ruamel_backend:
+    if render_results and render_results[0].renderer == RendererType.RUAMEL:
         _dump_render_results_ruamel(render_results, out)
     else:
         _dump_render_results_yaml(render_results, out)

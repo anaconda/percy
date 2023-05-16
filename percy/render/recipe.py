@@ -5,6 +5,7 @@ Not as accurate as conda-build render, but faster and architecture independent.
 
 import sys
 import re
+import itertools
 from copy import deepcopy
 from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
@@ -12,8 +13,9 @@ from dataclasses import dataclass, field
 from urllib.parse import urlparse
 
 from percy.render.variants import read_conda_build_config, Variant
-from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+from percy.render.exceptions import *
 import percy.render._renderer as renderer
+from percy.render._renderer import RendererType
 import percy.render._dumper as dumper
 
 
@@ -32,7 +34,7 @@ class Recipe:
         recipe_file (Path): Path to meta.yaml
         variant_id (str): configuration id
         variant (Variant): Variant configuration
-        use_ruamel_backend (bool, optional): Whether to use ruamel as render backend.
+        backend (RendererType, optional): Renderer backend.
 
     Attributes:
         recipe_file (Path): The recipe file
@@ -51,7 +53,7 @@ class Recipe:
         recipe_file: Path,
         variant_id: str = None,
         variant: Variant = None,
-        use_ruamel_backend: bool = False,
+        renderer: RendererType = None,
     ):
         """Constructor
 
@@ -77,7 +79,9 @@ class Recipe:
         self.selector_dict: Dict[str, Any] = variant
 
         #: render configuration
-        self.use_ruamel_backend = use_ruamel_backend
+        self.renderer = renderer
+        if not self.renderer:
+            self.renderer = RendererType.PYYAML
 
         # Filled in by render()
         #: Parsed recipe YAML
@@ -132,7 +136,7 @@ class Recipe:
         variant_id: str = None,
         variant: Variant = None,
         return_exceptions: bool = False,
-        use_ruamel_backend: bool = False,
+        renderer: RendererType = None,
     ) -> "Recipe":
         """Create new `Recipe` object from string
 
@@ -141,7 +145,7 @@ class Recipe:
             variant_id (str): Variant id
             variant (Variant): Variant configuration.
             return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
-            use_ruamel_backend (bool, optional): Whether to use ruamel as render backend. Defaults to False.
+            renderer (RendererType, optional): Renderer backend. Defaults to PYYAML.
 
         Raises:
             MissingMetaYaml: Missing meta.yaml
@@ -151,7 +155,7 @@ class Recipe:
             Recipe: A Recipe object.
         """
         try:
-            recipe = cls("", variant_id, variant, use_ruamel_backend)
+            recipe = cls("", variant_id, variant, renderer)
             recipe._load_from_string(recipe_text)
         except Exception as exc:
             if return_exceptions:
@@ -167,7 +171,7 @@ class Recipe:
         variant_id: str = None,
         variant: Variant = None,
         return_exceptions: bool = False,
-        use_ruamel_backend: bool = False,
+        renderer: RendererType = None,
     ) -> "Recipe":
         """Create new `Recipe` object from file
 
@@ -176,7 +180,7 @@ class Recipe:
             variant_id (str): Variant id
             variant (Variant): Variant configuration.
             return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
-            use_ruamel_backend (bool, optional): Whether to use ruamel as render backend. Defaults to False.
+            renderer (RendererType, optional): Renderer backend. Defaults to PYYAML.
 
         Raises:
             MissingMetaYaml: Missing meta.yaml
@@ -186,7 +190,7 @@ class Recipe:
             Recipe: A Recipe object.
         """
         recipe_fname = Path(recipe_fname)
-        recipe = cls(recipe_fname, variant_id, variant, use_ruamel_backend)
+        recipe = cls(recipe_fname, variant_id, variant, renderer)
         try:
             if recipe_fname.is_file():
                 with open(recipe_fname) as text:
@@ -235,7 +239,7 @@ class Recipe:
 
         # render meta.yaml
         self.meta = renderer.render(
-            self.recipe_dir, self.meta_yaml, self.selector_dict, self.use_ruamel_backend
+            self.recipe_dir, self.meta_yaml, self.selector_dict, self.renderer
         )
 
         # should this be skipped?
@@ -414,7 +418,7 @@ class Recipe:
         Returns:
           a tuple of first_row, first_column, last_row, last_column
         """
-        if not path or not self.use_ruamel_backend:
+        if not path or not self.renderer == RendererType.RUAMEL:
             return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
 
         nodes, keys = self._walk(path)
@@ -623,7 +627,7 @@ def render(
     python: List[str] = None,
     others: Dict[str, Any] = None,
     return_exceptions: bool = False,
-    use_ruamel_backend: bool = False,
+    renderer: RendererType = None,
 ) -> List[Recipe]:
     """Render a recipe
 
@@ -633,7 +637,7 @@ def render(
         python (List[str], optional): A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
         others (Dict[str,Any], optional): Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
         return_exceptions (bool, optional): Whether to handle errors as exceptions. Defaults to False.
-        use_ruamel_backend (bool, optional): Whether to use ruamel as render backend. Defaults to False.
+        renderer (RendererType, optional): Renderer backend. Defautls to PYYAML.
 
     Returns:
         List[Recipe]: A list of rendered Recipe, one per variant.
@@ -642,13 +646,23 @@ def render(
     # gather all possible variants
     if others is None:
         others = {"r_implementation": "r-base", "rust_compiler": "rust"}
-    variants = read_conda_build_config(recipe_path, subdir, python, others)
+    if renderer != RendererType.CONDA:
+        variants = read_conda_build_config(recipe_path, subdir, python, others)
+    else:
+        variants = []
+        if not python:
+            python = ["3.8", "3.9", "3.10", "3.11"]
+        for s, p in list(itertools.product(subdir, python)):
+            variant = {"subdir": s, "python": [p]}
+            variant.update(others)
+            variant_id = {"subdir": [s], "python": [p]}
+            variants.append((variant_id, variant))
 
     # render for each variant and combine similar results
     render_results = []
     for variant_id, variant in variants:
         r = Recipe.from_file(
-            recipe_path, variant_id, variant, return_exceptions, use_ruamel_backend
+            recipe_path, variant_id, variant, return_exceptions, renderer
         )
         if match := next((x for x in render_results if r.meta == x.meta), None):
             for key, value in r.variant_id.items():

@@ -2,6 +2,7 @@ import click
 from percy.commands.recipe import recipe
 from percy.commands.aggregate import aggregate
 
+
 # root click group
 @click.group()
 def cli():

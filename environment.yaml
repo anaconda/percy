@@ -8,3 +8,4 @@ dependencies:
   - pyyaml
   - requests
   - ruamel.yaml
+  - conda-build

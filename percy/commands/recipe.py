@@ -22,6 +22,13 @@ def get_recipe(cmd_line=None):
 
 def base_options(f):
     @click.option(
+        "--backend",
+        "-b",
+        type=click.Choice(["PYYAML", "RUAMEL", "CONDA"], case_sensitive=False),
+        default="PYYAML",
+        help="Renderer backend. Defaults to pyyaml.",
+    )
+    @click.option(
         "--subdir",
         "-s",
         type=str,
@@ -71,13 +78,18 @@ def recipe(ctx, recipe):
 @recipe.command(short_help="Render a recipe")
 @click.pass_obj
 @base_options
-def render(obj, subdir, python, others):
+def render(obj, subdir, python, others, backend):
     """Render a recipe."""
 
     # render recipe
     recipe_path = obj["recipe_path"]
     render_results = percy.render.recipe.render(
-        recipe_path, subdir, python, dict(others)
+        recipe_path,
+        subdir,
+        python,
+        dict(others),
+        False,
+        percy.render.recipe.RendererType[backend],
     )
 
     # dump recipe
@@ -87,13 +99,18 @@ def render(obj, subdir, python, others):
 @recipe.command(short_help="Render a recipe")
 @click.pass_obj
 @base_options
-def outdated(obj, subdir, python, others):
+def outdated(obj, subdir, python, others, backend):
     """Render a recipe."""
 
     # render recipe
     recipe_path = obj["recipe_path"]
     render_results = percy.render.recipe.render(
-        recipe_path, subdir, python, dict(others)
+        recipe_path,
+        subdir,
+        python,
+        dict(others),
+        False,
+        percy.render.recipe.RendererType[backend],
     )
 
     # load defaults

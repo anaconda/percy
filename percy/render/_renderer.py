@@ -2,10 +2,20 @@ import re
 import jinja2
 import yaml
 import contextlib
+from enum import Enum
 from ruamel.yaml import YAML
 from ruamel.yaml.parser import ParserError
+from conda_build import api
+from conda_build.config import Config
 
 from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
+
+
+class RendererType(Enum):
+    PYYAML = 1
+    RUAMEL = 2
+    CONDA = 3
+
 
 # Ruamel configuration
 ruamel = YAML(typ="rt")
@@ -28,7 +38,7 @@ except:
 
 
 @contextlib.contextmanager
-def stringify_numbers():
+def _stringify_numbers():
     # ensure that numbers are not interpreted as ints or floats.  That trips up versions
     #     with trailing zeros.
     implicit_resolver_backup = loader.yaml_implicit_resolvers.copy()
@@ -42,7 +52,7 @@ def stringify_numbers():
 
 
 # Jinja configuration
-class JinjaSilentUndefined(jinja2.Undefined):
+class _JinjaSilentUndefined(jinja2.Undefined):
     def _fail_with_undefined_error(self, *args, **kwargs):
         class EmptyString(str):
             def __call__(self, *args, **kwargs):
@@ -93,11 +103,7 @@ class JinjaSilentUndefined(jinja2.Undefined):
     ) = __float__ = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
 
 
-jinja = jinja2.Environment(
-    trim_blocks=True,
-    lstrip_blocks=True,
-)
-jinja_silent_undef = jinja2.Environment(undefined=JinjaSilentUndefined)
+_jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
 
 
 def _apply_selector(data: str, selector_dict: dict) -> list[str]:
@@ -133,10 +139,15 @@ def _get_template(meta_yaml, selector_dict):
     # Storing it means the recipe cannot be pickled, which in turn
     # means we cannot pass it to ProcessExecutors.
     meta_yaml_selectors_applied = _apply_selector(meta_yaml, selector_dict)
-    return jinja_silent_undef.from_string(meta_yaml_selectors_applied)
+    return _jinja_silent_undef.from_string(meta_yaml_selectors_applied)
 
 
-def render(recipe_dir, meta_yaml, selector_dict, use_ruamel=False) -> None:
+def render(
+    recipe_dir,
+    meta_yaml,
+    selector_dict,
+    renderer_type: RendererType = None,
+) -> None:
     """Convert recipe text into data structure
 
     - create jinja template from recipe content
@@ -144,6 +155,10 @@ def render(recipe_dir, meta_yaml, selector_dict, use_ruamel=False) -> None:
     - parse yaml
     - normalize
     """
+
+    if not renderer_type:
+        renderer_type = RendererType.PYYAML
+
     try:
         #: Variables to pass to Jinja when rendering recipe
         def expand_compiler(lang):
@@ -194,14 +209,27 @@ def render(recipe_dir, meta_yaml, selector_dict, use_ruamel=False) -> None:
         raise JinjaRenderFailure(recipe_dir, message=str(exc))
 
     try:
-        if use_ruamel:
+        if renderer_type == RendererType.RUAMEL:
             # load yaml with ruamel
             return ruamel.load(yaml_text.replace("\t", " ").replace("%", " "))
-        else:
+        elif renderer_type == RendererType.PYYAML:
             # load yaml with pyyaml
-            with stringify_numbers():
+            with _stringify_numbers():
                 return yaml.load(
                     yaml_text.replace("\t", " ").replace("%", " "), Loader=loader
                 )
+        elif renderer_type == RendererType.CONDA:
+            platform, arch = selector_dict.get("subdir").split("-")
+            rendered = api.render(
+                recipe_dir,
+                config=Config(
+                    platform=platform,
+                    arch=arch,
+                ),
+                variants=selector_dict,
+            )
+            return rendered[0][0].meta
+        else:
+            raise YAMLRenderFailure(recipe_dir, message="Unknown renderer type.")
     except ParserError as exc:
         raise YAMLRenderFailure(recipe_dir, line=exc.problem_mark.line)
