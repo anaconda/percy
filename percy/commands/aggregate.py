@@ -281,23 +281,21 @@ def outdated(obj, subdir, python, others, missing_local, missing_defaults):
     # find missing from local
     if missing_local:
         for name in defaults_pkgs.keys() - aggregate_repo.packages.keys():
-            defaults_version = defaults_pkgs[name]["version"]
-            defaults_build_number = int(defaults_pkgs[name]["build_number"])
             results[name] = {
+                "local_feedstock": None,
                 "local_version": None,
                 "local_build_number": None,
-                "defaults_version": defaults_version,
-                "defaults_build_number": defaults_build_number,
+                "defaults_version": defaults_pkgs[name]["version"],
+                "defaults_build_number": int(defaults_pkgs[name]["build_number"]),
             }
 
     # find missing from defaults
     if missing_defaults:
         for name in aggregate_repo.packages.keys() - defaults_pkgs.keys():
-            local_version = package.version
-            local_build_number = int(package.number)
             results[name] = {
-                "local_version": local_version,
-                "local_build_number": local_build_number,
+                "local_feedstock": package.git_info.name,
+                "local_version": package.version,
+                "local_build_number": int(package.number),
                 "defaults_version": None,
                 "defaults_build_number": None,
             }
