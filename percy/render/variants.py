@@ -218,7 +218,7 @@ def read_conda_build_config(
         conda_build_config_files = _find_config_files(
             recipe_dir, variant_config_files, exclusive_config_files
         )
-        logging.info(f"cbc files: {conda_build_config_files}")
+        logging.debug(f"cbc files: {conda_build_config_files}")
 
         # Update base selector dict
         for cbc in conda_build_config_files:

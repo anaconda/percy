@@ -48,7 +48,7 @@ class PackageNode:
         else:
             self.weight = 0
         self.children = set()
-        logging.info(f"New node {package_name}")
+        logging.debug(f"New node {package_name}")
 
     @classmethod
     def init(cls, aggregate: "Aggregate"):
@@ -503,6 +503,7 @@ class Aggregate:
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
+        logging.info(f"get_depends_build_order groups:{target_groups} feedstocks:{target_feedstocks} packages:{target_packages}")
 
         # build graph with packages having package as a dependency
         for target in target_packages:
