@@ -9,6 +9,7 @@ from pathlib import Path
 import logging
 import configparser
 from typing import Any
+from multiprocessing import Pool
 
 from percy.render.recipe import render, Package
 
@@ -166,7 +167,17 @@ class Feedstock:
     packages: dict[str, Package]
     weight: int
 
+def _render(feedstock_repo, recipe_path, subdir, python, others):
+    try:
+        rendered_recipes = render(recipe_path, subdir, python, others)
+    except Exception as exc:
+        logging.error(f"Render issue {feedstock_repo.name} : {exc}")
+        rendered_recipes = []
+    return feedstock_repo, rendered_recipes
 
+FeedstockGitRepo = namedtuple(
+    "FeedstockGitRepo", ["name", "git_url", "branch", "path"]
+)
 class Aggregate:
     """An object to handle a repository of feedstocks.
 
@@ -180,10 +191,6 @@ class Aggregate:
         packages (dict[str,Package]): Rendered packages. (Populated after calling load_local_feedstocks.)
         feedstocks (dict[str,Feedstock]): Feedstocks. (Populated after calling load_local_feedstocks.)
     """
-
-    FeedstockGitRepo = namedtuple(
-        "FeedstockGitRepo", ["name", "git_url", "branch", "path"]
-    )
 
     def __init__(self, aggregate_path: str):
         """Constructor
@@ -223,7 +230,7 @@ class Aggregate:
             name = section.split('"')[1]
             git_url = f"{self.git_url.rsplit('/')[0]}/{name}.git"
             git_branch = config[section].get("branch", "main")
-            self.submodules[name] = Aggregate.FeedstockGitRepo(
+            self.submodules[name] = FeedstockGitRepo(
                 name, git_url, git_branch, path
             )
 
@@ -245,7 +252,7 @@ class Aggregate:
         if feedstock:
             return feedstock
         else:
-            return Aggregate.FeedstockGitRepo(
+            return FeedstockGitRepo(
                 feedstock_path_rel.name,
                 self.git_url,
                 self.git_branch,
@@ -282,6 +289,7 @@ class Aggregate:
                 others["blas_impl"] = "openblas"
 
         aggregate_path = self.local_path
+        to_render = []
         for recipe_path in aggregate_path.glob("**/meta.yaml"):
             # base feedstock info
             feedstock_path_rel = recipe_path.relative_to(aggregate_path).parent
@@ -309,26 +317,31 @@ class Aggregate:
                     f"Skipping feedstock {feedstock_name} now replaced by binutils-feedstock and gcc_toolchain-toolchain"
                 )
                 continue
+            if "-cos6-" in feedstock_name or "-cos7-" in feedstock_name or "-amzn2-" in feedstock_name:
+                logging.warning(
+                    f"Skipping cdt {feedstock_name}"
+                )
+                continue
 
-            # render the recipe
-            try:
-                rendered_recipes = render(recipe_path, subdir, python, others)
-            except Exception as exc:
-                logging.error(f"Render issue {feedstock_name} : {exc}")
-                rendered_recipes = []
+            # add to render list
+            to_render.append((feedstock_repo, recipe_path, subdir, python, others))
 
-            for recipe in rendered_recipes:
-                # read recipe packages info
-                if recipe and not recipe.skip:
-                    for name, rendered_pkg in recipe.packages.items():
-                        rendered_pkg.git_info = feedstock_repo
-                        if len(rendered_recipes) > 1 and name in self.packages:
-                            logging.warn(
-                                f"Merging deps of other variant {recipe.variant_id} : {feedstock_name} : {name}"
-                            )
-                            self.packages[name].merge_deps(rendered_pkg)
-                        else:
-                            self.packages[name] = rendered_pkg
+        # render recipes
+        with Pool() as pool:
+            results = pool.starmap(_render, to_render)
+            for feedstock_repo, rendered_recipes in results:
+                for recipe in rendered_recipes:
+                    # read recipe packages info
+                    if recipe and not recipe.skip:
+                        for name, rendered_pkg in recipe.packages.items():
+                            rendered_pkg.git_info = feedstock_repo
+                            if name in self.packages:
+                                logging.debug(
+                                    f"Merging deps of other variant {recipe.variant_id} : {feedstock_repo.name} : {name}"
+                                )
+                                self.packages[name].merge_deps(rendered_pkg)
+                            else:
+                                self.packages[name] = rendered_pkg
 
         # process run_exports
         for rendered_pkg in self.packages.values():
