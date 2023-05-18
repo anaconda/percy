@@ -118,6 +118,7 @@ def compare_package_with_defaults(
     """
     result = None
     try:
+        local_feedstock = package.git_info.name
         local_name = package.name
         local_version = package.version
         local_build_number = int(package.number)
@@ -129,6 +130,7 @@ def compare_package_with_defaults(
                 and local_build_number < defaults_build_number
             ):
                 result = {
+                    "local_feedstock": local_feedstock,
                     "local_version": local_version,
                     "local_build_number": local_build_number,
                     "defaults_version": defaults_version,
