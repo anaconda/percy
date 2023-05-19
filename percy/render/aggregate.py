@@ -317,7 +317,7 @@ class Aggregate:
                     f"Skipping feedstock {feedstock_name} now replaced by binutils-feedstock and gcc_toolchain-toolchain"
                 )
                 continue
-            if "-cos6-" in feedstock_name or "-cos7-" in feedstock_name or "-amzn2-" in feedstock_name:
+            if "_cos6_" in feedstock_name or "_cos7_" in feedstock_name or "_amzn2_" in feedstock_name:
                 logging.warning(
                     f"Skipping cdt {feedstock_name}"
                 )

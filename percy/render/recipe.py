@@ -123,7 +123,7 @@ class Recipe:
         Returns:
             Recipe: This recipe object.
         """
-        self.meta_yaml = data
+        self.meta_yaml = data.splitlines()
         if not self.meta_yaml:
             raise EmptyRecipe(self)
         self.render()
@@ -239,7 +239,7 @@ class Recipe:
 
         # render meta.yaml
         self.meta = renderer.render(
-            self.recipe_dir, self.meta_yaml, self.selector_dict, self.renderer
+            self.recipe_dir, self.dump(), self.selector_dict, self.renderer
         )
 
         # should this be skipped?
@@ -308,20 +308,38 @@ class Recipe:
                     for i in pkg_reqs[s]
                     if (i is not None and str(i).strip())
                 ]
-        self.packages[name] = Package(
-            self,
-            name,
-            version,
-            number,
-            group,
-            set(pkg_reqs["build"]),
-            set(pkg_reqs["host"]),
-            set(pkg_reqs["run"]),
-            set(pkg_reqs["run_constrained"]),
-            set(run_exports),
-            set(ignore_run_exports),
-            is_noarch,
-        )
+        test = self.meta.get("test", {})
+        test_reqs = []
+        if test is not None:
+            if isinstance(test, dict):
+                l = test.get("requires", [])
+                if l is not None:
+                    if isinstance(l, list):
+                        test_reqs.extend(l)
+                    else:
+                        test_reqs.extend([l])
+            test_reqs = [
+                Dep(i, f"test/requires")
+                for i in test_reqs
+                if (i is not None and str(i).strip())
+            ]
+        if not self.meta.get("outputs", []):
+            # only add if not a multi output recipe
+            self.packages[name] = Package(
+                self,
+                name,
+                version,
+                number,
+                group,
+                set(pkg_reqs["build"]),
+                set(pkg_reqs["host"]),
+                set(pkg_reqs["run"]),
+                set(pkg_reqs["run_constrained"]),
+                set(run_exports),
+                set(ignore_run_exports),
+                set(test_reqs),
+                is_noarch,
+            )
 
         # read output package deps
         outputs = self.meta.get("outputs", [])
@@ -367,6 +385,21 @@ class Recipe:
                             for i in output_pkg_reqs[s]
                             if (i is not None and str(i).strip())
                         ]
+                test = output.get("test", {})
+                test_reqs = []
+                if test is not None:
+                    if isinstance(test, dict):
+                        l = test.get("requires", [])
+                        if l is not None:
+                            if isinstance(l, list):
+                                test_reqs.extend(l)
+                            else:
+                                test_reqs.extend([l])
+                    test_reqs = [
+                        Dep(i, f"outputs/{n}/test/requires")
+                        for i in test_reqs
+                        if (i is not None and str(i).strip())
+                    ]
                 self.packages[name] = Package(
                     self,
                     name,
@@ -379,6 +412,7 @@ class Recipe:
                     set(output_pkg_reqs["run_constrained"]),
                     set(run_exports),
                     set(ignore_run_exports),
+                    set(test_reqs),
                     is_noarch,
                 )
 
@@ -419,7 +453,10 @@ class Recipe:
           a tuple of first_row, first_column, last_row, last_column
         """
         if not path or not self.renderer == RendererType.RUAMEL:
-            return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
+            if self.meta_yaml:
+                return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
+            else:
+                return 0, 0, 0, 0
 
         nodes, keys = self._walk(path)
         nodes.pop()  # pop parsed value
@@ -565,6 +602,7 @@ class Package:
     run_constrained: Set[Dep] = field(default_factory=set)
     run_exports: Set[str] = field(default_factory=set)
     ignore_run_exports: Set[str] = field(default_factory=set)
+    test: Set[Dep] = field(default_factory=set)
     is_noarch: bool = False
     git_info: object = None
 
