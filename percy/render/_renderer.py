@@ -165,6 +165,8 @@ def render(
             compiler = selector_dict.get(f"{lang}_compiler", None)
             if not compiler:
                 return compiler
+            elif renderer_type == RendererType.RUAMEL:
+                return f"compiler_{lang}"
             else:
                 return f"{compiler}_{selector_dict.get('target_platform', 'win-64')}"
 
