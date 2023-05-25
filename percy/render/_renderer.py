@@ -2,11 +2,23 @@ import re
 import jinja2
 import yaml
 import contextlib
+from typing import List
 from enum import Enum
-from ruamel.yaml import YAML
-from ruamel.yaml.parser import ParserError
-from conda_build import api
-from conda_build.config import Config
+
+try:
+    from ruamel.yaml import YAML
+    from ruamel.yaml.parser import ParserError
+
+    has_ruamel = True
+except:
+    has_ruamel = False
+try:
+    from conda_build import api
+    from conda_build.config import Config
+
+    has_conda_build = True
+except:
+    has_conda_build = False
 
 from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
 
@@ -17,18 +29,19 @@ class RendererType(Enum):
     CONDA = 3
 
 
-# Ruamel configuration
-ruamel = YAML(typ="rt")
-ruamel.version = (1, 1)
-ruamel.allow_duplicate_keys = True
-ruamel.indent(mapping=2, sequence=2, offset=2)
-ruamel.preserve_quotes = True
-ruamel.allow_duplicate_keys = True
-ruamel.width = 1000
-ruamel.default_flow_style = False
-for digit in "0123456789":
-    if digit in ruamel.resolver.versioned_resolver:
-        del ruamel.resolver.versioned_resolver[digit]
+if has_ruamel:
+    # Ruamel configuration
+    ruamel = YAML(typ="rt")
+    ruamel.version = (1, 1)
+    ruamel.allow_duplicate_keys = True
+    ruamel.indent(mapping=2, sequence=2, offset=2)
+    ruamel.preserve_quotes = True
+    ruamel.allow_duplicate_keys = True
+    ruamel.width = 1000
+    ruamel.default_flow_style = False
+    for digit in "0123456789":
+        if digit in ruamel.resolver.versioned_resolver:
+            del ruamel.resolver.versioned_resolver[digit]
 
 # Pyyaml configuration
 try:
@@ -106,7 +119,7 @@ class _JinjaSilentUndefined(jinja2.Undefined):
 _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
 
 
-def _apply_selector(data: str, selector_dict: dict) -> list[str]:
+def _apply_selector(data: str, selector_dict: dict) -> List[str]:
     """Apply selectors # [...]
 
     Args:
@@ -202,7 +215,8 @@ def render(
             "os.environ.get": lambda name, default="": "",
             "ccache": lambda name, method="": "ccache",
         }
-        yaml_text = _get_template(meta_yaml, selector_dict).render(JINJA_VARS)
+        render_dict = {**JINJA_VARS, **selector_dict}
+        yaml_text = _get_template(meta_yaml, selector_dict).render(render_dict)
     except jinja2.exceptions.TemplateSyntaxError as exc:
         raise JinjaRenderFailure(recipe_dir, message=exc.message, line=exc.lineno)
     except jinja2.exceptions.TemplateError as exc:
@@ -212,6 +226,8 @@ def render(
 
     try:
         if renderer_type == RendererType.RUAMEL:
+            if not has_ruamel:
+                raise YAMLRenderFailure(recipe_dir, message="ruamel unavailable")
             # load yaml with ruamel
             return ruamel.load(yaml_text.replace("\t", " ").replace("%", " "))
         elif renderer_type == RendererType.PYYAML:
@@ -221,6 +237,8 @@ def render(
                     yaml_text.replace("\t", " ").replace("%", " "), Loader=loader
                 )
         elif renderer_type == RendererType.CONDA:
+            if not has_conda_build:
+                raise YAMLRenderFailure(recipe_dir, message="conda build unavailable")
             platform, arch = selector_dict.get("subdir").split("-")
             rendered = api.render(
                 recipe_dir,

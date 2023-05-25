@@ -167,6 +167,7 @@ class Feedstock:
     packages: dict[str, Package]
     weight: int
 
+
 def _render(feedstock_repo, recipe_path, subdir, python, others):
     try:
         rendered_recipes = render(recipe_path, subdir, python, others)
@@ -175,9 +176,10 @@ def _render(feedstock_repo, recipe_path, subdir, python, others):
         rendered_recipes = []
     return feedstock_repo, rendered_recipes
 
-FeedstockGitRepo = namedtuple(
-    "FeedstockGitRepo", ["name", "git_url", "branch", "path"]
-)
+
+FeedstockGitRepo = namedtuple("FeedstockGitRepo", ["name", "git_url", "branch", "path"])
+
+
 class Aggregate:
     """An object to handle a repository of feedstocks.
 
@@ -230,9 +232,7 @@ class Aggregate:
             name = section.split('"')[1]
             git_url = f"{self.git_url.rsplit('/')[0]}/{name}.git"
             git_branch = config[section].get("branch", "main")
-            self.submodules[name] = FeedstockGitRepo(
-                name, git_url, git_branch, path
-            )
+            self.submodules[name] = FeedstockGitRepo(name, git_url, git_branch, path)
 
         # packages, feedstocks and groups
         self.packages: dict[str:Package] = {}
@@ -317,10 +317,12 @@ class Aggregate:
                     f"Skipping feedstock {feedstock_name} now replaced by binutils-feedstock and gcc_toolchain-toolchain"
                 )
                 continue
-            if "_cos6_" in feedstock_name or "_cos7_" in feedstock_name or "_amzn2_" in feedstock_name:
-                logging.warning(
-                    f"Skipping cdt {feedstock_name}"
-                )
+            if (
+                "_cos6_" in feedstock_name
+                or "_cos7_" in feedstock_name
+                or "_amzn2_" in feedstock_name
+            ):
+                logging.warning(f"Skipping cdt {feedstock_name}")
                 continue
 
             # add to render list
@@ -503,7 +505,9 @@ class Aggregate:
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
-        logging.info(f"get_depends_build_order groups:{target_groups} feedstocks:{target_feedstocks} packages:{target_packages}")
+        logging.info(
+            f"get_depends_build_order groups:{target_groups} feedstocks:{target_feedstocks} packages:{target_packages}"
+        )
 
         # build graph with packages having package as a dependency
         for target in target_packages:

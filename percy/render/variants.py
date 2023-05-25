@@ -5,7 +5,7 @@
 import logging
 import os
 import re
-from typing import List, Sequence, Dict
+from typing import List, Sequence, Dict, Tuple
 from pathlib import Path
 import logging
 import itertools
@@ -17,7 +17,7 @@ try:
 except:
     loader = yaml.Loader
 
-Variant = dict[str,]
+Variant = Dict[str, dict]
 
 
 def _ensure_list(obj):
@@ -138,7 +138,7 @@ def read_conda_build_config(
     others: Dict[str, str] = None,
     variant_config_files: List[str] = [],
     exclusive_config_files: List[str] = [],
-) -> list[tuple[str, Variant]]:
+) -> List[Tuple[str, Variant]]:
     """Read conda build config into a list of variants.
 
     Args:
@@ -257,17 +257,20 @@ def read_conda_build_config(
         for k, v in base_selector_dict.items():
             if k not in zip_keys and type(v) is list and len(v) > 1:
                 groups[k] = v
-        group_keys, group_values = zip(*groups.items())
-        group_permutations = [
-            dict(zip(group_keys, v)) for v in itertools.product(*group_values)
-        ]
-        for d in group_permutations:
-            new_d = copy.deepcopy(d)
-            for k, v in new_d.items():
-                if type(k) is tuple:
-                    for i, k1 in enumerate(k):
-                        d[k1] = v[i]
-                    del d[k]
+        if groups:
+            group_keys, group_values = zip(*groups.items())
+            group_permutations = [
+                dict(zip(group_keys, v)) for v in itertools.product(*group_values)
+            ]
+            for d in group_permutations:
+                new_d = copy.deepcopy(d)
+                for k, v in new_d.items():
+                    if type(k) is tuple:
+                        for i, k1 in enumerate(k):
+                            d[k1] = v[i]
+                        del d[k]
+        else:
+            group_permutations = [{}]
 
         # Filter variants
         filtered_group_permutations = []
@@ -294,9 +297,10 @@ def read_conda_build_config(
             for k, v in variant_selector_dict.items():
                 if type(v) is list:
                     variant_selector_dict[k] = v[0]
-            python_short = str(variant_selector_dict["python"]).replace(".", "")
-            variant_selector_dict["py"] = int(python_short)
-            variant_selector_dict[f"py{python_short}"] = True
+            if "python" in variant_selector_dict:
+                python_short = str(variant_selector_dict["python"]).replace(".", "")
+                variant_selector_dict["py"] = int(python_short)
+                variant_selector_dict[f"py{python_short}"] = True
             perm["subdir"] = arch
             for k, v in perm.items():
                 perm[k] = set(_ensure_list(v))

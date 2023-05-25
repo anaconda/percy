@@ -22,10 +22,11 @@ dependencies = [
   "conda",
   "jinja2",
   "pyyaml",
-  "ruamel.yaml",
   "requests",
-  "conda-build",
 ]
+[project.optional-dependencies]
+ruamel = ["ruamel.yaml"]
+conda_build = ["conda-build"]
 
 [project.scripts]
 percy = "percy.commands.main:cli"

@@ -284,7 +284,11 @@ class Recipe:
             run_exports = [
                 Dep(i, "build/run_exports")
                 for i in run_exports
-                if (i is not None and i not in ["noarch", "strong", "weak"] and str(i).strip())
+                if (
+                    i is not None
+                    and i not in ["noarch", "strong", "weak"]
+                    and str(i).strip()
+                )
             ]
             ignore_run_exports = main_build.get("ignore_run_exports", [])
             if not ignore_run_exports:
@@ -361,7 +365,11 @@ class Recipe:
                     run_exports = [
                         Dep(i, f"outputs/{n}/run_exports")
                         for i in run_exports
-                        if (i is not None and i not in ["noarch", "strong", "weak"] and str(i).strip())
+                        if (
+                            i is not None
+                            and i not in ["noarch", "strong", "weak"]
+                            and str(i).strip()
+                        )
                     ]
                     ignore_run_exports = main_build.get("ignore_run_exports", [])
                     if not ignore_run_exports:
