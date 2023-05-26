@@ -170,7 +170,9 @@ def read_conda_build_config(
         ]
     else:
         subdir = _ensure_list(subdir)
-    if python is not None:
+    if python is None:
+        python = ["3.8", "3.9", "3.10", "3.11"]
+    else:
         python = _ensure_list(python)
 
     for arch in subdir:
@@ -195,6 +197,8 @@ def read_conda_build_config(
             "py3k": 1,
             "py2k": 0,
             "py": 310,
+            "zip_keys": ["python"],
+            "python": python,
         }
         arch = arch.lower()
         (platform, atype) = arch.split("-")
