@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "percy"
-version = "0.0.1"
+version = "0.0.2"
 authors = [
   { name="Anaconda, Inc.", email="distribution_team@anaconda.com" },
 ]
