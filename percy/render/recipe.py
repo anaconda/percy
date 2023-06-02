@@ -559,6 +559,35 @@ class Recipe:
             return default
         return res
 
+    def contains(self, path: str, value: str, default: Any = KeyError) -> bool:
+        """Check if a value (string or list) contains a string
+        >>> recipe.contains('build/script', 'pip')
+        True
+        The **path** is a ``/`` separated list of dictionary keys to
+        be walked in the recipe meta data. Numeric sections in the path
+        access list elements. Using ``0`` in the path will get the first
+        element in a list or the contents directly if there is no list.
+        I.e., `source/0/url` will always get the first url, whether or
+        not the source section is a list.
+        Args:
+            path: Path through YAML
+            value: The string to match
+            default: If not KeyError, this value will be returned
+                    if the path does not exist in the recipe
+        Returns:
+            Value match (bool).
+        Raises:
+            KeyError if no default given and the path does not exist.
+        """
+        res = self.get(path, default)
+        if isinstance(res, str):
+            return value in res
+        if isinstance(res, list):
+            for r in res:
+                if value in r:
+                    return True
+        return False
+
 
 class Dep:
     """A dependency
