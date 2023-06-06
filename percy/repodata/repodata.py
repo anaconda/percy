@@ -28,7 +28,7 @@ def get_latest_package_list(
     if merge_noarch:
         pkgs_noarch = {}
         repodata_subdir = None
-        url = f"https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
+        url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
         response = session.get(url)
         if response.status_code != 200:
             raise Exception("Failed to retrive noarch data.")
