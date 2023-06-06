@@ -33,10 +33,11 @@ jobs:
           conda env create -f environment.yaml --name percy
           conda init bash
           conda activate percy
-      - name: Install dependencies
+      - name: Install dev and test dependencies
         run: |
           source $CONDA/etc/profile.d/conda.sh
           pip install -e .[dev]
+          pip install -e .[ruamel]
       - name: Test with pytest
         run: |
           source $CONDA/etc/profile.d/conda.sh
