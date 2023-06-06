@@ -178,7 +178,7 @@ def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
     group_name = "builders"
     try:
         group_id = grp.getgrnam(group_name).gr_gid
-    except:
+    except Exception:
         copy_failed(f"Failed to obtain id for group '{group_name}'; terminating!")
 
     for arch, list_of_files in files.items():
@@ -203,7 +203,7 @@ def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
                             raise
 
                 logger.info("Copied file %s to %s", file, final_path)
-            except:
+            except Exception:
                 copy_failed(f"Could not copy file {file}; terminating!")
 
             try:
@@ -214,7 +214,7 @@ def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
                     DEFAULT_PERMISSIONS,
                     dest_filepath,
                 )
-            except:
+            except Exception:
                 copy_failed(
                     f"Could not set permissions ({DEFAULT_PERMISSIONS:o}) for file {dest_filepath}; terminating!"
                 )
@@ -228,7 +228,7 @@ def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
                     group_name,
                     dest_filepath,
                 )
-            except:
+            except Exception:
                 copy_failed(
                     f"Could not set ownership ({user_name}:{group_name}) for file {dest_filepath}; terminating!"
                 )
