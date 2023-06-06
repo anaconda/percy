@@ -38,8 +38,8 @@ test:
 
 about:
   home: https://github.com/anaconda-distribution/percy
-  license: MIT
-  license_family: MIT
+  license: BSD-3-Clause
+  license_family: BSD
   license_file: LICENSE
   summary: Helper tool for recipes on aggregate.
   description: |
