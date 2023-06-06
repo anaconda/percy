@@ -41,4 +41,5 @@ jobs:
       - name: Test with pytest
         run: |
           source $CONDA/etc/profile.d/conda.sh
+          cd examples/py311
           pytest
