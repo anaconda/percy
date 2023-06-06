@@ -17,7 +17,20 @@ def render(feedstock_path, aggregate_path, arch, python):
 
     return render_results
 
-def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.10', channels=['default'], extras=[]):
+def check_deps(
+        feedstock_path,
+        aggregate_path,
+        arch='linux-aarch64',
+        python='3.10',
+        channels=None,
+        extras=None,
+    ):
+    # Set defaults to function-scoped locals if not specified as parameters.
+    if not channels:
+        channels = ['default']
+    if not extras:
+        extras = []
+
     logging.debug(f'Render feedstock {feedstock_path} for { arch }')
 
     recipe_path = feedstock_path / 'recipe' / 'meta.yaml'
