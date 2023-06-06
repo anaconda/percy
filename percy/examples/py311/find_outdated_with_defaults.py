@@ -172,8 +172,6 @@ def compare_repodata(subdir, python_ref, python_target, block_list):
         }
 
     # compare local with defaults
-    git_cmds = []
-    condabuild_cmds = []
     for local_name, local_data in pkgs_311.items():
         if local_name not in pkgs_defaults:
             continue
