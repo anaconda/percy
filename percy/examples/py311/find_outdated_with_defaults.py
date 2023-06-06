@@ -1,7 +1,11 @@
-""" Script to find local packages at lower version than on defaults.
-    The script considers packages from defaults that depend on python and are arch specific.
-    It also takes into account exclude packages.
-    output is outdated_{subdir}.json 
+"""Script to find local packages at lower version than on defaults.
+
+The script considers packages from defaults that depend on python and are
+architecture-specific.
+
+It also takes into account exclude packages.
+
+output is outdated_{subdir}.json 
 """
 
 import argparse
