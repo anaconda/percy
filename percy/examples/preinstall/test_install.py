@@ -77,9 +77,17 @@ def check_deps(
                             req = test.get('requires', [])
                             if req is not None:
                                 pkg_reqs.extend(req)
-                        unresolved_deps[name] = dry_run(subdir=arch, channels=channels, packages=output_pkg_reqs)
+                        unresolved_deps[name] = dry_run(
+                            subdir=arch,
+                            channels=channels,
+                            packages=output_pkg_reqs,
+                        )
                 else:
-                    unresolved_deps[name] = dry_run(subdir=arch, channels=channels, packages=pkg_reqs)
+                    unresolved_deps[name] = dry_run(
+                        subdir=arch,
+                        channels=channels,
+                        packages=pkg_reqs,
+                    )
         
             except:
                 print(meta)
