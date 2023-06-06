@@ -80,7 +80,12 @@ def create_parser() -> argparse.ArgumentParser:
         "-c", "--channel", type=str, action="append", default=["defaults"]
     )
     parser.add_argument("--override-channels", action="store_true")
-    parser.add_argument("packages", type=str, help="Matchspec list. e.g: python[version=3.9] anaconda=2022.10", nargs="+")
+    parser.add_argument(
+        "packages",
+        type=str,
+        help="Matchspec list. e.g: python[version=3.9] anaconda=2022.10",
+        nargs="+",
+    )
     parser.set_defaults(override_channels=False)
 
     return parser
