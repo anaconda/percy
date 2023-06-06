@@ -61,7 +61,7 @@ def dry_run_assert(solver, packages, channels):
         message += "\nTo reproduce locally:"
         message += f'\n{json_result["__command__"]["cmd"]}'
         message += f"\n\n{json.dumps(json_result, indent=4)}"
-    assert True == json_result.get("success", False), message
+    assert json_result.get("success", False), message
 
 
 def data_source(filename):
