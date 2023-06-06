@@ -24,8 +24,9 @@ dependencies = [
   "requests",
 ]
 [project.optional-dependencies]
-ruamel = ["ruamel.yaml"]
+dev = ["pytest"]
 conda_build = ["conda-build"]
+ruamel = ["ruamel.yaml"]
 
 [project.scripts]
 percy = "percy.commands.main:cli"
