@@ -192,7 +192,7 @@ def downstream(
         f"feedstocks:{feedstocks}",
         f"packages:{packages}",
         f"allow_list:{allow_list}",
-        f"block_list:{block_list}"
+        f"block_list:{block_list}",
     ])
     print(f"\n\nDownstream build order ({order}):")
     print_build_order(buildout)
@@ -214,9 +214,13 @@ def upstream(obj, subdir, python, others, groups, feedstocks, packages, drop_noa
     )
 
     # print build order
-    print(
-        f"\n\nUpstream build order (groups:{groups} feedstocks:{feedstocks} packages:{packages} drop_noarch:{drop_noarch})):"
-    )
+    order = " ".join([
+        f"groups:{groups}",
+        f"feedstocks:{feedstocks}",
+        f"packages:{packages}",
+        f"drop_noarch:{drop_noarch}",
+    ])
+    print(f"\n\nUpstream build order ({order}):")
     print_build_order(buildout)
 
 
