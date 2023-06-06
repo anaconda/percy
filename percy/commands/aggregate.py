@@ -242,9 +242,13 @@ def order(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch
     )
 
     # print build order
-    print(
-        f"\n\nBuild order (groups:{groups} feedstocks:{feedstocks} packages:{packages} drop_noarch:{drop_noarch})):"
-    )
+    order = " ".join([
+        f"groups:{groups}",
+        f"feedstocks:{feedstocks}",
+        f"packages:{packages}",
+        f"drop_noarch:{drop_noarch}",
+    ])
+    print(f"\n\nBuild order ({order})):")
     print_build_order(buildout)
 
 
