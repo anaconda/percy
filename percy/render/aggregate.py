@@ -355,8 +355,8 @@ class Aggregate:
                 if dep.pkg in self.packages:
                     for run_export in self.packages[dep.pkg].run_exports:
                         if (
-                            not "*" in rendered_pkg.ignore_run_exports
-                            and not run_export in rendered_pkg.ignore_run_exports
+                            "*" not in rendered_pkg.ignore_run_exports
+                            and run_export not in rendered_pkg.ignore_run_exports
                         ):
                             rendered_pkg.run.add(run_export)
 
