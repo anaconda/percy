@@ -3,6 +3,9 @@
 Not as accurate as conda-build render, but faster and architecture independent.
 """
 
+# TODO: refactor long lines and remove the following linter mute
+# ruff: noqa: E501
+
 import sys
 import re
 import itertools
@@ -323,7 +326,7 @@ class Recipe:
                     else:
                         test_reqs.extend([reqs])
             test_reqs = [
-                Dep(i, f"test/requires")
+                Dep(i, "test/requires")
                 for i in test_reqs
                 if (i is not None and str(i).strip())
             ]
