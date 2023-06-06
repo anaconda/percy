@@ -204,7 +204,7 @@ class Aggregate:
         # get local aggregate info
         self.local_path = Path(aggregate_path)
         x = subprocess.run(
-            [f"git config --get remote.origin.url"],
+            ["git config --get remote.origin.url"],
             capture_output=True,
             shell=True,
             encoding="utf-8",
@@ -214,7 +214,7 @@ class Aggregate:
             "git@github.com:", "https://github.com/"
         )
         x = subprocess.run(
-            [f"git rev-parse --abbrev-ref HEAD"],
+            ["git rev-parse --abbrev-ref HEAD"],
             capture_output=True,
             shell=True,
             encoding="utf-8",
