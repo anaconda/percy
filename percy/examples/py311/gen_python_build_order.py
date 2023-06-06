@@ -89,13 +89,13 @@ def get_repodata_package_list(subdir, python_ref, include_noarch=False):
     return sorted(list(pkgs))
 
 
-def _script(script_name_ending):
-    return f"./{subdir}/python_{python_target}_{subdir}_{script_name_ending}"
-
-
 def gen_python_build_order(
     aggregate_path, subdir, python_ref, python_target, numpy_target, croot, channel
 ):
+
+    # Helper to generate script names.
+    def _script(script_name_ending):
+        return f"./{subdir}/python_{python_target}_{subdir}_{script_name_ending}"
 
     if croot is None:
         if not subdir.startswith("win-"):
