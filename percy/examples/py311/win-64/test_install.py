@@ -1,12 +1,16 @@
-"""
-Test installation of all packages listed in python_full_package_list.yaml
-pytest -n auto --junit-xml="test_install.xml" --html="test_install.html" --self-contained-html test_install.py
+"""Test installation of all packages listed in python_full_package_list.yaml
+
+Usage:
+    pytest -n auto \
+      --junit-xml="test_install.xml" \
+      --html="test_install.html" \
+      --self-contained-html \
+      test_install.py
 """
 
 import json
 import pytest
 import subprocess
-import json
 import yaml
 
 
@@ -57,7 +61,7 @@ def dry_run_assert(solver, packages, channels):
         message += "\nTo reproduce locally:"
         message += f'\n{json_result["__command__"]["cmd"]}'
         message += f"\n\n{json.dumps(json_result, indent=4)}"
-    assert True == json_result.get("success", False), message
+    assert json_result.get("success", False), message
 
 
 def data_source(filename):
@@ -70,5 +74,5 @@ def data_source(filename):
     data_source("./python_full_package_list.yaml"),
 )
 def test_install(package, channels):
-    packages = [f"{package}", f"python[version=3.11]"]
+    packages = [f"{package}", "python[version=3.11]"]
     dry_run_assert("classic", packages, channels)
