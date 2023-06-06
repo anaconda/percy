@@ -35,7 +35,9 @@ jobs:
           conda activate percy
       - name: Install dependencies
         run: |
+          source $CONDA/etc/profile.d/conda.sh
           pip install -e .[dev]
       - name: Test with pytest
         run: |
+          source $CONDA/etc/profile.d/conda.sh
           pytest
