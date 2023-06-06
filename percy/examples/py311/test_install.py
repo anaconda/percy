@@ -65,6 +65,8 @@ def dry_run_assert(solver, packages, channels):
 
 
 def data_source(filename):
+    import os
+    print(f"data_source({filename=}", os.getcwd())  # XXX
     with open(filename) as f:
         return yaml.safe_load(f).items()
 
