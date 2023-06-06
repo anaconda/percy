@@ -180,14 +180,16 @@ class JiraSync:
         for i, stage in enumerate(stages):
             for feedstock in stage:
                 package_name = next(iter(feedstock.packages)).lower()
-                if not package_name in epic_tasks:
+                if package_name not in epic_tasks:
                     logging.info(
                         f"No existing ticket {package_name} : creating new ticket"
                     )
+                    issue_key = f"{i+1:03}/{n_stages:03} {feedstock.name}"
+                    desc = f"{issue_key} rebuild against {target}"
                     issue_fields = {
                         "project": {"key": "PKG"},
-                        "summary": f"{i+1:03}/{n_stages:03} {feedstock.name} rebuild against {target}",
-                        "description": f"{i+1:03}/{n_stages:03} {feedstock.name} rebuild against {target}",
+                        "summary": desc,
+                        "description": desc,
                         "issuetype": {"name": "Task"},
                         self.perseverance_fields_map["Package Name"]: package_name,
                     }
