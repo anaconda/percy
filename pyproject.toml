@@ -19,7 +19,6 @@ classifiers = [
 ]
 dependencies = [
   "click",
-  "conda",
   "jinja2",
   "pyyaml",
   "requests",
