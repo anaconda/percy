@@ -10,14 +10,14 @@ try:
     from ruamel.yaml.parser import ParserError
 
     has_ruamel = True
-except:
+except Exception:
     has_ruamel = False
 try:
     from conda_build import api
     from conda_build.config import Config
 
     has_conda_build = True
-except:
+except Exception:
     has_conda_build = False
 
 from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
@@ -46,7 +46,7 @@ if has_ruamel:
 # Pyyaml configuration
 try:
     loader = yaml.CLoader
-except:
+except Exception:
     loader = yaml.Loader
 
 
@@ -209,7 +209,7 @@ def render(
             "ppcle64": selector_dict.get("ppcle64", "0") == "1",
             "cran_mirror": "https://cloud.r-project.org",
             "compiler": expand_compiler,
-            "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x}",
+            "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x}",  # noqa: E501
             "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x}",
             "cdt": lambda x: f"{x}-cos6-x86_64",
             "os.environ.get": lambda name, default="": "",
