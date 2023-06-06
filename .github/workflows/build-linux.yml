@@ -39,7 +39,7 @@ jobs:
           pip install -e .[dev]
           pip install -e .[ruamel]
       - name: Test with pytest
-        working-directory: ./examples/py311
+        working-directory: examples/preinstall
         run: |
           source $CONDA/etc/profile.d/conda.sh
           pytest
