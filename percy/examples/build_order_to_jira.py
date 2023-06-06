@@ -27,6 +27,8 @@ def add_issue(login, token, dry_run, current_epic_key, target_pkg, pkg):
     """
     Add a new issue to perseverance jira.
     """
+    global perseverance_jira
+    global perseverance_fields_map
 
     if not perseverance_jira:
         perseverance_jira = JIRA(
