@@ -14,6 +14,7 @@ import requests
 import json
 from conda.models.version import VersionOrder
 
+
 def match_lower(mrv, rv, v):
     irv = int(rv) - 1
     hlp = ">={}.{}".format(mrv, irv)
@@ -31,6 +32,7 @@ def match_lower(mrv, rv, v):
             return v.find(hlp) < 0
         irv = irv - 1
     return False
+
 
 def depends_on_python(repo_package, python_ref):
     buildstr = repo_package["build"]
@@ -53,8 +55,11 @@ def depends_on_python(repo_package, python_ref):
 
     return False
 
+
 def compare_repodata(subdir, python_ref, python_target, block_list):
     
+    # TODO: refactor the common logic from this function into a helper.
+
     results = {}
     session = requests.Session()
 
@@ -203,6 +208,7 @@ def compare_repodata(subdir, python_ref, python_target, block_list):
     session.close()
 
     return results
+
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
