@@ -38,8 +38,9 @@ jobs:
           source $CONDA/etc/profile.d/conda.sh
           pip install -e .[dev]
           pip install -e .[ruamel]
+          conda install conda-libmamba-solver
       - name: Test with pytest
-        working-directory: examples/preinstall
         run: |
           source $CONDA/etc/profile.d/conda.sh
-          pytest
+          ln -s conda.recipe recipe
+          pytest --disable-pytest-warnings ./percy/examples/preinstall/test_install.py --feedstock .
