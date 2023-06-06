@@ -1,5 +1,5 @@
-"""
-Recipe renderer. 
+"""Recipe renderer.
+
 Not as accurate as conda-build render, but faster and architecture independent.
 """
 
@@ -300,12 +300,12 @@ class Recipe:
                 pkg_reqs["run"].extend(requirements)
             else:
                 for s in pkg_reqs.keys():
-                    l = requirements.get(s, [])
-                    if l is not None:
-                        if isinstance(l, list):
-                            pkg_reqs[s].extend(l)
+                    reqs = requirements.get(s, [])
+                    if reqs is not None:
+                        if isinstance(reqs, list):
+                            pkg_reqs[s].extend(reqs)
                         else:
-                            pkg_reqs[s].extend([l])
+                            pkg_reqs[s].extend([reqs])
             for s in pkg_reqs.keys():
                 pkg_reqs[s] = [
                     Dep(i, f"requirements/{s}")
@@ -316,12 +316,12 @@ class Recipe:
         test_reqs = []
         if test is not None:
             if isinstance(test, dict):
-                l = test.get("requires", [])
-                if l is not None:
-                    if isinstance(l, list):
-                        test_reqs.extend(l)
+                reqs = test.get("requires", [])
+                if reqs is not None:
+                    if isinstance(reqs, list):
+                        test_reqs.extend(reqs)
                     else:
-                        test_reqs.extend([l])
+                        test_reqs.extend([reqs])
             test_reqs = [
                 Dep(i, f"test/requires")
                 for i in test_reqs
@@ -381,12 +381,12 @@ class Recipe:
                         output_pkg_reqs["run"].extend(requirements)
                     else:
                         for s in pkg_reqs.keys():
-                            l = requirements.get(s, [])
-                            if l is not None:
-                                if isinstance(l, list):
-                                    output_pkg_reqs[s].extend(l)
+                            reqs = requirements.get(s, [])
+                            if reqs is not None:
+                                if isinstance(reqs, list):
+                                    output_pkg_reqs[s].extend(reqs)
                                 else:
-                                    output_pkg_reqs[s].extend([l])
+                                    output_pkg_reqs[s].extend([reqs])
                     for s in output_pkg_reqs.keys():
                         output_pkg_reqs[s] = [
                             Dep(i, f"outputs/{n}/requirements/{s}")
@@ -397,12 +397,12 @@ class Recipe:
                 test_reqs = []
                 if test is not None:
                     if isinstance(test, dict):
-                        l = test.get("requires", [])
-                        if l is not None:
-                            if isinstance(l, list):
-                                test_reqs.extend(l)
+                        reqs = test.get("requires", [])
+                        if reqs is not None:
+                            if isinstance(reqs, list):
+                                test_reqs.extend(reqs)
                             else:
-                                test_reqs.extend([l])
+                                test_reqs.extend([reqs])
                     test_reqs = [
                         Dep(i, f"outputs/{n}/test/requires")
                         for i in test_reqs
