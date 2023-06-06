@@ -121,7 +121,9 @@ def pytest_generate_tests(metafunc):
     if 'arch' in metafunc.fixturenames:
         values = metafunc.config.option.arch
         metafunc.parametrize('arch', values)
-    recipe_path = Path(metafunc.config.option.feedstock).expanduser().absolute() / 'recipe' / 'meta.yaml'
+    recipe_path = Path(
+        metafunc.config.option.feedstock
+    ).expanduser().absolute() / 'recipe' / 'meta.yaml'
     with open(recipe_path, 'r') as stream:
         contents = stream.read()
         if 'python' in contents:
