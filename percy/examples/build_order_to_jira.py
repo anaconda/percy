@@ -265,7 +265,7 @@ if __name__ == "__main__":
     )
 
     # print build order
-    print(f"\n\nDownstream build order:")
+    print("\n\nDownstream build order:")
     stages = [
         list(result)
         for key, result in itertools.groupby(buildout, key=lambda f: f.weight)
