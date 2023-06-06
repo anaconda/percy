@@ -180,9 +180,9 @@ if __name__ == "__main__":
             ["numpy", "python"],
         )
 
-    with open(f"./issues.yaml", "w") as f:
+    with open("./issues.yaml", "w") as f:
         yaml.dump(issues, f)
-    with open(f"./issues_no_numpy_python.yaml", "w") as f:
+    with open("./issues_no_numpy_python.yaml", "w") as f:
         yaml.dump(issues_no_numpy_python, f)
 
     print(f"Outdated: { len(issues['outdated_py_local']) }")
