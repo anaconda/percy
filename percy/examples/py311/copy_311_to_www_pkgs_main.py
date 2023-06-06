@@ -216,7 +216,10 @@ def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
                 )
             except Exception:
                 copy_failed(
-                    f"Could not set permissions ({DEFAULT_PERMISSIONS:o}) for file {dest_filepath}; terminating!"
+                    (
+                        f"Could not set permissions ({DEFAULT_PERMISSIONS:o}) "
+                        "for file {dest_filepath}; terminating!"
+                    )
                 )
 
             try:
@@ -230,7 +233,10 @@ def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
                 )
             except Exception:
                 copy_failed(
-                    f"Could not set ownership ({user_name}:{group_name}) for file {dest_filepath}; terminating!"
+                    (
+                        f"Could not set ownership ({user_name}:{group_name}) "
+                        "for file {dest_filepath}; terminating!"
+                    )
                 )
 
     if dry_run:
