@@ -40,14 +40,14 @@ def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.1
                 requirements = meta.get('requirements', {})
                 if requirements is not None:
                     for e in ['build', 'host', 'run', 'run_constrained']:
-                        l = requirements.get(e, [])
-                        if l is not None:
-                            pkg_reqs.extend(l)
+                        req = requirements.get(e, [])
+                        if req is not None:
+                            pkg_reqs.extend(req)
                 test = meta.get('test', {})
                 if test is not None:
-                    l = test.get('requires', [])
-                    if l is not None:
-                        pkg_reqs.extend(l)
+                    req = test.get('requires', [])
+                    if req is not None:
+                        pkg_reqs.extend(req)
                 outputs = meta.get('outputs', [])
                 if outputs:
                     for output in outputs:
@@ -56,14 +56,14 @@ def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.1
                         requirements = output.get('requirements', {})
                         if requirements is not None:
                             for e in ['build', 'host', 'run', 'run_constrained']:
-                                l = requirements.get(e, [])
-                                if l is not None:
-                                    pkg_reqs.extend(l)
+                                req = requirements.get(e, [])
+                                if req is not None:
+                                    pkg_reqs.extend(req)
                         test = output.get('test', {})
                         if test is not None:
-                            l = test.get('requires', [])
-                            if l is not None:
-                                pkg_reqs.extend(l)
+                            req = test.get('requires', [])
+                            if req is not None:
+                                pkg_reqs.extend(req)
                         unresolved_deps[name] = dry_run(subdir=arch, channels=channels, packages=output_pkg_reqs)
                 else:
                     unresolved_deps[name] = dry_run(subdir=arch, channels=channels, packages=pkg_reqs)
