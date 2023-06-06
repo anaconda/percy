@@ -5,7 +5,6 @@
 """
 
 import argparse
-from pathlib import Path
 import yaml
 import requests
 import json
@@ -57,80 +56,147 @@ def compare_repodata(subdir, python_ref, python_target, block_list):
 
     # load noarch repodata
     pkgs_noarch = {}
-    repodata_subdir = None
-    url = f"https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
+    url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
     response = session.get(url)
     if response.status_code != 200:
         raise Exception()
-    else:
-        repodata_subdir = json.loads(response.text)
+    repodata_subdir = json.loads(response.text)
     for v in repodata_subdir["packages"].values():
-        if depends_on_python(v, python_target) and v["name"] not in block_list:
-            if (v["name"] not in pkgs_noarch) \
-                or (VersionOrder(pkgs_noarch[v["name"]]["version"]) < VersionOrder(v["version"])) \
-                or (VersionOrder(pkgs_noarch[v["name"]]["version"]) == VersionOrder(v["version"]) and pkgs_noarch[v["name"]]["build_number"] < v["build_number"]):
-                pkgs_noarch[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": True }
-
+        name = v["name"]
+        # Skip packages that we don't care about here.
+        if not depends_on_python(v, python_target) or name in block_list:
+            continue
+        # Skip packages that were already identified.
+        if name in pkgs_noarch:
+            continue
+        # Compare the versions.
+        noarch_version = VersionOrder(pkgs_noarch[name]["version"])
+        version = VersionOrder(v["version"])
+        if version > noarch_version:
+            continue
+        # Compare the build numbers if the versions match.
+        noarch_build = pkgs_noarch[name]["build_number"]
+        build = v["build_number"]
+        if noarch_version == version and noarch_build >= build:
+            continue
+        # Add the identified noarch package.
+        pkgs_noarch[name] = {
+            "version": v["version"],
+            "build_number": build,
+            "noarch": True,
+        }
 
     # load 310 repodata
     pkgs_310 = {}
-    repodata_subdir = None
     url = f"https://repo.anaconda.com/pkgs/main/{subdir}/repodata.json"
     response = session.get(url)
     if response.status_code != 200:
         raise Exception()
-    else:
-        repodata_subdir = json.loads(response.text)
+    repodata_subdir = json.loads(response.text)
     for v in repodata_subdir["packages"].values():
-        if depends_on_python(v, python_ref) and v["name"] not in block_list:
-            if (v["name"] not in pkgs_310) \
-                or (VersionOrder(pkgs_310[v["name"]]["version"]) < VersionOrder(v["version"])) \
-                or (VersionOrder(pkgs_310[v["name"]]["version"]) == VersionOrder(v["version"]) and pkgs_310[v["name"]]["build_number"] < v["build_number"]):
-                pkgs_310[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
+        name = v["name"]
+        # Skip packages that we don't care about here.
+        if not depends_on_python(v, python_ref) or name in block_list:
+            continue
+        # Skip packages that were already identified.
+        if name in pkgs_310:
+            continue
+        # Compare the versions.
+        version_310 = VersionOrder(pkgs_310[name]["version"])
+        version = VersionOrder(v["version"])
+        if version > version_310:
+            continue
+        # Compare the build numbers if the versions match.
+        build_310 = pkgs_310[name]["build_number"]
+        build = v["build_number"]
+        if version_310 == version and build_310 >= build:
+            continue
+        # Add the identified noarch package.
+        pkgs_310[name] = {
+            "version": v["version"],
+            "build_number": build,
+            "noarch": False,
+        }
 
     # merge defaults noarch 310
     pkgs_defaults = pkgs_310
     for name, info in pkgs_noarch.items():
-        if name in pkgs_defaults and \
-            ((VersionOrder(info["version"]) > VersionOrder(pkgs_defaults[name]["version"])) \
-            or (VersionOrder(info["version"]) == VersionOrder(pkgs_defaults[name]["version"]) and info["build_number"] > pkgs_defaults[name]["build_number"])):
-            print(f"Found {name} {pkgs_noarch[name]}")
-            print(f"Removing {name} {pkgs_defaults[name]}")
-            del pkgs_defaults[name]
+        if name not in pkgs_defaults:
+            continue
+        # Compare the versions.
+        version_defaults = VersionOrder(pkgs_defaults[name]["version"])
+        version = VersionOrder(info["version"])
+        if version_defaults > version:
+            continue
+        # Compare the build numbers if the versions match.
+        build = info["build_number"]
+        build_defaults = pkgs_defaults[name]["build_number"]
+        if version == version_defaults and build_defaults >= build:
+            continue
+        print(f"Found {name} {pkgs_noarch[name]}")
+        print(f"Removing {name} {pkgs_defaults[name]}")
+        del pkgs_defaults[name]
 
     # load 311 repodata
     pkgs_311 = {}
-    repodata_subdir = None
     url = f"https://repo.anaconda.com/pkgs/main/{subdir}/repodata.json"
     response = session.get(url)
     if response.status_code != 200:
         raise Exception()
-    else:
-        repodata_subdir = json.loads(response.text)
+    repodata_subdir = json.loads(response.text)
     for v in repodata_subdir["packages"].values():
-        if depends_on_python(v, python_target) and v["name"] not in block_list:
-            if (v["name"] not in pkgs_311) \
-                or (VersionOrder(pkgs_311[v["name"]]["version"]) < VersionOrder(v["version"])) \
-                or (VersionOrder(pkgs_311[v["name"]]["version"]) == VersionOrder(v["version"]) and pkgs_311[v["name"]]["build_number"] < v["build_number"]):
-                pkgs_311[v["name"]] = { "version": v["version"], "build_number": v["build_number"], "noarch": False }
+        name = v["name"]
+        if not depends_on_python(v, python_target) or name in block_list:
+            continue
+        if name in pkgs_311:
+            continue
+        # Compare the versions.
+        version_311 = VersionOrder(pkgs_311[name]["version"])
+        version = VersionOrder(v["version"])
+        if version_311 > version:
+            continue
+        # Compare the build numbers if the versions match.
+        build_311 = pkgs_311[name]["build_number"]
+        build = v["build_number"]
+        if version == version_311 and build_311 >= build:
+            continue
+        # Add the identified py311 package.
+        pkgs_311[name] = {
+            "version": v["version"],
+            "build_number": build,
+            "noarch": False,
+        }
 
     # compare local with defaults
     git_cmds = []
     condabuild_cmds = []
     for local_name, local_data in pkgs_311.items():
-        local_version = local_data["version"]
-        local_build_number = int(local_data["build_number"])
-        if local_name in pkgs_defaults:
-            defaults_version = pkgs_defaults[local_name]["version"]
-            defaults_build_number = int(pkgs_defaults[local_name]["build_number"])
-            if (VersionOrder(local_version) < VersionOrder(defaults_version)) \
-                or (VersionOrder(local_version) == VersionOrder(defaults_version) and local_build_number < defaults_build_number):
-                results[local_name] = {"311_version": local_version, "311_build_number": local_build_number, "310_version": defaults_version, "310_build_number": defaults_build_number}
+        if local_name not in pkgs_defaults:
+            continue
+        version_local = VersionOrder(local_data["version"])
+        version_defaults = VersionOrder(pkgs_defaults[local_name]["version"])
+        if version_defaults > version_local:
+            continue
+        build_defaults = int(pkgs_defaults[local_name]["build_number"])
+        build_local = int(local_data["build_number"])
+        if build_defaults >= build_local:
+            continue
+        results[local_name] = {
+            "311_version": local_data["version"],
+            "311_build_number": build_local,
+            "310_version": pkgs_defaults[local_name]["version"],
+            "310_build_number": build_defaults,
+        }
 
     # find missing from local
     for defaults_name in pkgs_defaults.keys() - pkgs_311.keys():
         defaults_version = pkgs_defaults[defaults_name]["version"]
-        results[defaults_name] = {"311_version": None, "311_build_number": None, "310_version": defaults_version, "310_build_number": defaults_build_number}
+        results[defaults_name] = {
+            "311_version": None,
+            "311_build_number": None,
+            "310_version": defaults_version,
+            "310_build_number": build_defaults,
+        }
 
     session.close()
 
@@ -158,7 +224,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     block_list = []
-    with open(f"{args.subdir}/python_3.10_{args.subdir}_package_list_missing.yaml", "r") as file:
+    filename = f"{args.subdir}/python_3.10_{args.subdir}_package_list_missing.yaml"
+    with open(filename) as file:
         block_list = yaml.safe_load(file)
 
     results = compare_repodata(args.subdir, "3.10", "3.11", block_list)
