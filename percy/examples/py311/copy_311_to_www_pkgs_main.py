@@ -12,11 +12,8 @@ import os
 import pwd
 import shutil
 import sys
-from collections import defaultdict
 from tempfile import NamedTemporaryFile
 from typing import DefaultDict, List
-
-from conda.models.version import VersionOrder
 
 ZEUS_DEST = Path("/www/pkgs/main")
 DEFAULT_PERMISSIONS = 0o664
@@ -67,7 +64,6 @@ def filter_repodata(subdir, local_dir):
 
     # load defaults repodata
     session = requests.Session()
-    defaults_pkgs = {}
     repodata_subdir_defaults = None
     url = f"https://repo.anaconda.com/pkgs/main/{subdir}/repodata.json"
     response = session.get(url)
@@ -78,7 +74,6 @@ def filter_repodata(subdir, local_dir):
 
     # load local repodata
     local_repodata = local_dir / subdir / "repodata.json"
-    local_pkgs = {}
     with open(local_repodata) as f:
         repodata_subdir_local = json.load(f)
         logger.info("verify local repodata.json against defaults")
@@ -89,11 +84,16 @@ def filter_repodata(subdir, local_dir):
                         m["name"] == v["name"]
                         and m["version"] == v["version"]
                         and m["build_number"] == v["build_number"]
-                        and ("python >=3.11,<3.12.0a0" in m["depends"] or "py311" in l)
-                        for l, m in repodata_subdir_defaults["packages"].items()
+                        and ("python >=3.11,<3.12.0a0" in m["depends"] or "py311" in p)
+                        for p, m in repodata_subdir_defaults["packages"].items()
                     ]
                 ):
-                    if subdir == "osx-64" and ("blas 1.0 mkl" in v["depends"] or "mkl >=2021.4.0,<2022.0a0" in v["depends"]):
+                    def depends_on_mkl(package):
+                        if "blas 1.0 mkl" in package["depends"]:
+                            return True
+                        return "mkl >=2021.4.0,<2022.0a0" in package["depends"]
+
+                    if subdir == "osx-64" and depends_on_mkl(v):
                         logger.warning(f"Skipping osx-64 mkl related package { k }")
                         has_warnings = True
                         results["skip"].add(k)
@@ -107,7 +107,7 @@ def filter_repodata(subdir, local_dir):
                         m["name"] == v["name"]
                         and m["version"] == v["version"]
                         and m["build_number"] == v["build_number"]
-                        for l, m in repodata_subdir_defaults["packages"].items()
+                        for m in repodata_subdir_defaults["packages"].values()
                     ]
                 ):
                     results["present"].add(k)
