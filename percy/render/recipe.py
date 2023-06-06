@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from urllib.parse import urlparse
 
 from percy.render.variants import read_conda_build_config, Variant
-from percy.render.exceptions import *
+from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
 import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
 import percy.render._dumper as dumper
