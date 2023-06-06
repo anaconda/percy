@@ -31,7 +31,7 @@ def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.1
 
         if meta:
             try:
-                logging.debug(f'Check run environment')
+                logging.debug('Check run environment')
                 name = meta.get('package', {}).get('name', 'unknown')
                 pkg_reqs = []
                 if python != 'nopy':
