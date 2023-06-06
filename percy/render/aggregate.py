@@ -166,6 +166,7 @@ class Feedstock:
     path: str
     packages: dict[str, Package]
     weight: int
+    depends_on_feedstocks: set[str]
 
 
 def _render(feedstock_repo, recipe_path, subdir, python, others):
@@ -367,6 +368,7 @@ class Aggregate:
                     rendered_pkg.git_info.path,
                     dict(),
                     0,
+                    set(),
                 ),
             )
             v.packages[name] = rendered_pkg
@@ -412,10 +414,15 @@ class Aggregate:
                     node.feedstock.path,
                     dict(),
                     0,
+                    set(),
                 ),
             )
             v.weight = max(v.weight, node.weight)
             v.packages[pkg] = self.packages[pkg]
+            child_feedstocks = set()
+            for child in node.children:
+                child_feedstocks.add(child.feedstock.name)
+            v.depends_on_feedstocks.update(child_feedstocks)
         return sorted(feedstocks.values(), key=lambda x: (1.0 / (x.weight + 1), x.name))
 
     def get_build_order(
