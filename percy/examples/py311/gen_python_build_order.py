@@ -214,7 +214,6 @@ fi
 
 """
 
-        issue_order = []
         with open(_script("build_all.sh"), "w") as g:
             g.write("#!/bin/bash\n")
             g.write("set -x\n")
