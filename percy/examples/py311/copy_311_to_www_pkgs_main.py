@@ -160,7 +160,10 @@ def copy_failed(msg: str):
 def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
     if not files:  # if dict is empty it will be false
         logger.critical(
-            "Terminating; no files found to transfer. Better check your inventory captain!"
+            (
+               "Terminating; no files found to transfer. "
+               "Better check your inventory captain!"
+            )
         )
         sys.exit()
 
