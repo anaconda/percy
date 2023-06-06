@@ -18,7 +18,7 @@ def dry_run(
     for channel in channels:
         cmd += f" -c {channel}"
     if subdir.startswith("win-"):
-        cmd += f" -c msys2"
+        cmd += " -c msys2"
     if override_channels:
         cmd += " --override-channels"
     cmd = cmd.split(" ") + [f"'{p}'" for p in packages]
@@ -55,7 +55,7 @@ def dry_run_assert(subdir, packages):
             message += f"\nexport {k}={v}"
         message += f'\n{json_result["__command__"]["cmd"]}'
         message += f"\n\n{json.dumps(json_result, indent=4)}"
-    assert True == json_result.get("success", False), message
+    assert json_result.get("success", False), message
 
 def create_parser() -> argparse.ArgumentParser:
     """ Create command line parser.
