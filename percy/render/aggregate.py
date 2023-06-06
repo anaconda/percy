@@ -1,6 +1,10 @@
-""" A representation of aggregate.
-    May be used to get a rough build order of packages or gather health information.
+"""A representation of aggregate.
+
+May be used to get a rough build order of packages or gather health information.
 """
+
+# TODO: refactor long lines and remove the linter mute below.
+# ruff: noqa: E501
 
 from collections import namedtuple
 from dataclasses import dataclass
