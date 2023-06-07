@@ -17,7 +17,7 @@
   
     conda env create -f environment.yaml --name percy
     conda activate percy
-    pip install -e .   
+    pip install -e .[dev]
 
   ## Command line examples
 
