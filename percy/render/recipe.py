@@ -275,6 +275,7 @@ class Recipe:
         version = str(self.meta.get("package", {}).get("version", "-1")).strip()
         number = str(dict(self.meta.get("build", {}) or {}).get("number", "0")).strip()
         group = get_group_from_dev_url(self.meta, name)
+        path_prefix = ""
         is_noarch = False
         run_exports = []
         ignore_run_exports = []
@@ -346,6 +347,7 @@ class Recipe:
                 set(ignore_run_exports),
                 set(test_reqs),
                 is_noarch,
+                path_prefix,
             )
 
         # read output package deps
@@ -355,6 +357,7 @@ class Recipe:
                 name = output.get("name", "")
                 version = str(output.get("version", version)).strip()
                 group = get_group_from_dev_url(output, group)
+                path_prefix = f"outputs/{n}/"
                 is_noarch = False
                 run_exports = []
                 ignore_run_exports = []
@@ -425,6 +428,7 @@ class Recipe:
                     set(ignore_run_exports),
                     set(test_reqs),
                     is_noarch,
+                    path_prefix,
                 )
 
     def __getitem__(self, key):
@@ -644,6 +648,7 @@ class Package:
     ignore_run_exports: Set[str] = field(default_factory=set)
     test: Set[Dep] = field(default_factory=set)
     is_noarch: bool = False
+    path_prefix: str = ""
     git_info: object = None
 
     def __getitem__(self, key: str) -> Any:
