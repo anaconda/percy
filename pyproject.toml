@@ -24,6 +24,7 @@ dependencies = [
   "pyyaml",
   "requests",
 ]
+
 [project.optional-dependencies]
 ruamel = ["ruamel.yaml"]
 conda_build = ["conda-build"]
@@ -34,3 +35,6 @@ percy = "percy.commands.main:cli"
 [project.urls]
 "Homepage" = "https://github.com/anaconda-distribution/percy"
 "Bug Tracker" = "https://github.com/anaconda-distribution/percy/issues"
+
+[tool.setuptools]
+packages = ["percy"]
