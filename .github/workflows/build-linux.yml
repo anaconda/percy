@@ -1,13 +1,9 @@
 name: Python package
-
 on: [push]
 
 jobs:
-  use-hosted-runners:
-    runs-on: self-hosted-eks
-
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted-eks
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
