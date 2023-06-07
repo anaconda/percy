@@ -6,16 +6,16 @@ May be used to get a rough build order of packages or gather health information.
 # TODO: refactor long lines and remove the linter mute below.
 # ruff: noqa: E501
 
+import configparser
+import logging
+import subprocess
 from collections import namedtuple
 from dataclasses import dataclass
-import subprocess
-from pathlib import Path
-import logging
-import configparser
-from typing import Any
 from multiprocessing import Pool
+from pathlib import Path
+from typing import Any
 
-from percy.render.recipe import render, Package
+from percy.render.recipe import Package, render
 
 
 class PackageNode:

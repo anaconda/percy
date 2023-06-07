@@ -2,16 +2,18 @@
     Create corresponding tickets in Jira.
 """
 
-import percy.render.aggregate as aggregate
 import argparse
-from pathlib import Path
-import requests
-import json
 import itertools
+import json
 import logging
 import os
+from pathlib import Path
+
+import requests
 from jira.client import JIRA
 from jira.exceptions import JIRAError
+
+import percy.render.aggregate as aggregate
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",

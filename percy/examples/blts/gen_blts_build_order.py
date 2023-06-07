@@ -1,10 +1,13 @@
 """ Generate build scripts to build all packages depending on python.
 """
 
-import percy.render.aggregate as aggregate
-from itertools import groupby
 import os
+from itertools import groupby
+
 import yaml
+
+import percy.render.aggregate as aggregate
+
 
 def gen_blts_build_order(
     aggregate_path, subdir, python_ref, packages

@@ -1,9 +1,10 @@
+import contextlib
 import re
+from enum import Enum
+from typing import List
+
 import jinja2
 import yaml
-import contextlib
-from typing import List
-from enum import Enum
 
 try:
     from ruamel.yaml import YAML

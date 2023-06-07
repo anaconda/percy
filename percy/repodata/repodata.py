@@ -1,8 +1,10 @@
-import requests
 import json
 import logging
-from conda.models.version import VersionOrder
+
+import requests
 from conda.exceptions import InvalidVersionSpec
+from conda.models.version import VersionOrder
+
 from percy.render.recipe import Package
 
 

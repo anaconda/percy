@@ -1,5 +1,6 @@
 import sys
 from typing import List, TextIO
+
 import yaml
 from ruamel.yaml import YAML
 

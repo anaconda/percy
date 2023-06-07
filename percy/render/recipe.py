@@ -6,20 +6,20 @@ Not as accurate as conda-build render, but faster and architecture independent.
 # TODO: refactor long lines and remove the following linter mute
 # ruff: noqa: E501
 
-import sys
-import re
 import itertools
+import re
+import sys
 from copy import deepcopy
-from typing import Any, Dict, List, Set, TextIO
-from pathlib import Path
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Set, TextIO
 from urllib.parse import urlparse
 
-from percy.render.variants import read_conda_build_config, Variant
-from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+import percy.render._dumper as dumper
 import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
-import percy.render._dumper as dumper
+from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+from percy.render.variants import Variant, read_conda_build_config
 
 
 class Recipe:

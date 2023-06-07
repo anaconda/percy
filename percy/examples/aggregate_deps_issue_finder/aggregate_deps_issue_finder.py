@@ -1,14 +1,17 @@
 """ Script to find issues in aggregate pinned feedstocks.
 """
 
-import percy.render.aggregate as aggregate
 import argparse
-from pathlib import Path
-import yaml
-import requests
-import json
 import itertools
+import json
+from pathlib import Path
+
+import requests
+import yaml
 from conda.models.version import VersionOrder
+
+import percy.render.aggregate as aggregate
+
 
 def get_repodata_package_list(subdir):
 

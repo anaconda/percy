@@ -8,9 +8,10 @@ Usage:
       test_install.py
 """
 
-import pytest
-import subprocess
 import json
+import subprocess
+
+import pytest
 import yaml
 
 

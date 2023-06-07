@@ -9,9 +9,10 @@ output is outdated_{subdir}.json
 """
 
 import argparse
-import yaml
-import requests
 import json
+
+import requests
+import yaml
 from conda.models.version import VersionOrder
 
 

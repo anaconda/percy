@@ -1,17 +1,19 @@
 """ Generate build scripts to build all packages depending on python.
 """
 
-import percy.render.aggregate as aggregate
-from config import block_list
-from config import extras_versions as extras
 import argparse
-from pathlib import Path
-from itertools import groupby
-import requests
 import json
 import os
 import shutil
+from itertools import groupby
+from pathlib import Path
+
+import requests
 import yaml
+from config import block_list
+from config import extras_versions as extras
+
+import percy.render.aggregate as aggregate
 
 
 def get_repodata_package_list(subdir, python_ref, include_noarch=False):

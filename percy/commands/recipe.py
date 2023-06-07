@@ -1,7 +1,9 @@
-from pathlib import Path
-import click
-import os
 import functools
+import os
+from pathlib import Path
+
+import click
+
 import percy.render.recipe
 
 

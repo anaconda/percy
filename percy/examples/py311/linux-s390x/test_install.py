@@ -10,8 +10,9 @@ Usage:
 
 
 import json
-import pytest
 import subprocess
+
+import pytest
 import yaml
 
 

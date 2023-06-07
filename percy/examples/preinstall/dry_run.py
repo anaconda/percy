@@ -1,8 +1,9 @@
+import argparse
+import json
 import os
 import subprocess
 import sys
-import json
-import argparse
+
 
 def dry_run(
     subdir="linux-64",

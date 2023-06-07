@@ -2,18 +2,18 @@
 """
 
 import argparse
-from pathlib import Path
-import requests
+import grp
 import json
 import logging
-
-import grp
 import os
 import pwd
 import shutil
 import sys
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import DefaultDict, List
+
+import requests
 
 ZEUS_DEST = Path("/www/pkgs/main")
 DEFAULT_PERMISSIONS = 0o664

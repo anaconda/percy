@@ -1,10 +1,12 @@
-from pathlib import Path
-import click
+import functools
 import os
 import sys
-import functools
-import yaml
 from itertools import groupby
+from pathlib import Path
+
+import click
+import yaml
+
 import percy.render.aggregate
 import percy.repodata.repodata
 

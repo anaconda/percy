@@ -6,13 +6,14 @@ Largely inspired from conda build.
 # TODO: refactor long lines and remove the following linter mute
 # ruff: noqa: E501
 
+import copy
+import itertools
 import logging
 import os
 import re
-from typing import List, Sequence, Dict, Tuple
 from pathlib import Path
-import itertools
-import copy
+from typing import Dict, List, Sequence, Tuple
+
 import yaml
 
 try:

@@ -1,8 +1,10 @@
-from pathlib import Path
 import logging
+from pathlib import Path
+
 import pytest
-from percy.examples.preinstall.dry_run import dry_run
+
 import percy.render.recipe as recipe
+from percy.examples.preinstall.dry_run import dry_run
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
