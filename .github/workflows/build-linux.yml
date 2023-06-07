@@ -38,7 +38,6 @@ jobs:
           source $CONDA/etc/profile.d/conda.sh
           pip install -e .[dev]
           pip install -e .[ruamel]
-          conda install conda-libmamba-solver
       - name: Test with pytest
         run: |
           source $CONDA/etc/profile.d/conda.sh
