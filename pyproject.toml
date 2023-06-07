@@ -24,7 +24,7 @@ dependencies = [
   "requests",
 ]
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = ["pytest", "ruamel.yaml"]
 conda_build = ["conda-build"]
 ruamel = ["ruamel.yaml"]
 

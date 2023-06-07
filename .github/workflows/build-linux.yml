@@ -38,7 +38,6 @@ jobs:
         run: |
           source $CONDA/etc/profile.d/conda.sh
           pip install -e .[dev]
-          pip install -e .[ruamel]
       - name: Test with pytest
         run: |
           source $CONDA/etc/profile.d/conda.sh
