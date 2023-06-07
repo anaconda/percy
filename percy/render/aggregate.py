@@ -1,6 +1,10 @@
-""" A representation of aggregate.
-    May be used to get a rough build order of packages or gather health information.
+"""A representation of aggregate.
+
+May be used to get a rough build order of packages or gather health information.
 """
+
+# TODO: refactor long lines and remove the linter mute below.
+# ruff: noqa: E501
 
 from collections import namedtuple
 from dataclasses import dataclass
@@ -204,7 +208,7 @@ class Aggregate:
         # get local aggregate info
         self.local_path = Path(aggregate_path)
         x = subprocess.run(
-            [f"git config --get remote.origin.url"],
+            ["git config --get remote.origin.url"],
             capture_output=True,
             shell=True,
             encoding="utf-8",
@@ -214,7 +218,7 @@ class Aggregate:
             "git@github.com:", "https://github.com/"
         )
         x = subprocess.run(
-            [f"git rev-parse --abbrev-ref HEAD"],
+            ["git rev-parse --abbrev-ref HEAD"],
             capture_output=True,
             shell=True,
             encoding="utf-8",
@@ -351,8 +355,8 @@ class Aggregate:
                 if dep.pkg in self.packages:
                     for run_export in self.packages[dep.pkg].run_exports:
                         if (
-                            not "*" in rendered_pkg.ignore_run_exports
-                            and not run_export in rendered_pkg.ignore_run_exports
+                            "*" not in rendered_pkg.ignore_run_exports
+                            and run_export not in rendered_pkg.ignore_run_exports
                         ):
                             rendered_pkg.run.add(run_export)
 

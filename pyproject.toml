@@ -2,6 +2,9 @@
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+namespaces = false
+
 [project]
 name = "percy"
 version = "0.0.3"
@@ -19,15 +22,15 @@ classifiers = [
 ]
 dependencies = [
   "click",
-  "conda",
   "jinja2",
   "pyyaml",
   "requests",
 ]
 
 [project.optional-dependencies]
-ruamel = ["ruamel.yaml"]
+dev = ["pytest", "ruamel.yaml"]
 conda_build = ["conda-build"]
+ruamel = ["ruamel.yaml"]
 
 [project.scripts]
 percy = "percy.commands.main:cli"

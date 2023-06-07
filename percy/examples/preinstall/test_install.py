@@ -17,7 +17,20 @@ def render(feedstock_path, aggregate_path, arch, python):
 
     return render_results
 
-def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.10', channels=['default'], extras=[]):
+def check_deps(
+        feedstock_path,
+        aggregate_path,
+        arch='linux-aarch64',
+        python='3.10',
+        channels=None,
+        extras=None,
+    ):
+    # Set defaults to function-scoped locals if not specified as parameters.
+    if not channels:
+        channels = ['default']
+    if not extras:
+        extras = []
+
     logging.debug(f'Render feedstock {feedstock_path} for { arch }')
 
     recipe_path = feedstock_path / 'recipe' / 'meta.yaml'
@@ -31,7 +44,7 @@ def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.1
 
         if meta:
             try:
-                logging.debug(f'Check run environment')
+                logging.debug('Check run environment')
                 name = meta.get('package', {}).get('name', 'unknown')
                 pkg_reqs = []
                 if python != 'nopy':
@@ -40,14 +53,14 @@ def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.1
                 requirements = meta.get('requirements', {})
                 if requirements is not None:
                     for e in ['build', 'host', 'run', 'run_constrained']:
-                        l = requirements.get(e, [])
-                        if l is not None:
-                            pkg_reqs.extend(l)
+                        req = requirements.get(e, [])
+                        if req is not None:
+                            pkg_reqs.extend(req)
                 test = meta.get('test', {})
                 if test is not None:
-                    l = test.get('requires', [])
-                    if l is not None:
-                        pkg_reqs.extend(l)
+                    req = test.get('requires', [])
+                    if req is not None:
+                        pkg_reqs.extend(req)
                 outputs = meta.get('outputs', [])
                 if outputs:
                     for output in outputs:
@@ -56,17 +69,25 @@ def check_deps(feedstock_path, aggregate_path, arch='linux-aarch64', python='3.1
                         requirements = output.get('requirements', {})
                         if requirements is not None:
                             for e in ['build', 'host', 'run', 'run_constrained']:
-                                l = requirements.get(e, [])
-                                if l is not None:
-                                    pkg_reqs.extend(l)
+                                req = requirements.get(e, [])
+                                if req is not None:
+                                    pkg_reqs.extend(req)
                         test = output.get('test', {})
                         if test is not None:
-                            l = test.get('requires', [])
-                            if l is not None:
-                                pkg_reqs.extend(l)
-                        unresolved_deps[name] = dry_run(subdir=arch, channels=channels, packages=output_pkg_reqs)
+                            req = test.get('requires', [])
+                            if req is not None:
+                                pkg_reqs.extend(req)
+                        unresolved_deps[name] = dry_run(
+                            subdir=arch,
+                            channels=channels,
+                            packages=output_pkg_reqs,
+                        )
                 else:
-                    unresolved_deps[name] = dry_run(subdir=arch, channels=channels, packages=pkg_reqs)
+                    unresolved_deps[name] = dry_run(
+                        subdir=arch,
+                        channels=channels,
+                        packages=pkg_reqs,
+                    )
         
             except:
                 print(meta)
@@ -100,7 +121,9 @@ def pytest_generate_tests(metafunc):
     if 'arch' in metafunc.fixturenames:
         values = metafunc.config.option.arch
         metafunc.parametrize('arch', values)
-    recipe_path = Path(metafunc.config.option.feedstock).expanduser().absolute() / 'recipe' / 'meta.yaml'
+    recipe_path = Path(
+        metafunc.config.option.feedstock
+    ).expanduser().absolute() / 'recipe' / 'meta.yaml'
     with open(recipe_path, 'r') as stream:
         contents = stream.read()
         if 'python' in contents:

@@ -3,7 +3,7 @@
 
 import percy.render.aggregate as aggregate
 from config import block_list
-from config import extras_versions
+from config import extras_versions as extras
 import argparse
 from pathlib import Path
 from itertools import groupby
@@ -93,6 +93,10 @@ def gen_python_build_order(
     aggregate_path, subdir, python_ref, python_target, numpy_target, croot, channel
 ):
 
+    # Helper to generate script names.
+    def _script(script_name_ending):
+        return f"./{subdir}/python_{python_target}_{subdir}_{script_name_ending}"
+
     if croot is None:
         if not subdir.startswith("win-"):
             croot = f"../ci_py{python_target.replace('.','')}/"
@@ -122,7 +126,8 @@ def gen_python_build_order(
 
     # get feedstock build order
     allow_list = repodata_package_list  # only packages already in subdir defaults
-    allow_list_noarch = repodata_package_list_with_noarch  # only packages already in subdir and noarch defaults
+    # only packages already in subdir and noarch defaults
+    allow_list_noarch = repodata_package_list_with_noarch
     python_buildout = aggregate_repo.get_depends_build_order(
         [], ["python"], allow_list, block_list, True
     )
@@ -178,29 +183,47 @@ def gen_python_build_order(
     n_stages = len(stages)
 
     if not subdir.startswith("win-"):
-        build_feedstock_template = """
-if [[ ! -f {feedstockname}.mark ]]; then
-    if [[ -d {feedstockname} ]]; then
-        (conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channel} --use-local --no-test {feedstockpath} >d 2>&1 && rm -f d && ( echo \"done\" >>{feedstockname}.mark ) && true) || ( (echo \"{feedstockname}\" >>failed.{stage} ) && (echo \"{feedstockname}\" >>errors.dump ) && ( cat d >>errors.dump ) && cat d && rm -f d && true) || true
+        build = " ".join([
+            "conda-build",
+            "--python={python_ver}",
+            "--numpy={numpy_ver}",
+            "--croot={croot}",
+            "-c {channel}",
+            "--use-local",
+            "--no-test",
+            "{feedstockpath}",
+            ">d 2>&1",
+            "&& rm -f d",
+            "&& ( echo done >>{feedstockname}.mark )",
+        ])
+        show_status = " && ".join([
+            "( echo \"{feedstockname}\" >>failed.{stage} )",
+            "( echo \"{feedstockname}\" >>errors.dump )",
+            "( cat d >>errors.dump )",
+            "cat d",
+            "rm -f d",
+        ])
+        build_feedstock_template = f"""
+if [[ ! -f {{feedstockname}}.mark ]]; then
+    if [[ -d {{feedstockname}} ]]; then
+        ( ( {build} ) || ( {show_status} ) )
     else
-        echo \"{feedstockname} not present\" >>failed.{stage}
+        echo '{{feedstockname}} not present' >>failed.{{stage}}
     fi
 fi
 
 """
-        issue_order = []
-        with open(f"./{subdir}/python_{python_target}_{subdir}_build_all.sh", "w") as g:
+
+        with open(_script("build_all.sh"), "w") as g:
             g.write("#!/bin/bash\n")
             g.write("set -x\n")
-            for i, stage in enumerate(stages):
-                i = i + 1
-                fname = f"./python_{python_target}_{subdir}_stage_{i:02}_of_{n_stages:02}.sh"
+            for i, stage in enumerate(stages, 1):
+                fname = _script(f"stage_{i:02}_of_{n_stages:02}.sh")
                 g.write(f"{fname}\n")
                 with open(f"./{subdir}/{fname}", "w") as f:
                     f.write("#!/bin/bash\n")
                     f.write("CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\n")
                     for feedstock in stage:
-                        # print(f"{feedstock.weight:02} {feedstock.name:25} {feedstock.packages}")
                         f.write(
                             build_feedstock_template.format(
                                 feedstockname=feedstock.name,
@@ -213,11 +236,11 @@ fi
                             )
                         )
 
-                        if feedstock.name in extras_versions:
+                        if feedstock.name in extras:
                             f.write(
                                 build_feedstock_template.format(
-                                    feedstockname=extras_versions[feedstock.name],
-                                    feedstockpath=f"./{extras_versions[feedstock.name]}",
+                                    feedstockname=extras[feedstock.name],
+                                    feedstockpath=f"./{extras[feedstock.name]}",
                                     python_ver=python_target,
                                     numpy_ver=numpy_target,
                                     croot=croot,
@@ -235,22 +258,29 @@ fi
         shutil.copy(Path(__file__).parent / "tally.sh", f"./{subdir}/")
 
     else:
-        build_feedstock_template = """
-conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channel} --use-local --no-test {feedstockpath} || echo \"{feedstockname}\" >>failed.{stage} || cmd /K \"exit /b 0\"
-"""
-        with open(
-            f"./{subdir}/python_{python_target}_{subdir}_build_all.bat", "w"
-        ) as g:
-            for i, stage in enumerate(stages):
-                i = i + 1
-                fname = (
-                    f"python_{python_target}_{subdir}_stage_{i:02}_of_{n_stages:02}.bat"
-                )
+        # Build the command template string.
+        build = " ".join([
+            "conda-build",
+            "--python={python_ver}",
+            "--numpy={numpy_ver}",
+            "--croot={croot}",
+            "-c {channel}",
+            "--use-local",
+            "--no-test",
+            "{feedstockpath}",
+        ])
+        show_status = "echo \"{feedstockname}\" >>failed.{stage}"
+        quit = "cmd /K \"exit /b 0\""
+        build_feedstock_template = f"\n{build} || {show_status} || {quit}\n"
+
+        with open(_script("build_all.bat"), "w") as g:
+            for i, stage in enumerate(stages, 1):
+                script = _script(f"stage_{i:02}_of_{n_stages:02}.bat")
+                fname = script.rsplit("/", 1)[1]
                 g.write(f"call {fname}\n")
-                with open(f"./{subdir}/{fname}", "w") as f:
+                with open(script, "w") as f:
                     f.write("set CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\r\n")
                     for feedstock in stage:
-                        # print(f"{feedstock.weight:02} {feedstock.name:25} {feedstock.packages}")
                         f.write(
                             build_feedstock_template.format(
                                 feedstockname=feedstock.name,
@@ -262,11 +292,11 @@ conda-build --python={python_ver} --numpy={numpy_ver} --croot={croot} -c {channe
                                 stage=i,
                             )
                         )
-                        if feedstock.name in extras_versions:
+                        if feedstock.name in extras:
                             f.write(
                                 build_feedstock_template.format(
-                                    feedstockname=extras_versions[feedstock.name],
-                                    feedstockpath=f"./{extras_versions[feedstock.name]}",
+                                    feedstockname=extras[feedstock.name],
+                                    feedstockpath=f"./{extras[feedstock.name]}",
                                     python_ver=python_target,
                                     numpy_ver=numpy_target,
                                     croot=croot,
