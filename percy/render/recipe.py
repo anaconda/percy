@@ -1,7 +1,10 @@
-"""
-Recipe renderer. 
+"""Recipe renderer.
+
 Not as accurate as conda-build render, but faster and architecture independent.
 """
+
+# TODO: refactor long lines and remove the following linter mute
+# ruff: noqa: E501
 
 import sys
 import re
@@ -13,7 +16,7 @@ from dataclasses import dataclass, field
 from urllib.parse import urlparse
 
 from percy.render.variants import read_conda_build_config, Variant
-from percy.render.exceptions import *
+from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
 import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
 import percy.render._dumper as dumper
@@ -300,12 +303,12 @@ class Recipe:
                 pkg_reqs["run"].extend(requirements)
             else:
                 for s in pkg_reqs.keys():
-                    l = requirements.get(s, [])
-                    if l is not None:
-                        if isinstance(l, list):
-                            pkg_reqs[s].extend(l)
+                    reqs = requirements.get(s, [])
+                    if reqs is not None:
+                        if isinstance(reqs, list):
+                            pkg_reqs[s].extend(reqs)
                         else:
-                            pkg_reqs[s].extend([l])
+                            pkg_reqs[s].extend([reqs])
             for s in pkg_reqs.keys():
                 pkg_reqs[s] = [
                     Dep(i, f"requirements/{s}")
@@ -316,14 +319,14 @@ class Recipe:
         test_reqs = []
         if test is not None:
             if isinstance(test, dict):
-                l = test.get("requires", [])
-                if l is not None:
-                    if isinstance(l, list):
-                        test_reqs.extend(l)
+                reqs = test.get("requires", [])
+                if reqs is not None:
+                    if isinstance(reqs, list):
+                        test_reqs.extend(reqs)
                     else:
-                        test_reqs.extend([l])
+                        test_reqs.extend([reqs])
             test_reqs = [
-                Dep(i, f"test/requires")
+                Dep(i, "test/requires")
                 for i in test_reqs
                 if (i is not None and str(i).strip())
             ]
@@ -381,12 +384,12 @@ class Recipe:
                         output_pkg_reqs["run"].extend(requirements)
                     else:
                         for s in pkg_reqs.keys():
-                            l = requirements.get(s, [])
-                            if l is not None:
-                                if isinstance(l, list):
-                                    output_pkg_reqs[s].extend(l)
+                            reqs = requirements.get(s, [])
+                            if reqs is not None:
+                                if isinstance(reqs, list):
+                                    output_pkg_reqs[s].extend(reqs)
                                 else:
-                                    output_pkg_reqs[s].extend([l])
+                                    output_pkg_reqs[s].extend([reqs])
                     for s in output_pkg_reqs.keys():
                         output_pkg_reqs[s] = [
                             Dep(i, f"outputs/{n}/requirements/{s}")
@@ -397,12 +400,12 @@ class Recipe:
                 test_reqs = []
                 if test is not None:
                     if isinstance(test, dict):
-                        l = test.get("requires", [])
-                        if l is not None:
-                            if isinstance(l, list):
-                                test_reqs.extend(l)
+                        reqs = test.get("requires", [])
+                        if reqs is not None:
+                            if isinstance(reqs, list):
+                                test_reqs.extend(reqs)
                             else:
-                                test_reqs.extend([l])
+                                test_reqs.extend([reqs])
                     test_reqs = [
                         Dep(i, f"outputs/{n}/test/requires")
                         for i in test_reqs

@@ -1,20 +1,23 @@
-""" Reads cbc files and gives variants.
-    Largely inspired from conda build.
+"""Reads cbc files and gives variants.
+
+Largely inspired from conda build.
 """
+
+# TODO: refactor long lines and remove the following linter mute
+# ruff: noqa: E501
 
 import logging
 import os
 import re
 from typing import List, Sequence, Dict, Tuple
 from pathlib import Path
-import logging
 import itertools
 import copy
 import yaml
 
 try:
     loader = yaml.CLoader
-except:
+except Exception:
     loader = yaml.Loader
 
 Variant = Dict[str, dict]

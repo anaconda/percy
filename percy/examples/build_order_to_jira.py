@@ -27,6 +27,8 @@ def add_issue(login, token, dry_run, current_epic_key, target_pkg, pkg):
     """
     Add a new issue to perseverance jira.
     """
+    global perseverance_jira
+    global perseverance_fields_map
 
     if not perseverance_jira:
         perseverance_jira = JIRA(
@@ -178,14 +180,16 @@ class JiraSync:
         for i, stage in enumerate(stages):
             for feedstock in stage:
                 package_name = next(iter(feedstock.packages)).lower()
-                if not package_name in epic_tasks:
+                if package_name not in epic_tasks:
                     logging.info(
                         f"No existing ticket {package_name} : creating new ticket"
                     )
+                    issue_key = f"{i+1:03}/{n_stages:03} {feedstock.name}"
+                    desc = f"{issue_key} rebuild against {target}"
                     issue_fields = {
                         "project": {"key": "PKG"},
-                        "summary": f"{i+1:03}/{n_stages:03} {feedstock.name} rebuild against {target}",
-                        "description": f"{i+1:03}/{n_stages:03} {feedstock.name} rebuild against {target}",
+                        "summary": desc,
+                        "description": desc,
                         "issuetype": {"name": "Task"},
                         self.perseverance_fields_map["Package Name"]: package_name,
                     }
@@ -261,7 +265,7 @@ if __name__ == "__main__":
     )
 
     # print build order
-    print(f"\n\nDownstream build order:")
+    print("\n\nDownstream build order:")
     stages = [
         list(result)
         for key, result in itertools.groupby(buildout, key=lambda f: f.weight)
