@@ -39,5 +39,6 @@ percy = "percy.commands.main:cli"
 "Homepage" = "https://github.com/anaconda-distribution/percy"
 "Bug Tracker" = "https://github.com/anaconda-distribution/percy/issues"
 
-[tool.setuptools]
-packages = ["percy"]
+# This causes an error saying that 'packages' is already defined and can't be overwritten.
+#[tool.setuptools]
+#packages = ["percy"]
