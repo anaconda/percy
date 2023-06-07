@@ -43,4 +43,4 @@ jobs:
         run: |
           source $CONDA/etc/profile.d/conda.sh
           ln -s conda.recipe recipe
-          pytest --disable-pytest-warnings ./percy/examples/preinstall/test_install.py --feedstock . --arch osx-64 linux-64 linux-ppc64le win-64 linux-ppc64le
+          pytest --disable-pytest-warnings ./percy/examples/preinstall/test_install.py --feedstock .
