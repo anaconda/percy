@@ -3,8 +3,10 @@ name: Python package
 on: [push]
 
 jobs:
-  build:
+  use-hosted-runners:
+    runs-on: self-hosted-eks
 
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
