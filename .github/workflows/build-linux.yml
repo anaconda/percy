@@ -29,8 +29,9 @@ jobs:
       - name: Update conda
         run: |
           conda update -n base -c defaults conda
+          conda install -n base conda-libmamba-solver
           source $CONDA/etc/profile.d/conda.sh
-          conda env create -f environment.yaml --name percy
+          conda env create -f environment.yaml --experimental-solver=libmamba --name percy
           conda init bash
           conda activate percy
       - name: Install dev and test dependencies
