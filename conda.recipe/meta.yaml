@@ -25,6 +25,7 @@ requirements:
     - jinja2
     - pyyaml
     - requests
+    - jsonschema
 
 test:
   imports:
