@@ -42,8 +42,13 @@ def update_dep(operation, package, section, pkg, constraints):
     has_dep = package.has_dep(section, pkg)
 
     # remove elements
+    new_range = []
     if operation in ["remove", "replace", "add_or_replace"]:
-        range = [l for l in range if not pkg in l ]
+        for raw_dep in range:
+            splits = re.split(r"[\s<=>]", str(raw_dep).strip(" -"), 1)
+            if splits[0].strip().lower() != pkg.strip().lower():
+                new_range.append(raw_dep)
+        range = new_range
 
     # add elements
     if operation in ["add", "replace", "add_or_replace"]:
@@ -91,8 +96,8 @@ if __name__ == "__main__":
             remove: remove "- package" from section
     """
     patch = [
-        { "op": "replace", "section": "host", "package": "openssl", "constraint": ["{{ openssl }}"] },
-        { "op": "replace", "section": "run", "package": "openssl", "constraint": ["3.*"] },
+        { "op": "add_or_replace", "section": "host", "package": "openssl", "constraint": ["{{ openssl }}"] },
+        { "op": "add_or_replace", "section": "run", "package": "openssl", "constraint": ["3.*"] },
         { "op": "replace", "section": "host", "package": "numpy", "constraint": ["1.21  # [py<311]", "1.23  # [py>=311]"] },
         { "op": "replace", "section": "run", "package": "numpy", "constraint": [">=1.21,<=2.0a0  # [py<311]", ">=1.23,<=2.0a0  # [py>=311]"] },
         { "op": "remove", "section": "host", "package": "geos", "constraint": [] },
