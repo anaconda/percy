@@ -15,10 +15,23 @@ description = "Fast and rough renderer of conda recipes."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.8"
+keywords = ["renderer", "conda recipe"]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
+    "Development Status :: 2 - Pre-Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities",
 ]
 dependencies = [
   "click",
@@ -38,6 +51,8 @@ percy = "percy.commands.main:cli"
 [project.urls]
 "Homepage" = "https://github.com/anaconda-distribution/percy"
 "Bug Tracker" = "https://github.com/anaconda-distribution/percy/issues"
+"Repository" = "https://github.com/anaconda-distribution/percy"
+"Documentation" = "https://github.com/anaconda-distribution/percy/blob/main/README.md"
 
 # This causes an error saying that 'packages' is already defined and can't be overwritten.
 #[tool.setuptools]
