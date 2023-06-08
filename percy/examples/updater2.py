@@ -23,6 +23,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
+
 class Recipe:
     def __init__(self, recipe_path):
         self.load(recipe_path)
@@ -125,7 +126,7 @@ class Recipe:
 
         # now go backward
         return (start_row, start_col, end_row, end_col)
-    
+
     def patch(self, operations):
         package_names = self.packages.keys()
         for op in operations:
@@ -145,14 +146,18 @@ class Recipe:
         type = operation["op"]
 
         # get initial section range
-        (start_row, start_col, end_row, end_col) = self.get_raw_range(f"{self.packages[package_name]}requirements/{section}")
+        (start_row, start_col, end_row, end_col) = self.get_raw_range(
+            f"{self.packages[package_name]}requirements/{section}"
+        )
         range = copy.deepcopy(self.meta_yaml[start_row:end_row])
 
         # does section has dep?
         has_dep = False
         for raw_dep in range:
             splits = re.split(r"[\s<=>]", str(raw_dep).strip(" -"), 1)
-            if splits[0].strip().lower() == pkg.strip().lower():
+            if splits[0].strip().lower() == pkg.strip().lower() or re.match(
+                f".*['\"]{pkg.strip()}['\"].*", raw_dep
+            ):
                 has_dep = True
                 break
 
@@ -161,7 +166,9 @@ class Recipe:
         if type in ["remove", "replace", "add_or_replace"]:
             for raw_dep in range:
                 splits = re.split(r"[\s<=>]", str(raw_dep).strip(" -"), 1)
-                if splits[0].strip().lower() != pkg.strip().lower():
+                if splits[0].strip().lower() != pkg.strip().lower() and not re.match(
+                    f".*['\"]{pkg.strip()}['\"].*", raw_dep
+                ):
                     new_range.append(raw_dep)
             range = new_range
 
@@ -177,17 +184,21 @@ class Recipe:
     def _increment_build_number(self):
         build_number = int(self.meta["build"]["number"]) + 1
         patterns = (
-            ('(?=\s*?)number:\s*([0-9]+)',
-                'number: {}'.format(build_number)),
-            ('(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
-                '{{% set build_number = {} %}}'.format(build_number)),
-            ('(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
-                '{{% set build = {} %}}'.format(build_number)),
+            ("(?=\s*?)number:\s*([0-9]+)", "number: {}".format(build_number)),
+            (
+                '(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
+                "{{% set build_number = {} %}}".format(build_number),
+            ),
+            (
+                '(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
+                "{{% set build = {} %}}".format(build_number),
+            ),
         )
         text = "\n".join(self.meta_yaml)
         for pattern, replacement in patterns:
             text = re.sub(pattern, replacement, text)
         self.meta_yaml = text.split("\n")
+
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -217,14 +228,39 @@ if __name__ == "__main__":
             remove: remove "- package" from section
     """
     operations = [
-        { "op": "add_or_replace", "section": "host", "package": "openssl", "constraint": ["{{ openssl }}"] },
-        { "op": "add_or_replace", "section": "run", "package": "openssl", "constraint": ["3.*"] },
-        { "op": "replace", "section": "host", "package": "numpy", "constraint": ["1.21  # [py<311]", "1.23  # [py>=311]"] },
-        { "op": "replace", "section": "run", "package": "numpy", "constraint": [">=1.21,<=2.0a0  # [py<311]", ">=1.23,<=2.0a0  # [py>=311]"] },
-        { "op": "remove", "section": "host", "package": "geos", "constraint": [] },
-        { "op": "remove", "section": "run", "package": "geos", "constraint": [] },
-        { "op": "add", "section": "host", "package": "geos2", "constraint": ["1.2.3"] },
-        { "op": "add", "section": "run", "package": "{{ pin_compatible('geos2') }}", "constraint": [""] },
+        {
+            "op": "add_or_replace",
+            "section": "host",
+            "package": "openssl",
+            "constraint": ["{{ openssl }}"],
+        },
+        {
+            "op": "add_or_replace",
+            "section": "run",
+            "package": "openssl",
+            "constraint": ["3.*"],
+        },
+        {
+            "op": "replace",
+            "section": "host",
+            "package": "numpy",
+            "constraint": ["1.21  # [py<311]", "1.23  # [py>=311]"],
+        },
+        {
+            "op": "replace",
+            "section": "run",
+            "package": "numpy",
+            "constraint": [">=1.21,<=2.0a0  # [py<311]", ">=1.23,<=2.0a0  # [py>=311]"],
+        },
+        {"op": "remove", "section": "host", "package": "geos", "constraint": []},
+        {"op": "remove", "section": "run", "package": "geos", "constraint": []},
+        {"op": "add", "section": "host", "package": "geos2", "constraint": ["1.2.3"]},
+        {
+            "op": "add",
+            "section": "run",
+            "package": "{{ pin_compatible('geos2') }}",
+            "constraint": [""],
+        },
     ]
     recipe = Recipe(args.recipe_path)
     recipe.patch(operations)
