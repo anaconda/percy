@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
+import jsonschema
 
 from percy.render.variants import read_conda_build_config, Variant
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
@@ -97,6 +98,22 @@ class Recipe:
         self.meta_yaml: List[str] = []
         #: Original recipe before modifications (updated by _load_from_string)
         self.orig: Recipe = deepcopy(self)
+
+        # patch schema
+        self.schema = {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "op": {"enum": ["add_or_replace", "replace", "remove", "add"]},
+                    "section": {
+                        "enum": ["build", "host", "run", "run_constrained", "test"]
+                    },
+                    "package": {"type": "string"},
+                    "constraints": {"type": "array", "items": {"type": "string"}},
+                },
+            },
+        }
 
     @property
     def path(self):
@@ -239,6 +256,11 @@ class Recipe:
         - parse yaml
         - normalize
         """
+
+        # re-init
+        self.meta: Dict[str, Any] = {}
+        self.skip = False
+        self.packages: Dict[str:Package] = dict()
 
         # render meta.yaml
         self.meta = renderer.render(
@@ -594,6 +616,78 @@ class Recipe:
                 if value in r:
                     return True
         return False
+
+    def patch(self, operations):
+        if self.renderer != RendererType.RUAMEL:
+            self.renderer = RendererType.RUAMEL
+            self.render()
+        jsonschema.validate(operations, self.schema)
+        package_names = self.packages.keys()
+        for op in operations:
+            for package_name in package_names:
+                self._patch(op, package_name)
+                self.save()
+                self.render()
+        self._increment_build_number()
+        self.save()
+        self.render()
+
+    def _patch(self, operation, package_name):
+        package = self.packages[package_name]
+        section = operation["section"]
+        pkg = operation["package"]
+        section = operation["section"]
+        constraints = operation["constraint"]
+        type = operation["op"]
+
+        # get initial section range
+        if section == "test":
+            path = f"{package.path_prefix}{section}/requires"
+        else:
+            path = f"{package.path_prefix}requirements/{section}"
+        (start_row, start_col, end_row, end_col) = self.get_raw_range(path)
+        range = deepcopy(self.meta_yaml[start_row:end_row])
+
+        # does section has dep?
+        has_dep = package.has_dep(section, pkg)
+
+        # remove elements
+        new_range = []
+        if type in ["remove", "replace", "add_or_replace"]:
+            for raw_dep in range:
+                splits = re.split(r"[\s<=>]", str(raw_dep).strip(" -"), 1)
+                if splits[0].strip().lower() != pkg.strip().lower() and not re.match(
+                    f".*['\"]{pkg.strip()}['\"].*", raw_dep
+                ):
+                    new_range.append(raw_dep)
+            range = new_range
+
+        # add elements
+        if type in ["add", "replace", "add_or_replace"]:
+            if type != "replace" or has_dep:
+                for constraint in constraints:
+                    range.insert(end_row, " " * start_col + f"- {pkg} {constraint}")
+
+        # apply change
+        self.meta_yaml[start_row:end_row] = range
+
+    def _increment_build_number(self):
+        build_number = int(self.orig.meta["build"]["number"]) + 1
+        patterns = (
+            ("(?=\s*?)number:\s*([0-9]+)", "number: {}".format(build_number)),
+            (
+                '(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
+                "{{% set build_number = {} %}}".format(build_number),
+            ),
+            (
+                '(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
+                "{{% set build = {} %}}".format(build_number),
+            ),
+        )
+        text = "\n".join(self.meta_yaml)
+        for pattern, replacement in patterns:
+            text = re.sub(pattern, replacement, text)
+        self.meta_yaml = text.split("\n")
 
 
 class Dep:
