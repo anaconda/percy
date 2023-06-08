@@ -2,6 +2,7 @@ from pathlib import Path
 import click
 import os
 import functools
+import json
 import percy.render.recipe
 
 
@@ -128,3 +129,41 @@ def outdated(obj, subdir, python, others, backend):
                     print("OK")
                 else:
                     print(f"Outdated: {name} {result}")
+
+
+@recipe.command(short_help="Patch a recipe")
+@click.pass_obj
+@base_options
+@click.argument("patch_file", metavar="FILE")
+def patch(obj, subdir, python, others, backend, patch_file):
+    """Patch a recipe. Takes a patch file as input, with content like:
+
+    \b
+    [
+        { "op": "add_or_replace", "section": "host", "package": "openssl", "constraint": ["{{ openssl }}"] },
+        { "op": "add_or_replace", "section": "run", "package": "openssl", "constraint": ["3.*"] },
+        { "op": "replace", "section": "host", "package": "numpy", "constraint": ["1.21  # [py<311]", "1.23  # [py>=311]"] },
+        { "op": "replace", "section": "run", "package": "numpy", "constraint": [">=1.21,<=2.0a0  # [py<311]", ">=1.23,<=2.0a0  # [py>=311]"] },
+        { "op": "remove", "section": "host", "package": "geos", "constraint": [] },
+        { "op": "remove", "section": "run", "package": "geos", "constraint": [] },
+        { "op": "add", "section": "host", "package": "geos2", "constraint": ["1.2.3"] },
+        { "op": "add", "section": "run", "package": "{{ pin_compatible('geos2') }}", "constraint": [""] }
+    ]
+    """
+
+    # render recipe
+    recipe_path = obj["recipe_path"]
+    render_results = percy.render.recipe.render(
+        recipe_path,
+        subdir,
+        python,
+        dict(others),
+        False,
+        percy.render.recipe.RendererType.RUAMEL,
+    )
+
+    # patch recipe
+    recipe = next(iter(render_results))
+    with open(patch_file) as p:
+        recipe.patch(json.load(p))
+    print("Done")

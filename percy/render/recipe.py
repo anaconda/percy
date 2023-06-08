@@ -52,6 +52,22 @@ class Recipe:
         orig (Recipe): Original recipe before modifications
     """
 
+    # patch schema
+    schema = {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "op": {"enum": ["add_or_replace", "replace", "remove", "add"]},
+                "section": {
+                    "enum": ["build", "host", "run", "run_constrained", "test"]
+                },
+                "package": {"type": "string"},
+                "constraints": {"type": "array", "items": {"type": "string"}},
+            },
+        },
+    }
+
     def __init__(
         self,
         recipe_file: Path,
@@ -98,22 +114,6 @@ class Recipe:
         self.meta_yaml: List[str] = []
         #: Original recipe before modifications (updated by _load_from_string)
         self.orig: Recipe = deepcopy(self)
-
-        # patch schema
-        self.schema = {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "op": {"enum": ["add_or_replace", "replace", "remove", "add"]},
-                    "section": {
-                        "enum": ["build", "host", "run", "run_constrained", "test"]
-                    },
-                    "package": {"type": "string"},
-                    "constraints": {"type": "array", "items": {"type": "string"}},
-                },
-            },
-        }
 
     @property
     def path(self):
