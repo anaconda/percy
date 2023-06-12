@@ -54,17 +54,12 @@ block_list = [
     "onnxruntime-feedstock", # pending 3.11 support https://github.com/microsoft/onnxruntime/issues/13482
     "skl2onnx-feedstock",
     "onnxmltools-feedstock",
-    # snowflake-connector-python 3.11 compatible depends on pyarrow 10.0.1
-    "snowflake-connector-python-feedstock",
-    # constructor --> latest version needs old conda
-    "constructor-feedstock",
     # catboost --> repack of wheels !?!
     "catboost-feedstock",
     "orange3-feedstock",
     # to be done later
     "scikit-bio-feedstock",
     "ibis-framework-feedstock",
-    "pmdarima-feedstock",
     "pymc3-feedstock",
     # obslolete / deprecated
     "jupyterlab_widgets-feedstock",
@@ -112,11 +107,5 @@ block_list = [
 
 # list of feedstocks to include at different pinned versions
 extras_versions = {
-    "setuptools-feedstock": "setuptools-52.0.0-feedstock",
-    "numpy-feedstock": "numpy-1.22-feedstock",
-    "mistune-feedstock": "mistune-0.8.4-feedstock",
-    "bokeh-feedstock": "bokeh-2.4.3-feedstock",
-    "mccabe-feedstock": "mccabe-0.6.1-feedstock",
-    "widgetsnbextension-feedstock": "widgetsnbextension-3.5.2-feedstock",
-    "pytest-feedstock": "pytest-6-feedstock",
+    # "setuptools-feedstock": "setuptools-52.0.0-feedstock",
 }

@@ -94,8 +94,11 @@ def gen_python_build_order(
 ):
 
     # Helper to generate script names.
-    def _script(script_name_ending):
-        return f"./{subdir}/python_{python_target}_{subdir}_{script_name_ending}"
+    def _script_name(script_name_ending):
+        return f"python_{python_target}_{subdir}_{script_name_ending}"
+    def _script_path(script_name_ending):
+        script_name = _script_name(script_name_ending)
+        return f"./{subdir}/{script_name}"
 
     if croot is None:
         if not subdir.startswith("win-"):
@@ -129,7 +132,7 @@ def gen_python_build_order(
     # only packages already in subdir and noarch defaults
     allow_list_noarch = repodata_package_list_with_noarch
     python_buildout = aggregate_repo.get_depends_build_order(
-        [], ["python"], allow_list, block_list, True
+        [], [], ["python"], allow_list, block_list, True
     )
 
     # compare local aggregate package list to repodata package list - for reference
@@ -160,7 +163,7 @@ def gen_python_build_order(
 
     # also export subdir + noarch list
     python_buildout_with_noarch = aggregate_repo.get_depends_build_order(
-        [], ["python"], allow_list_noarch, block_list, False
+        [], [], ["python"], allow_list_noarch, block_list, False
     )
     aggregate_package_list_with_noarch = []
     for feedstock in python_buildout_with_noarch:
@@ -214,13 +217,13 @@ fi
 
 """
 
-        with open(_script("build_all.sh"), "w") as g:
+        with open(_script_path("build_all.sh"), "w") as g:
             g.write("#!/bin/bash\n")
             g.write("set -x\n")
             for i, stage in enumerate(stages, 1):
-                fname = _script(f"stage_{i:02}_of_{n_stages:02}.sh")
+                fname = _script_name(f"stage_{i:02}_of_{n_stages:02}.sh")
                 g.write(f"{fname}\n")
-                with open(f"./{subdir}/{fname}", "w") as f:
+                with open(_script_path(f"stage_{i:02}_of_{n_stages:02}.sh"), "w") as f:
                     f.write("#!/bin/bash\n")
                     f.write("CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\n")
                     for feedstock in stage:
@@ -273,12 +276,12 @@ fi
         quit = "cmd /K \"exit /b 0\""
         build_feedstock_template = f"\n{build} || {show_status} || {quit}\n"
 
-        with open(_script("build_all.bat"), "w") as g:
+        with open(_script_path("build_all.bat"), "w") as g:
             for i, stage in enumerate(stages, 1):
-                script = _script(f"stage_{i:02}_of_{n_stages:02}.bat")
+                script = _script_name(f"stage_{i:02}_of_{n_stages:02}.bat")
                 fname = script.rsplit("/", 1)[1]
                 g.write(f"call {fname}\n")
-                with open(script, "w") as f:
+                with open(_script_path(f"stage_{i:02}_of_{n_stages:02}.bat"), "w") as f:
                     f.write("set CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\r\n")
                     for feedstock in stage:
                         f.write(
@@ -321,26 +324,26 @@ def create_parser() -> argparse.ArgumentParser:
         "--aggregate",
         type=Path,
         help="aggregate path",
-        default="/Users/cbousseau/work/recipes/aggregate/",
+        default="/Users/cbousseau/work/recipes/aggregate2/",
     )
     parser.add_argument(
         "-s", "--subdir", type=str, help="Architecture", default="linux-64"
     )
     parser.add_argument(
-        "-r", "--python-ref", type=str, help="Reference python version", default="3.10"
+        "-r", "--python-ref", type=str, help="Reference python version", default="3.11"
     )
     parser.add_argument(
-        "-p", "--python-target", type=str, help="Target python version", default="3.11"
+        "-p", "--python-target", type=str, help="Target python version", default="3.12"
     )
     parser.add_argument(
-        "-n", "--numpy-target", type=str, help="Target numpy version", default="1.22"
+        "-n", "--numpy-target", type=str, help="Target numpy version", default="1.24"
     )
     parser.add_argument(
         "-c",
         "--channel",
         type=str,
         help="Python release channel",
-        default="py311_bs/label/release",
+        default="ad-testing/label/py312",
     )
     parser.add_argument("-q", "--croot", type=str, help="croot")
 

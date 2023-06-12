@@ -1,4 +1,4 @@
-""" Copy 311 packages to /www/pkgs/main
+""" Copy 312 packages to /www/pkgs/main
 """
 
 import argparse
@@ -43,7 +43,7 @@ class CustomFormatter(logging.Formatter):
 
 
 # Basic logging with our custom formatter.
-logger = logging.getLogger("311")
+logger = logging.getLogger("312")
 ch = logging.StreamHandler()
 ch.setFormatter(CustomFormatter())
 logger.addHandler(ch)
@@ -78,27 +78,17 @@ def filter_repodata(subdir, local_dir):
         repodata_subdir_local = json.load(f)
         logger.info("verify local repodata.json against defaults")
         for k, v in repodata_subdir_local["packages"].items():
-            if "python >=3.11,<3.12.0a0" in v["depends"]:
+            if "python >=3.12,<3.13.0a0" in v["depends"]:
                 if k in repodata_subdir_defaults["packages"] or not any(
                     [
                         m["name"] == v["name"]
                         and m["version"] == v["version"]
                         and m["build_number"] == v["build_number"]
-                        and ("python >=3.11,<3.12.0a0" in m["depends"] or "py311" in p)
+                        and ("python >=3.12,<3.13.0a0" in m["depends"] or "py312" in p)
                         for p, m in repodata_subdir_defaults["packages"].items()
                     ]
                 ):
-                    def depends_on_mkl(package):
-                        if "blas 1.0 mkl" in package["depends"]:
-                            return True
-                        return "mkl >=2021.4.0,<2022.0a0" in package["depends"]
-
-                    if subdir == "osx-64" and depends_on_mkl(v):
-                        logger.warning(f"Skipping osx-64 mkl related package { k }")
-                        has_warnings = True
-                        results["skip"].add(k)
-                    else:
-                        results["to_copy"].add(k)
+                    results["to_copy"].add(k)
                 else:
                     results["present"].add(k)
             else:
