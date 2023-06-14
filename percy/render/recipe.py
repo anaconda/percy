@@ -58,13 +58,16 @@ class Recipe:
         "items": {
             "type": "object",
             "properties": {
-                "op": {"enum": ["add_or_replace", "replace", "remove", "add"]},
-                "section": {
-                    "enum": ["build", "host", "run", "run_constrained", "test"]
-                },
-                "package": {"type": "string"},
-                "constraints": {"type": "array", "items": {"type": "string"}},
+                "op": {"enum": ["add", "replace", "remove"]},
+                "path": {"type": "string"},
+                "match": {"type": "string"},
+                "value": {"type": "array", "items": {"type": "string"}},
             },
+            "required": [
+                "op",
+                "path",
+            ],
+            "additionalProperties": False,
         },
     }
 
@@ -633,40 +636,69 @@ class Recipe:
         self.render()
 
     def _patch(self, operation, package_name):
+        # read operation parameters
         package = self.packages[package_name]
-        section = operation["section"]
-        pkg = operation["package"]
-        section = operation["section"]
-        constraints = operation["constraint"]
-        type = operation["op"]
+        op = operation["op"]
+        path = operation["path"].replace("@output/", package.path_prefix)
+        match = operation.get("match", ".*")
+        value = operation.get("value", [""])
+        if isinstance(value, str):
+            value = [value]
+        if value == []:
+            value = [""]
+
+        # infer data type
+        has_match = False
+        in_list = False
+        if op == "remove":
+            raw_value = self.get(path, "NOPE")
+            if raw_value == "NOPE":
+                return
+        if op in ["add", "replace"]:
+            parent_path, parent_name = path.rsplit("/")
+            if op == "add":
+                raw_value = self.get(path, "NOPE")
+                if raw_value == "NOPE":
+                    match = "NOPE"
+            else:
+                raw_value = self.get(path)
+            if isinstance(raw_value, str):
+                if re.search(match, raw_value):
+                    has_match = True
+                    path = parent_path
+                    value = [parent_name + ": " + val for val in value]
+            else:
+                in_list = True
+                for el in raw_value:
+                    if re.search(match, el):
+                        has_match = True
 
         # get initial section range
-        if section == "test":
-            path = f"{package.path_prefix}{section}/requires"
-        else:
-            path = f"{package.path_prefix}requirements/{section}"
-        (start_row, start_col, end_row, end_col) = self.get_raw_range(path)
+        (start_row, start_col, end_row, _) = self.get_raw_range(path)
         range = deepcopy(self.meta_yaml[start_row:end_row])
-
-        # does section has dep?
-        has_dep = package.has_dep(section, pkg)
 
         # remove elements
         new_range = []
-        if type in ["remove", "replace", "add_or_replace"]:
-            for raw_dep in range:
-                splits = re.split(r"[\s<=>]", str(raw_dep).strip(" -"), 1)
-                if splits[0].strip().lower() != pkg.strip().lower() and not re.match(
-                    f".*['\"]{pkg.strip()}['\"].*", raw_dep
-                ):
-                    new_range.append(raw_dep)
-            range = new_range
+        insert_index = 0
+        index_set = False
+        for i, raw_value in enumerate(range):
+            if not re.search(match, raw_value):
+                new_range.append(raw_value)
+                if not index_set:
+                    if raw_value.strip():
+                        insert_index = i + 1
+            else:
+                insert_index = i
+                index_set = True
+        range = new_range
 
         # add elements
-        if type in ["add", "replace", "add_or_replace"]:
-            if type != "replace" or has_dep:
-                for constraint in constraints:
-                    range.insert(end_row, " " * start_col + f"- {pkg} {constraint}")
+        if op == "add" or (op == "replace" and has_match):
+            for new_val in value:
+                if in_list:
+                    range.insert(insert_index, " " * start_col + f"- {new_val}")
+                else:
+                    range.insert(insert_index, " " * start_col + f"{new_val}")
 
         # apply change
         self.meta_yaml[start_row:end_row] = range

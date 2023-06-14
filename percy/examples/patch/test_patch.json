@@ -1,0 +1,53 @@
+[
+    {
+        "op": "remove",
+        "path": "@output/build/noarch"
+    },
+    {
+        "op": "add",
+        "path": "@output/build/skip",
+        "value": "True  # [py<37]"
+    },
+    {
+        "op": "replace",
+        "path": "@output/build/script",
+        "match": "\\bpip install\\b(?!=.*--no-build-isolation)",
+        "value": "{{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/host",
+        "match": "\\bpython\\b",
+        "value": ["python"]
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/run",
+        "match": "\\bpython\\b",
+        "value": ["python"]
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/host",
+        "match": "\\bsetuptools\\b",
+        "value": ["setuptools"]
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/host",
+        "match": "\\bwheel\\b",
+        "value": ["wheel"]
+    },
+    {
+        "op": "add",
+        "path": "@output/test/requires",
+        "match": "\\bpip\\b",
+        "value": ["pip"]
+    },
+    {
+        "op": "add",
+        "path": "@output/test/commands",
+        "match": "\\bpip check\\b",
+        "value": ["pip check"]
+    }
+]
