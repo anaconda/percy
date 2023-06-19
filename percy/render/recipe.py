@@ -664,7 +664,7 @@ class Recipe:
                 raw_value = self.get(path, "NOPE")
                 if raw_value == "NOPE":
                     match = re.compile("NOPE")
-                    expanded_match = re.compile(f"NOPE")
+                    expanded_match = re.compile("NOPE")
                     value = [parent_name + ": " + val for val in value]
             else:
                 raw_value = self.get(path)
