@@ -210,7 +210,7 @@ def render(
             "cran_mirror": "https://cloud.r-project.org",
             "compiler": expand_compiler,
             "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x} x",  # noqa: E501
-            "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x} x",
+            "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x} x",  # noqa: E501
             "cdt": lambda x: f"{x}-cos6-x86_64",
             "os.environ.get": lambda name, default="": "",
             "ccache": lambda name, method="": "ccache",
