@@ -6,13 +6,13 @@
     {
         "op": "add",
         "path": "@output/build/skip",
-        "value": ["True  # [py<37]"]
+        "value": "True  # [py<37]"
     },
     {
         "op": "replace",
         "path": "@output/build/script",
         "match": "pip install(?!=.*--no-build-isolation).*",
-        "value": ["pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"]
+        "value": "pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"
     },
     {
         "op": "replace",
