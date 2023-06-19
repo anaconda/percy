@@ -62,6 +62,7 @@ class Recipe:
                 "path": {"type": "string"},
                 "match": {"type": "string"},
                 "value": {"type": "array", "items": {"type": "string"}},
+                "description": {"type": "string"},
             },
             "required": [
                 "op",
@@ -641,6 +642,10 @@ class Recipe:
         op = operation["op"]
         path = operation["path"].replace("@output/", package.path_prefix)
         match = operation.get("match", ".*")
+        expanded_match = re.compile(
+            f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
+        )
+        match = re.compile(match)
         value = operation.get("value", [""])
         if isinstance(value, str):
             value = [value]
@@ -648,9 +653,8 @@ class Recipe:
             value = [""]
 
         # infer data type
-        has_match = False
         in_list = False
-        if op == "remove":
+        if op in ["remove", "replace"]:
             raw_value = self.get(path, "NOPE")
             if raw_value == "NOPE":
                 return
@@ -659,46 +663,64 @@ class Recipe:
             if op == "add":
                 raw_value = self.get(path, "NOPE")
                 if raw_value == "NOPE":
-                    match = "NOPE"
+                    match = re.compile("NOPE")
+                    expanded_match = re.compile(f"NOPE")
+                    value = [parent_name + ": " + val for val in value]
             else:
                 raw_value = self.get(path)
             if isinstance(raw_value, str):
-                if re.search(match, raw_value):
-                    has_match = True
+                if match.search(raw_value):
                     path = parent_path
-                    value = [parent_name + ": " + val for val in value]
             else:
                 in_list = True
-                for el in raw_value:
-                    if re.search(match, el):
-                        has_match = True
 
         # get initial section range
         (start_row, start_col, end_row, _) = self.get_raw_range(path)
         range = deepcopy(self.meta_yaml[start_row:end_row])
 
-        # remove elements
-        new_range = []
+        # find matching elements
+        match_lines = {}
+        for i, line in enumerate(range):
+            if not line.lstrip().startswith("#"):
+                m = expanded_match.search(line)
+                if m:
+                    match_lines[i] = m
+        match_lines = dict(sorted(match_lines.items(), reverse=True))
+
+        # remove elements and find insert position
+        new_range = deepcopy(range)
         insert_index = 0
         index_set = False
-        for i, raw_value in enumerate(range):
-            if not re.search(match, raw_value):
-                new_range.append(raw_value)
-                if not index_set:
-                    if raw_value.strip():
-                        insert_index = i + 1
-            else:
-                insert_index = i
-                index_set = True
+        for i, m in match_lines.items():
+            new_range.pop(i)
+            insert_index = i
+            index_set = True
         range = new_range
+        if not index_set:
+            for i, e in reversed(list(enumerate(range))):
+                if e.strip():
+                    insert_index = i + 1
+                    break
 
         # add elements
-        if op == "add" or (op == "replace" and has_match):
+        if op == "add" or (op == "replace" and match_lines):
+            to_insert = set()
             for new_val in value:
+                for i, m in match_lines.items():
+                    to_insert.add(
+                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
+                            "#", "  #", 1
+                        )
+                    )
+            if not to_insert:
+                to_insert = set(value)
+            for new_val in to_insert:
                 if in_list:
-                    range.insert(insert_index, " " * start_col + f"- {new_val}")
+                    range.insert(
+                        insert_index, " " * start_col + f"- {new_val.strip(' -')}"
+                    )
                 else:
-                    range.insert(insert_index, " " * start_col + f"{new_val}")
+                    range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
 
         # apply change
         self.meta_yaml[start_row:end_row] = range

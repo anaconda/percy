@@ -19,6 +19,11 @@ requirements:
     - pip
     - pytest
     - python >=3.6
+    #- cython 0.29.32  # [unix]
+    - cython 0.29.33  # [unix]
+    - numpy 1.19  # [py<310]
+    - numpy 1.21  # [py==310]
+    - numpy 1.23  # [py>=311]
   run:
     - numpy
     - pmdarima

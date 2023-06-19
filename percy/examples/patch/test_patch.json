@@ -11,43 +11,61 @@
     {
         "op": "replace",
         "path": "@output/build/script",
-        "match": "\\bpip install\\b(?!=.*--no-build-isolation)",
-        "value": ["{{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"]
+        "match": "pip install(?!=.*--no-build-isolation).*",
+        "value": ["pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"]
+    },
+    {
+        "op": "replace",
+        "path": "@output/requirements/host",
+        "match": "cython( 0.29.[^\\s]+)?",
+        "value": ["cython 0.29"]
+    },
+    {
+        "op": "replace",
+        "path": "@output/requirements/host",
+        "match": "numpy( .*)?",
+        "value": ["numpy {{numpy}}"]
+    },
+    {
+        "op": "replace",
+        "path": "@output/requirements/run",
+        "match": "numpy( .*)?",
+        "value": ["{{ pin_compatible('numpy') }}"]
     },
     {
         "op": "add",
         "path": "@output/requirements/host",
-        "match": "\\bpython\\b",
+        "match": "python",
         "value": ["python"]
     },
     {
         "op": "add",
         "path": "@output/requirements/run",
-        "match": "\\bpython\\b",
+        "match": "python",
         "value": ["python"]
     },
     {
         "op": "add",
         "path": "@output/requirements/host",
-        "match": "\\bsetuptools\\b",
+        "match": "setuptools",
         "value": ["setuptools"]
     },
     {
         "op": "add",
         "path": "@output/requirements/host",
-        "match": "\\bwheel\\b",
+        "match": "wheel",
         "value": ["wheel"]
     },
     {
         "op": "add",
         "path": "@output/test/requires",
-        "match": "\\bpip\\b",
+        "match": "pip",
         "value": ["pip"]
     },
     {
         "op": "add",
         "path": "@output/test/commands",
-        "match": "\\bpip check\\b",
+        "match": "pip check",
         "value": ["pip check"]
     }
 ]

@@ -142,14 +142,18 @@ def patch(obj, subdir, python, others, backend, patch_file):
 
     \b
     [
-        { "op": "add_or_replace", "section": "host", "package": "openssl", "constraint": ["{{ openssl }}"] },
-        { "op": "add_or_replace", "section": "run", "package": "openssl", "constraint": ["3.*"] },
-        { "op": "replace", "section": "host", "package": "numpy", "constraint": ["1.21  # [py<311]", "1.23  # [py>=311]"] },
-        { "op": "replace", "section": "run", "package": "numpy", "constraint": [">=1.21,<=2.0a0  # [py<311]", ">=1.23,<=2.0a0  # [py>=311]"] },
-        { "op": "remove", "section": "host", "package": "geos", "constraint": [] },
-        { "op": "remove", "section": "run", "package": "geos", "constraint": [] },
-        { "op": "add", "section": "host", "package": "geos2", "constraint": ["1.2.3"] },
-        { "op": "add", "section": "run", "package": "{{ pin_compatible('geos2') }}", "constraint": [""] }
+        {"op":"remove","path":"@output/build/noarch"},
+        {"op":"add","path":"@output/build/skip","value":["True  # [py<37]"]},
+        {"op":"replace","path":"@output/build/script","match":"pip install(?!=.*--no-build-isolation).*","value":["pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"]},
+        {"op":"replace","path":"@output/requirements/host","match":"cython( 0.29.[^\\s]+)?","value":["cython 0.29"]},
+        {"op":"replace","path":"@output/requirements/host","match":"numpy( .*)?","value":["numpy {{numpy}}"]},
+        {"op":"replace","path":"@output/requirements/run","match":"numpy( .*)?","value":["{{ pin_compatible('numpy') }}"]},
+        {"op":"add","path":"@output/requirements/host","match":"python","value":["python"]},
+        {"op":"add","path":"@output/requirements/run","match":"python","value":["python"]},
+        {"op":"add","path":"@output/requirements/host","match":"setuptools","value":["setuptools"]},
+        {"op":"add","path":"@output/requirements/host","match":"wheel","value":["wheel"]},
+        {"op":"add","path":"@output/test/requires","match":"pip","value":["pip"]},
+        {"op":"add","path":"@output/test/commands","match":"pip check","value":["pip check"]}
     ]
     """
 

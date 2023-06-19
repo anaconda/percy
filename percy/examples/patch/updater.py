@@ -5,6 +5,7 @@ import percy.render.recipe as recipe
 import argparse
 from pathlib import Path
 import logging
+import json
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -25,6 +26,13 @@ def create_parser() -> argparse.ArgumentParser:
         help="recipe path",
         default="/Users/cbousseau/work/recipes/aggregate2/cartopy-feedstock/recipe/meta.yaml",
     )
+    parser.add_argument(
+        "-p",
+        "--patch_file",
+        type=Path,
+        help="patch_file path",
+        default="test_patch.json",
+    )
     return parser
 
 
@@ -44,53 +52,6 @@ if __name__ == "__main__":
     rendered_recipe = load_recipe(args.recipe_path)
 
     # update pin and increment build number
-    """
-        Patch operations:
-            replace : if package is found in section, replace by "- package constraint"
-            add: add "- package constraint" to section
-            add_or_replace : add or replace by "- package constraint"
-            remove: remove "- package" from section
-    """
-    operations = [
-        {
-            "op": "add_or_replace",
-            "section": "host",
-            "package": "openssl",
-            "constraint": ["{{ openssl }}"],
-        },
-        {
-            "op": "add_or_replace",
-            "section": "run",
-            "package": "openssl",
-            "constraint": ["3.*"],
-        },
-        {
-            "op": "replace",
-            "section": "host",
-            "package": "numpy",
-            "constraint": ["1.21  # [py<311]", "1.23  # [py>=311]"],
-        },
-        {
-            "op": "replace",
-            "section": "run",
-            "package": "numpy",
-            "constraint": [">=1.21,<=2.0a0  # [py<311]", ">=1.23,<=2.0a0  # [py>=311]"],
-        },
-        {"op": "remove", "section": "host", "package": "geos", "constraint": []},
-        {"op": "remove", "section": "run", "package": "geos", "constraint": []},
-        {"op": "add", "section": "host", "package": "geos2", "constraint": ["1.2.3"]},
-        {
-            "op": "add",
-            "section": "run",
-            "package": "{{ pin_compatible('geos2') }}",
-            "constraint": [""],
-        },
-        {
-            "op": "add_or_replace",
-            "section": "test",
-            "package": "pytest2",
-            "constraint": [""],
-        },
-    ]
     rendered_recipe = load_recipe(args.recipe_path)
-    rendered_recipe.patch(operations)
+    with open(args.patch_file) as p:
+        rendered_recipe.patch(json.load(p))
