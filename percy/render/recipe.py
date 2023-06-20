@@ -626,26 +626,23 @@ class Recipe:
             self.renderer = RendererType.RUAMEL
             self.render()
         jsonschema.validate(operations, self.schema)
-        package_names = self.packages.keys()
         for op in operations:
-            for package_name in package_names:
-                self._patch(op, package_name)
+            for package in self.packages.values():
+                self._patch(op, package)
                 self.save()
                 self.render()
         self._increment_build_number()
         self.save()
         self.render()
 
-    def _patch(self, operation, package_name):
+    def _patch(self, operation, package):
         # read operation parameters
-        package = self.packages[package_name]
         op = operation["op"]
         path = operation["path"].replace("@output/", package.path_prefix)
         match = operation.get("match", ".*")
         expanded_match = re.compile(
             f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
         )
-        match = re.compile(match)
         value = operation.get("value", [""])
         if isinstance(value, str):
             value = [value]
@@ -663,13 +660,13 @@ class Recipe:
             if op == "add":
                 raw_value = self.get(path, "NOPE")
                 if raw_value == "NOPE":
-                    match = re.compile("NOPE")
+                    match = "NOPE"
                     expanded_match = re.compile("NOPE")
                     value = [parent_name + ": " + val for val in value]
             else:
                 raw_value = self.get(path)
             if isinstance(raw_value, str):
-                if match.search(raw_value):
+                if re.search(match, raw_value):
                     path = parent_path
             else:
                 in_list = True
