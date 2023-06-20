@@ -23,11 +23,10 @@ class PackageNode:
 
     aggregate = None
     nodes = {}
-    bootstrap_nodes = {}
 
     def __init__(
         self,
-        parent: "PackageNode",
+        downstream: "PackageNode",
         package_name: str,
         package: Package,
         is_run: bool,
@@ -35,23 +34,24 @@ class PackageNode:
         """PackageNode constructor
 
         Args:
-            parent (PackageNode): The parent node.
+            downstream (PackageNode): The parent node.
             package_name (str): The package name.
             package (Package): The corresponding rendered package.
             is_run (bool): If this is coming from a run dependency.
         """
-        self.parents = set([parent])
+        self.upstream_nodes = set()
         self.package_name = package_name
         self.package = package
         self.feedstock = self.aggregate.packages[package_name].git_info
         self.is_run = False
         if is_run:
             self.is_run = True
-        if parent:
-            self.weight = parent.weight + 1
+        self.downstream_nodes = set()
+        if downstream:
+            self.downstream_nodes.add(downstream)
+            self.weight = downstream.weight + 1
         else:
             self.weight = 0
-        self.children = set()
         logging.debug(f"New node {package_name}")
 
     @classmethod
@@ -63,7 +63,6 @@ class PackageNode:
         """
         PackageNode.aggregate = aggregate
         PackageNode.nodes = {}
-        PackageNode.bootstrap_nodes = {}
 
     @classmethod
     def make_node(
@@ -71,7 +70,7 @@ class PackageNode:
         package_name: str,
         walk_up: bool,
         origin_section: str = "run",
-        parent: "PackageNode" = None,
+        downstream: "PackageNode" = None,
     ) -> "PackageNode":
         """Make a node representing a package.
 
@@ -79,7 +78,7 @@ class PackageNode:
             package_name (str): The name of the package.
             walk_up (bool): Whether to create to call make_node on dependencies of the package.
             origin_section (str, optional): If the package was used in a run section or other. Defaults to "run".
-            parent (PackageNode, optional): Parent node. Defaults to None.
+            downstream (PackageNode, optional): Parent node. Defaults to None.
 
         Returns:
             PackageNode: The package node.
@@ -89,14 +88,14 @@ class PackageNode:
         package_name = package_name.strip()
         is_run = origin_section == "run"
 
-        def check_cycle(package_name, parent, ancestors=[]):
-            if parent:
-                if package_name == parent.package_name:
-                    return [parent.package_name] + ancestors
+        def check_cycle(package_name, downstream, ancestors=[]):
+            if downstream:
+                if package_name == downstream.package_name:
+                    return [downstream.package_name] + ancestors
                 else:
-                    for p in parent.parents:
+                    for p in downstream.downstream_nodes:
                         r = check_cycle(
-                            package_name, p, [parent.package_name] + ancestors
+                            package_name, p, [downstream.package_name] + ancestors
                         )
                         if package_name in r:
                             return r
@@ -107,40 +106,63 @@ class PackageNode:
             logging.warning(f"No information for {package_name}")
         else:
             # check cycle
-            cycle = check_cycle(package_name, parent)
+            cycle = check_cycle(package_name, downstream)
             if cycle:
                 logging.warning(f"CYCLE: {'->'.join(cycle+[package_name])}")
 
             if package_name in PackageNode.nodes:
                 # existing package - update edges
                 node = PackageNode.nodes[package_name]
-                if not cycle:
-                    node.parents.add(parent)
+                if not cycle and downstream:
+                    node.downstream_nodes.add(downstream)
                 if is_run:
                     node.is_run = True
-                if parent:
-                    node._update_weight(parent.weight)
+                if downstream:
+                    node._update_weight(downstream.weight)
             else:
                 # new package
-                node = cls(parent, package_name, package, is_run)
+                node = cls(downstream, package_name, package, is_run)
                 PackageNode.nodes[package_name] = node
                 if walk_up:
                     node._walk_up_requirements()
 
-            if parent:
+            if downstream:
                 # update parent edge
                 if not cycle:
-                    parent.children.add(node)
-                else:
-                    PackageNode.bootstrap_nodes[package_name] = node
+                    downstream.upstream_nodes.add(node)
 
         return node
+
+    @classmethod
+    def remove_nodes(
+        cls,
+        package_names: list[str],
+    ):
+        """Remove a node representing a package.
+
+        Args:
+            package_names (List[str]): The names of the packages to remove.
+        """
+        for package_name in package_names:
+            node = PackageNode.nodes.pop(package_name, None)
+            if node:
+                for upstream in node.upstream_nodes:
+                    upstream.downstream_nodes.update(node.downstream_nodes)
+                    upstream.downstream_nodes.remove(node)
+                for downstream in node.downstream_nodes:
+                    downstream.upstream_nodes.update(node.upstream_nodes)
+                    downstream.upstream_nodes.remove(node)
+                    max_parent_weight = 0
+                    for parent in downstream.upstream_nodes:
+                        if parent and parent.weight > max_parent_weight:
+                            max_parent_weight = parent.weight
+                    downstream.weight = max_parent_weight + 1
 
     def _update_weight(self, base_weight):
         if self.weight < (base_weight + 1):
             self.weight = base_weight + 1
-            for child in self.children:
-                child._update_weight(self.weight)
+            for upstream in self.upstream_nodes:
+                upstream._update_weight(self.weight)
 
     def __str__(self):
         return repr(self)
@@ -405,7 +427,7 @@ class Aggregate:
         feedstocks = {}
         for pkg, node in sorted(
             PackageNode.nodes.items(),
-            key=lambda x: (1.0 / (x[1].weight + 1), x[1].feedstock),
+            key=lambda x: (x[1].weight, x[1].feedstock),
         ):
             v = feedstocks.setdefault(
                 node.feedstock,
@@ -460,16 +482,19 @@ class Aggregate:
             PackageNode.make_node(pkg, True)
 
         # drop graph nodes not having package as a run dependency
-        if no_upstream:
-            PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if k in target_packages
-            }
+        to_remove = set()
+        for k, v in PackageNode.nodes.items():
+            if not any([k == target or v.package.has_dep("run", target) for target in target_packages]):
+                to_remove.add(k)
+        PackageNode.remove_nodes(to_remove)
 
         # drop noarch graph nodes
+        to_remove = set()
         if drop_noarch:
-            PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
-            }
+            for k, v in PackageNode.nodes.items():
+                if v.package.is_noarch:
+                    to_remove.add(k)
+        PackageNode.remove_nodes(to_remove)
 
         # feedstock build order
         return self._build_order()
@@ -524,25 +549,26 @@ class Aggregate:
                             PackageNode.make_node(name, True, "run")
 
         # drop graph nodes in blocklist or not in allowlist
-        PackageNode.nodes = {
-            k: v
-            for k, v in PackageNode.nodes.items()
-            if (not package_allowlist or k in package_allowlist)
-            and v.feedstock.name not in feedstock_blocklist
-        }
+        to_remove = set()
+        for k, v in PackageNode.nodes.items():
+            if (package_allowlist and k not in package_allowlist) or v.feedstock.name in feedstock_blocklist:
+                to_remove.add(k)
+        PackageNode.remove_nodes(to_remove)
 
         # drop graph nodes not having package as a run dependency
-        PackageNode.nodes = {
-            k: v
-            for k, v in PackageNode.nodes.items()
-            if any([v.package.has_dep("run", target) for target in target_packages])
-        }
+        to_remove = set()
+        for k, v in PackageNode.nodes.items():
+            if not any([k == target or v.package.has_dep("run", target) for target in target_packages]):
+                to_remove.add(k)
+        PackageNode.remove_nodes(to_remove)
 
         # drop noarch graph nodes
+        to_remove = set()
         if drop_noarch:
-            PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
-            }
+            for k, v in PackageNode.nodes.items():
+                if v.package.is_noarch:
+                    to_remove.add(k)
+        PackageNode.remove_nodes(to_remove)
 
         # feedstock build order
         return self._build_order()
