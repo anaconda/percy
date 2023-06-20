@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
+import jsonschema
 
 from percy.render.variants import read_conda_build_config, Variant
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
@@ -50,6 +51,26 @@ class Recipe:
         meta_yaml (List[str]): Lines of the raw recipe file
         orig (Recipe): Original recipe before modifications
     """
+
+    # patch schema
+    schema = {
+        "type": "array",
+        "items": {
+            "type": "object",
+            "properties": {
+                "op": {"enum": ["add", "replace", "remove"]},
+                "path": {"type": "string"},
+                "match": {"type": "string"},
+                "value": {"type": ["string", "array"], "items": {"type": "string"}},
+                "description": {"type": "string"},
+            },
+            "required": [
+                "op",
+                "path",
+            ],
+            "additionalProperties": False,
+        },
+    }
 
     def __init__(
         self,
@@ -240,6 +261,11 @@ class Recipe:
         - normalize
         """
 
+        # re-init
+        self.meta: Dict[str, Any] = {}
+        self.skip = False
+        self.packages: Dict[str:Package] = dict()
+
         # render meta.yaml
         self.meta = renderer.render(
             self.recipe_dir, self.dump(), self.selector_dict, self.renderer
@@ -275,6 +301,7 @@ class Recipe:
         version = str(self.meta.get("package", {}).get("version", "-1")).strip()
         number = str(dict(self.meta.get("build", {}) or {}).get("number", "0")).strip()
         group = get_group_from_dev_url(self.meta, name)
+        path_prefix = ""
         is_noarch = False
         run_exports = []
         ignore_run_exports = []
@@ -346,6 +373,7 @@ class Recipe:
                 set(ignore_run_exports),
                 set(test_reqs),
                 is_noarch,
+                path_prefix,
             )
 
         # read output package deps
@@ -355,6 +383,7 @@ class Recipe:
                 name = output.get("name", "")
                 version = str(output.get("version", version)).strip()
                 group = get_group_from_dev_url(output, group)
+                path_prefix = f"outputs/{n}/"
                 is_noarch = False
                 run_exports = []
                 ignore_run_exports = []
@@ -425,6 +454,7 @@ class Recipe:
                     set(ignore_run_exports),
                     set(test_reqs),
                     is_noarch,
+                    path_prefix,
                 )
 
     def __getitem__(self, key):
@@ -591,6 +621,125 @@ class Recipe:
                     return True
         return False
 
+    def patch(self, operations):
+        if self.renderer != RendererType.RUAMEL:
+            self.renderer = RendererType.RUAMEL
+            self.render()
+        jsonschema.validate(operations, self.schema)
+        for op in operations:
+            for package in self.packages.values():
+                self._patch(op, package)
+                self.save()
+                self.render()
+        self._increment_build_number()
+        self.save()
+        self.render()
+
+    def _patch(self, operation, package):
+        # read operation parameters
+        op = operation["op"]
+        path = operation["path"].replace("@output/", package.path_prefix)
+        match = operation.get("match", ".*")
+        expanded_match = re.compile(
+            f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
+        )
+        value = operation.get("value", [""])
+        if isinstance(value, str):
+            value = [value]
+        if value == []:
+            value = [""]
+
+        # infer data type
+        in_list = False
+        if op in ["remove", "replace"]:
+            raw_value = self.get(path, "NOPE")
+            if raw_value == "NOPE":
+                return
+        if op in ["add", "replace"]:
+            parent_path, parent_name = path.rsplit("/")
+            if op == "add":
+                raw_value = self.get(path, "NOPE")
+                if raw_value == "NOPE":
+                    match = "NOPE"
+                    expanded_match = re.compile("NOPE")
+                    value = [parent_name + ": " + val for val in value]
+            else:
+                raw_value = self.get(path)
+            if isinstance(raw_value, str):
+                if re.search(match, raw_value):
+                    path = parent_path
+            else:
+                in_list = True
+
+        # get initial section range
+        (start_row, start_col, end_row, _) = self.get_raw_range(path)
+        range = deepcopy(self.meta_yaml[start_row:end_row])
+
+        # find matching elements
+        match_lines = {}
+        for i, line in enumerate(range):
+            if not line.lstrip().startswith("#"):
+                m = expanded_match.search(line)
+                if m:
+                    match_lines[i] = m
+        match_lines = dict(sorted(match_lines.items(), reverse=True))
+
+        # remove elements and find insert position
+        new_range = deepcopy(range)
+        insert_index = 0
+        index_set = False
+        for i, m in match_lines.items():
+            new_range.pop(i)
+            insert_index = i
+            index_set = True
+        range = new_range
+        if not index_set:
+            for i, e in reversed(list(enumerate(range))):
+                if e.strip():
+                    insert_index = i + 1
+                    break
+
+        # add elements
+        if op == "add" or (op == "replace" and match_lines):
+            to_insert = set()
+            for new_val in value:
+                for i, m in match_lines.items():
+                    to_insert.add(
+                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
+                            "#", "  #", 1
+                        )
+                    )
+            if not to_insert:
+                to_insert = set(value)
+            for new_val in to_insert:
+                if in_list:
+                    range.insert(
+                        insert_index, " " * start_col + f"- {new_val.strip(' -')}"
+                    )
+                else:
+                    range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
+
+        # apply change
+        self.meta_yaml[start_row:end_row] = range
+
+    def _increment_build_number(self):
+        build_number = int(self.orig.meta["build"]["number"]) + 1
+        patterns = (
+            ("(?=\s*?)number:\s*([0-9]+)", "number: {}".format(build_number)),
+            (
+                '(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
+                "{{% set build_number = {} %}}".format(build_number),
+            ),
+            (
+                '(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
+                "{{% set build = {} %}}".format(build_number),
+            ),
+        )
+        text = "\n".join(self.meta_yaml)
+        for pattern, replacement in patterns:
+            text = re.sub(pattern, replacement, text)
+        self.meta_yaml = text.split("\n")
+
 
 class Dep:
     """A dependency
@@ -644,6 +793,7 @@ class Package:
     ignore_run_exports: Set[str] = field(default_factory=set)
     test: Set[Dep] = field(default_factory=set)
     is_noarch: bool = False
+    path_prefix: str = ""
     git_info: object = None
 
     def __getitem__(self, key: str) -> Any:

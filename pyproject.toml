@@ -38,6 +38,7 @@ dependencies = [
   "jinja2",
   "pyyaml",
   "requests",
+  "jsonschema",
 ]
 
 [project.optional-dependencies]

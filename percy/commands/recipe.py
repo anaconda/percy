@@ -1,7 +1,10 @@
+# ruff: noqa: E501
+
 from pathlib import Path
 import click
 import os
 import functools
+import json
 import percy.render.recipe
 
 
@@ -128,3 +131,45 @@ def outdated(obj, subdir, python, others, backend):
                     print("OK")
                 else:
                     print(f"Outdated: {name} {result}")
+
+
+@recipe.command(short_help="Patch a recipe")
+@click.pass_obj
+@base_options
+@click.argument("patch_file", metavar="FILE")
+def patch(obj, subdir, python, others, backend, patch_file):
+    """Patch a recipe. Takes a patch file as input, with content like:
+
+    \b
+    [
+        {"op":"remove","path":"@output/build/noarch"},
+        {"op":"add","path":"@output/build/skip","value":["True  # [py<37]"]},
+        {"op":"replace","path":"@output/build/script","match":"pip install(?!=.*--no-build-isolation).*","value":["pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"]},
+        {"op":"replace","path":"@output/requirements/host","match":"cython( 0.29.[^\\s]+)?","value":["cython 0.29"]},
+        {"op":"replace","path":"@output/requirements/host","match":"numpy( .*)?","value":["numpy {{numpy}}"]},
+        {"op":"replace","path":"@output/requirements/run","match":"numpy( .*)?","value":["{{ pin_compatible('numpy') }}"]},
+        {"op":"add","path":"@output/requirements/host","match":"python","value":["python"]},
+        {"op":"add","path":"@output/requirements/run","match":"python","value":["python"]},
+        {"op":"add","path":"@output/requirements/host","match":"setuptools","value":["setuptools"]},
+        {"op":"add","path":"@output/requirements/host","match":"wheel","value":["wheel"]},
+        {"op":"add","path":"@output/test/requires","match":"pip","value":["pip"]},
+        {"op":"add","path":"@output/test/commands","match":"pip check","value":["pip check"]}
+    ]
+    """
+
+    # render recipe
+    recipe_path = obj["recipe_path"]
+    render_results = percy.render.recipe.render(
+        recipe_path,
+        subdir,
+        python,
+        dict(others),
+        False,
+        percy.render.recipe.RendererType.RUAMEL,
+    )
+
+    # patch recipe
+    recipe = next(iter(render_results))
+    with open(patch_file) as p:
+        recipe.patch(json.load(p))
+    print("Done")

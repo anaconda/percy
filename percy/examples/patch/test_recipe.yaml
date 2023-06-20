@@ -1,0 +1,52 @@
+{% set name = "tbats" %}
+{% set version = "1.1.3" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/tbats-{{ version }}.tar.gz
+  sha256: dccd0d4cd9e2fde30bf19a944ee957d2f865975846284f48ce673992c4f5d89e
+
+build:
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 0
+
+requirements:
+  host:
+    - pip
+    - pytest
+    - python >=3.6
+    #- cython 0.29.32  # [unix]
+    - cython 0.29.33  # [unix]
+    - numpy 1.19  # [py<310]
+    - numpy 1.21  # [py==310]
+    - numpy 1.23  # [py>=311]
+  run:
+    - numpy
+    - pmdarima
+    - python >=3.6
+    - scikit-learn
+    - scipy
+
+test:
+  imports:
+    - tbats
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/intive-DataScience/tbats
+  summary: BATS and TBATS for time series forecasting
+  license: MIT
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - hrzn
+    - tomasvanpottelbergh
+    - gnwhr

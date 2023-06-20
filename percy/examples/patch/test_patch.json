@@ -1,0 +1,71 @@
+[
+    {
+        "op": "remove",
+        "path": "@output/build/noarch"
+    },
+    {
+        "op": "add",
+        "path": "@output/build/skip",
+        "value": "True  # [py<37]"
+    },
+    {
+        "op": "replace",
+        "path": "@output/build/script",
+        "match": "pip install(?!=.*--no-build-isolation).*",
+        "value": "pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir -vvv"
+    },
+    {
+        "op": "replace",
+        "path": "@output/requirements/host",
+        "match": "cython( 0.29.[^\\s]+)?",
+        "value": ["cython 0.29"]
+    },
+    {
+        "op": "replace",
+        "path": "@output/requirements/host",
+        "match": "numpy( .*)?",
+        "value": ["numpy {{numpy}}"]
+    },
+    {
+        "op": "replace",
+        "path": "@output/requirements/run",
+        "match": "numpy( .*)?",
+        "value": ["{{ pin_compatible('numpy') }}"]
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/host",
+        "match": "python",
+        "value": ["python"]
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/run",
+        "match": "python",
+        "value": ["python"]
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/host",
+        "match": "setuptools",
+        "value": ["setuptools"]
+    },
+    {
+        "op": "add",
+        "path": "@output/requirements/host",
+        "match": "wheel",
+        "value": ["wheel"]
+    },
+    {
+        "op": "add",
+        "path": "@output/test/requires",
+        "match": "pip",
+        "value": ["pip"]
+    },
+    {
+        "op": "add",
+        "path": "@output/test/commands",
+        "match": "pip check",
+        "value": ["pip check"]
+    }
+]
