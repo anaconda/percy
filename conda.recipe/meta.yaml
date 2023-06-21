@@ -1,6 +1,6 @@
 package:
   name: percy
-  version: 0.0.3
+  version: 0.0.4
 
 source:
   path: ../
@@ -8,7 +8,7 @@ source:
 build:
   number: 0
   noarch: python
-  script: pip install . --no-deps -vv
+  script: pip install . --no-deps --no-build-isolation -vv
   entry_points:
     - percy = percy.commands.main:cli
 
