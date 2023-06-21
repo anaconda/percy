@@ -183,6 +183,119 @@ class PackageNode:
             for dep in self.package[section]:
                 PackageNode.make_node(dep.pkg, True, section, self)
 
+class FeedstockNode:
+    """A node representing a feedstock"""
+
+    nodes = {}
+
+    def __init__(
+        self,
+        feedstock_name: str,
+        package_node: PackageNode,
+    ):
+        """FeedstockNode constructor
+
+        Args:
+            feedstock_name (str): The feedstock name.
+            package_nodes (set[PackageNode]): The corresponding package nodes.
+        """
+        self.feedstock_name = feedstock_name
+        self.package_nodes = set([package_node])
+        self.downstream_feedstocks = set()
+        self.is_root = False
+
+    @classmethod
+    def print_order(
+        cls,
+        package_nodes: set[PackageNode],
+    ) -> "FeedstockNode":
+        """Make a node representing a feedstock.
+
+        Args:
+            package_nodes (set[PackageNode]): Corresponding package nodes.
+        """
+
+        def _print_level(fnode, level):
+            print(f"{' ' * level} |- {fnode.feedstock_name}")
+            for dnode in fnode.downstream_feedstocks:
+                _print_level(dnode, level+1)
+
+        fnodes = FeedstockNode.make_nodes(package_nodes)
+        for fnode in fnodes:
+            _print_level(fnode, 0)
+
+    @classmethod
+    def make_nodes(
+        cls,
+        package_nodes: set[PackageNode],
+    ) -> set["FeedstockNode"]:
+        """Make nodes representing feedstocks.
+
+        Args:
+            package_nodes (set[PackageNode]): Corresponding package nodes.
+
+        Returns:
+            FeedstockNode: The root feedstock nodes.
+        """
+        for pkg in package_nodes:
+            FeedstockNode.make_node(pkg)
+        return [fnode for fnode in FeedstockNode.nodes.values() if fnode.is_root]
+
+    @classmethod
+    def make_node(
+        cls,
+        package_node: PackageNode,
+    ) -> "FeedstockNode":
+        """Make a node representing a feedstock.
+
+        Args:
+            package_node (PackageNode): Corresponding package node.
+
+        Returns:
+            FeedstockNode: The feedstock node.
+        """
+
+        node = None
+
+        feedstock_name = package_node.feedstock.name
+        if feedstock_name in FeedstockNode.nodes:
+            # existing feedstock - update
+            node = FeedstockNode.nodes[feedstock_name]
+            node.package_nodes.add(package_node)
+        else:
+            # new feedstock
+            node = cls(feedstock_name, package_node)
+            FeedstockNode.nodes[feedstock_name] = node
+
+        # make nodes from downstream nodes
+        for dn_node in package_node.downstream_nodes:
+            dn_feedstock = FeedstockNode.make_node(dn_node)
+            if dn_feedstock != node:
+                node.downstream_feedstocks.add(dn_feedstock)
+
+        # is it a starting feedstock node?
+        node.is_root = True
+        for pkg in node.package_nodes:
+            if any([up for up in pkg.upstream_nodes if up.feedstock.name != feedstock_name]):
+                node.is_root = False
+                break
+
+        return node
+
+    def __str__(self):
+        return repr(self)
+
+    def __repr__(self):
+        return "{}".format(self.feedstock_name)
+
+    def __hash__(self):
+        return hash((self.feedstock_name))
+
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return self.feedstock_name == other.feedstock_name
+
 
 @dataclass
 class Feedstock:
@@ -423,25 +536,25 @@ class Aggregate:
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
         """
+
+        FeedstockNode.print_order(set(PackageNode.nodes.values()))
+
         # feedstock build order
         feedstocks = {}
-        for pkg, node in sorted(
-            PackageNode.nodes.items(),
-            key=lambda x: (x[1].weight, x[1].feedstock),
-        ):
-            v = feedstocks.setdefault(
-                node.feedstock,
-                Feedstock(
-                    node.feedstock.name,
-                    node.feedstock.git_url,
-                    node.feedstock.branch,
-                    node.feedstock.path,
-                    dict(),
-                    0,
-                ),
-            )
-            v.weight = max(v.weight, node.weight)
-            v.packages[pkg] = self.packages[pkg]
+        f_to_node = {}
+        # for pkg, node in PackageNode.nodes.items():
+        #     v = feedstocks.setdefault(
+        #         node.feedstock,
+        #         Feedstock(
+        #             node.feedstock.name,
+        #             node.feedstock.git_url,
+        #             node.feedstock.branch,
+        #             node.feedstock.path,
+        #             dict(),
+        #             0,
+        #         )
+        #     )
+        #     v.packages[pkg] = self.packages[pkg]
         return sorted(feedstocks.values(), key=lambda x: (1.0 / (x.weight + 1), x.name))
 
     def get_build_order(
