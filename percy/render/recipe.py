@@ -9,6 +9,7 @@ Not as accurate as conda-build render, but faster and architecture independent.
 import sys
 import re
 import itertools
+import logging
 from copy import deepcopy
 from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
@@ -621,7 +622,16 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations):
+    def patch(self, operations, increment_build_number=True):
+        """Patch the recipe given a set of operations.
+        Args:
+            operations: operations to apply
+        Returns:
+            True if recipe was patched. (bool).
+        """
+        if self.skip:
+            logging.warning(f"Not patching skipped recipe {self.recipe_dir}")
+            return False
         if self.renderer != RendererType.RUAMEL:
             self.renderer = RendererType.RUAMEL
             self.render()
@@ -631,9 +641,14 @@ class Recipe:
                 self._patch(op, package)
                 self.save()
                 self.render()
-        self._increment_build_number()
-        self.save()
-        self.render()
+        if self.is_modified():
+            if increment_build_number:
+                self._increment_build_number()
+                self.save()
+                self.render()
+            logging.info(f"Patch applied: {self.recipe_dir}")
+            return True
+        return False
 
     def _patch(self, operation, package):
         # read operation parameters
@@ -656,7 +671,7 @@ class Recipe:
             if raw_value == "NOPE":
                 return
         if op in ["add", "replace"]:
-            parent_path, parent_name = path.rsplit("/")
+            parent_path, parent_name = path.rsplit("/", 1)
             if op == "add":
                 raw_value = self.get(path, "NOPE")
                 if raw_value == "NOPE":
@@ -723,7 +738,11 @@ class Recipe:
         self.meta_yaml[start_row:end_row] = range
 
     def _increment_build_number(self):
-        build_number = int(self.orig.meta["build"]["number"]) + 1
+        try:
+            build_number = int(self.orig.meta["build"]["number"]) + 1
+        except (KeyError, TypeError):
+            logging.error(f"No build number found for {self.recipe_dir}")
+            return
         patterns = (
             ("(?=\s*?)number:\s*([0-9]+)", "number: {}".format(build_number)),
             (
