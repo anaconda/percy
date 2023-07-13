@@ -685,11 +685,30 @@ class Recipe:
             parent_path, parent_name = path.rsplit("/", 1)
             if raw_value == "NOPE":
                 # path not found - add section and return
+
+                # We may be trying to add something that would be removed with
+                # the current selector_dict. In that case, better leave it out.
+                # Example: adding skip: True # [py<35]
+                if isinstance(value, list):
+                    rval = renderer._apply_selector(
+                        "\n".join(value), self.selector_dict
+                    )
+                else:
+                    rval = renderer._apply_selector(value, self.selector_dict)
+                if rval.strip() == "":
+                    logging.warning(f"Skipping op due to selector:{opop}")
+                    return
+
+                # finding range of direct parent
+                # (not doing the leg work of going up the tree if parent is not found)
                 try:
                     (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
                 except:
                     logging.warning(f"Path not found while applying op:{opop}")
                 else:
+                    # adding value to end of parent
+                    # if value is a list, adding as a list to parent
+                    # if value is a string, adding as parent: value
                     parent_range = deepcopy(self.meta_yaml[start_row:end_row])
                     parent_insert_index = 0
                     for i, e in reversed(list(enumerate(parent_range))):
@@ -712,6 +731,7 @@ class Recipe:
                     self.meta_yaml[start_row:end_row] = parent_range
                     return
             else:
+                # path found - store value to add
                 if isinstance(raw_value, str):
                     if re.search(match, raw_value):
                         path = parent_path
