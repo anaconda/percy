@@ -703,7 +703,7 @@ class Recipe:
                 # (not doing the leg work of going up the tree if parent is not found)
                 try:
                     (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
-                except:
+                except KeyError:
                     logging.warning(f"Path not found while applying op:{opop}")
                 else:
                     # adding value to end of parent
@@ -746,7 +746,7 @@ class Recipe:
         # get initial section range
         try:
             (start_row, start_col, end_row, _) = self.get_raw_range(path)
-        except:
+        except KeyError:
             logging.warning(f"Path not found while applying op:{opop}")
             return
         range = deepcopy(self.meta_yaml[start_row:end_row])
