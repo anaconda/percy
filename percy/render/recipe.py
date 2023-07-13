@@ -9,6 +9,7 @@ Not as accurate as conda-build render, but faster and architecture independent.
 import sys
 import re
 import itertools
+import logging
 from copy import deepcopy
 from typing import Any, Dict, List, Set, TextIO
 from pathlib import Path
@@ -621,7 +622,16 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations):
+    def patch(self, operations, increment_build_number=True):
+        """Patch the recipe given a set of operations.
+        Args:
+            operations: operations to apply
+        Returns:
+            True if recipe was patched. (bool).
+        """
+        if self.skip:
+            logging.warning(f"Not patching skipped recipe {self.recipe_dir}")
+            return False
         if self.renderer != RendererType.RUAMEL:
             self.renderer = RendererType.RUAMEL
             self.render()
@@ -631,9 +641,14 @@ class Recipe:
                 self._patch(op, package)
                 self.save()
                 self.render()
-        self._increment_build_number()
-        self.save()
-        self.render()
+        if self.is_modified():
+            if increment_build_number:
+                self._increment_build_number()
+                self.save()
+                self.render()
+            logging.info(f"Patch applied: {self.recipe_dir}")
+            return True
+        return False
 
     def _patch(self, operation, package):
         # read operation parameters
@@ -644,35 +659,96 @@ class Recipe:
             f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
         )
         value = operation.get("value", [""])
-        if isinstance(value, str):
-            value = [value]
         if value == []:
             value = [""]
+        opop = deepcopy(operation)
+        opop["path"] = path
 
         # infer data type
         in_list = False
-        if op in ["remove", "replace"]:
-            raw_value = self.get(path, "NOPE")
+        raw_value = self.get(path, "NOPE")
+        if op == "remove":
             if raw_value == "NOPE":
                 return
-        if op in ["add", "replace"]:
-            parent_path, parent_name = path.rsplit("/")
-            if op == "add":
-                raw_value = self.get(path, "NOPE")
-                if raw_value == "NOPE":
-                    match = "NOPE"
-                    expanded_match = re.compile("NOPE")
-                    value = [parent_name + ": " + val for val in value]
+        elif op == "replace":
+            if raw_value == "NOPE":
+                return
             else:
-                raw_value = self.get(path)
-            if isinstance(raw_value, str):
-                if re.search(match, raw_value):
-                    path = parent_path
+                if isinstance(raw_value, str):
+                    if re.search(match, raw_value):
+                        parent_path, parent_name = path.rsplit("/", 1)
+                        path = parent_path
+                        value = [value]
+                else:
+                    in_list = True
+        elif op == "add":
+            parent_path, parent_name = path.rsplit("/", 1)
+            if raw_value == "NOPE":
+                # path not found - add section and return
+
+                # We may be trying to add something that would be removed with
+                # the current selector_dict. In that case, better leave it out.
+                # Example: adding skip: True # [py<35]
+                if isinstance(value, list):
+                    rval = renderer._apply_selector(
+                        "\n".join(value), self.selector_dict
+                    )
+                else:
+                    rval = renderer._apply_selector(value, self.selector_dict)
+                if rval.strip() == "":
+                    logging.warning(f"Skipping op due to selector:{opop}")
+                    return
+
+                # finding range of direct parent
+                # (not doing the leg work of going up the tree if parent is not found)
+                try:
+                    (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
+                except KeyError:
+                    logging.warning(f"Path not found while applying op:{opop}")
+                else:
+                    # adding value to end of parent
+                    # if value is a list, adding as a list to parent
+                    # if value is a string, adding as parent: value
+                    parent_range = deepcopy(self.meta_yaml[start_row:end_row])
+                    parent_insert_index = 0
+                    for i, e in reversed(list(enumerate(parent_range))):
+                        if e.strip():
+                            parent_insert_index = i + 1
+                            break
+                    if isinstance(value, list):
+                        parent_range.insert(
+                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                        )
+                        for val in value:
+                            parent_range.insert(
+                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                            )
+                    else:
+                        parent_range.insert(
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}: {value}",
+                        )
+                    self.meta_yaml[start_row:end_row] = parent_range
+                    return
             else:
-                in_list = True
+                # path found - store value to add
+                if isinstance(raw_value, str):
+                    if re.search(match, raw_value):
+                        path = parent_path
+                        expanded_match = re.compile("NOPE")
+                        if isinstance(value, list):
+                            value = [parent_name + ": " + val for val in value]
+                        else:
+                            value = [f"{parent_name}: {value}"]
+                else:
+                    in_list = True
 
         # get initial section range
-        (start_row, start_col, end_row, _) = self.get_raw_range(path)
+        try:
+            (start_row, start_col, end_row, _) = self.get_raw_range(path)
+        except KeyError:
+            logging.warning(f"Path not found while applying op:{opop}")
+            return
         range = deepcopy(self.meta_yaml[start_row:end_row])
 
         # find matching elements
@@ -723,7 +799,11 @@ class Recipe:
         self.meta_yaml[start_row:end_row] = range
 
     def _increment_build_number(self):
-        build_number = int(self.orig.meta["build"]["number"]) + 1
+        try:
+            build_number = int(self.orig.meta["build"]["number"]) + 1
+        except (KeyError, TypeError):
+            logging.error(f"No build number found for {self.recipe_dir}")
+            return
         patterns = (
             ("(?=\s*?)number:\s*([0-9]+)", "number: {}".format(build_number)),
             (
