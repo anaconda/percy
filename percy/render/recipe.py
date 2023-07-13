@@ -659,35 +659,76 @@ class Recipe:
             f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
         )
         value = operation.get("value", [""])
-        if isinstance(value, str):
-            value = [value]
         if value == []:
             value = [""]
+        opop = deepcopy(operation)
+        opop["path"] = path
 
         # infer data type
         in_list = False
-        if op in ["remove", "replace"]:
-            raw_value = self.get(path, "NOPE")
+        raw_value = self.get(path, "NOPE")
+        if op == "remove":
             if raw_value == "NOPE":
                 return
-        if op in ["add", "replace"]:
+        elif op == "replace":
+            if raw_value == "NOPE":
+                return
+            else:
+                if isinstance(raw_value, str):
+                    if re.search(match, raw_value):
+                        parent_path, parent_name = path.rsplit("/", 1)
+                        path = parent_path
+                        value = [value]
+                else:
+                    in_list = True
+        elif op == "add":
             parent_path, parent_name = path.rsplit("/", 1)
-            if op == "add":
-                raw_value = self.get(path, "NOPE")
-                if raw_value == "NOPE":
-                    match = "NOPE"
-                    expanded_match = re.compile("NOPE")
-                    value = [parent_name + ": " + val for val in value]
+            if raw_value == "NOPE":
+                # path not found - add section and return
+                try:
+                    (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
+                except:
+                    logging.warning(f"Path not found while applying op:{opop}")
+                else:
+                    parent_range = deepcopy(self.meta_yaml[start_row:end_row])
+                    parent_insert_index = 0
+                    for i, e in reversed(list(enumerate(parent_range))):
+                        if e.strip():
+                            parent_insert_index = i + 1
+                            break
+                    if isinstance(value, list):
+                        parent_range.insert(
+                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                        )
+                        for val in value:
+                            parent_range.insert(
+                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                            )
+                    else:
+                        parent_range.insert(
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}: {value}",
+                        )
+                    self.meta_yaml[start_row:end_row] = parent_range
+                    return
             else:
-                raw_value = self.get(path)
-            if isinstance(raw_value, str):
-                if re.search(match, raw_value):
-                    path = parent_path
-            else:
-                in_list = True
+                if isinstance(raw_value, str):
+                    if re.search(match, raw_value):
+                        path = parent_path
+                        expanded_match = re.compile("NOPE")
+                        if isinstance(value, list):
+                            value = [parent_name + ": " + val for val in value]
+                        else:
+                            value = [f"{parent_name}: {value}"]
+                else:
+                    in_list = True
 
         # get initial section range
-        (start_row, start_col, end_row, _) = self.get_raw_range(path)
+        try:
+            (start_row, start_col, end_row, _) = self.get_raw_range(path)
+        except:
+            logging.warning(f"Path not found while applying op:{opop}")
+            return
         range = deepcopy(self.meta_yaml[start_row:end_row])
 
         # find matching elements
