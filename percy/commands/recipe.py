@@ -99,7 +99,7 @@ def render(obj, subdir, python, others, backend):
     percy.render.recipe.dump_render_results(render_results)
 
 
-@recipe.command(short_help="Render a recipe")
+@recipe.command(short_help="Check if a recipe is outdated compare to main.")
 @click.pass_obj
 @base_options
 def outdated(obj, subdir, python, others, backend):
@@ -136,8 +136,17 @@ def outdated(obj, subdir, python, others, backend):
 @recipe.command(short_help="Patch a recipe")
 @click.pass_obj
 @base_options
+@click.option(
+    "--increment_build_number",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    multiple=False,
+    help="Increment build number",
+)
 @click.argument("patch_file", metavar="FILE")
-def patch(obj, subdir, python, others, backend, patch_file):
+def patch(obj, subdir, python, others, backend, increment_build_number, patch_file):
     """Patch a recipe. Takes a patch file as input, with content like:
 
     \b
@@ -171,5 +180,5 @@ def patch(obj, subdir, python, others, backend, patch_file):
     # patch recipe
     recipe = next(iter(render_results))
     with open(patch_file) as p:
-        recipe.patch(json.load(p))
+        recipe.patch(json.load(p), increment_build_number)
     print("Done")

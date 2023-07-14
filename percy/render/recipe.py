@@ -622,7 +622,7 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations, increment_build_number=True):
+    def patch(self, operations, increment_build_number=False):
         """Patch the recipe given a set of operations.
         Args:
             operations: operations to apply

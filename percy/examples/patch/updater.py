@@ -54,4 +54,4 @@ if __name__ == "__main__":
     # update pin and increment build number
     rendered_recipe = load_recipe(args.recipe_path)
     with open(args.patch_file) as p:
-        rendered_recipe.patch(json.load(p))
+        rendered_recipe.patch(json.load(p), True)
