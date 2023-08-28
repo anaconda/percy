@@ -62,7 +62,10 @@ class Recipe:
                 "op": {"enum": ["add", "replace", "remove"]},
                 "path": {"type": "string"},
                 "match": {"type": "string"},
-                "value": {"type": ["string", "array"], "items": {"type": "string"}},
+                "value": {
+                    "type": ["string", "integer", "boolean", "array"],
+                    "items": {"type": "string"}
+                },
                 "description": {"type": "string"},
             },
             "required": [
