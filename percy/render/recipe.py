@@ -112,7 +112,7 @@ class Recipe:
         #: Parsed recipe YAML
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str:Package] = dict()
+        self.packages: Dict[str, Package] = dict()
 
         # These will be filled in by _load_from_string()
         #: Lines of the raw recipe file
@@ -265,7 +265,7 @@ class Recipe:
         # re-init
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str:Package] = dict()
+        self.packages: Dict[str, Package] = dict()
 
         # render meta.yaml
         self.meta = renderer.render(
