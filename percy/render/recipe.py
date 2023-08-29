@@ -11,7 +11,7 @@ import re
 import itertools
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Set, TextIO
+from typing import Any, Dict, List, Set, TextIO, Final
 from pathlib import Path
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
@@ -23,6 +23,8 @@ import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
 import percy.render._dumper as dumper
 
+# Number of spaces used as tabs in our YAML files
+YAML_FILE_TAB_INDENT: Final[int] = 2
 
 class Recipe:
     """Represents a recipe (meta.yaml) in editable form
@@ -654,6 +656,8 @@ class Recipe:
         # read operation parameters
         op = operation["op"]
         path = operation["path"].replace("@output/", package.path_prefix)
+        parent_path, parent_name = path.rsplit("/", 1)
+        is_match_set = "match" in operation
         match = operation.get("match", ".*")
         expanded_match = re.compile(
             f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
@@ -675,14 +679,14 @@ class Recipe:
                 return
             else:
                 if isinstance(raw_value, str):
-                    if re.search(match, raw_value):
-                        parent_path, parent_name = path.rsplit("/", 1)
+                    # Perform extra prep-work for replace statements that define
+                    # a `match`
+                    if is_match_set and re.search(match, raw_value):
                         path = parent_path
                         value = [value]
                 else:
                     in_list = True
         elif op == "add":
-            parent_path, parent_name = path.rsplit("/", 1)
             if raw_value == "NOPE":
                 # path not found - add section and return
 
@@ -780,11 +784,25 @@ class Recipe:
             to_insert = set()
             for new_val in value:
                 for i, m in match_lines.items():
-                    to_insert.add(
-                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
-                            "#", "  #", 1
+                    if is_match_set:
+                        to_insert.add(
+                            m.string.replace(m.groupdict()["pattern"], new_val).replace(
+                                "#", "  #", 1
+                            )
                         )
-                    )
+                    # TODO future better fix
+                    # Ensure that the key does not get lost when we replace the
+                    # value. Also ensure that we inject the key at the correct
+                    # tab-level, based on the path length.
+                    else:
+                        to_insert.add(f"{parent_name}: {value}")
+                        path_len = len(Path(path).parents)
+                        # A root path length of 0 (i.e. path is `/`) would imply
+                        # the 0th column be used, so peg 0 to 0. Multiply by 2
+                        # for each level corresponds to 1 "tab", which is 2
+                        # spaces.
+                        start_col = 0 if path_len == 0 else path_len - 1
+                        start_col *= YAML_FILE_TAB_INDENT
             if not to_insert:
                 to_insert = set(value)
             for new_val in to_insert:
