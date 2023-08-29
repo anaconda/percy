@@ -2,6 +2,9 @@ name: percy
 
 dependencies:
   - python
+  - pytest
+  - pytest-cov
+  - pip
   - click
   - conda
   - jinja2
