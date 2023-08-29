@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 namespaces = false
 
+[tool.setuptools.package-data]
+"percy" = ["py.typed"]
+
 [project]
 name = "percy"
 version = "0.0.5"
