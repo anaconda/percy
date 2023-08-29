@@ -239,7 +239,7 @@ def read_conda_build_config(
                     )
                     if cbc_selectors_yml:
                         for k, v in cbc_selectors_yml.items():
-                            if type(v) is list:
+                            if isinstance(v, list):
                                 base_selector_dict[k] = v
                 except yaml.error.YAMLError as exc:
                     if hasattr(exc, "problem_mark"):
@@ -262,7 +262,7 @@ def read_conda_build_config(
                 zip(*[base_selector_dict[k] for k in key_group])
             )
         for k, v in base_selector_dict.items():
-            if k not in zip_keys and type(v) is list and len(v) > 1:
+            if k not in zip_keys and isinstance(v, list) and len(v) > 1:
                 groups[k] = v
         if groups:
             group_keys, group_values = zip(*groups.items())
@@ -272,7 +272,7 @@ def read_conda_build_config(
             for d in group_permutations:
                 new_d = copy.deepcopy(d)
                 for k, v in new_d.items():
-                    if type(k) is tuple:
+                    if isinstance(k, tuple):
                         for i, k1 in enumerate(k):
                             d[k1] = v[i]
                         del d[k]
@@ -302,7 +302,7 @@ def read_conda_build_config(
             if others:
                 variant_selector_dict.update(others)
             for k, v in variant_selector_dict.items():
-                if type(v) is list:
+                if isinstance(v, list):
                     variant_selector_dict[k] = v[0]
             if "python" in variant_selector_dict:
                 python_short = str(variant_selector_dict["python"]).replace(".", "")
