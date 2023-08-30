@@ -66,7 +66,7 @@ pre-commit:        ## Runs pre-commit against files
 	pre-commit run --all-files
 
 tests:
-	@pytest
+	python3 -m pytest --capture=no percy/tests/
 
 install: clean ## install the package to the active Python's site-packages
 	pip install .
