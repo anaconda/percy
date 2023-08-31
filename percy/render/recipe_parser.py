@@ -57,7 +57,8 @@ class _Node():
         value: Primitives=None,
         comment="",
         children=None,
-        is_list_member=False
+        is_list_member=False,
+        is_multiline=False,
     ):
         """
         Constructs a node
@@ -65,11 +66,14 @@ class _Node():
         :param comment:         Comment on the line this node was found on
         :param children:        List of children nodes, descendants of this node
         :param is_list_member:  Indicates if this node is part of a list
+        :param is_multiline:    Indicates if the node represents a multiline
+                                value.
         """
         self.value = value
         self.comment = comment
         self.children: list[_Node] = children if children else []
         self.is_list_member = is_list_member
+        self.is_multiline = is_multiline
 
     def __eq__(self, other: object) -> bool:
         """
@@ -84,6 +88,7 @@ class _Node():
             self.value == other.value
             and self.comment == other.comment
             and self.is_list_member == other.is_list_member
+            and self.is_multiline == other.is_multiline
             # Save recursive (most expensive) check for last
             and self.children == other.children
         )
@@ -253,7 +258,18 @@ class RecipeParser():
         # marks (spaces)
         cur_indent = 0
         last_node = node_stack[-1]
-        for line in sanitized_yaml.splitlines():
+        # Regex for detecting the start of a multiline node
+        multiline_re = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
+
+        # Iterate with an index variable, so we can handle multiline values
+        line_idx = 0
+        lines = sanitized_yaml.splitlines()
+        num_lines = len(lines)
+        while line_idx < num_lines:
+            line = lines[line_idx]
+            # Increment here, so that the inner multiline processing loop
+            # doesn't cause a skip of the line following the multiline value.
+            line_idx += 1
             # Ignore empty lines
             clean_line = line.strip()
             if clean_line == "":
@@ -261,6 +277,26 @@ class RecipeParser():
 
             new_indent = RecipeParser._num_tab_spaces(line)
             new_node = RecipeParser._parse_line(clean_line)
+            # If the last node ended (pre-comments) with a |, reset the value
+            # to be a list of the following, extra-indented strings
+            if multiline_re.match(line):
+                # Per YAML spec, multiline statements can't be commented. In
+                # other words, the `#` symbol is seen as a string character in
+                # multiline values.
+                multiline_node = _Node([], is_multiline=True)
+                multiline = lines[line_idx]
+                multiline_indent = RecipeParser._num_tab_spaces(multiline)
+                # Add the line to the list once it is verified to be the next
+                # line to capture in this node. This means that `line_idx` will
+                # point to the line of the next node, post-processing.
+                while (multiline_indent > new_indent):
+                    multiline_node.value.append(multiline.strip())
+                    line_idx += 1
+                    multiline = lines[line_idx]
+                    multiline_indent = RecipeParser._num_tab_spaces(multiline)
+                # The previous level is the key to this multi-line value, so
+                # we can safely reset it.
+                new_node.children = [multiline_node]
             if new_indent > cur_indent:
                 node_stack.append(last_node)
             elif new_indent < cur_indent:
@@ -336,8 +372,20 @@ class RecipeParser():
             if node.children[0].is_list_member:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
                 lines.append(
-                    f"{spaces}  - {RecipeParser._stringify_yaml(node.children[0].value)}  {node.children[0].comment}".rstrip()
+                    f"{spaces}{TAB_AS_SPACES}- {RecipeParser._stringify_yaml(node.children[0].value)}  {node.children[0].comment}".rstrip()
                 )
+                return
+            # Handle multi-line statements. In theory this will probably only
+            # ever be strings, but we'll try to account for other types.
+            #
+            # By the language spec, # symbols do not indicate comments on
+            # multiline strings.
+            if node.children[0].is_multiline:
+                lines.append(f"{spaces}{node.value}: |  {node.comment}".rstrip())
+                for val_line in node.children[0].value:
+                    lines.append(
+                        f"{spaces}{TAB_AS_SPACES}{RecipeParser._stringify_yaml(val_line)}".rstrip()
+                    )
                 return
             lines.append(
                 f"{spaces}{node.value}: {RecipeParser._stringify_yaml(node.children[0].value)}  {node.children[0].comment}".rstrip()

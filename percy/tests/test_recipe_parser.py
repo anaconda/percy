@@ -31,10 +31,8 @@ def test_construction():
     assert parser._is_modified == False
     # TODO assert on tree structure
     #assert parser._root == TODO
-    # TODO remove debugging
-    print(parser.render())
 
-def todo_enable_test_dog_food_easy():
+def test_dog_food_easy():
     """
     Test "eating our own dog food": Take a recipe, construct a parser,
 
