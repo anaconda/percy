@@ -282,7 +282,7 @@ class RecipeParser():
         # TODO complete
         return False
 
-    def _render(node: _Node, depth: int, lines: list[str]) -> None:
+    def _render_tree(node: _Node, depth: int, lines: list[str]) -> None:
         """
         Recursive helper function that traverses the parse tree to generate
         a file.
@@ -307,13 +307,15 @@ class RecipeParser():
             lines.append(f"{spaces}{node.value}: {node.children[0].value} {node.comment}")
             return
 
-        lines.append(f"{spaces}{node.value}: {node.comment}")
+        # Don't render a `:` for the non-visible root node
+        if depth > -1:
+            lines.append(f"{spaces}{node.value}: {node.comment}")
         for child in node.children:
             # Leaf nodes are rendered as members in a list
             if len(child.children) == 0:
                 lines.append(f"{spaces}  - {child.value} {node.comment}")
             else:
-                RecipeParser._render(child, depth + 1, lines)
+                RecipeParser._render_tree(child, depth + 1, lines)
             # By tradition, recipes have a blank line after every top-level
             # section.
             if depth < 0:
@@ -325,12 +327,23 @@ class RecipeParser():
         as a string.
         :return: String representation of the recipe file
         """
-        # TODO complete
-        # TODO handle setting of variables section
         lines = []
+
+        # Render variable set section
+        for key, val in self._vars.items():
+            # Double quote strings
+            if isinstance(val, str):
+                val = f"\"{val}\""
+            lines.append(f"{{% set {key} = {val} %}}")
+        # Add spacing if variables have been set
+        if len(self._vars):
+            lines.append("")
+
+        # Render parse-tree
         # -1 is passed in as the "root-level" is not directly rendered in a YAML
         # file; it is merely implied.
-        RecipeParser._render(self._root, -1, lines)
+        RecipeParser._render_tree(self._root, -1, lines)
+
         return "\n".join(lines)
 
     def contains_value(self, path: str | PurePath) -> bool:
