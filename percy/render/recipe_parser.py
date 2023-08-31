@@ -50,13 +50,24 @@ class _Node():
     Variable names are not substituted. In other words, the raw strings from
     the file are stored as text.
     """
-    def __init__(self, value: Primitives=None, comment="", children=None):
+    def __init__(
+        self,
+        value: Primitives=None,
+        comment="",
+        children=None,
+        is_list_member=False
+    ):
         """
         Constructs a node
+        :param value:           Value of the current node
+        :param comment:         Comment on the line this node was found on
+        :param children:        List of children nodes, descendants of this node
+        :param is_list_member:  Indicates if this node is part of a list
         """
         self.value = value
         self.comment = comment
         self.children: list[_Node] = children if children else []
+        self.is_list_member = is_list_member
 
 class RecipeParser():
 
@@ -131,9 +142,10 @@ class RecipeParser():
                 # gets tagged to both.
                 children.append(_Node(output[key], comment))
             return _Node(key, comment, children)
-        # If a list is returned, then this line is a member of another Node
+        # If a list is returned, then this line is a listed member of the parent
+        # Node
         if isinstance(output, list):
-            return _Node(output[0], comment)
+            return _Node(output[0], comment, is_list_member=True)
         # Other types are just leaf nodes. This is scenario should likely not
         # be triggered given our recipe files don't have single valid lines of
         # YAML, but we cover this case for the sake of correctness.
@@ -248,21 +260,33 @@ class RecipeParser():
         :param lines:   Accumulated list of lines in the recipe file
         """
         spaces = TAB_AS_SPACES * depth
-        # Detect same-line printing
+
+        # Handle lines that are just comments
+        if node.value is None and node.comment:
+            lines.append(node.comment)
+            return
+
+        # Handle same-line printing
         if len(node.children) == 1 and len(node.children[0].children) == 0:
+            # Handle the edge case of a list containing 1 member
+            if node.children[0].is_list_member:
+                lines.append(f"{spaces}{node.value}: {node.comment}")
+                lines.append(f"{spaces}  - {node.children[0].value} {node.comment}")
+                return
             lines.append(f"{spaces}{node.value}: {node.children[0].value} {node.comment}")
-        else:
-            lines.append(f"{spaces}{node.value}: {node.comment}")
-            for child in node.children:
-                # Leaf nodes are rendered as members in a list
-                if len(child.children) == 0:
-                    lines.append(f"{spaces}  - {child.value} {node.comment}")
-                else:
-                    RecipeParser._render(child, depth + 1, lines)
-                # By tradition, recipes have a blank line after every top-level
-                # section.
-                if depth < 0:
-                    lines.append("")
+            return
+
+        lines.append(f"{spaces}{node.value}: {node.comment}")
+        for child in node.children:
+            # Leaf nodes are rendered as members in a list
+            if len(child.children) == 0:
+                lines.append(f"{spaces}  - {child.value} {node.comment}")
+            else:
+                RecipeParser._render(child, depth + 1, lines)
+            # By tradition, recipes have a blank line after every top-level
+            # section.
+            if depth < 0:
+                lines.append("")
 
     def render(self) -> str:
         """
