@@ -27,3 +27,6 @@ def test_construction():
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
     parser = recipe_parser.RecipeParser(types_toml)
     assert parser._vars == {"name": "types-toml", "version": "0.10.8.6"}
+    # TODO more assert statements
+    # TODO remove debugging
+    print(parser.render())

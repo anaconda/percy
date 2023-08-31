@@ -17,6 +17,7 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
 import ast
 import difflib
 import re
+import yaml
 
 from pathlib import PurePath
 from typing import Final
@@ -28,6 +29,10 @@ Primitives = str | int | float | bool | None
 JsonType = (
     dict[str, "JsonType"] | list["JsonType"] | Primitives
 )
+
+# Indicates how many spaces are in a level of indentation
+TAB_SPACE_COUNT: Final[str] = 2
+TAB_AS_SPACES: Final[str] = " " * TAB_SPACE_COUNT
 
 class _Node():
     """
@@ -54,6 +59,88 @@ class _Node():
         self.children: list[_Node] = children if children else []
 
 class RecipeParser():
+
+    def _num_tab_spaces(s: str) -> int:
+        """
+        Counts the number of spaces at the start of the string. Used to indicate
+        depth of a field in a YAML file (the YAML specification dictates only
+        spaces can be used for indenting).
+        :param s:   Target string
+        :return: Number of preceding spaces in a string
+        """
+        cntr: int = 0
+        for c in s:
+            if c == " ":
+                cntr += 1
+            else:
+                break
+        return cntr
+
+    def _parse_line(s: str) -> _Node:
+        """
+        Parses a line of conda-formatted YAML into a Node.
+        TODO: handle multi-line strings
+
+        Latest YAML spec can be found here: https://yaml.org/spec/1.2.2/
+
+        :param s:   Pre-stripped (no leading/trailing spaces), non-Jinja line of
+                    a recipe file
+        :return: A Node representing a line of the conda-formatted YAML.
+        """
+        # Use PyYaml to safely/easily/correctly parse single lines of YAML.
+        # There is an open issue to PyYaml to support comment parsing:
+        #   - https://github.com/yaml/pyyaml/issues/90
+        output: JsonType = None
+        try:
+            output = yaml.load(s, yaml.SafeLoader)
+        except Exception:
+            # TODO this is a bit hacky and an area for improvement
+            # If a construction exception is thrown, attempt to re-parse by
+            # replacing Jinja macros (substrings in `{{}}`) with friendly string
+            # substitution markers, then re-inject the substitutions back in.
+            # We classify all Jinja substitutions as string values, so we don't
+            # have to worry about the type of the actual substitution.
+            jinja_sub_re = re.compile("{{.*}}")
+            sub_list = jinja_sub_re.findall(s)
+            s = jinja_sub_re.sub("__PERCY_SUBSTITUTION_MARKER__", s)
+            output = yaml.load(s, yaml.SafeLoader)
+            # TODO re-sub back in, post-YAML parse
+            print(f"TODO rm: subbed line: {s}")
+            print(f"|- {output}")
+
+        # Attempt to parse-out comments. Fully commented lines are not ignored
+        # to preserve context when the text is rendered. Their order in the list
+        # of child nodes will preserve their location. Fully commented lines
+        # just have a value of "None".
+        comment = ""
+        # The full line is a comment
+        if s.startswith("#"):
+            return _Node(comment=s)
+        # There is a comment at the end of the line
+        comment_start = s.rfind("#")
+        if comment_start > 0:
+            comment = s[comment_start:]
+
+        # If a dictionary is returned, we have a line containing a key and
+        # potentially a value. There should only be 1 key/value pairing in 1
+        # line.
+        if isinstance(output, dict):
+            children: list[_Node] = []
+            key = list(output.keys())[0]
+            # If the value returned is None, there is no leaf node to set
+            if output[key] is not None:
+                # As the line is shared by both parent and child, the comment
+                # gets tagged to both.
+                children.append(_Node(output[key], comment))
+            return _Node(key, comment, children)
+        # If a list is returned, then this line is a member of another Node
+        if isinstance(output, list):
+            return _Node(output[0], comment)
+        # Other types are just leaf nodes. This is scenario should likely not
+        # be triggered given our recipe files don't have single valid lines of
+        # YAML, but we cover this case for the sake of correctness.
+        return _Node(output, comment)
+
     """
     Class that parses a recipe file string. Provides many useful mechanisms for
     changing values in the document.
@@ -61,7 +148,7 @@ class RecipeParser():
     A quick search for Jinja statements in YAML files shows that the vast
     majority of statements are in the form of initializing variables with `set`.
 
-    The next few prevelant kinds of statements are:
+    The next few prevalent kinds of statements are:
       - Conditional macros (i.e. if/endif)
       - for loops
     And even those only show up in a handful out of thousands of recipes. There
@@ -81,17 +168,48 @@ class RecipeParser():
         self._vars: dict[str, JsonType] = {}
         # Find all the set statements and record the values
         set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
-        for line in set_line_re.findall(content):
+        for line in set_line_re.findall(self._init_content):
             key = line[line.find("set")+len("set"):line.find("=")].strip()
             value = line[line.find("=")+len("="):line.find("%}")].strip()
-            # From the docs: `literal_eval()` does not suffer from a code
-            # execution risk but potentially can overflow stack-space/memory,
-            # if someone abuses a recipe file. Alternatives could be considered
-            # in the future.
             self._vars[key] = ast.literal_eval(value)
 
         # Root of the parse tree
         self._root = _Node("")
+        # Start by removing all Jinja lines. Then traverse line-by-line
+        jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
+        sanitized_yaml = jinja_line_re.sub("", self._init_content)
+
+        # Read the YAML line-by-line, maintaining a stack to manage the last
+        # owning node in the tree.
+        node_stack: list[_Node] = [self._root]
+        # Relative depth is determined by the increase/decrease of indentation
+        # marks (spaces)
+        cur_indent = 0
+        last_node = node_stack[-1]
+        for line in sanitized_yaml.splitlines():
+            print(f"TODO rm: {line}")
+            print(f"|- Stack: {node_stack}")
+            # Ignore empty lines
+            clean_line = line.strip()
+            if clean_line == "":
+                continue
+
+            new_indent = RecipeParser._num_tab_spaces(line)
+            new_node = RecipeParser._parse_line(clean_line)
+            # Skip fully commented lines
+            if new_node is None:
+                continue
+            if new_indent > cur_indent:
+                node_stack.append(last_node)
+            elif new_indent < cur_indent:
+                node_stack.pop()
+            cur_indent = new_indent
+            # Look at the stack to determine the parent Node and then append
+            # the current node to the new parent.
+            parent = node_stack[-1]
+            parent.children.append(new_node)
+            # Update the last node for the next line interpretation
+            last_node = new_node
 
     def __str__(self) -> str:
         """
@@ -118,6 +236,25 @@ class RecipeParser():
         """
         return self.is_modified
 
+    def has_unsupported_statements(self) -> bool:
+        """
+        Runs a series of checks against the original recipe file.
+        """
+        # TODO complete
+        return False
+
+    def _render(node: _Node, depth: int, lines: list[str]) -> None:
+        """
+        Recursive helper function that traverses the parse tree to generate
+        a file.
+        :param node:    Current node in the tree
+        :param depth:   Current depth of the recursion
+        :param lines:   Accumulated list of lines in the recipe file
+        """
+        lines.append(f"{TAB_AS_SPACES * depth}{node.value}: {node.comment}")
+        for child in node.children:
+            RecipeParser._render(child, depth + 1, lines)
+
     def render(self) -> str:
         """
         Takes the current state of the parse tree and returns the recipe file
@@ -125,7 +262,11 @@ class RecipeParser():
         :return: String representation of the recipe file
         """
         # TODO complete
-        return ""
+        # TODO ensure that there is 1 blank line after every top-level section
+        # (1 after all variables, 1 after each top-level object)
+        lines = []
+        RecipeParser._render(self._root, 0, lines)
+        return "\n".join(lines)
 
     def contains_value(self, path: str | PurePath) -> bool:
         path = PurePath(path)
