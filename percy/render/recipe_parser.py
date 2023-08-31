@@ -204,13 +204,20 @@ class RecipeParser():
 
             new_indent = RecipeParser._num_tab_spaces(line)
             new_node = RecipeParser._parse_line(clean_line)
-            # Skip fully commented lines
-            if new_node is None:
-                continue
             if new_indent > cur_indent:
                 node_stack.append(last_node)
             elif new_indent < cur_indent:
-                node_stack.pop()
+                # Multiple levels of depth can change from line to line, so
+                # multiple stack nodes must be pop'd. Example:
+                # foo:
+                #   bar:
+                #     fizz: buzz
+                # baz: blah
+                # TODO Figure out tab-depth of the recipe being read. 4 spaces
+                #      is technically valid in YAML
+                depth_to_pop = (cur_indent - new_indent) // TAB_SPACE_COUNT
+                for _ in range(0, depth_to_pop):
+                    node_stack.pop()
             cur_indent = new_indent
             # Look at the stack to determine the parent Node and then append
             # the current node to the new parent.
