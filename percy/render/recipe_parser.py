@@ -71,6 +71,23 @@ class _Node():
         self.children: list[_Node] = children if children else []
         self.is_list_member = is_list_member
 
+    def __eq__(self, other: object) -> bool:
+        """
+        Determine if two nodes are equal. Useful for `assert` statements in
+        tests.
+        :param other:   Other object to check against
+        :return: True if the two nodes are identical. False otherwise.
+        """
+        if not isinstance(other, _Node):
+            return False
+        return (
+            self.value == other.value
+            and self.comment == other.comment
+            and self.is_list_member == other.is_list_member
+            # Save recursive (most expensive) check for last
+            and self.children == other.children
+        )
+
 class RecipeParser():
 
     def _num_tab_spaces(s: str) -> int:
@@ -100,6 +117,23 @@ class RecipeParser():
         for sub in subs:
             s = s.replace(_PERCY_SUB_MARKER, sub, 1)
         return s
+
+    def _stringify_yaml(val: Primitives) -> Primitives:
+        """
+        Special function for handling edge cases when converting values back
+        to YAML.
+        :param val: Value to check
+        :return: YAML version of a value, as a string.
+        """
+        # None -> null
+        if val is None:
+            return "null"
+        # True -> true
+        if isinstance(val, bool):
+            if val:
+                return "true"
+            return "false"
+        return val
 
     def _parse_line(s: str) -> _Node:
         """
@@ -197,7 +231,6 @@ class RecipeParser():
         # Indicates if the original content has changed
         self._is_modified = False
 
-        # TODO parse the text
         # Tracks Jinja variables set by the file
         self._vars: dict[str, JsonType] = {}
         # Find all the set statements and record the values
@@ -301,19 +334,27 @@ class RecipeParser():
         if len(node.children) == 1 and len(node.children[0].children) == 0:
             # Handle the edge case of a list containing 1 member
             if node.children[0].is_list_member:
-                lines.append(f"{spaces}{node.value}: {node.comment}")
-                lines.append(f"{spaces}  - {node.children[0].value} {node.comment}")
+                lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
+                lines.append(
+                    f"{spaces}  - {RecipeParser._stringify_yaml(node.children[0].value)}  {node.children[0].comment}".rstrip()
+                )
                 return
-            lines.append(f"{spaces}{node.value}: {node.children[0].value} {node.comment}")
+            lines.append(
+                f"{spaces}{node.value}: {RecipeParser._stringify_yaml(node.children[0].value)}  {node.children[0].comment}".rstrip()
+            )
             return
 
         # Don't render a `:` for the non-visible root node
         if depth > -1:
-            lines.append(f"{spaces}{node.value}: {node.comment}")
+            lines.append(
+                f"{spaces}{node.value}:  {node.comment}".rstrip()
+            )
         for child in node.children:
             # Leaf nodes are rendered as members in a list
             if len(child.children) == 0:
-                lines.append(f"{spaces}  - {child.value} {node.comment}")
+                lines.append(
+                    f"{spaces}  - {RecipeParser._stringify_yaml(child.value)}  {child.comment}".rstrip()
+                )
             else:
                 RecipeParser._render_tree(child, depth + 1, lines)
             # By tradition, recipes have a blank line after every top-level

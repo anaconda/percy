@@ -26,7 +26,21 @@ def test_construction():
     """
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
     parser = recipe_parser.RecipeParser(types_toml)
+    assert parser._init_content == types_toml
     assert parser._vars == {"name": "types-toml", "version": "0.10.8.6"}
-    # TODO more assert statements
+    assert parser._is_modified == False
+    # TODO assert on tree structure
+    #assert parser._root == TODO
     # TODO remove debugging
     print(parser.render())
+
+def todo_enable_test_dog_food_easy():
+    """
+    Test "eating our own dog food": Take a recipe, construct a parser,
+
+    This is the "easy" recipe test, to ensure compatibility with "basic" recipe
+    structures with no gotchas.
+    """
+    types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
+    parser = recipe_parser.RecipeParser(types_toml)
+    assert parser.render() == types_toml
