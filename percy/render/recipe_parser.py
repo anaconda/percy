@@ -105,8 +105,6 @@ class RecipeParser():
             s = jinja_sub_re.sub("__PERCY_SUBSTITUTION_MARKER__", s)
             output = yaml.load(s, yaml.SafeLoader)
             # TODO re-sub back in, post-YAML parse
-            print(f"TODO rm: subbed line: {s}")
-            print(f"|- {output}")
 
         # Attempt to parse-out comments. Fully commented lines are not ignored
         # to preserve context when the text is rendered. Their order in the list
@@ -187,8 +185,6 @@ class RecipeParser():
         cur_indent = 0
         last_node = node_stack[-1]
         for line in sanitized_yaml.splitlines():
-            print(f"TODO rm: {line}")
-            print(f"|- Stack: {node_stack}")
             # Ignore empty lines
             clean_line = line.strip()
             if clean_line == "":
@@ -251,9 +247,22 @@ class RecipeParser():
         :param depth:   Current depth of the recursion
         :param lines:   Accumulated list of lines in the recipe file
         """
-        lines.append(f"{TAB_AS_SPACES * depth}{node.value}: {node.comment}")
-        for child in node.children:
-            RecipeParser._render(child, depth + 1, lines)
+        spaces = TAB_AS_SPACES * depth
+        # Detect same-line printing
+        if len(node.children) == 1 and len(node.children[0].children) == 0:
+            lines.append(f"{spaces}{node.value}: {node.children[0].value} {node.comment}")
+        else:
+            lines.append(f"{spaces}{node.value}: {node.comment}")
+            for child in node.children:
+                # Leaf nodes are rendered as members in a list
+                if len(child.children) == 0:
+                    lines.append(f"{spaces}  - {child.value} {node.comment}")
+                else:
+                    RecipeParser._render(child, depth + 1, lines)
+                # By tradition, recipes have a blank line after every top-level
+                # section.
+                if depth < 0:
+                    lines.append("")
 
     def render(self) -> str:
         """
@@ -265,7 +274,9 @@ class RecipeParser():
         # TODO ensure that there is 1 blank line after every top-level section
         # (1 after all variables, 1 after each top-level object)
         lines = []
-        RecipeParser._render(self._root, 0, lines)
+        # -1 is passed in as the "root-level" is not directly rendered in a YAML
+        # file; it is merely implied.
+        RecipeParser._render(self._root, -1, lines)
         return "\n".join(lines)
 
     def contains_value(self, path: str | PurePath) -> bool:
