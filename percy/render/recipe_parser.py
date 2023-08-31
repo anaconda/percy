@@ -33,6 +33,8 @@ JsonType = (
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
 TAB_AS_SPACES: Final[str] = " " * TAB_SPACE_COUNT
+# Marker used to temporarily work around some Jinja-template parsing issues
+_PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
 
 class _Node():
     """
@@ -87,6 +89,18 @@ class RecipeParser():
                 break
         return cntr
 
+    def _substitute_markers(s: str, subs: list[str]) -> str:
+        """
+        Given a string, replace subsitution markers with the original Jinja
+        template from a list of options.
+        :param s:       String to replace substitution markers with
+        :param subs:    List of substitutions to make, in order of appearance
+        :return: New string, with substitutions removed
+        """
+        for sub in subs:
+            s = s.replace(_PERCY_SUB_MARKER, sub, 1)
+        return s
+
     def _parse_line(s: str) -> _Node:
         """
         Parses a line of conda-formatted YAML into a Node.
@@ -113,9 +127,19 @@ class RecipeParser():
             # have to worry about the type of the actual substitution.
             jinja_sub_re = re.compile("{{.*}}")
             sub_list = jinja_sub_re.findall(s)
-            s = jinja_sub_re.sub("__PERCY_SUBSTITUTION_MARKER__", s)
+            s = jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
             output = yaml.load(s, yaml.SafeLoader)
-            # TODO re-sub back in, post-YAML parse
+            # Add the substitutions back in
+            if isinstance(output, str):
+                output = RecipeParser._substitute_markers(output, sub_list)
+            if isinstance(output, dict):
+                key = list(output.keys())[0]
+                output[key] = RecipeParser._substitute_markers(output[key], sub_list)
+            elif isinstance(output, list):
+                output[0] = RecipeParser._substitute_markers(output[0], sub_list)
+            elif not isinstance(output, str):
+                # TODO throw
+                pass
 
         # Attempt to parse-out comments. Fully commented lines are not ignored
         # to preserve context when the text is rendered. Their order in the list
@@ -302,8 +326,7 @@ class RecipeParser():
         :return: String representation of the recipe file
         """
         # TODO complete
-        # TODO ensure that there is 1 blank line after every top-level section
-        # (1 after all variables, 1 after each top-level object)
+        # TODO handle setting of variables section
         lines = []
         # -1 is passed in as the "root-level" is not directly rendered in a YAML
         # file; it is merely implied.
