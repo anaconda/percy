@@ -637,13 +637,13 @@ class Recipe:
             self.render()
         jsonschema.validate(operations, self.schema)
         for op in operations:
-            if not "@output" in op["path"]:
+            if "@output" not in op["path"]:
                 # apply global operation once only
                 self._patch(op)
                 self.save()
                 self.render()
             else:
-                 # apply package specific operation for all packages
+                # apply package specific operation for all packages
                 for package in self.packages.values():
                     opcopy = deepcopy(op)
                     opcopy["path"] = opcopy["path"].replace(
