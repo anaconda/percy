@@ -637,10 +637,21 @@ class Recipe:
             self.render()
         jsonschema.validate(operations, self.schema)
         for op in operations:
-            for package in self.packages.values():
-                self._patch(op, package)
+            if not "@output" in op["path"]:
+                # apply global operation once only
+                self._patch(op)
                 self.save()
                 self.render()
+            else:
+                 # apply package specific operation for all packages
+                for package in self.packages.values():
+                    opcopy = deepcopy(op)
+                    opcopy["path"] = opcopy["path"].replace(
+                        "@output/", package.path_prefix
+                    )
+                    self._patch(opcopy)
+                    self.save()
+                    self.render()
         if self.is_modified():
             if increment_build_number:
                 self._increment_build_number()
@@ -650,10 +661,10 @@ class Recipe:
             return True
         return False
 
-    def _patch(self, operation, package):
+    def _patch(self, operation):
         # read operation parameters
         op = operation["op"]
-        path = operation["path"].replace("@output/", package.path_prefix)
+        path = operation["path"]
         match = operation.get("match", ".*")
         expanded_match = re.compile(
             f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
@@ -679,6 +690,9 @@ class Recipe:
                         parent_path, parent_name = path.rsplit("/", 1)
                         path = parent_path
                         value = [value]
+                        expanded_match = re.compile(
+                            f"\s+{parent_name}:\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
+                        )
                 else:
                     in_list = True
         elif op == "add":
