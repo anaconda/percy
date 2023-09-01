@@ -65,6 +65,10 @@
 
   ## Other examples
   
+  ### Recipe patching
+
+  See percy/examples/patch
+
   ### Python 3.11 buildout
 
   See percy/examples/py311 [here](percy/examples/py311/README.md)
