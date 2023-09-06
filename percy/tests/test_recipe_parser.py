@@ -2,7 +2,10 @@
 File:           test_recipe_parser.py
 Description:    Unit tests for the recipe parser class and tools
 """
+import pytest
+
 from pathlib import Path
+from typing import Final
 
 from percy.render import recipe_parser
 
@@ -42,3 +45,30 @@ def test_dog_food_easy():
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
     parser = recipe_parser.RecipeParser(types_toml)
     assert parser.render() == types_toml
+
+def test_get_value():
+    """
+    Tests retrieval of a value from a parsed YAML example.
+    """
+    # TODO complete
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
+    # Return a single value
+    assert parser.get_value("/build/number") == { "number": 0 }
+    assert parser.get_value("/build/number/") == 0
+    # Return a compound value
+    assert parser.get_value("/build") == { "number": 0, "skip": True }
+    assert parser.get_value("/build/") == { "number": 0, "skip": True }
+    # Return a value in a list
+    assert parser.get_value("/requirements/host") == ["setuptools", "fakereq"]
+    assert parser.get_value("/requirements/host/") == ["setuptools", "fakereq"]
+    assert parser.get_value("/requirements/host/0") == "setuptools"
+    assert parser.get_value("/requirements/host/1") == "fakereq"
+    # Return a multiline string
+    description: Final[str] = "This is a PEP 561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."
+    assert parser.get_value("/about/description") == {"description": description}
+    assert parser.get_value("/about/description/") == description
+    # Path not found cases
+    with pytest.raises(KeyError):
+        parser.get_value("/invalid/fake/path")
+    assert parser.get_value("/invalid/fake/path", 42) == 42

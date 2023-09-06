@@ -1,0 +1,23 @@
+{% set name = "types-toml" %}
+{% set version = "0.10.8.6" %}
+
+package:
+  name: {{ name|lower }}
+
+build:
+  number: 0
+  skip: true  # [py<37]
+
+requirements:
+  host:
+    - setuptools
+    - fakereq
+  run:
+    - python
+
+about:
+  description: |
+    This is a PEP 561 type stub package for the toml package.
+    It can be used by type-checking tools like mypy, pyright,
+    pytype, PyCharm, etc. to check code that uses toml.
+  license: Apache-2.0 AND MIT

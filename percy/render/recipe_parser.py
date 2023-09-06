@@ -30,11 +30,30 @@ JsonType = (
     dict[str, "JsonType"] | list["JsonType"] | Primitives
 )
 
+# Type that represents a JSON patch payload
+JsonPatchType = dict[str, JsonType]
+
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
 TAB_AS_SPACES: Final[str] = " " * TAB_SPACE_COUNT
 # Marker used to temporarily work around some Jinja-template parsing issues
 _PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
+
+class UnsupportedOpException(Exception):
+    """
+    Indicates that the calling code has attempted to perform an unsupported
+    operation.
+    """
+
+    def __init__(self, op: str):
+        """
+        Constructs an Unsupported Operation Exception
+        :param op: Operation being encountered.
+        """
+        message = "An unspecified operation was encountered."
+        if op:
+            message = f"Unsupported operation encountered: {op}"
+        super().__init__(message)
 
 class _Node():
     """
@@ -93,8 +112,23 @@ class _Node():
             and self.children == other.children
         )
 
+    def __str__(self) -> str:
+        """
+        Renders the Node as a string. Useful for debugging purposes.
+        :return: The node's value, as a string
+        """
+        return str(self.value)
+
+    def is_leaf(self) -> bool:
+        """
+        Indicates if a node is a leaf node
+        :return: True if the node is a leaf
+        """
+        return len(self.children) == 0
+
 class RecipeParser():
 
+    @staticmethod
     def _num_tab_spaces(s: str) -> int:
         """
         Counts the number of spaces at the start of the string. Used to indicate
@@ -111,6 +145,7 @@ class RecipeParser():
                 break
         return cntr
 
+    @staticmethod
     def _substitute_markers(s: str, subs: list[str]) -> str:
         """
         Given a string, replace subsitution markers with the original Jinja
@@ -123,6 +158,7 @@ class RecipeParser():
             s = s.replace(_PERCY_SUB_MARKER, sub, 1)
         return s
 
+    @staticmethod
     def _stringify_yaml(val: Primitives) -> Primitives:
         """
         Special function for handling edge cases when converting values back
@@ -140,7 +176,42 @@ class RecipeParser():
             return "false"
         return val
 
-    def _parse_line(s: str) -> _Node:
+    @staticmethod
+    def _parse_yaml(s: str) -> JsonType:
+        """
+        Parse a line of YAML into a Pythonic data structure
+        :param s:   String to parse
+        :return: Pythonic data corresponding to the line of YAML
+        """
+        output: JsonType = None
+        try:
+            output = yaml.load(s, yaml.SafeLoader)
+        except Exception:
+            # TODO this is a bit hacky and an area for improvement
+            # If a construction exception is thrown, attempt to re-parse by
+            # replacing Jinja macros (substrings in `{{}}`) with friendly string
+            # substitution markers, then re-inject the substitutions back in.
+            # We classify all Jinja substitutions as string values, so we don't
+            # have to worry about the type of the actual substitution.
+            jinja_sub_re = re.compile("{{.*}}")
+            sub_list = jinja_sub_re.findall(s)
+            s = jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
+            output = yaml.load(s, yaml.SafeLoader)
+            # Add the substitutions back in
+            if isinstance(output, str):
+                output = RecipeParser._substitute_markers(output, sub_list)
+            if isinstance(output, dict):
+                key = list(output.keys())[0]
+                output[key] = RecipeParser._substitute_markers(output[key], sub_list)
+            elif isinstance(output, list):
+                output[0] = RecipeParser._substitute_markers(output[0], sub_list)
+            else:
+                # TODO throw
+                pass
+        return output
+
+    @staticmethod
+    def _parse_line_node(s: str) -> _Node:
         """
         Parses a line of conda-formatted YAML into a Node.
         TODO: handle multi-line strings
@@ -152,9 +223,7 @@ class RecipeParser():
         :return: A Node representing a line of the conda-formatted YAML.
         """
         # Use PyYaml to safely/easily/correctly parse single lines of YAML.
-        # There is an open issue to PyYaml to support comment parsing:
-        #   - https://github.com/yaml/pyyaml/issues/90
-        output: JsonType = None
+        output = RecipeParser._parse_yaml(s)
         try:
             output = yaml.load(s, yaml.SafeLoader)
         except Exception:
@@ -180,10 +249,15 @@ class RecipeParser():
                 # TODO throw
                 pass
 
+
         # Attempt to parse-out comments. Fully commented lines are not ignored
         # to preserve context when the text is rendered. Their order in the list
         # of child nodes will preserve their location. Fully commented lines
         # just have a value of "None".
+        #
+        # There is an open issue to PyYaml to support comment parsing:
+        #   - https://github.com/yaml/pyyaml/issues/90
+        # TODO Ruamel can handle comments
         comment = ""
         # The full line is a comment
         if s.startswith("#"):
@@ -213,6 +287,25 @@ class RecipeParser():
         # be triggered given our recipe files don't have single valid lines of
         # YAML, but we cover this case for the sake of correctness.
         return _Node(output, comment)
+
+    @staticmethod
+    def _str_to_stack_path(path: str) -> list[str]:
+        """
+        Takes a JSON-patch path as a string and return a path as a stack of
+        strings.
+
+        For example:
+            "/foo/bar/baz" -> ["baz", "bar", "foo", "/"]
+        :param path: Path to deconstruct into a stack
+        :return: Path, described as a stack of strings.
+        """
+        # TODO: validate the path starts with `/` (root)
+
+        # Use `PurePath` as a way to parse the path into component parts that
+        # are easy to recursively manipulate, in a stack. NOTE: Remember that
+        # Python's implementation of a stack is to use a list from the end of
+        # the list. In other words, the `root` is at the end of the list.
+        return list(PurePath(path).parts)[::-1]
 
     """
     Class that parses a recipe file string. Provides many useful mechanisms for
@@ -276,7 +369,7 @@ class RecipeParser():
                 continue
 
             new_indent = RecipeParser._num_tab_spaces(line)
-            new_node = RecipeParser._parse_line(clean_line)
+            new_node = RecipeParser._parse_line_node(clean_line)
             # If the last node ended (pre-comments) with a |, reset the value
             # to be a list of the following, extra-indented strings
             if multiline_re.match(line):
@@ -336,6 +429,56 @@ class RecipeParser():
         if not isinstance(other, RecipeParser):
             return NotImplemented
         return self.render() == other.render()
+
+    def _traverse_recurse(self, node: _Node, path: list[str]) -> _Node | None:
+        """
+        Recursive helper function for traversing a tree.
+        :param node:    Current node on the tree.
+        :param path:    Path, as a stack, that describes a location in the tree.
+        :return: `_Node` object if a node is found in the parse tree at that
+                 path. Otherwise returns `None`.
+        """
+        if len(path) == 0:
+            return node
+        # TODO add support for array indexing (child by position)
+        path_part = path[-1]
+        if path_part.isdigit():
+            # Check if index is in range
+            max_idx = len(node.children) - 1
+            path_idx = int(path_part)
+            if path_idx < 0 or path_idx > max_idx:
+                return None
+            path.pop()
+            return self._traverse_recurse(node.children[path_idx], path)
+        for child in node.children:
+            # Remember: for nodes that represent part of the path, the "value"
+            # stored in the node is part of the path-name.
+            if child.value == path[-1]:
+                path.pop()
+                return self._traverse_recurse(child, path)
+        # Path not found
+        return None
+
+    def _traverse(self, path: list[str]) -> _Node | None:
+        """
+        Given a path in the recipe tree, traverse the tree and return the node
+        at that path.
+
+        If no Node is found at that path, return `None`.
+        :param path:    Path, as a stack, that describes a location in the tree.
+        :return: `_Node` object if a node is found in the parse tree at that
+                 path. Otherwise returns `None`.
+        """
+        # Bootstrap recursive edge cases
+        if len(path) == 0:
+            return None
+        if len(path) == 1:
+            if path[0] == "/":
+                return self._root
+            return None
+        # Purge `root` from the path
+        path.pop()
+        return self._traverse_recurse(self._root, path)
 
     def is_modified(self) -> bool:
         """
@@ -399,7 +542,7 @@ class RecipeParser():
             )
         for child in node.children:
             # Leaf nodes are rendered as members in a list
-            if len(child.children) == 0:
+            if child.is_leaf():
                 lines.append(
                     f"{spaces}  - {RecipeParser._stringify_yaml(child.value)}  {child.comment}".rstrip()
                 )
@@ -440,18 +583,56 @@ class RecipeParser():
         # TODO complete
         return False
 
-    def get_value(self, path: str | PurePath, default=None) -> tuple[Primitives, str]:
+    def get_value(self, path: str | PurePath, default=None) -> JsonType:
         """
         Retrieves a value at a given path. If the value is not found, return a
         specified default value or throw.
-        :param path:    JSON patch (RFC 6902)-style path to a value
-        :param default: (Optional)
+        :param path:    JSON patch (RFC 6902)-style path to a value. NOTE: There
+                        is no "get" op in JSON patch. To get the value (not
+                        the key-value pair) at a path, add a `/` at the end
+                        of the path. For paths that are lists/objects, this is
+                        ignored.
+
+                        For example:
+                            /build/number  -> { "number": 0 }
+                            /build/number/ -> 0
+        :param default: (Optional) If the value is not found, return this value
+                        instead.
+        :raises KeyError: If the value is not found AND no default is specified
         :return: If found, the value in the recipe at that path. Otherwise, the
                  caller-specified default value.
         """
-        path = PurePath(path)
-        # TODO complete
-        return ""
+        # Ignore the root case
+        path_ends_in_slash = len(path) > 1 and path[-1] == "/"
+        path_stack = RecipeParser._str_to_stack_path(path)
+        node = self._traverse(path_stack)
+
+        # Handle if the path was not found
+        if node is None:
+            if default is None:
+                raise KeyError
+            return default
+
+        # Handle unpacking of the last key-value set of nodes, if `/` is
+        # specified and the target node is a single key-value-pair. Ignore the
+        # trailing `/` if the value is a compound type. There is an exception
+        # for this rule for multiline strings, which need to be re-combined.
+        if path_ends_in_slash:
+            if len(node.children) == 1:
+                if node.children[0].is_multiline:
+                    return "\n".join(node.children[0].value)
+                return node.children[0].value
+
+        # Leaf nodes can return their value directly
+        if node.is_leaf():
+            return node.value
+
+        # NOTE: Traversing the tree and generating our own data structures will
+        # be more efficient than rendering and leveraging the YAML parser, BUT
+        # this method re-uses code and is easier to maintain.
+        lst = []
+        RecipeParser._render_tree(node, -1, lst)
+        return RecipeParser._parse_yaml("\n".join(lst))
 
     def list_vars(self) -> list[str]:
         # TODO complete
@@ -465,7 +646,31 @@ class RecipeParser():
         # TODO complete
         return ""
 
-    def patch(self, patch) -> bool:
+    def _patch_replace(self, path: list[str], value: JsonType) -> bool:
+        """
+        Performs a JSON patch `replace` operation.
+
+        :param path:    Path that describes a location in the tree, as a list,
+                        treated like a stack.
+        :param value:   Value to update with.
+        :raises UnsupportedOpException: If the operation preformed is not
+                                        supported. TODO Exception will no longer
+                                        be raised when support is added.
+        """
+        # TODO add support for compound types
+        if isinstance(value, dict):
+            raise UnsupportedOpException("replace, list")
+        if isinstance(value, dict):
+            raise UnsupportedOpException("replace, dict")
+
+        node = self._traverse()
+        if node is None:
+            return False
+
+        node.value = value
+        return True
+
+    def patch(self, patch: JsonPatchType) -> bool:
         """
         Given a JSON-patch object, perform a patch operation.
         For full examples,
@@ -484,24 +689,27 @@ class RecipeParser():
           - copy
           - test
 
-        :param patch: TODO
-        :return: True if the operation was successful. False otherwise. For
-                 the `test` operation, this indicates the return value of the
-                 `test` request. In other words, if `value` matches the target
-                 variable, return True. False otherwise.
+        :param patch:                   JSON-patch payload to operate with.
+        :raises ValidationException:    If the JSON-patch payload does not
+                                        conform to our schema/spec.
+        :raises UnsupportedOpException: If the operation preformed is not
+                                        supported
+        :return: If the calling code attempts to perform the `test` operation,
+                 this indicates the return value of the `test` request. In other
+                 words, if `value` matches the target variable, return True.
+                 False otherwise.
         """
-        unsupported_ops = {
-            "add",
-            "remove",
-            "replace",
-            "move",
-            "copy",
-            "test",
-        }
         # TODO validate input
-        # TODO throw on unsupported op
-        # TODO complete
-        return True
+        op = patch["op"]
+        if op not in self._supported_patch_ops:
+            raise UnsupportedOpException(op)
+
+        # Use `PurePath` as a way to parse the path into component parts that
+        # are easy to recursively manipulate, in a stack. NOTE: Remember that
+        # Python's implementation of a stack is to use a list from the end of
+        # the list. In other words, the `root` is at the end of the list.
+        path = RecipeParser._str_to_stack_path(patch["path"])
+        return self._supported_patch_ops[op](path, patch["value"])
 
     def diff(self) -> str:
         """
@@ -514,3 +722,9 @@ class RecipeParser():
             return "No diff"
         # TODO complete
         return ""
+
+    # Look-up table of currently supported JSON patch operation functions. This
+    # must be defined after all functions are defined
+    _supported_patch_ops: dict[str, callable] = {
+        "replace":  _patch_replace,
+    }
