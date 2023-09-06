@@ -53,6 +53,21 @@ def test_get_value():
     # TODO complete
     simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
     parser = recipe_parser.RecipeParser(simple)
+    assert parser.contains_value("/build/number")
+    assert parser.contains_value("/build/number/")
+    assert parser.contains_value("/build")
+    assert parser.contains_value("/requirements/host/0")
+    assert parser.contains_value("/requirements/host/1")
+    # Path not found cases
+    assert not parser.contains_value("/invalid/fake/path")
+
+def test_get_value():
+    """
+    Tests retrieval of a value from a parsed YAML example.
+    """
+    # TODO complete
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
     # Return a single value
     assert parser.get_value("/build/number") == { "number": 0 }
     assert parser.get_value("/build/number/") == 0

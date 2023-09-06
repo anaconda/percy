@@ -578,12 +578,16 @@ class RecipeParser():
 
         return "\n".join(lines)
 
-    def contains_value(self, path: str | PurePath) -> bool:
-        path = PurePath(path)
-        # TODO complete
-        return False
+    def contains_value(self, path: str) -> bool:
+        """
+        Determines if a value (via a path) is contained in this recipe
+        :param path:    JSON patch (RFC 6902)-style path to a value.
+        :return: True if the path exists. False otherwise.
+        """
+        path_stack = RecipeParser._str_to_stack_path(path)
+        return self._traverse(path_stack) is not None
 
-    def get_value(self, path: str | PurePath, default=None) -> JsonType:
+    def get_value(self, path: str, default=None) -> JsonType:
         """
         Retrieves a value at a given path. If the value is not found, return a
         specified default value or throw.
