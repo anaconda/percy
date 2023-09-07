@@ -10,8 +10,8 @@ build:
 
 requirements:
   host:
-    - setuptools
-    - fakereq
+    - setuptools  # [unix]
+    - fakereq  # [unix]
   run:
     - python
 

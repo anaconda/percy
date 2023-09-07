@@ -105,3 +105,16 @@ def test_contains_selectors():
     assert parser.contains_selector("[py<37]")
     assert parser.contains_selector("[unix]")
     assert not parser.contains_selector("[fake selector]")
+
+def test_get_selector_paths():
+    """
+    Tests the paths returned from fetching a selector
+    """
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
+    assert parser.get_selector_paths("[py<37]") == ["/build/skip"]
+    assert parser.get_selector_paths("[unix]") == [
+        "/requirements/host/0",
+        "/requirements/host/1",
+    ]
+    assert parser.get_selector_paths("[fake selector]") == []

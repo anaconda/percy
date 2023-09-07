@@ -20,7 +20,7 @@ import re
 import yaml
 
 from pathlib import PurePath
-from typing import Final
+from typing import Final, NamedTuple
 
 # Base types that can store value
 Primitives = str | int | float | bool | None
@@ -32,6 +32,9 @@ JsonType = (
 
 # Type that represents a JSON patch payload
 JsonPatchType = dict[str, JsonType]
+
+# Type alias for a list of strings treated as a Pythonic stack
+_StrStack = list[str]
 
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
@@ -126,6 +129,14 @@ class _Node():
         """
         return len(self.children) == 0
 
+class SelectorInfo(NamedTuple):
+    """
+    Immutable structure that tracks information about how a particular selector
+    is used.
+    """
+    node: _Node
+    path: _StrStack
+
 class _Traverse():
     """
     Private class, treated as a namespace, that contains methods for traversing
@@ -133,7 +144,7 @@ class _Traverse():
     as the class has not yet been defined.
     """
     @staticmethod
-    def _traverse_recurse(node: _Node, path: list[str]) -> _Node | None:
+    def _traverse_recurse(node: _Node, path: _StrStack) -> _Node | None:
         """
         Recursive helper function for traversing a tree.
         :param node:    Current node on the tree.
@@ -165,7 +176,7 @@ class _Traverse():
         return None
 
     @staticmethod
-    def traverse(node: _Node | None, path: list[str]) -> _Node | None:
+    def traverse(node: _Node | None, path: _StrStack) -> _Node | None:
         """
         Given a path in the recipe tree, traverse the tree and return the node
         at that path.
@@ -189,19 +200,35 @@ class _Traverse():
         return _Traverse._traverse_recurse(node, path)
 
     @staticmethod
-    def traverse_all(node: _Node | None, func: callable) -> None:
+    def traverse_all(node: _Node | None, func: callable, path: tuple[str] | None = None, idx_num = 0) -> None:
         """
         Given a node, traverse all child nodes and apply a function to each
         node. Useful for updating or extracting information on the whole tree.
         :param node:    Node to start with
         :param func:    Function to apply against all traversed nodes.
+        :param path:    CALLERS: DO NOT SET. This value tracks the current path
+                        of a node. This should only be specified in recursive
+                        calls to this function. Tuples are used for their
+                        immutability, so paths change based on the current
+                        stack frame.
+        :param idx_num: CALLERS: DO NOT SET. Used in recursive calls to track
+                        the index position of a list-member node.
         """
         if node is None:
             return
-        # TODO invoke with the current stack-path to the node for convenience(?)
-        func(node)
+        # Initialize, if on the root node. Otherwise build-up the path
+        if path is None:
+            path = ("/",)
+        elif node.is_list_member:
+            path = (str(idx_num),) + path
+        elif not node.is_leaf():
+            path = (node.value,) + path
+        func(node, list(path))
+        # Used for paths that contain lists of items
+        idx_num = 0
         for child in node.children:
-            _Traverse.traverse_all(child, func)
+            _Traverse.traverse_all(child, func, path, idx_num)
+            idx_num += 1
 
 class RecipeParser():
 
@@ -366,10 +393,12 @@ class RecipeParser():
         return _Node(output, comment)
 
     @staticmethod
-    def _str_to_stack_path(path: str) -> list[str]:
+    def _str_to_stack_path(path: str) -> _StrStack:
         """
         Takes a JSON-patch path as a string and return a path as a stack of
         strings.
+
+        String paths are used by callers, stacks are used internally.
 
         For example:
             "/foo/bar/baz" -> ["baz", "bar", "foo", "/"]
@@ -384,6 +413,26 @@ class RecipeParser():
         # the list. In other words, the `root` is at the end of the list.
         return list(PurePath(path).parts)[::-1]
 
+    @staticmethod
+    def _stack_path_to_str(path_stack: _StrStack) -> str:
+        """
+        Takes a stack that represents a path and converts it into a string.
+
+        String paths are used by callers, stacks are used internally.
+
+        :param path_stack:  Stack to construct back into a string.
+        :return: Path, described as a string.
+        """
+        path = ""
+        while (len(path_stack) > 0):
+            value = path_stack.pop()
+            # Special case to bootstrap root; the first element will
+            # automatically add the first slash.
+            if value == "/":
+                continue
+            path += f"/{value}"
+        return path
+
     def _rebuild_selectors(self) -> None:
         """
         Re-builds the selector look-up table. This table allows quick access to
@@ -391,15 +440,20 @@ class RecipeParser():
 
         This needs to be called when the three is modified.
         """
-        self._selector_tbl = {}
+        self._selector_tbl: dict[str, list[SelectorInfo]] = {}
         selector_re = re.compile(r"\[.*\]")
-        def _collect_selectors(node: _Node):
+        def _collect_selectors(node: _Node, path: _StrStack):
             # Ignore empty comments
             if node.comment is None or not node.comment:
                 return
             match = selector_re.search(node.comment)
             if match:
-                self._selector_tbl[match.group(0)] = { "node": node }
+                selector = match.group(0)
+                selector_info = SelectorInfo(node, path)
+                if selector not in self._selector_tbl:
+                    self._selector_tbl[selector] = [selector_info]
+                else:
+                    self._selector_tbl[selector].append(selector_info)
         _Traverse.traverse_all(self._root, _collect_selectors)
 
     """
@@ -693,7 +747,7 @@ class RecipeParser():
 
     def list_vars(self) -> set[str]:
         # TODO complete
-        return []
+        return set()
 
     def contains_var(self) -> bool:
         # TODO complete
@@ -718,11 +772,33 @@ class RecipeParser():
         """
         return selector in self._selector_tbl
 
-    def get_selector_paths(self):
-        # TODO complete
-        return []
+    def get_selector_paths(self, selector: str) -> list[str]:
+        """
+        Given a selector (including the surrounding brackets), provide a list
+        of paths in the parse tree that use that selector.
 
-    def _patch_replace(self, path: list[str], value: JsonType) -> bool:
+        Selector paths will be ordered by the line they appear on in the file.
+
+        :param selector:    Selector of interest.
+        :return: A list of all known paths that use a particular selector
+        """
+        # We return a tuple so that caller doesn't accidentally modify a
+        # private member variable.
+        if not self.contains_selector(selector):
+            return []
+        path_list: list[str] = []
+        for path_stack in self._selector_tbl[selector]:
+            path_list.append(RecipeParser._stack_path_to_str(path_stack.path))
+        # The list should be de-duped and remain order. Duplications occur
+        # when key-value pairings mean a selector occurs on two nodes with
+        # the same path.
+        #
+        # For example:
+        #   skip: True  # [unix]
+        # The nodes for both `skip` and `True` contain the comment `[unix]`
+        return list(dict.fromkeys(path_list))
+
+    def _patch_replace(self, path: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `replace` operation.
 
