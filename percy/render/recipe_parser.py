@@ -126,6 +126,82 @@ class _Node():
         """
         return len(self.children) == 0
 
+class _Traverse():
+    """
+    Private class, treated as a namespace, that contains methods for traversing
+    `_Node` data structures. These functions can't exist under the `_Node` class
+    as the class has not yet been defined.
+    """
+    @staticmethod
+    def _traverse_recurse(node: _Node, path: list[str]) -> _Node | None:
+        """
+        Recursive helper function for traversing a tree.
+        :param node:    Current node on the tree.
+        :param path:    Path, as a stack, that describes a location in the tree.
+        :return: `_Node` object if a node is found in the parse tree at that
+                 path. Otherwise returns `None`.
+        """
+        if len(path) == 0:
+            return node
+
+        path_part = path[-1]
+        # Check if the path is attempting an array index.
+        if path_part.isdigit():
+            # Check if index is in range
+            max_idx = len(node.children) - 1
+            path_idx = int(path_part)
+            if path_idx < 0 or path_idx > max_idx:
+                return None
+            path.pop()
+            return _Traverse._traverse_recurse(node.children[path_idx], path)
+
+        for child in node.children:
+            # Remember: for nodes that represent part of the path, the "value"
+            # stored in the node is part of the path-name.
+            if child.value == path[-1]:
+                path.pop()
+                return _Traverse._traverse_recurse(child, path)
+        # Path not found
+        return None
+
+    @staticmethod
+    def traverse(node: _Node | None, path: list[str]) -> _Node | None:
+        """
+        Given a path in the recipe tree, traverse the tree and return the node
+        at that path.
+
+        If no Node is found at that path, return `None`.
+        :param path:    Path, as a stack, that describes a location in the tree.
+        :return: `_Node` object if a node is found in the parse tree at that
+                 path. Otherwise returns `None`.
+        """
+        # Bootstrap recursive edge cases
+        if _Node is None:
+            return None
+        if len(path) == 0:
+            return None
+        if len(path) == 1:
+            if path[0] == "/":
+                return node
+            return None
+        # Purge `root` from the path
+        path.pop()
+        return _Traverse._traverse_recurse(node, path)
+
+    @staticmethod
+    def traverse_all(node: _Node | None, func: callable) -> None:
+        """
+        Given a node, traverse all child nodes and apply a function to each
+        node. Useful for updating or extracting information on the whole tree.
+        :param node:    Node to start with
+        :param func:    Function to apply against all traversed nodes.
+        """
+        if node is None:
+            return
+        func(node)
+        for child in node.children:
+            _Traverse.traverse_all(child, func)
+
 class RecipeParser():
 
     @staticmethod
@@ -307,6 +383,13 @@ class RecipeParser():
         # the list. In other words, the `root` is at the end of the list.
         return list(PurePath(path).parts)[::-1]
 
+    def _rebuild_selectors(self) -> None:
+        self._selector_tbl = {}
+        #def _collect_selectors(node: _Node):
+        #    pass
+        # TODO complete
+        #_Traverse.traverse_all()
+
     """
     Class that parses a recipe file string. Provides many useful mechanisms for
     changing values in the document.
@@ -430,56 +513,6 @@ class RecipeParser():
             return NotImplemented
         return self.render() == other.render()
 
-    def _traverse_recurse(self, node: _Node, path: list[str]) -> _Node | None:
-        """
-        Recursive helper function for traversing a tree.
-        :param node:    Current node on the tree.
-        :param path:    Path, as a stack, that describes a location in the tree.
-        :return: `_Node` object if a node is found in the parse tree at that
-                 path. Otherwise returns `None`.
-        """
-        if len(path) == 0:
-            return node
-        # TODO add support for array indexing (child by position)
-        path_part = path[-1]
-        if path_part.isdigit():
-            # Check if index is in range
-            max_idx = len(node.children) - 1
-            path_idx = int(path_part)
-            if path_idx < 0 or path_idx > max_idx:
-                return None
-            path.pop()
-            return self._traverse_recurse(node.children[path_idx], path)
-        for child in node.children:
-            # Remember: for nodes that represent part of the path, the "value"
-            # stored in the node is part of the path-name.
-            if child.value == path[-1]:
-                path.pop()
-                return self._traverse_recurse(child, path)
-        # Path not found
-        return None
-
-    def _traverse(self, path: list[str]) -> _Node | None:
-        """
-        Given a path in the recipe tree, traverse the tree and return the node
-        at that path.
-
-        If no Node is found at that path, return `None`.
-        :param path:    Path, as a stack, that describes a location in the tree.
-        :return: `_Node` object if a node is found in the parse tree at that
-                 path. Otherwise returns `None`.
-        """
-        # Bootstrap recursive edge cases
-        if len(path) == 0:
-            return None
-        if len(path) == 1:
-            if path[0] == "/":
-                return self._root
-            return None
-        # Purge `root` from the path
-        path.pop()
-        return self._traverse_recurse(self._root, path)
-
     def is_modified(self) -> bool:
         """
         Indicates if the recipe has been changed since construction.
@@ -585,7 +618,7 @@ class RecipeParser():
         :return: True if the path exists. False otherwise.
         """
         path_stack = RecipeParser._str_to_stack_path(path)
-        return self._traverse(path_stack) is not None
+        return _Traverse.traverse(self._root, path_stack) is not None
 
     def get_value(self, path: str, default=None) -> JsonType:
         """
@@ -609,7 +642,7 @@ class RecipeParser():
         # Ignore the root case
         path_ends_in_slash = len(path) > 1 and path[-1] == "/"
         path_stack = RecipeParser._str_to_stack_path(path)
-        node = self._traverse(path_stack)
+        node = _Traverse.traverse(self._root, path_stack)
 
         # Handle if the path was not found
         if node is None:
@@ -662,12 +695,14 @@ class RecipeParser():
                                         be raised when support is added.
         """
         # TODO add support for compound types
+        # TODO generate sub-trees, re-link node
+        # TODO handle multiline
         if isinstance(value, dict):
             raise UnsupportedOpException("replace, list")
         if isinstance(value, dict):
             raise UnsupportedOpException("replace, dict")
 
-        node = self._traverse()
+        node = _Traverse.traverse(self._root, path)
         if node is None:
             return False
 
