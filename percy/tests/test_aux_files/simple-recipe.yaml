@@ -5,7 +5,7 @@ package:
   name: {{ name|lower }}
 
 build:
-  number: 0
+  number: 0  # [unix]
   skip: true  # [py<37]
 
 requirements:

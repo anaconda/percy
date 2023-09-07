@@ -92,16 +92,16 @@ def test_list_selectors():
     """
     Validates the list of selectors found
     """
-    types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
-    parser = recipe_parser.RecipeParser(types_toml)
-    assert parser.list_selectors() == {"[py<37]", "[unix]"}
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
+    assert parser.list_selectors() == ["[unix]", "[py<37]"]
 
 def test_contains_selectors():
     """
     Validates checking if a selector exists in a recipe
     """
-    types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
-    parser = recipe_parser.RecipeParser(types_toml)
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
     assert parser.contains_selector("[py<37]")
     assert parser.contains_selector("[unix]")
     assert not parser.contains_selector("[fake selector]")
@@ -114,6 +114,7 @@ def test_get_selector_paths():
     parser = recipe_parser.RecipeParser(simple)
     assert parser.get_selector_paths("[py<37]") == ["/build/skip"]
     assert parser.get_selector_paths("[unix]") == [
+        "/build/number",
         "/requirements/host/0",
         "/requirements/host/1",
     ]

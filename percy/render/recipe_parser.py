@@ -745,9 +745,9 @@ class RecipeParser():
         RecipeParser._render_tree(node, -1, lst)
         return RecipeParser._parse_yaml("\n".join(lst))
 
-    def list_vars(self) -> set[str]:
+    def list_vars(self) -> list[str]:
         # TODO complete
-        return set()
+        return []
 
     def contains_var(self) -> bool:
         # TODO complete
@@ -757,12 +757,12 @@ class RecipeParser():
         # TODO complete
         return ""
 
-    def list_selectors(self) -> set[str]:
+    def list_selectors(self) -> list[str]:
         """
-        Returns a selectors found in the recipe.
-        :return: Set of selectors found in the recipe.
+        Returns selectors found in the recipe, sorted by first appearance.
+        :return: List of selectors found in the recipe.
         """
-        return set(self._selector_tbl.keys())
+        return list(dict.fromkeys(self._selector_tbl))
 
     def contains_selector(self, selector: str) -> bool:
         """
