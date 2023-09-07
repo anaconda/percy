@@ -479,13 +479,13 @@ class RecipeParser():
         self._is_modified = False
 
         # Tracks Jinja variables set by the file
-        self._vars: dict[str, JsonType] = {}
+        self._vars_tbl: dict[str, JsonType] = {}
         # Find all the set statements and record the values
         set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
         for line in set_line_re.findall(self._init_content):
             key = line[line.find("set")+len("set"):line.find("=")].strip()
             value = line[line.find("=")+len("="):line.find("%}")].strip()
-            self._vars[key] = ast.literal_eval(value)
+            self._vars_tbl[key] = ast.literal_eval(value)
 
         # Root of the parse tree
         self._root = _Node("")
@@ -669,13 +669,13 @@ class RecipeParser():
         lines = []
 
         # Render variable set section
-        for key, val in self._vars.items():
+        for key, val in self._vars_tbl.items():
             # Double quote strings
             if isinstance(val, str):
                 val = f"\"{val}\""
             lines.append(f"{{% set {key} = {val} %}}")
         # Add spacing if variables have been set
-        if len(self._vars):
+        if len(self._vars_tbl):
             lines.append("")
 
         # Render parse-tree
@@ -746,16 +746,36 @@ class RecipeParser():
         return RecipeParser._parse_yaml("\n".join(lst))
 
     def list_vars(self) -> list[str]:
-        # TODO complete
-        return []
+        """
+        Returns variables found in the recipe, sorted by first appearance.
+        :return: List of variables found in the recipe.
+        """
+        return list(dict.fromkeys(self._vars_tbl))
 
-    def contains_var(self) -> bool:
-        # TODO complete
-        return False
+    def contains_var(self, var: str) -> bool:
+        """
+        Determines if a variable is set in this recipe.
+        :param var: Variable to check for.
+        :return: True if a variable name is found in this recipe. False otherwise.
+        """
+        return var in self._vars_tbl
 
-    def get_var(self) -> Primitives:
-        # TODO complete
-        return ""
+    def get_var(self, var: str, default = None) -> Primitives:
+        """
+        Returns the value of a variable set in the recipe. If specified, a
+        default value will be returned if the variable name is not found.
+        :param var: Variable of interest check for.
+        :param default: (Optional) If the value is not found, return this value
+                        instead.
+        :raises KeyError: If the value is not found AND no default is specified
+        :return: The value (or specified default value if not found) of the
+                 variable name provided.
+        """
+        if var not in self._vars_tbl:
+            if default is None:
+                raise KeyError
+            return default
+        return self._vars_tbl[var]
 
     def list_selectors(self) -> list[str]:
         """
