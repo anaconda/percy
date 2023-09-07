@@ -328,31 +328,6 @@ class RecipeParser():
         """
         # Use PyYaml to safely/easily/correctly parse single lines of YAML.
         output = RecipeParser._parse_yaml(s)
-        try:
-            output = yaml.load(s, yaml.SafeLoader)
-        except Exception:
-            # TODO this is a bit hacky and an area for improvement
-            # If a construction exception is thrown, attempt to re-parse by
-            # replacing Jinja macros (substrings in `{{}}`) with friendly string
-            # substitution markers, then re-inject the substitutions back in.
-            # We classify all Jinja substitutions as string values, so we don't
-            # have to worry about the type of the actual substitution.
-            jinja_sub_re = re.compile("{{.*}}")
-            sub_list = jinja_sub_re.findall(s)
-            s = jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
-            output = yaml.load(s, yaml.SafeLoader)
-            # Add the substitutions back in
-            if isinstance(output, str):
-                output = RecipeParser._substitute_markers(output, sub_list)
-            if isinstance(output, dict):
-                key = list(output.keys())[0]
-                output[key] = RecipeParser._substitute_markers(output[key], sub_list)
-            elif isinstance(output, list):
-                output[0] = RecipeParser._substitute_markers(output[0], sub_list)
-            elif not isinstance(output, str):
-                # TODO throw
-                pass
-
 
         # Attempt to parse-out comments. Fully commented lines are not ignored
         # to preserve context when the text is rendered. Their order in the list
