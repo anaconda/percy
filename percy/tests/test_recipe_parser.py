@@ -87,3 +87,21 @@ def test_get_value():
     with pytest.raises(KeyError):
         parser.get_value("/invalid/fake/path")
     assert parser.get_value("/invalid/fake/path", 42) == 42
+
+def test_list_selectors():
+    """
+    Validates the list of selectors found
+    """
+    types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
+    parser = recipe_parser.RecipeParser(types_toml)
+    assert parser.list_selectors() == {"[py<37]", "[unix]"}
+
+def test_contains_selectors():
+    """
+    Validates checking if a selector exists in a recipe
+    """
+    types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
+    parser = recipe_parser.RecipeParser(types_toml)
+    assert parser.contains_selector("[py<37]")
+    assert parser.contains_selector("[unix]")
+    assert not parser.contains_selector("[fake selector]")

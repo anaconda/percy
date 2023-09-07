@@ -198,6 +198,7 @@ class _Traverse():
         """
         if node is None:
             return
+        # TODO invoke with the current stack-path to the node for convenience(?)
         func(node)
         for child in node.children:
             _Traverse.traverse_all(child, func)
@@ -384,11 +385,22 @@ class RecipeParser():
         return list(PurePath(path).parts)[::-1]
 
     def _rebuild_selectors(self) -> None:
+        """
+        Re-builds the selector look-up table. This table allows quick access to
+        tree nodes that have a selector specified.
+
+        This needs to be called when the three is modified.
+        """
         self._selector_tbl = {}
-        #def _collect_selectors(node: _Node):
-        #    pass
-        # TODO complete
-        #_Traverse.traverse_all()
+        selector_re = re.compile(r"\[.*\]")
+        def _collect_selectors(node: _Node):
+            # Ignore empty comments
+            if node.comment is None or not node.comment:
+                return
+            match = selector_re.search(node.comment)
+            if match:
+                self._selector_tbl[match.group(0)] = { "node": node }
+        _Traverse.traverse_all(self._root, _collect_selectors)
 
     """
     Class that parses a recipe file string. Provides many useful mechanisms for
@@ -494,6 +506,14 @@ class RecipeParser():
             parent.children.append(new_node)
             # Update the last node for the next line interpretation
             last_node = new_node
+
+        # Now that the tree is built, construct a selector look-up table that
+        # tracks all the nodes that use a particular selector. This will make
+        # it easier to.
+        #
+        # This table will have to be re-built or modified when the tree is
+        # modified with `patch()`.
+        self._rebuild_selectors()
 
     def __str__(self) -> str:
         """
@@ -671,7 +691,7 @@ class RecipeParser():
         RecipeParser._render_tree(node, -1, lst)
         return RecipeParser._parse_yaml("\n".join(lst))
 
-    def list_vars(self) -> list[str]:
+    def list_vars(self) -> set[str]:
         # TODO complete
         return []
 
@@ -682,6 +702,25 @@ class RecipeParser():
     def get_var(self) -> Primitives:
         # TODO complete
         return ""
+
+    def list_selectors(self) -> set[str]:
+        """
+        Returns a selectors found in the recipe.
+        :return: Set of selectors found in the recipe.
+        """
+        return set(self._selector_tbl.keys())
+
+    def contains_selector(self, selector: str) -> bool:
+        """
+        Determines if a selector expression is present in this recipe.
+        :param selector:    Selector to check for.
+        :return: True if a selector is found in this recipe. False otherwise.
+        """
+        return selector in self._selector_tbl
+
+    def get_selector_paths(self):
+        # TODO complete
+        return []
 
     def _patch_replace(self, path: list[str], value: JsonType) -> bool:
         """
@@ -748,7 +787,15 @@ class RecipeParser():
         # Python's implementation of a stack is to use a list from the end of
         # the list. In other words, the `root` is at the end of the list.
         path = RecipeParser._str_to_stack_path(patch["path"])
-        return self._supported_patch_ops[op](path, patch["value"])
+        is_successful = self._supported_patch_ops[op](path, patch["value"])
+
+        # Update the selector table, if the operation succeeded.
+        # TODO this is not the most efficient way to update the selector table,
+        # but for now, it works.
+        if is_successful and op != "test":
+            self._rebuild_selectors
+
+        return is_successful
 
     def diff(self) -> str:
         """
