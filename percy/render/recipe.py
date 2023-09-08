@@ -112,7 +112,7 @@ class Recipe:
         #: Parsed recipe YAML
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str, Package] = dict()
+        self.packages: Dict[str: Package] = dict()
 
         # These will be filled in by _load_from_string()
         #: Lines of the raw recipe file
@@ -265,7 +265,7 @@ class Recipe:
         # re-init
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str, Package] = dict()
+        self.packages: Dict[str: Package] = dict()
 
         # render meta.yaml
         self.meta = renderer.render(
@@ -622,10 +622,12 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations, increment_build_number=False):
+    def patch(self, operations, increment_build_number=False, evaluate_selectors=True):
         """Patch the recipe given a set of operations.
         Args:
             operations: operations to apply
+            increment_build_number: automatically increment the build number of the operations result in changes
+            evaluate_selectors: don't evaluate selectors when applying operations
         Returns:
             True if recipe was patched. (bool).
         """
@@ -637,10 +639,21 @@ class Recipe:
             self.render()
         jsonschema.validate(operations, self.schema)
         for op in operations:
-            for package in self.packages.values():
-                self._patch(op, package)
+            if "@output" not in op["path"]:
+                # apply global operation once only
+                self._patch(op, evaluate_selectors)
                 self.save()
                 self.render()
+            else:
+                # apply package specific operation for all packages
+                for package in self.packages.values():
+                    opcopy = deepcopy(op)
+                    opcopy["path"] = opcopy["path"].replace(
+                        "@output/", package.path_prefix
+                    )
+                    self._patch(opcopy, evaluate_selectors)
+                    self.save()
+                    self.render()
         if self.is_modified():
             if increment_build_number:
                 self._increment_build_number()
@@ -650,10 +663,10 @@ class Recipe:
             return True
         return False
 
-    def _patch(self, operation, package):
+    def _patch(self, operation, evaluate_selectors):
         # read operation parameters
         op = operation["op"]
-        path = operation["path"].replace("@output/", package.path_prefix)
+        path = operation["path"]
         match = operation.get("match", ".*")
         expanded_match = re.compile(
             f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
@@ -666,6 +679,8 @@ class Recipe:
 
         # infer data type
         in_list = False
+        add_insert = False
+        add_insert_index = 0
         raw_value = self.get(path, "NOPE")
         if op == "remove":
             if raw_value == "NOPE":
@@ -679,6 +694,9 @@ class Recipe:
                         parent_path, parent_name = path.rsplit("/", 1)
                         path = parent_path
                         value = [value]
+                        expanded_match = re.compile(
+                            f"\s+{parent_name}:\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
+                        )
                 else:
                     in_list = True
         elif op == "add":
@@ -689,15 +707,16 @@ class Recipe:
                 # We may be trying to add something that would be removed with
                 # the current selector_dict. In that case, better leave it out.
                 # Example: adding skip: True # [py<35]
-                if isinstance(value, list):
-                    rval = renderer._apply_selector(
-                        "\n".join(value), self.selector_dict
-                    )
-                else:
-                    rval = renderer._apply_selector(value, self.selector_dict)
-                if rval.strip() == "":
-                    logging.warning(f"Skipping op due to selector:{opop}")
-                    return
+                if evaluate_selectors:
+                    if isinstance(value, list):
+                        rval = renderer._apply_selector(
+                            "\n".join(value), self.selector_dict
+                        )
+                    else:
+                        rval = renderer._apply_selector(value, self.selector_dict)
+                    if rval.strip() == "":
+                        logging.warning(f"Skipping op due to selector:{opop}")
+                        return
 
                 # finding range of direct parent
                 # (not doing the leg work of going up the tree if parent is not found)
@@ -732,6 +751,23 @@ class Recipe:
                     return
             else:
                 # path found - store value to add
+                try:
+                    # Check to see if the path ends with /<n>.
+                    # This means that we need to insert the given value at the given index.
+                    # See https://www.rfc-editor.org/rfc/rfc6902.html#section-4.1
+                    add_insert_index = int(parent_name)
+                    add_insert = True
+
+                    # Get the actual raw value of the array.
+                    raw_value = self.get(parent_path, "NOPE")
+
+                    path = parent_path
+                    parent_path, parent_name = parent_path.split("/", 1)
+
+                    expanded_match = re.compile("NOPE")
+                except ValueError:
+                    pass
+
                 if isinstance(raw_value, str):
                     if re.search(match, raw_value):
                         path = parent_path
@@ -768,6 +804,11 @@ class Recipe:
             new_range.pop(i)
             insert_index = i
             index_set = True
+
+        if add_insert:
+            index_set = True
+            insert_index = add_insert_index
+
         range = new_range
         if not index_set:
             for i, e in reversed(list(enumerate(range))):

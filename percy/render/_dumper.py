@@ -8,7 +8,7 @@ from percy.render._renderer import RendererType
 # Ruamel configuration
 ruamel = YAML(typ="rt")
 ruamel.version = (1, 1)
-ruamel.indent(mapping=2, sequence=2, offset=2)
+ruamel.indent(mapping=2, sequence=4, offset=2)
 ruamel.preserve_quotes = True
 ruamel.allow_duplicate_keys = True
 ruamel.width = 1000

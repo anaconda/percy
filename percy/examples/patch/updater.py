@@ -16,8 +16,8 @@ logging.basicConfig(
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="aggregate_issue_finder",
-        description="Find issues in aggregate pinned feedstocks.",
+        prog="updater",
+        description="Patch a recipe.",
     )
     parser.add_argument(
         "-r",
@@ -49,9 +49,14 @@ if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
 
-    rendered_recipe = load_recipe(args.recipe_path)
-
-    # update pin and increment build number
-    rendered_recipe = load_recipe(args.recipe_path)
+    # Now do the actual modifications required.
+    rendered_recipe = recipe.Recipe.from_file(args.recipe_path)
     with open(args.patch_file) as p:
-        rendered_recipe.patch(json.load(p), True)
+        rendered_recipe.patch(json.load(p), False)
+
+    # rendered_recipe = load_recipe(args.recipe_path)
+
+    # # update pin and increment build number
+    # rendered_recipe = load_recipe(args.recipe_path)
+    # with open(args.patch_file) as p:
+    #     rendered_recipe.patch(json.load(p), False)

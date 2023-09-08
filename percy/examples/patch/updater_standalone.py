@@ -12,7 +12,7 @@ from typing import Any
 from ruamel.yaml import YAML
 
 yaml = YAML(typ="jinja2")
-yaml.indent(mapping=2, sequence=2, offset=2)
+yaml.indent(mapping=2, sequence=4, offset=2)
 yaml.preserve_quotes = True
 yaml.allow_duplicate_keys = True
 yaml.width = 1000
@@ -28,6 +28,7 @@ logging.basicConfig(
 class Recipe:
     def __init__(self, recipe_path):
         self.load(recipe_path)
+        self._set_original()
 
     def load(self, recipe_path):
         self.path = recipe_path
@@ -56,6 +57,18 @@ class Recipe:
         """Save recipe dump to file"""
         with open(self.path, "w", encoding="utf-8") as fdes:
             fdes.write(self.dump())
+
+    def _set_original(self) -> None:
+        """Store the current state of the recipe as "original" version"""
+        self.orig = copy.deepcopy(self)
+
+    def is_modified(self) -> bool:
+        """Has recipe been modified.
+
+        Returns:
+            bool: True if recipe has been modified.
+        """
+        return self.meta_yaml != self.orig.meta_yaml
 
     def _walk(self, path, noraise=False):
         nodes = [self.meta]
@@ -161,56 +174,118 @@ class Recipe:
             return default
         return res
 
-    def patch(self, operations):
-        package_names = self.packages.keys()
+    def patch(self, operations, increment_build_number=False):
         for op in operations:
-            for package_name in package_names:
-                self._patch(op, package_name)
+            if "@output" not in op["path"]:
+                # apply global operation once only
+                self._patch(op)
                 self.save()
                 self.reload()
-        self._increment_build_number()
-        self.save()
-        self.reload()
+            else:
+                # apply package specific operation for all packages
+                for package_path in self.packages.values():
+                    opcopy = copy.deepcopy(op)
+                    opcopy["path"] = opcopy["path"].replace("@output/", package_path)
+                    self._patch(opcopy)
+                    self.save()
+                    self.reload()
+        if self.is_modified():
+            if increment_build_number:
+                self._increment_build_number()
+                self.save()
+                self.render()
+            logging.info(f"Patch applied: {self.path}")
+            return True
+        return False
 
-    def _patch(self, operation, package_name):
+    def _patch(self, operation):
         # read operation parameters
         op = operation["op"]
-        path = operation["path"].replace("@output/", self.packages[package_name])
+        path = operation["path"]
         match = operation.get("match", ".*")
         expanded_match = re.compile(
             f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
         )
-        match = re.compile(match)
         value = operation.get("value", [""])
-        if isinstance(value, str):
-            value = [value]
         if value == []:
             value = [""]
+        opop = copy.deepcopy(operation)
+        opop["path"] = path
 
         # infer data type
         in_list = False
-        if op in ["remove", "replace"]:
-            raw_value = self.get(path, "NOPE")
+        raw_value = self.get(path, "NOPE")
+        if op == "remove":
             if raw_value == "NOPE":
                 return
-        if op in ["add", "replace"]:
-            parent_path, parent_name = path.rsplit("/")
-            if op == "add":
-                raw_value = self.get(path, "NOPE")
-                if raw_value == "NOPE":
-                    match = re.compile("NOPE")
-                    expanded_match = re.compile("NOPE")
-                    value = [parent_name + ": " + val for val in value]
+        elif op == "replace":
+            if raw_value == "NOPE":
+                return
             else:
-                raw_value = self.get(path)
-            if isinstance(raw_value, str):
-                if match.search(raw_value):
-                    path = parent_path
+                if not isinstance(raw_value, list):
+                    if re.search(match, str(raw_value)):
+                        parent_path, parent_name = path.rsplit("/", 1)
+                        path = parent_path
+                        expanded_match = re.compile(
+                            f"\s+{parent_name}:\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
+                        )
+                else:
+                    in_list = True
+        elif op == "add":
+            parent_path, parent_name = path.rsplit("/", 1)
+            if raw_value == "NOPE":
+                # path not found - add section and return
+
+                # finding range of direct parent
+                # (not doing the leg work of going up the tree if parent is not found)
+                try:
+                    (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
+                except KeyError:
+                    logging.warning(f"Path not found while applying op:{opop}")
+                else:
+                    # adding value to end of parent
+                    # if value is a list, adding as a list to parent
+                    # if value is a string, adding as parent: value
+                    parent_range = copy.deepcopy(self.meta_yaml[start_row:end_row])
+                    parent_insert_index = 0
+                    for i, e in reversed(list(enumerate(parent_range))):
+                        if e.strip():
+                            parent_insert_index = i + 1
+                            break
+                    if isinstance(value, list):
+                        parent_range.insert(
+                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                        )
+                        for val in value:
+                            parent_range.insert(
+                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                            )
+                    else:
+                        parent_range.insert(
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}: {value}",
+                        )
+                    self.meta_yaml[start_row:end_row] = parent_range
+                    return
             else:
-                in_list = True
+                # path found - store value to add
+                if not isinstance(raw_value, list):
+                    if re.search(match, str(raw_value)):
+                        path = parent_path
+                        expanded_match = re.compile("NOPE")
+                        if isinstance(value, list):
+                            value = [parent_name + ": " + val for val in value]
+                        else:
+                            value = [f"{parent_name}: {value}"]
+                else:
+                    in_list = True
 
         # get initial section range
-        (start_row, start_col, end_row, end_col) = self.get_raw_range(path)
+        try:
+            (start_row, start_col, end_row, _) = self.get_raw_range(path)
+        except KeyError:
+            logging.warning(f"Path not found while applying op:{opop}")
+            return
         range = copy.deepcopy(self.meta_yaml[start_row:end_row])
 
         # find matching elements
@@ -281,8 +356,8 @@ class Recipe:
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="aggregate_issue_finder",
-        description="Find issues in aggregate pinned feedstocks.",
+        prog="updater_standalone",
+        description="Patch a recipe.",
     )
     parser.add_argument(
         "-r",
@@ -313,4 +388,4 @@ if __name__ == "__main__":
     """
     recipe = Recipe(args.recipe_path)
     with open(args.patch_file) as p:
-        recipe.patch(json.load(p))
+        recipe.patch(json.load(p), False)
