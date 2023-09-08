@@ -679,6 +679,8 @@ class Recipe:
 
         # infer data type
         in_list = False
+        add_insert = False
+        add_insert_index = 0
         raw_value = self.get(path, "NOPE")
         if op == "remove":
             if raw_value == "NOPE":
@@ -749,6 +751,23 @@ class Recipe:
                     return
             else:
                 # path found - store value to add
+                try:
+                    # Check to see if the path ends with /<n>.
+                    # This means that we need to insert the given value at the given index.
+                    # See https://www.rfc-editor.org/rfc/rfc6902.html#section-4.1
+                    add_insert_index = int(parent_name)
+                    add_insert = True
+
+                    # Get the actual raw value of the array.
+                    raw_value = self.get(parent_path, "NOPE")
+
+                    path = parent_path
+                    parent_path, parent_name = parent_path.split("/", 1)
+
+                    expanded_match = re.compile("NOPE")
+                except ValueError:
+                    pass
+
                 if isinstance(raw_value, str):
                     if re.search(match, raw_value):
                         path = parent_path
@@ -785,6 +804,11 @@ class Recipe:
             new_range.pop(i)
             insert_index = i
             index_set = True
+
+        if add_insert:
+            index_set = True
+            insert_index = add_insert_index
+
         range = new_range
         if not index_set:
             for i, e in reversed(list(enumerate(range))):
