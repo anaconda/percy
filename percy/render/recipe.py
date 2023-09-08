@@ -112,7 +112,7 @@ class Recipe:
         #: Parsed recipe YAML
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str, Package] = dict()
+        self.packages: Dict[str: Package] = dict()
 
         # These will be filled in by _load_from_string()
         #: Lines of the raw recipe file
@@ -265,7 +265,7 @@ class Recipe:
         # re-init
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str, Package] = dict()
+        self.packages: Dict[str: Package] = dict()
 
         # render meta.yaml
         self.meta = renderer.render(
@@ -622,10 +622,12 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations, increment_build_number=False):
+    def patch(self, operations, increment_build_number=False, evaluate_selectors=True):
         """Patch the recipe given a set of operations.
         Args:
             operations: operations to apply
+            increment_build_number: automatically increment the build number of the operations result in changes
+            evaluate_selectors: don't evaluate selectors when applying operations
         Returns:
             True if recipe was patched. (bool).
         """
@@ -639,7 +641,7 @@ class Recipe:
         for op in operations:
             if "@output" not in op["path"]:
                 # apply global operation once only
-                self._patch(op)
+                self._patch(op, evaluate_selectors)
                 self.save()
                 self.render()
             else:
@@ -649,7 +651,7 @@ class Recipe:
                     opcopy["path"] = opcopy["path"].replace(
                         "@output/", package.path_prefix
                     )
-                    self._patch(opcopy)
+                    self._patch(opcopy, evaluate_selectors)
                     self.save()
                     self.render()
         if self.is_modified():
@@ -661,7 +663,7 @@ class Recipe:
             return True
         return False
 
-    def _patch(self, operation):
+    def _patch(self, operation, evaluate_selectors):
         # read operation parameters
         op = operation["op"]
         path = operation["path"]
@@ -703,15 +705,16 @@ class Recipe:
                 # We may be trying to add something that would be removed with
                 # the current selector_dict. In that case, better leave it out.
                 # Example: adding skip: True # [py<35]
-                if isinstance(value, list):
-                    rval = renderer._apply_selector(
-                        "\n".join(value), self.selector_dict
-                    )
-                else:
-                    rval = renderer._apply_selector(value, self.selector_dict)
-                if rval.strip() == "":
-                    logging.warning(f"Skipping op due to selector:{opop}")
-                    return
+                if evaluate_selectors:
+                    if isinstance(value, list):
+                        rval = renderer._apply_selector(
+                            "\n".join(value), self.selector_dict
+                        )
+                    else:
+                        rval = renderer._apply_selector(value, self.selector_dict)
+                    if rval.strip() == "":
+                        logging.warning(f"Skipping op due to selector:{opop}")
+                        return
 
                 # finding range of direct parent
                 # (not doing the leg work of going up the tree if parent is not found)
