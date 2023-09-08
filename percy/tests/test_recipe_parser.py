@@ -12,6 +12,9 @@ from percy.render import recipe_parser
 # Path to supplementary files used in test cases
 TEST_FILES_PATH = "percy/tests/test_aux_files"
 
+# Long multi-line description string found in the `simple-recipe.yaml` test file
+SIMPLE_DESCRIPTION: Final[str] = "This is a PEP 561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."
+
 
 def load_file(file: Path | str) -> str:
     """
@@ -85,9 +88,8 @@ def test_get_value():
     assert parser.get_value("/requirements/host/0") == "setuptools"
     assert parser.get_value("/requirements/host/1") == "fakereq"
     # Return a multiline string
-    description: Final[str] = "This is a PEP 561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."
-    assert parser.get_value("/about/description") == {"description": description}
-    assert parser.get_value("/about/description/") == description
+    assert parser.get_value("/about/description") == {"description": SIMPLE_DESCRIPTION}
+    assert parser.get_value("/about/description/") == SIMPLE_DESCRIPTION
     # Path not found cases
     with pytest.raises(KeyError):
         parser.get_value("/invalid/fake/path")
@@ -300,6 +302,11 @@ def test_patch_test():
         "path": "/requirements/host/1",
         "value": "fakereq",
     }))
+    assert (parser.patch({
+        "op": "test",
+        "path": "/about/description",
+        "value": SIMPLE_DESCRIPTION,
+    }))
     # Test that values do not match, as expected
     assert not (parser.patch({
         "op": "test",
@@ -324,6 +331,18 @@ def test_patch_test():
         "path": "/requirements/host/1",
         "value": "other_fake",
     }))
+    assert not (parser.patch({
+        "op": "test",
+        "path": "/about/description",
+        "value": "other_fake\nmultiline",
+    }))
+
+def test_patch_replace():
+    """
+    Tests the `replace` patch op.
+    """
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
 
 
 ## Diff ##
