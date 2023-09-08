@@ -6,24 +6,27 @@ package:
   name: {{ name|lower }}  # [unix]
 
 build:
-  number: 0
+  number: 42
   skip: true  # [py<37]
-  is_true: true
+  is_true: false
 
 requirements:
   host:
     - setuptools  # [unix]
     - fakereq  # [unix]
   run:
-    - python
+    - cpython
 
 about:
-  summary: This is a small recipe for testing
+  summary:
+    - The Trial
+    - Never Ends
+    - Picard
   description: |
-    This is a PEP 561 type stub package for the toml package.
-    It can be used by type-checking tools like mypy, pyright,
-    pytype, PyCharm, etc. to check code that uses toml.
-  license: Apache-2.0 AND MIT
+    This is a PEP 561
+    type stub package
+    for the toml package.
+  license: MIT
 
 multi_level:
   list_1:
@@ -31,7 +34,9 @@ multi_level:
     - bar
   list_2:
     - cat
-    - bat
+    - build:
+        number: 42
+        skip: true
     - mat
   list_3:
     - ls

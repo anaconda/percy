@@ -80,8 +80,8 @@ def test_get_value():
     assert parser.get_value("/build/number") == { "number": 0 }
     assert parser.get_value("/build/number/") == 0
     # Return a compound value
-    assert parser.get_value("/build") == { "number": 0, "skip": True }
-    assert parser.get_value("/build/") == { "number": 0, "skip": True }
+    assert parser.get_value("/build") == { "number": 0, "skip": True, "is_true": True }
+    assert parser.get_value("/build/") == { "number": 0, "skip": True, "is_true": True }
     # Return a value in a list
     assert parser.get_value("/requirements/host") == ["setuptools", "fakereq"]
     assert parser.get_value("/requirements/host/") == ["setuptools", "fakereq"]
@@ -157,7 +157,7 @@ def test_get_selector_paths():
     parser = recipe_parser.RecipeParser(simple)
     assert parser.get_selector_paths("[py<37]") == ["/build/skip"]
     assert parser.get_selector_paths("[unix]") == [
-        "/build/number",
+        "/package/name",
         "/requirements/host/0",
         "/requirements/host/1",
     ]
@@ -290,6 +290,7 @@ def test_patch_test():
         "value": {
             "number": 0,
             "skip": True,
+            "is_true": True,
         },
     }))
     assert (parser.patch({
@@ -337,12 +338,75 @@ def test_patch_test():
         "value": "other_fake\nmultiline",
     }))
 
+    # Ensure that `test` does not modify the tree
+    assert not parser.is_modified()
+
 def test_patch_replace():
     """
     Tests the `replace` patch op.
     """
     simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
     parser = recipe_parser.RecipeParser(simple)
+    # Patch an integer
+    assert (parser.patch({
+        "op": "replace",
+        "path": "/build/number",
+        "value": 42,
+    }))
+    # Patch a bool
+    assert (parser.patch({
+        "op": "replace",
+        "path": "/build/is_true",
+        "value": False,
+    }))
+    # Patch a string
+    assert (parser.patch({
+        "op": "replace",
+        "path": "/about/license",
+        "value": "MIT",
+    }))
+    # Patch an array element
+    assert (parser.patch({
+        "op": "replace",
+        "path": "/requirements/run/0",
+        "value": "cpython",
+    }))
+    # Patch an element to become an array
+    assert (parser.patch({
+        "op": "replace",
+        "path": "/about/summary",
+        "value": [
+            "The Trial",
+            "Never Ends",
+            "Picard",
+        ],
+    }))
+    # Patch a multiline string
+    assert (parser.patch({
+        "op": "replace",
+        "path": "/about/description",
+        "value": "This is a PEP 561\ntype stub package\nfor the toml package.",
+    }))
+
+    # Hard mode: replace a string with an object containing multiple types in
+    # a complex data structure.
+    assert (parser.patch({
+        "op": "replace",
+        "path": "/multi_level/list_2/1",
+        "value": {
+            "build": {
+                "number": 42,
+                "skip": True
+            }
+        },
+    }))
+
+    # Sanity check: validate all modifications
+    assert parser.is_modified()
+    # NOTE: That patches, as of writing, cannot preserve selectors
+    assert (
+        parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_replace.yaml")
+    )
 
 
 ## Diff ##

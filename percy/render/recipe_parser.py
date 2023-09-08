@@ -507,6 +507,29 @@ class RecipeParser():
             path += f"/{value}"
         return path
 
+    @staticmethod
+    def _generate_subtree(value: JsonType) -> list[_Node]:
+        """
+        Given a value supported by JSON, use the RecipeParser to generate a list
+        of child nodes. This effectively creates a new subtree that can be
+        used to patch other parse trees.
+        """
+        # Multiline values can replace the list of children with a single
+        # multiline leaf node.
+        if isinstance(value, str) and "\n" in value:
+            return [_Node(
+                value=value.splitlines(),
+                is_multiline=True,
+            )]
+
+        # For complex types, generate the YAML equivalent and build
+        # a new tree.
+        if isinstance(value, (dict, list)):
+            return RecipeParser(yaml.dump(value))._root.children
+
+        # Primitives can be safely stringified to generate a parse tree.
+        return RecipeParser(str(RecipeParser._stringify_yaml(value)))._root.children
+
     def _rebuild_selectors(self) -> None:
         """
         Re-builds the selector look-up table. This table allows quick access to
@@ -716,10 +739,16 @@ class RecipeParser():
             )
             return
 
+        depth_delta = 1
         # Don't render a `:` for the non-visible root node
         if depth > -1:
+            list_prefix = ""
+            # Being in a list changes how the depth is rendered
+            if node.is_list_member:
+                depth_delta += 1
+                list_prefix = "- "
             lines.append(
-                f"{spaces}{node.value}:  {node.comment}".rstrip()
+                f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip()
             )
         for child in node.children:
             # Leaf nodes are rendered as members in a list
@@ -728,7 +757,7 @@ class RecipeParser():
                     f"{spaces}  - {RecipeParser._stringify_yaml(child.value)}  {child.comment}".rstrip()
                 )
             else:
-                RecipeParser._render_tree(child, depth + 1, lines)
+                RecipeParser._render_tree(child, depth + depth_delta, lines)
             # By tradition, recipes have a blank line after every top-level
             # section.
             if depth < 0:
@@ -851,6 +880,8 @@ class RecipeParser():
             return default
         return self._vars_tbl[var]
 
+    # TODO complete: set/add and remove variables
+
     def list_selectors(self) -> list[str]:
         """
         Returns selectors found in the recipe, sorted by first appearance.
@@ -892,6 +923,8 @@ class RecipeParser():
         # The nodes for both `skip` and `True` contain the comment `[unix]`
         return list(dict.fromkeys(path_list))
 
+    # TODO complete: set/add and remove selectors
+
     def _patch_replace(self, path: str, path_stack: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `replace` operation.
@@ -904,32 +937,41 @@ class RecipeParser():
                                         supported. TODO Exception will no longer
                                         be raised when support is added.
         """
-        node = _Traverse.traverse(self._root, path_stack)
+        node: _Node
+        node_idx: int = -1
+        # Pre-determine if the path is targeting a list position. Patching
+        # only applies on the last index provided.
+        if path_stack[0].isdigit():
+            # Find the index and parent of the target
+            node_idx = int(path_stack.pop(0))
+            node = _Traverse.traverse(self._root, path_stack)
+        else:
+            node = _Traverse.traverse(self._root, path_stack)
         # Path not found
         if node is None:
             return False
 
-        # List members make things harder
-        if not node.is_list_member:
-            # Leaf nodes contain values and not path information. Paths should
-            # not be made that access leaf nodes, with the exception of members
-            # of a list. Making such a path violates the RFC.
-            if node.is_leaf():
-                return False
-            # Leaves that represent values/paths of values can evict all
-            # children, and be replaced with new children, derived from a new
-            # tree of values.
-            else:
-                # Convert the value into YAML, then parse the YAML with the
-                # tree. The children of that new tree's root node become the
-                # children of our target node.
-                value_tree = RecipeParser(yaml.dump(value))
-                node.children = value_tree._root.children
-                return True
+        # Leaf nodes contain values and not path information. Paths should
+        # not be made that access leaf nodes, with the exception of members
+        # of a list. Making such a path violates the RFC.
+        if not node.is_list_member and node.is_leaf():
+            return False
 
-        # TODO
-        # Handle list members
+        new_children: Final[list[_Node]]= RecipeParser._generate_subtree(value)
+        # Lists inject all children at the target position.
+        if node_idx >= 0:
+            # Ensure all children are marked as list members
+            for child in new_children:
+                child.is_list_member = True
+            node.children[node_idx:node_idx] = new_children
+            # Evict the old child, which is now behind the new children
+            node.children.pop(node_idx + len(new_children))
+            return True
 
+        # Leaves that represent values/paths of values can evict all
+        # children, and be replaced with new children, derived from a new
+        # tree of values.
+        node.children = new_children
         return True
 
     def _patch_test(self, path: str, path_stack: _StrStack, value: JsonType) -> bool:
@@ -996,6 +1038,12 @@ class RecipeParser():
         except Exception as e:
             raise JsonPatchValidationException(patch) from e
 
+        path: Final[str] = patch["path"]
+        # Path must have length
+        if not path:
+            raise JsonPatchValidationException(patch)
+        path_stack: Final[_StrStack] = RecipeParser._str_to_stack_path(path)
+
         # Check if the operation is currently supported (support for all ops
         # will be added over time. If all ops are supported, the schema will
         # check this by the `enum` value)
@@ -1004,18 +1052,11 @@ class RecipeParser():
         if op not in supported_patch_ops:
             raise UnsupportedOpException(op)
 
-        # Use `PurePath` as a way to parse the path into component parts that
-        # are easy to recursively manipulate, in a stack. NOTE: Remember that
-        # Python's implementation of a stack is to use a list from the end of
-        # the list. In other words, the `root` is at the end of the list.
-        #
-        # Both versions are sent over so that the op can easily use both
-        # private and public functions (without incurring even more conversions
-        # between path types).
-        path: Final[str] = patch["path"]
-        path_stack: Final[_StrStack] = RecipeParser._str_to_stack_path(path)
         # The supplemental field name is determined by the operation type.
         value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
+        # Both versions of the path are sent over so that the op can easily use
+        # both private and public functions (without incurring even more
+        # conversions between path types).
         is_successful = supported_patch_ops[op](path, path_stack, patch[value_from])
 
         # Update the selector table and modified flag, if the operation
