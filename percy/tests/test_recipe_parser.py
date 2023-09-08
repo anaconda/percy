@@ -255,21 +255,75 @@ def test_patch_path_not_found():
     simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
     parser = recipe_parser.RecipeParser(simple)
 
-    assert (
-        parser.patch({
-            "op": "replace",
-            "path": "/package/path/to/fake/value",
-            "value": 42,
-        }) == False
-    )
-    assert (
-        parser.patch({
-            "op": "test",
-            "path": "/package/path/to/fake/value",
-            "value": 42,
-        }) == False
-    )
+    assert not (parser.patch({
+        "op": "replace",
+        "path": "/package/path/to/fake/value",
+        "value": 42,
+    }))
+    assert not (parser.patch({
+        "op": "test",
+        "path": "/package/path/to/fake/value",
+        "value": 42,
+    }))
 
-    assert parser.is_modified() == False
+    assert not parser.is_modified()
+
+def test_patch_test():
+    """
+    Tests the `test` patch op. The `test` op may be useful for other test
+    assertions, so it is tested before the other patch operations.
+    """
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
+
+    # Test that values match, as expected
+    assert (parser.patch({
+        "op": "test",
+        "path": "/build/number",
+        "value": 0,
+    }))
+    assert (parser.patch({
+        "op": "test",
+        "path": "/build",
+        "value": {
+            "number": 0,
+            "skip": True,
+        },
+    }))
+    assert (parser.patch({
+        "op": "test",
+        "path": "/requirements/host",
+        "value": ["setuptools", "fakereq"],
+    }))
+    assert (parser.patch({
+        "op": "test",
+        "path": "/requirements/host/1",
+        "value": "fakereq",
+    }))
+    # Test that values do not match, as expected
+    assert not (parser.patch({
+        "op": "test",
+        "path": "/build/number",
+        "value": 42,
+    }))
+    assert not (parser.patch({
+        "op": "test",
+        "path": "/build",
+        "value": {
+            "number": 42,
+            "skip": True,
+        },
+    }))
+    assert not (parser.patch({
+        "op": "test",
+        "path": "/requirements/host",
+        "value": ["not_setuptools", "fakereq"],
+    }))
+    assert not (parser.patch({
+        "op": "test",
+        "path": "/requirements/host/1",
+        "value": "other_fake",
+    }))
+
 
 ## Diff ##

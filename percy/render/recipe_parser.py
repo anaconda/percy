@@ -351,7 +351,7 @@ class RecipeParser():
     @staticmethod
     def _substitute_markers(s: str, subs: list[str]) -> str:
         """
-        Given a string, replace subsitution markers with the original Jinja
+        Given a string, replace substitution markers with the original Jinja
         template from a list of options.
         :param s:       String to replace substitution markers with
         :param subs:    List of substitutions to make, in order of appearance
@@ -892,47 +892,62 @@ class RecipeParser():
         # The nodes for both `skip` and `True` contain the comment `[unix]`
         return list(dict.fromkeys(path_list))
 
-    def _patch_replace(self, path: _StrStack, value: JsonType) -> bool:
+    def _patch_replace(self, path: str, path_stack: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `replace` operation.
-
-        :param path:    Path that describes a location in the tree, as a list,
-                        treated like a stack.
+        :param path:        Path as a string. Useful for invoking public
+                            class members.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
         :param value:   Value to update with.
         :raises UnsupportedOpException: If the operation preformed is not
                                         supported. TODO Exception will no longer
                                         be raised when support is added.
         """
-        # TODO add support for compound types
-        # TODO generate sub-trees, re-link node
-        # TODO handle multiline
-        if isinstance(value, dict):
-            raise UnsupportedOpException("replace, list")
-        if isinstance(value, dict):
-            raise UnsupportedOpException("replace, dict")
-
-        node = _Traverse.traverse(self._root, path)
+        node = _Traverse.traverse(self._root, path_stack)
         # Path not found
         if node is None:
             return False
 
-        node.value = value
+        # List members make things harder
+        if not node.is_list_member:
+            # Leaf nodes contain values and not path information. Paths should
+            # not be made that access leaf nodes, with the exception of members
+            # of a list. Making such a path violates the RFC.
+            if node.is_leaf():
+                return False
+            # Leaves that represent values/paths of values can evict all
+            # children, and be replaced with new children, derived from a new
+            # tree of values.
+            else:
+                # Convert the value into YAML, then parse the YAML with the
+                # tree. The children of that new tree's root node become the
+                # children of our target node.
+                value_tree = RecipeParser(yaml.dump(value))
+                node.children = value_tree._root.children
+                return True
+
+        # TODO
+        # Handle list members
+
         return True
 
-    def _patch_test(self, path: _StrStack, value: JsonType) -> bool:
+    def _patch_test(self, path: str, path_stack: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `test` operation.
-
-        :param path:    Path that describes a location in the tree, as a list,
-                        treated like a stack.
+        :param path:        Path as a string. Useful for invoking public
+                            class members.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
         :param value:   Value to evaluate against.
         """
-        node = _Traverse.traverse(self._root, path)
-        # Path not found
-        if node is None:
+        try:
+            # Remember that `get_value()` returns the object at the path IF
+            # the ending `/` is not specified.
+            return self.get_value(path + "/") == value
+        except KeyError:
+            # Path not found
             return False
-
-        return node.value == value
 
     def _get_supported_patch_ops(self) -> _OpsTable:
         """
@@ -993,10 +1008,15 @@ class RecipeParser():
         # are easy to recursively manipulate, in a stack. NOTE: Remember that
         # Python's implementation of a stack is to use a list from the end of
         # the list. In other words, the `root` is at the end of the list.
-        path = RecipeParser._str_to_stack_path(patch["path"])
+        #
+        # Both versions are sent over so that the op can easily use both
+        # private and public functions (without incurring even more conversions
+        # between path types).
+        path: Final[str] = patch["path"]
+        path_stack: Final[_StrStack] = RecipeParser._str_to_stack_path(path)
         # The supplemental field name is determined by the operation type.
         value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
-        is_successful = supported_patch_ops[op](path, patch[value_from])
+        is_successful = supported_patch_ops[op](path, path_stack, patch[value_from])
 
         # Update the selector table and modified flag, if the operation
         # succeeded.
