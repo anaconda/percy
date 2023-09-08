@@ -43,7 +43,8 @@ def test_construction():
 
 def test_dog_food_easy():
     """
-    Test "eating our own dog food": Take a recipe, construct a parser,
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render
+    and ensure the output matches the input.
 
     This is the "easy" recipe test, to ensure compatibility with "basic" recipe
     structures with no gotchas.
@@ -51,6 +52,18 @@ def test_dog_food_easy():
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
     parser = recipe_parser.RecipeParser(types_toml)
     assert parser.render() == types_toml
+
+def test_dog_food_medium():
+    """
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render
+    and ensure the output matches the input.
+
+    This is the "medium" recipe test, to ensure compatibility with some more
+    contrived examples
+    """
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
+    assert parser.render() == simple
 
 ## Values ##
 
