@@ -16,11 +16,14 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
 
 import ast
 import difflib
+import json
 import re
-import yaml
 
 from pathlib import PurePath
-from typing import Final, NamedTuple
+from typing import Any, Final, Mapping, NamedTuple
+
+from jsonschema import validate as schema_validate
+import yaml
 
 # Base types that can store value
 Primitives = str | int | float | bool | None
@@ -32,15 +35,92 @@ JsonType = (
 
 # Type that represents a JSON patch payload
 JsonPatchType = dict[str, JsonType]
+# Type for a schema object used by the `jsonschema` library
+SchemaType = Mapping[str, Any]  # type: ignore[misc]
 
 # Type alias for a list of strings treated as a Pythonic stack
 _StrStack = list[str]
+
+# Type alias for a table that maps operations to functions.
+_OpsTable = dict[str, callable]
 
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
 TAB_AS_SPACES: Final[str] = " " * TAB_SPACE_COUNT
 # Marker used to temporarily work around some Jinja-template parsing issues
 _PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
+
+# Schema validator for JSON patching
+JSON_PATCH_SCHEMA: Final[SchemaType] = {
+    "type": "object",
+    "properties": {
+        "op": {
+            "enum": [
+                "add",
+                "remove",
+                "replace",
+                "move",
+                "copy",
+                "test"
+            ]
+        },
+        "path": {"type": "string"},
+        "from": {"type": "string"},
+        "value": {
+            "type": [
+                "string",
+                "number",
+                "object",
+                "array",
+                "boolean",
+                "null",
+            ],
+            "items": {
+                "type": [
+                    "string",
+                    "number",
+                    "object",
+                    "array",
+                    "boolean",
+                    "null",
+                ]
+            }
+        },
+    },
+    "required": [
+        "op",
+        "path",
+    ],
+    "allOf": [
+        # `value` is required for `add`/`remove`/`replace`/`test`
+        {
+            "if": { "properties": { "op": { "const": "add" } }, },
+            "then": { "required": ["value"] }
+        },
+        {
+            "if": { "properties": { "op": { "const": "remove" } }, },
+            "then": { "required": ["value"] }
+        },
+        {
+            "if": { "properties": { "op": { "const": "replace" } }, },
+            "then": { "required": ["value"] }
+        },
+        {
+            "if": { "properties": { "op": { "const": "test" } }, },
+            "then": { "required": ["value"] }
+        },
+        # `from` is required for `move`/`copy`
+        {
+            "if": { "properties": { "op": { "const": "move" } }, },
+            "then": { "required": ["from"], "type": "string" }
+        },
+        {
+            "if": { "properties": { "op": { "const": "copy" } }, },
+            "then": { "required": ["from"], "type": "string" }
+        },
+    ],
+    "additionalProperties": False,
+}
 
 class UnsupportedOpException(Exception):
     """
@@ -57,6 +137,21 @@ class UnsupportedOpException(Exception):
         if op:
             message = f"Unsupported operation encountered: {op}"
         super().__init__(message)
+
+class JsonPatchValidationException(Exception):
+    """
+    Indicates that the calling code has attempted to use an illegal JSON patch
+    payload that does not meet the schema criteria.
+    """
+
+    def __init__(self, patch: JsonPatchType):
+        """
+        Constructs a JSON Patch Validation Exception
+        :param op: Operation being encountered.
+        """
+        super().__init__(
+            f"Invalid patch was attempted:\n{json.dumps(patch, indent=2)}"
+        )
 
 class _Node():
     """
@@ -231,6 +326,10 @@ class _Traverse():
             idx_num += 1
 
 class RecipeParser():
+
+    # Static set of patch operations that require `value`. The others require
+    # `from`.
+    _patch_ops_requiring_value = set(["add", "remove", "replace", "test"])
 
     @staticmethod
     def _num_tab_spaces(s: str) -> int:
@@ -567,7 +666,7 @@ class RecipeParser():
         Indicates if the recipe has been changed since construction.
         :return: True if the recipe has changed. False otherwise.
         """
-        return self.is_modified
+        return self._is_modified
 
     def has_unsupported_statements(self) -> bool:
         """
@@ -813,11 +912,38 @@ class RecipeParser():
             raise UnsupportedOpException("replace, dict")
 
         node = _Traverse.traverse(self._root, path)
+        # Path not found
         if node is None:
             return False
 
         node.value = value
         return True
+
+    def _patch_test(self, path: _StrStack, value: JsonType) -> bool:
+        """
+        Performs a JSON patch `test` operation.
+
+        :param path:    Path that describes a location in the tree, as a list,
+                        treated like a stack.
+        :param value:   Value to evaluate against.
+        """
+        node = _Traverse.traverse(self._root, path)
+        # Path not found
+        if node is None:
+            return False
+
+        return node.value == value
+
+    def _get_supported_patch_ops(self) -> _OpsTable:
+        """
+        Generates a look-up table of currently supported JSON patch operation
+        functions, on this instance. This makes it easier to determine which
+        operations are currently available AND simplifies "switch"-like logic.
+        """
+        return {
+            "replace":  self._patch_replace,
+            "test":     self._patch_test,
+        }
 
     def patch(self, patch: JsonPatchType) -> bool:
         """
@@ -838,19 +964,29 @@ class RecipeParser():
           - copy
           - test
 
-        :param patch:                   JSON-patch payload to operate with.
-        :raises ValidationException:    If the JSON-patch payload does not
-                                        conform to our schema/spec.
-        :raises UnsupportedOpException: If the operation preformed is not
-                                        supported
+        :param patch:                           JSON-patch payload to operate
+                                                with.
+        :raises JsonPatchValidationException:   If the JSON-patch payload does
+                                                not conform to our schema/spec.
+        :raises UnsupportedOpException:         If the operation preformed is
+                                                not supported
         :return: If the calling code attempts to perform the `test` operation,
                  this indicates the return value of the `test` request. In other
                  words, if `value` matches the target variable, return True.
                  False otherwise.
         """
-        # TODO validate input
-        op = patch["op"]
-        if op not in self._supported_patch_ops:
+        # Validate the patch schema
+        try:
+            schema_validate(patch, JSON_PATCH_SCHEMA)
+        except Exception as e:
+            raise JsonPatchValidationException(patch) from e
+
+        # Check if the operation is currently supported (support for all ops
+        # will be added over time. If all ops are supported, the schema will
+        # check this by the `enum` value)
+        op: Final[str] = patch["op"]
+        supported_patch_ops: Final[_OpsTable] = self._get_supported_patch_ops()
+        if op not in supported_patch_ops:
             raise UnsupportedOpException(op)
 
         # Use `PurePath` as a way to parse the path into component parts that
@@ -858,15 +994,28 @@ class RecipeParser():
         # Python's implementation of a stack is to use a list from the end of
         # the list. In other words, the `root` is at the end of the list.
         path = RecipeParser._str_to_stack_path(patch["path"])
-        is_successful = self._supported_patch_ops[op](path, patch["value"])
+        # The supplemental field name is determined by the operation type.
+        value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
+        is_successful = supported_patch_ops[op](path, patch[value_from])
 
-        # Update the selector table, if the operation succeeded.
-        # TODO this is not the most efficient way to update the selector table,
-        # but for now, it works.
+        # Update the selector table and modified flag, if the operation
+        # succeeded.
         if is_successful and op != "test":
-            self._rebuild_selectors
+            # TODO this is not the most efficient way to update the selector
+            # table, but for now, it works.
+            self._rebuild_selectors()
+            self._is_modified = True
 
         return is_successful
+
+    def search(self, regex: str) -> list[str]:
+        # TODO complete
+        return []
+
+    def search_and_patch(self, regex: str, patch: JsonPatchType) -> bool:
+        # TODO complete
+        # TODO only support: add, remove, replace
+        return False
 
     def diff(self) -> str:
         """
@@ -875,13 +1024,7 @@ class RecipeParser():
         :return: User-friendly displayable string that represents modifications
                  made to the recipe.
         """
-        if not self.is_modified:
+        if not self.is_modified():
             return "No diff"
         # TODO complete
         return ""
-
-    # Look-up table of currently supported JSON patch operation functions. This
-    # must be defined after all functions are defined
-    _supported_patch_ops: dict[str, callable] = {
-        "replace":  _patch_replace,
-    }

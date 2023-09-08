@@ -160,3 +160,116 @@ def test_get_selector_paths():
         "/requirements/host/1",
     ]
     assert parser.get_selector_paths("[fake selector]") == []
+
+## Patch and Search ##
+
+def test_patch_schema_validation():
+    """
+    Tests edge cases that should trigger an exception on JSON patch schema
+    validation. Valid schemas are inherently tested in the other patching tests.
+    """
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
+    # Invalid enum/unknown op
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "fakeop",
+            "path": "/build/number",
+            "value": 42,
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "",
+            "path": "/build/number",
+            "value": 42,
+        })
+    # Patch has extra field(s)
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "replace",
+            "path": "/build/number",
+            "value": 42,
+            "extra": "field",
+        })
+    # Patch is missing required fields
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "path": "/build/number",
+            "value": 42,
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "replace",
+            "value": 42,
+        })
+    # Patch is missing required fields, based on `op`
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "add",
+            "path": "/build/number",
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "remove",
+            "path": "/build/number",
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "replace",
+            "path": "/build/number",
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "move",
+            "path": "/build/number",
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "copy",
+            "path": "/build/number",
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "test",
+            "path": "/build/number",
+        })
+    # Patch has invalid types in critical fields
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "move",
+            "path": 42,
+            "value": 42
+        })
+    with pytest.raises(recipe_parser.JsonPatchValidationException):
+        parser.patch({
+            "op": "move",
+            "path": "/build/number",
+            "from": 42
+        })
+
+def test_patch_path_not_found():
+    """
+    Tests if `patch` returns false on all ops when the path is not found.
+    Also checks if the tree has been modified.
+    """
+    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+    parser = recipe_parser.RecipeParser(simple)
+
+    assert (
+        parser.patch({
+            "op": "replace",
+            "path": "/package/path/to/fake/value",
+            "value": 42,
+        }) == False
+    )
+    assert (
+        parser.patch({
+            "op": "test",
+            "path": "/package/path/to/fake/value",
+            "value": 42,
+        }) == False
+    )
+
+    assert parser.is_modified() == False
+
+## Diff ##
