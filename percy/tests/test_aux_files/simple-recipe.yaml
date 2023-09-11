@@ -37,3 +37,12 @@ multi_level:
     - ls
     - sl
     - cowsay
+
+test_var_usage:
+  foo: {{ version }}
+  bar:
+    - baz
+    - {{ zz_non_alpha_first }}
+    - blah
+    - This {{ name }} is silly
+    - last

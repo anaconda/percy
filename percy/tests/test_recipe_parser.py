@@ -25,9 +25,18 @@ def load_file(file: Path | str) -> str:
     with open(Path(file), "r", encoding="utf-8") as f:
         return f.read()
 
+def load_recipe(file_name: str) -> recipe_parser.RecipeParser:
+    """
+    Convenience function that simplifies initializing a recipe parser.
+    :param file_name:   File name of the test recipe to load
+    :return: RecipeParser instance, based on the file
+    """
+    recipe = load_file(f"{TEST_FILES_PATH}/{file_name}")
+    return recipe_parser.RecipeParser(recipe)
+
 ## Construction and rendering sanity checks ##
 
-def test_construction():
+def test_construction() -> None:
     """
     Tests the construction of a recipe parser instance with a simple, common
     example file.
@@ -41,7 +50,7 @@ def test_construction():
     # TODO assert on selectors table
     #assert parser._root == TODO
 
-def test_dog_food_easy():
+def test_dog_food_easy() -> None:
     """
     Test "eating our own dog food": Take a recipe, construct a parser, re-render
     and ensure the output matches the input.
@@ -53,7 +62,7 @@ def test_dog_food_easy():
     parser = recipe_parser.RecipeParser(types_toml)
     assert parser.render() == types_toml
 
-def test_dog_food_medium():
+def test_dog_food_medium() -> None:
     """
     Test "eating our own dog food": Take a recipe, construct a parser, re-render
     and ensure the output matches the input.
@@ -67,13 +76,11 @@ def test_dog_food_medium():
 
 ## Values ##
 
-def test_get_value():
+def test_contains_value() -> None:
     """
     Tests retrieval of a value from a parsed YAML example.
     """
-    # TODO complete
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     assert parser.contains_value("/build/number")
     assert parser.contains_value("/build/number/")
     assert parser.contains_value("/build")
@@ -81,14 +88,13 @@ def test_get_value():
     assert parser.contains_value("/requirements/host/1")
     # Path not found cases
     assert not parser.contains_value("/invalid/fake/path")
+    assert not parser.is_modified()
 
-def test_get_value():
+def test_get_value() -> None:
     """
     Tests retrieval of a value from a parsed YAML example.
     """
-    # TODO complete
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     # Return a single value
     assert parser.get_value("/build/number") == { "number": 0 }
     assert parser.get_value("/build/number/") == 0
@@ -107,67 +113,114 @@ def test_get_value():
     with pytest.raises(KeyError):
         parser.get_value("/invalid/fake/path")
     assert parser.get_value("/invalid/fake/path", 42) == 42
+    assert not parser.is_modified()
 
 ## Variables ##
 
-def test_list_var():
+def test_list_var() -> None:
     """
     Validates the list of variables found
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     assert parser.list_vars() == ["zz_non_alpha_first", "name", "version"]
+    assert not parser.is_modified()
 
-def test_contains_var():
+def test_contains_var() -> None:
     """
     Validates checking if a variable exists in a recipe
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     assert parser.contains_var("zz_non_alpha_first")
     assert parser.contains_var("name")
     assert parser.contains_var("version")
     assert not parser.contains_var("fake_var")
+    assert not parser.is_modified()
 
-def test_get_var():
+def test_get_var() -> None:
     """
     Tests the value returned from fetching a variable
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     assert parser.get_var("zz_non_alpha_first") == 42
     assert parser.get_var("name") == "types-toml"
     assert parser.get_var("version") == "0.10.8.6"
     with pytest.raises(KeyError):
         parser.get_var("fake_var")
     assert parser.get_var("fake_var", 43) == 43
+    assert not parser.is_modified()
+
+def test_set_var() -> None:
+    """
+    Tests setting and adding a variable
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    parser.set_var("name", "foobar")
+    parser.set_var("zz_non_alpha_first", 24)
+    # Ensure a missing variable gets added
+    parser.set_var("DNE", "The limit doesn't exist")
+    # Validate
+    assert parser.is_modified()
+    assert parser.list_vars() == ["zz_non_alpha_first", "name", "version", "DNE"]
+    assert parser.get_var("name") == "foobar"
+    assert parser.get_var("zz_non_alpha_first") == 24
+    assert parser.get_var("DNE") == "The limit doesn't exist"
+
+def test_del_var() -> None:
+    """
+    Tests deleting a variable
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    parser.del_var("name")
+    # Ensure a missing var doesn't crash a delete
+    parser.del_var("DNE")
+    # Validate
+    assert parser.is_modified()
+    assert parser.list_vars() == ["zz_non_alpha_first", "version"]
+    with pytest.raises(KeyError):
+        parser.get_var("name")
+
+def test_get_var_paths() -> None:
+    """
+    Tests generating a list of paths that use a variable
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    assert parser.get_var_paths("version") == [
+        "/test_var_usage/foo",
+    ]
+    assert parser.get_var_paths("zz_non_alpha_first") == [
+        "/test_var_usage/bar/1",
+    ]
+    assert parser.get_var_paths("name") == [
+        "/package/name",
+        "/test_var_usage/bar/3",
+    ]
+    assert not parser.is_modified()
 
 ## Selectors ##
 
-def test_list_selectors():
+def test_list_selectors() -> None:
     """
     Validates the list of selectors found
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     assert parser.list_selectors() == ["[unix]", "[py<37]"]
+    assert not parser.is_modified()
 
-def test_contains_selectors():
+def test_contains_selectors() -> None:
     """
     Validates checking if a selector exists in a recipe
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     assert parser.contains_selector("[py<37]")
     assert parser.contains_selector("[unix]")
     assert not parser.contains_selector("[fake selector]")
+    assert not parser.is_modified()
 
-def test_get_selector_paths():
+def test_get_selector_paths() -> None:
     """
     Tests the paths returned from fetching a selector
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     assert parser.get_selector_paths("[py<37]") == ["/build/skip"]
     assert parser.get_selector_paths("[unix]") == [
         "/package/name",
@@ -175,16 +228,16 @@ def test_get_selector_paths():
         "/requirements/host/1",
     ]
     assert parser.get_selector_paths("[fake selector]") == []
+    assert not parser.is_modified()
 
 ## Patch and Search ##
 
-def test_patch_schema_validation():
+def test_patch_schema_validation() -> None:
     """
     Tests edge cases that should trigger an exception on JSON patch schema
     validation. Valid schemas are inherently tested in the other patching tests.
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     # Invalid enum/unknown op
     with pytest.raises(recipe_parser.JsonPatchValidationException):
         parser.patch({
@@ -262,13 +315,12 @@ def test_patch_schema_validation():
             "from": 42
         })
 
-def test_patch_path_not_found():
+def test_patch_path_not_found() -> None:
     """
     Tests if `patch` returns false on all ops when the path is not found.
     Also checks if the tree has been modified.
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
 
     assert not (parser.patch({
         "op": "replace",
@@ -283,13 +335,12 @@ def test_patch_path_not_found():
 
     assert not parser.is_modified()
 
-def test_patch_test():
+def test_patch_test() -> None:
     """
     Tests the `test` patch op. The `test` op may be useful for other test
     assertions, so it is tested before the other patch operations.
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
 
     # Test that values match, as expected
     assert (parser.patch({
@@ -354,12 +405,11 @@ def test_patch_test():
     # Ensure that `test` does not modify the tree
     assert not parser.is_modified()
 
-def test_patch_replace():
+def test_patch_replace() -> None:
     """
     Tests the `replace` patch op.
     """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = load_recipe("simple-recipe.yaml")
     # Patch an integer
     assert (parser.patch({
         "op": "replace",

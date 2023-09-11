@@ -40,6 +40,9 @@ SchemaType = Mapping[str, Any]  # type: ignore[misc]
 
 # Type alias for a list of strings treated as a Pythonic stack
 _StrStack = list[str]
+# Type alias for a `_StrStack` that must be immutable. Useful for some recursive
+# operations.
+_StrStackImmutable = tuple[str]
 
 # Type alias for a table that maps operations to functions.
 _OpsTable = dict[str, callable]
@@ -295,7 +298,7 @@ class _Traverse():
         return _Traverse._traverse_recurse(node, path)
 
     @staticmethod
-    def traverse_all(node: _Node | None, func: callable, path: tuple[str] | None = None, idx_num = 0) -> None:
+    def traverse_all(node: _Node | None, func: callable, path: _StrStackImmutable | None = None, idx_num = 0) -> None:
         """
         Given a node, traverse all child nodes and apply a function to each
         node. Useful for updating or extracting information on the whole tree.
@@ -396,7 +399,7 @@ class RecipeParser():
             # substitution markers, then re-inject the substitutions back in.
             # We classify all Jinja substitutions as string values, so we don't
             # have to worry about the type of the actual substitution.
-            jinja_sub_re = re.compile("{{.*}}")
+            jinja_sub_re = re.compile(r"{{.*}}")
             sub_list = jinja_sub_re.findall(s)
             s = jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
             output = yaml.load(s, yaml.SafeLoader)
@@ -488,7 +491,7 @@ class RecipeParser():
         return list(PurePath(path).parts)[::-1]
 
     @staticmethod
-    def _stack_path_to_str(path_stack: _StrStack) -> str:
+    def _stack_path_to_str(path_stack: _StrStack | _StrStackImmutable) -> str:
         """
         Takes a stack that represents a path and converts it into a string.
 
@@ -497,6 +500,9 @@ class RecipeParser():
         :param path_stack:  Stack to construct back into a string.
         :return: Path, described as a string.
         """
+        # Normalize type if a tuple is given.
+        if isinstance(path_stack, tuple):
+            path_stack = list(path_stack)
         path = ""
         while (len(path_stack) > 0):
             value = path_stack.pop()
@@ -539,7 +545,7 @@ class RecipeParser():
         """
         self._selector_tbl: dict[str, list[SelectorInfo]] = {}
         selector_re = re.compile(r"\[.*\]")
-        def _collect_selectors(node: _Node, path: _StrStack):
+        def _collect_selectors(node: _Node, path: _StrStackImmutable):
             # Ignore empty comments
             if node.comment is None or not node.comment:
                 return
@@ -788,6 +794,8 @@ class RecipeParser():
 
         return "\n".join(lines)
 
+    ## YAML Access Functions ##
+
     def contains_value(self, path: str) -> bool:
         """
         Determines if a value (via a path) is contained in this recipe
@@ -848,6 +856,8 @@ class RecipeParser():
         RecipeParser._render_tree(node, -1, lst)
         return RecipeParser._parse_yaml("\n".join(lst))
 
+    ## Jinja Variable Functions ##
+
     def list_vars(self) -> list[str]:
         """
         Returns variables found in the recipe, sorted by first appearance.
@@ -880,7 +890,50 @@ class RecipeParser():
             return default
         return self._vars_tbl[var]
 
-    # TODO complete: set/add and remove variables
+    def set_var(self, var: str, value: Primitives) -> None:
+        """
+        Adds or changes an existing Jinja variable.
+        :param var:     Variable to modify
+        :param value:   Value to set
+        """
+        self._vars_tbl[var] = value
+        self._is_modified = True
+
+    def del_var(self, var: str) -> None:
+        """
+        Remove a variable from the project. If one is not found, no changes
+        are made.
+        :param var: Variable to delete
+        """
+        if not var in self._vars_tbl:
+            return
+        del self._vars_tbl[var]
+        self._is_modified = True
+
+    def get_var_paths(self, var: str) -> list[str]:
+        """
+        Returns a list of paths that use particular variables.
+        :param var: Variable of interest
+        :return: List of paths that use a variable, sorted by first appearance.
+        """
+        if var not in self._vars_tbl:
+            return []
+
+        path_list: list[str] = []
+        # The text between the braces is very forgiving. Just searching for
+        # whitespace characters means we will never match the very common
+        # `{{ name | lower }}` expression, or similar piping functions.
+        var_re = re.compile(r"{{.*" + var + r".*}}")
+        def _collect_var_usage(node: _Node, path: _StrStackImmutable):
+            # Variables can only be found inside string values.
+            if isinstance(node.value, str) and var_re.search(node.value):
+                path_list.append(RecipeParser._stack_path_to_str(path))
+
+        _Traverse.traverse_all(self._root, _collect_var_usage)
+        # The list should be de-duped and maintain order.
+        return list(dict.fromkeys(path_list))
+
+    ## Selector Functions ##
 
     def list_selectors(self) -> list[str]:
         """
@@ -914,7 +967,7 @@ class RecipeParser():
         path_list: list[str] = []
         for path_stack in self._selector_tbl[selector]:
             path_list.append(RecipeParser._stack_path_to_str(path_stack.path))
-        # The list should be de-duped and remain order. Duplications occur
+        # The list should be de-duped and maintain order. Duplications occur
         # when key-value pairings mean a selector occurs on two nodes with
         # the same path.
         #
@@ -922,6 +975,8 @@ class RecipeParser():
         #   skip: True  # [unix]
         # The nodes for both `skip` and `True` contain the comment `[unix]`
         return list(dict.fromkeys(path_list))
+
+    ## YAML Patching Functions ##
 
     # TODO complete: set/add and remove selectors
 
@@ -1065,6 +1120,7 @@ class RecipeParser():
             # TODO this is not the most efficient way to update the selector
             # table, but for now, it works.
             self._rebuild_selectors()
+            # TODO technically this doesn't handle a no-op.
             self._is_modified = True
 
         return is_successful
