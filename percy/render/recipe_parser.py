@@ -15,23 +15,19 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
 """
 
 import ast
-import difflib
 import json
 import re
-
 from pathlib import PurePath
 from typing import Any, Final, Mapping, NamedTuple
 
-from jsonschema import validate as schema_validate
 import yaml
+from jsonschema import validate as schema_validate
 
 # Base types that can store value
 Primitives = str | int | float | bool | None
 
 # Type that represents a JSON-like type
-JsonType = (
-    dict[str, "JsonType"] | list["JsonType"] | Primitives
-)
+JsonType = dict[str, "JsonType"] | list["JsonType"] | Primitives
 
 # Type that represents a JSON patch payload
 JsonPatchType = dict[str, JsonType]
@@ -57,16 +53,7 @@ _PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
 JSON_PATCH_SCHEMA: Final[SchemaType] = {
     "type": "object",
     "properties": {
-        "op": {
-            "enum": [
-                "add",
-                "remove",
-                "replace",
-                "move",
-                "copy",
-                "test"
-            ]
-        },
+        "op": {"enum": ["add", "remove", "replace", "move", "copy", "test"]},
         "path": {"type": "string"},
         "from": {"type": "string"},
         "value": {
@@ -87,7 +74,7 @@ JSON_PATCH_SCHEMA: Final[SchemaType] = {
                     "boolean",
                     "null",
                 ]
-            }
+            },
         },
     },
     "required": [
@@ -97,33 +84,46 @@ JSON_PATCH_SCHEMA: Final[SchemaType] = {
     "allOf": [
         # `value` is required for `add`/`remove`/`replace`/`test`
         {
-            "if": { "properties": { "op": { "const": "add" } }, },
-            "then": { "required": ["value"] }
+            "if": {
+                "properties": {"op": {"const": "add"}},
+            },
+            "then": {"required": ["value"]},
         },
         {
-            "if": { "properties": { "op": { "const": "remove" } }, },
-            "then": { "required": ["value"] }
+            "if": {
+                "properties": {"op": {"const": "remove"}},
+            },
+            "then": {"required": ["value"]},
         },
         {
-            "if": { "properties": { "op": { "const": "replace" } }, },
-            "then": { "required": ["value"] }
+            "if": {
+                "properties": {"op": {"const": "replace"}},
+            },
+            "then": {"required": ["value"]},
         },
         {
-            "if": { "properties": { "op": { "const": "test" } }, },
-            "then": { "required": ["value"] }
+            "if": {
+                "properties": {"op": {"const": "test"}},
+            },
+            "then": {"required": ["value"]},
         },
         # `from` is required for `move`/`copy`
         {
-            "if": { "properties": { "op": { "const": "move" } }, },
-            "then": { "required": ["from"], "type": "string" }
+            "if": {
+                "properties": {"op": {"const": "move"}},
+            },
+            "then": {"required": ["from"], "type": "string"},
         },
         {
-            "if": { "properties": { "op": { "const": "copy" } }, },
-            "then": { "required": ["from"], "type": "string" }
+            "if": {
+                "properties": {"op": {"const": "copy"}},
+            },
+            "then": {"required": ["from"], "type": "string"},
         },
     ],
     "additionalProperties": False,
 }
+
 
 class UnsupportedOpException(Exception):
     """
@@ -141,6 +141,7 @@ class UnsupportedOpException(Exception):
             message = f"Unsupported operation encountered: {op}"
         super().__init__(message)
 
+
 class JsonPatchValidationException(Exception):
     """
     Indicates that the calling code has attempted to use an illegal JSON patch
@@ -156,7 +157,8 @@ class JsonPatchValidationException(Exception):
             f"Invalid patch was attempted:\n{json.dumps(patch, indent=2)}"
         )
 
-class _Node():
+
+class _Node:
     """
     Private class representing a node in a recipe parse tree.
 
@@ -172,13 +174,14 @@ class _Node():
     Variable names are not substituted. In other words, the raw strings from
     the file are stored as text.
     """
+
     def __init__(
         self,
-        value: Primitives=None,
-        comment="",
-        children=None,
-        is_list_member=False,
-        is_multiline=False,
+        value: Primitives = None,
+        comment: str = "",
+        children: list["_Node"] | None = None,
+        is_list_member: bool = False,
+        is_multiline: bool = False,
     ):
         """
         Constructs a node
@@ -227,20 +230,24 @@ class _Node():
         """
         return len(self.children) == 0
 
+
 class SelectorInfo(NamedTuple):
     """
     Immutable structure that tracks information about how a particular selector
     is used.
     """
+
     node: _Node
     path: _StrStack
 
-class _Traverse():
+
+class _Traverse:
     """
     Private class, treated as a namespace, that contains methods for traversing
     `_Node` data structures. These functions can't exist under the `_Node` class
     as the class has not yet been defined.
     """
+
     @staticmethod
     def _traverse_recurse(node: _Node, path: _StrStack) -> _Node | None:
         """
@@ -280,6 +287,7 @@ class _Traverse():
         at that path.
 
         If no Node is found at that path, return `None`.
+        :param node:    Starting node of the tree/branch to traverse.
         :param path:    Path, as a stack, that describes a location in the tree.
         :return: `_Node` object if a node is found in the parse tree at that
                  path. Otherwise returns `None`.
@@ -298,7 +306,12 @@ class _Traverse():
         return _Traverse._traverse_recurse(node, path)
 
     @staticmethod
-    def traverse_all(node: _Node | None, func: callable, path: _StrStackImmutable | None = None, idx_num = 0) -> None:
+    def traverse_all(
+        node: _Node | None,
+        func: callable,
+        path: _StrStackImmutable | None = None,
+        idx_num: int = 0,
+    ) -> None:
         """
         Given a node, traverse all child nodes and apply a function to each
         node. Useful for updating or extracting information on the whole tree.
@@ -328,7 +341,24 @@ class _Traverse():
             _Traverse.traverse_all(child, func, path, idx_num)
             idx_num += 1
 
-class RecipeParser():
+
+class RecipeParser:
+    """
+    Class that parses a recipe file string. Provides many useful mechanisms for
+    changing values in the document.
+
+    A quick search for Jinja statements in YAML files shows that the vast
+    majority of statements are in the form of initializing variables with `set`.
+
+    The next few prevalent kinds of statements are:
+      - Conditional macros (i.e. if/endif)
+      - for loops
+    And even those only show up in a handful out of thousands of recipes. There
+    are also no current examples of Jinja style comments.
+
+    So that being said, the initial parser will not support these more edge-case
+    recipes as they don't pass the 80/20 rule.
+    """
 
     # Static set of patch operations that require `value`. The others require
     # `from`.
@@ -392,7 +422,7 @@ class RecipeParser():
         output: JsonType = None
         try:
             output = yaml.load(s, yaml.SafeLoader)
-        except Exception:
+        except Exception:  # pylint: disable=W0718
             # TODO this is a bit hacky and an area for improvement
             # If a construction exception is thrown, attempt to re-parse by
             # replacing Jinja macros (substrings in `{{}}`) with friendly string
@@ -408,9 +438,13 @@ class RecipeParser():
                 output = RecipeParser._substitute_markers(output, sub_list)
             if isinstance(output, dict):
                 key = list(output.keys())[0]
-                output[key] = RecipeParser._substitute_markers(output[key], sub_list)
+                output[key] = RecipeParser._substitute_markers(
+                    output[key], sub_list
+                )
             elif isinstance(output, list):
-                output[0] = RecipeParser._substitute_markers(output[0], sub_list)
+                output[0] = RecipeParser._substitute_markers(
+                    output[0], sub_list
+                )
             else:
                 # TODO throw
                 pass
@@ -504,7 +538,7 @@ class RecipeParser():
         if isinstance(path_stack, tuple):
             path_stack = list(path_stack)
         path = ""
-        while (len(path_stack) > 0):
+        while len(path_stack) > 0:
             value = path_stack.pop()
             # Special case to bootstrap root; the first element will
             # automatically add the first slash.
@@ -523,18 +557,24 @@ class RecipeParser():
         # Multiline values can replace the list of children with a single
         # multiline leaf node.
         if isinstance(value, str) and "\n" in value:
-            return [_Node(
-                value=value.splitlines(),
-                is_multiline=True,
-            )]
+            return [
+                _Node(
+                    value=value.splitlines(),
+                    is_multiline=True,
+                )
+            ]
 
         # For complex types, generate the YAML equivalent and build
         # a new tree.
         if isinstance(value, (dict, list)):
-            return RecipeParser(yaml.dump(value))._root.children
+            return RecipeParser(  # pylint: disable=W0212
+                yaml.dump(value)
+            )._root.children
 
         # Primitives can be safely stringified to generate a parse tree.
-        return RecipeParser(str(RecipeParser._stringify_yaml(value)))._root.children
+        return RecipeParser(  # pylint: disable=W0212
+            str(RecipeParser._stringify_yaml(value))
+        )._root.children
 
     def _rebuild_selectors(self) -> None:
         """
@@ -545,6 +585,7 @@ class RecipeParser():
         """
         self._selector_tbl: dict[str, list[SelectorInfo]] = {}
         selector_re = re.compile(r"\[.*\]")
+
         def _collect_selectors(node: _Node, path: _StrStackImmutable):
             # Ignore empty comments
             if node.comment is None or not node.comment:
@@ -557,25 +598,15 @@ class RecipeParser():
                     self._selector_tbl[selector] = [selector_info]
                 else:
                     self._selector_tbl[selector].append(selector_info)
+
         _Traverse.traverse_all(self._root, _collect_selectors)
 
-    """
-    Class that parses a recipe file string. Provides many useful mechanisms for
-    changing values in the document.
-
-    A quick search for Jinja statements in YAML files shows that the vast
-    majority of statements are in the form of initializing variables with `set`.
-
-    The next few prevalent kinds of statements are:
-      - Conditional macros (i.e. if/endif)
-      - for loops
-    And even those only show up in a handful out of thousands of recipes. There
-    are also no current examples of Jinja style comments.
-
-    So that being said, the initial parser will not support these more edge-case
-    recipes as they don't pass the 80/20 rule.
-    """
     def __init__(self, content: str):
+        """
+        Constructs a RecipeParser instance.
+        :param content: conda-build formatted recipe file, as a single text
+                        string.
+        """
         # The initial, raw, text is preserved for diffing and debugging purposes
         self._init_content: Final[str] = content
         # Indicates if the original content has changed
@@ -586,8 +617,8 @@ class RecipeParser():
         # Find all the set statements and record the values
         set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
         for line in set_line_re.findall(self._init_content):
-            key = line[line.find("set")+len("set"):line.find("=")].strip()
-            value = line[line.find("=")+len("="):line.find("%}")].strip()
+            key = line[line.find("set") + len("set") : line.find("=")].strip()
+            value = line[line.find("=") + len("=") : line.find("%}")].strip()
             self._vars_tbl[key] = ast.literal_eval(value)
 
         # Root of the parse tree
@@ -634,7 +665,7 @@ class RecipeParser():
                 # Add the line to the list once it is verified to be the next
                 # line to capture in this node. This means that `line_idx` will
                 # point to the line of the next node, post-processing.
-                while (multiline_indent > new_indent):
+                while multiline_indent > new_indent:
                     multiline_node.value.append(multiline.strip())
                     line_idx += 1
                     multiline = lines[line_idx]
@@ -704,6 +735,7 @@ class RecipeParser():
         # TODO complete
         return False
 
+    @staticmethod
     def _render_tree(node: _Node, depth: int, lines: list[str]) -> None:
         """
         Recursive helper function that traverses the parse tree to generate
@@ -725,7 +757,9 @@ class RecipeParser():
             if node.children[0].is_list_member:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
                 lines.append(
-                    f"{spaces}{TAB_AS_SPACES}- {RecipeParser._stringify_yaml(node.children[0].value)}  {node.children[0].comment}".rstrip()
+                    f"{spaces}{TAB_AS_SPACES}- "
+                    f"{RecipeParser._stringify_yaml(node.children[0].value)}  "
+                    f"{node.children[0].comment}".rstrip()
                 )
                 return
             # Handle multi-line statements. In theory this will probably only
@@ -734,14 +768,19 @@ class RecipeParser():
             # By the language spec, # symbols do not indicate comments on
             # multiline strings.
             if node.children[0].is_multiline:
-                lines.append(f"{spaces}{node.value}: |  {node.comment}".rstrip())
+                lines.append(
+                    f"{spaces}{node.value}: |  {node.comment}".rstrip()
+                )
                 for val_line in node.children[0].value:
                     lines.append(
-                        f"{spaces}{TAB_AS_SPACES}{RecipeParser._stringify_yaml(val_line)}".rstrip()
+                        f"{spaces}{TAB_AS_SPACES}"
+                        f"{RecipeParser._stringify_yaml(val_line)}".rstrip()
                     )
                 return
             lines.append(
-                f"{spaces}{node.value}: {RecipeParser._stringify_yaml(node.children[0].value)}  {node.children[0].comment}".rstrip()
+                f"{spaces}{node.value}: "
+                f"{RecipeParser._stringify_yaml(node.children[0].value)}  "
+                f"{node.children[0].comment}".rstrip()
             )
             return
 
@@ -760,7 +799,9 @@ class RecipeParser():
             # Leaf nodes are rendered as members in a list
             if child.is_leaf():
                 lines.append(
-                    f"{spaces}  - {RecipeParser._stringify_yaml(child.value)}  {child.comment}".rstrip()
+                    f"{spaces}  - "
+                    f"{RecipeParser._stringify_yaml(child.value)}  "
+                    f"{child.comment}".rstrip()
                 )
             else:
                 RecipeParser._render_tree(child, depth + depth_delta, lines)
@@ -781,7 +822,7 @@ class RecipeParser():
         for key, val in self._vars_tbl.items():
             # Double quote strings
             if isinstance(val, str):
-                val = f"\"{val}\""
+                val = f'"{val}"'
             lines.append(f"{{% set {key} = {val} %}}")
         # Add spacing if variables have been set
         if len(self._vars_tbl):
@@ -805,7 +846,7 @@ class RecipeParser():
         path_stack = RecipeParser._str_to_stack_path(path)
         return _Traverse.traverse(self._root, path_stack) is not None
 
-    def get_value(self, path: str, default=None) -> JsonType:
+    def get_value(self, path: str, default: JsonType = None) -> JsonType:
         """
         Retrieves a value at a given path. If the value is not found, return a
         specified default value or throw.
@@ -869,11 +910,12 @@ class RecipeParser():
         """
         Determines if a variable is set in this recipe.
         :param var: Variable to check for.
-        :return: True if a variable name is found in this recipe. False otherwise.
+        :return: True if a variable name is found in this recipe. False
+                 otherwise.
         """
         return var in self._vars_tbl
 
-    def get_var(self, var: str, default = None) -> Primitives:
+    def get_var(self, var: str, default: Primitives = None) -> Primitives:
         """
         Returns the value of a variable set in the recipe. If specified, a
         default value will be returned if the variable name is not found.
@@ -924,6 +966,7 @@ class RecipeParser():
         # whitespace characters means we will never match the very common
         # `{{ name | lower }}` expression, or similar piping functions.
         var_re = re.compile(r"{{.*" + var + r".*}}")
+
         def _collect_var_usage(node: _Node, path: _StrStackImmutable):
             # Variables can only be found inside string values.
             if isinstance(node.value, str) and var_re.search(node.value):
@@ -980,11 +1023,11 @@ class RecipeParser():
 
     # TODO complete: set/add and remove selectors
 
-    def _patch_replace(self, path: str, path_stack: _StrStack, value: JsonType) -> bool:
+    def _patch_replace(
+        self, _: str, path_stack: _StrStack, value: JsonType
+    ) -> bool:
         """
         Performs a JSON patch `replace` operation.
-        :param path:        Path as a string. Useful for invoking public
-                            class members.
         :param path_stack:  Path that describes a location in the tree, as a
                             list, treated like a stack.
         :param value:   Value to update with.
@@ -1012,7 +1055,7 @@ class RecipeParser():
         if not node.is_list_member and node.is_leaf():
             return False
 
-        new_children: Final[list[_Node]]= RecipeParser._generate_subtree(value)
+        new_children: Final[list[_Node]] = RecipeParser._generate_subtree(value)
         # Lists inject all children at the target position.
         if node_idx >= 0:
             # Ensure all children are marked as list members
@@ -1029,13 +1072,11 @@ class RecipeParser():
         node.children = new_children
         return True
 
-    def _patch_test(self, path: str, path_stack: _StrStack, value: JsonType) -> bool:
+    def _patch_test(self, path: str, _: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `test` operation.
         :param path:        Path as a string. Useful for invoking public
                             class members.
-        :param path_stack:  Path that describes a location in the tree, as a
-                            list, treated like a stack.
         :param value:   Value to evaluate against.
         """
         try:
@@ -1053,8 +1094,8 @@ class RecipeParser():
         operations are currently available AND simplifies "switch"-like logic.
         """
         return {
-            "replace":  self._patch_replace,
-            "test":     self._patch_test,
+            "replace": self._patch_replace,
+            "test": self._patch_test,
         }
 
     def patch(self, patch: JsonPatchType) -> bool:
@@ -1108,11 +1149,15 @@ class RecipeParser():
             raise UnsupportedOpException(op)
 
         # The supplemental field name is determined by the operation type.
-        value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
+        value_from: Final[str] = (
+            "value" if op in RecipeParser._patch_ops_requiring_value else "from"
+        )
         # Both versions of the path are sent over so that the op can easily use
         # both private and public functions (without incurring even more
         # conversions between path types).
-        is_successful = supported_patch_ops[op](path, path_stack, patch[value_from])
+        is_successful = supported_patch_ops[op](
+            path, path_stack, patch[value_from]
+        )
 
         # Update the selector table and modified flag, if the operation
         # succeeded.
@@ -1125,23 +1170,26 @@ class RecipeParser():
 
         return is_successful
 
-    def search(self, regex: str) -> list[str]:
-        # TODO complete
-        return []
+    # TODO re-enable stubs when built. Commented out to shut the linter up
+    # about unused variables (W0613)
 
-    def search_and_patch(self, regex: str, patch: JsonPatchType) -> bool:
-        # TODO complete
-        # TODO only support: add, remove, replace
-        return False
+    # def search(self, regex: str) -> list[str]:
+    #     # TODO complete
+    #     return []
 
-    def diff(self) -> str:
-        """
-        Returns a diff of the current recipe state with original state of the
-        recipe.
-        :return: User-friendly displayable string that represents modifications
-                 made to the recipe.
-        """
-        if not self.is_modified():
-            return "No diff"
-        # TODO complete
-        return ""
+    # def search_and_patch(self, regex: str, patch: JsonPatchType) -> bool:
+    #     # TODO complete
+    #     # TODO only support: add, remove, replace
+    #     return False
+
+    # def diff(self) -> str:
+    #     """
+    #     Returns a diff of the current recipe state with original state of the
+    #     recipe.
+    #     :return: User-friendly displayable string that represents
+    #              notifications made to the recipe.
+    #     """
+    #     if not self.is_modified():
+    #         return "No diff"
+    #     # TODO complete
+    #     return ""

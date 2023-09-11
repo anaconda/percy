@@ -9,21 +9,14 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Update pip
         run: |
           python -m pip install --upgrade pip
-      - name: Lint the code
-        run: |
-          pip install ruff
-          # stop the build if there are Python syntax errors or undefined names
-          ruff --format=github --select=E9,F63,F7,F82 --target-version=py38 .
-          # default set of ruff rules with GitHub Annotations
-          ruff --format=github --target-version=py38 .
       - name: Update conda
         run: |
           conda update -n base -c defaults conda
@@ -36,8 +29,23 @@ jobs:
         run: |
           source $CONDA/etc/profile.d/conda.sh
           pip install -e .[dev]
-      - name: Test with pytest
+  # Runs pre-commit checks, including static analyzer
+  # For now, we only run tests on the latest supported version
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        # Create a conda environment with all of percy's dependencies. Then
+        # run pre-commit, which triggers a handful of `make` commands
         run: |
+          conda update -n base -c defaults conda
           source $CONDA/etc/profile.d/conda.sh
-          ln -s conda.recipe recipe
-          pytest --disable-pytest-warnings ./percy/examples/preinstall/test_install.py --feedstock .
+          conda init bash
+          make environment
+          conda activate percy
+      - uses: pre-commit/action@v3.0.0
