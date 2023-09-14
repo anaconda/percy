@@ -1,0 +1,24 @@
+# Runs pre-commit checks, including static analyzer.
+# For now, we only run tests on the latest supported version of Python.
+name: pre-commit checks and tests
+on: [push, pull_request]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        # Create a conda environment with all of percy's dependencies. Then
+        # run pre-commit, which triggers a handful of `make` commands
+        run: |
+          conda update -n base -c defaults conda
+          source $CONDA/etc/profile.d/conda.sh
+          conda init bash
+          make environment
+          conda activate percy
+      - uses: pre-commit/action@v3.0.0
