@@ -17,7 +17,6 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
 import ast
 import json
 import re
-from pathlib import PurePath
 from typing import Any, Final, Mapping, NamedTuple
 
 import yaml
@@ -518,11 +517,19 @@ class RecipeParser:
         """
         # TODO: validate the path starts with `/` (root)
 
-        # Use `PurePath` as a way to parse the path into component parts that
-        # are easy to recursively manipulate, in a stack. NOTE: Remember that
-        # Python's implementation of a stack is to use a list from the end of
-        # the list. In other words, the `root` is at the end of the list.
-        return path.split("/")[::-1]
+        # `PurePath` could be used here, but isn't for performance gains.
+        # TODO reduce 3n operations to n operations
+
+        # Wipe the trailing `/`, if provided. It doesn't have meaning here;
+        # only the `root` path is tracked.
+        if path[-1] == "/":
+            path = path[:-1]
+        parts = path.split("/")
+        # Replace empty strings with `/` for compatibility in other functions.
+        for i in range(0, len(parts)):
+            if parts[i] == "":
+                parts[i] = "/"
+        return parts[::-1]
 
     @staticmethod
     def _stack_path_to_str(path_stack: _StrStack | _StrStackImmutable) -> str:
@@ -733,7 +740,7 @@ class RecipeParser:
         Runs a series of checks against the original recipe file.
         """
         # TODO complete
-        raise NotImplemented
+        raise NotImplementedError
 
     @staticmethod
     def _render_tree(node: _Node, depth: int, lines: list[str]) -> None:
