@@ -522,7 +522,7 @@ class RecipeParser:
         # are easy to recursively manipulate, in a stack. NOTE: Remember that
         # Python's implementation of a stack is to use a list from the end of
         # the list. In other words, the `root` is at the end of the list.
-        return list(PurePath(path).parts)[::-1]
+        return path.split("/")[::-1]
 
     @staticmethod
     def _stack_path_to_str(path_stack: _StrStack | _StrStackImmutable) -> str:
