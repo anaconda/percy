@@ -13,6 +13,9 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
                 - https://jsonpatch.com/
                 - https://datatracker.ietf.org/doc/html/rfc6902/
 """
+# Pulled in so python versions <3.10 can use `|` in annotations
+# https://peps.python.org/pep-0604/
+from __future__ import annotations
 
 import ast
 import json

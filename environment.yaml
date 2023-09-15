@@ -4,7 +4,7 @@ dependencies:
   - black
   - isort
   - conda-forge::mypy
-  - python=3.11
+  - python>=3.8
   - pytest
   - pytest-cov
   - pylint
