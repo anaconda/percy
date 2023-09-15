@@ -635,7 +635,7 @@ class RecipeParser:
             value = line[line.find("=") + len("=") : line.find("%}")].strip()
             try:
                 self._vars_tbl[key] = ast.literal_eval(value)
-            except:
+            except Exception:  # pylint: disable=broad-exception-caught
                 self._vars_tbl[key] = value
 
         # Root of the parse tree
