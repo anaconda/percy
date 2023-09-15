@@ -13,23 +13,23 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
                 - https://jsonpatch.com/
                 - https://datatracker.ietf.org/doc/html/rfc6902/
 """
-# Pulled in so python versions <3.10 can use `|` in annotations
-# https://peps.python.org/pep-0604/
+# Allows older versions of python to use newer forms of type annotation. There
+# are major features introduced in 3.9 and 3.10.
 from __future__ import annotations
 
 import ast
 import json
 import re
-from typing import Any, Callable, Final, Mapping, NamedTuple
+from typing import Any, Callable, Final, Mapping, NamedTuple, Optional, Union
 
 import yaml
 from jsonschema import validate as schema_validate
 
 # Base types that can store value
-Primitives = str | int | float | bool | None
+Primitives = Union[str, int, float, bool, None]
 
 # Type that represents a JSON-like type
-JsonType = dict[str, "JsonType"] | list["JsonType"] | Primitives
+JsonType = Union[dict[str, "JsonType"], list["JsonType"], Primitives]
 
 # Type that represents a JSON patch payload
 JsonPatchType = dict[str, JsonType]
@@ -181,7 +181,7 @@ class _Node:
         self,
         value: Primitives = None,
         comment: str = "",
-        children: list["_Node"] | None = None,
+        children: Optional[list["_Node"]] = None,
         list_member_flag: bool = False,
         multiline_flag: bool = False,
     ):
@@ -252,7 +252,7 @@ class _Traverse:
     """
 
     @staticmethod
-    def _traverse_recurse(node: _Node, path: _StrStack) -> _Node | None:
+    def _traverse_recurse(node: _Node, path: _StrStack) -> Optional[_Node]:
         """
         Recursive helper function for traversing a tree.
         :param node:    Current node on the tree.
@@ -284,7 +284,7 @@ class _Traverse:
         return None
 
     @staticmethod
-    def traverse(node: _Node | None, path: _StrStack) -> _Node | None:
+    def traverse(node: Optional[_Node], path: _StrStack) -> Optional[_Node]:
         """
         Given a path in the recipe tree, traverse the tree and return the node
         at that path.
@@ -310,9 +310,9 @@ class _Traverse:
 
     @staticmethod
     def traverse_all(
-        node: _Node | None,
+        node: Optional[_Node],
         func: Callable[[_Node, list[str]], None],
-        path: _StrStackImmutable | None = None,
+        path: Optional[_StrStackImmutable] = None,
         idx_num: int = 0,
     ) -> None:
         """

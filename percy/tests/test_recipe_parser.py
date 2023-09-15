@@ -2,6 +2,10 @@
 File:           test_recipe_parser.py
 Description:    Unit tests for the recipe parser class and tools
 """
+# Allows older versions of python to use newer forms of type annotation. There
+# are major features introduced in 3.9 and 3.10.
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Final
 
