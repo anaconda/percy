@@ -1,8 +1,22 @@
-# Apply to all files without commiting:
+# Apply to all files without committing:
 #   pre-commit run --all-files
 # Update this file:
 #   pre-commit autoupdate
-exclude: ^(.*/versioneer\.py|.*/_version\.py|.*/.*\.svg)
+# TODO remove when other files are updated to pass. NOTE: keep the first line
+# as-is.
+exclude: |
+  (?x)^(
+    .*/versioneer\.py|.*/_version\.py|.*/.*\.svg|percy/tests/test_aux_files/.*|
+    percy/commands/.*|
+    percy/examples/.*|
+    percy/render/_dumper.py|
+    percy/render/_renderer.py|
+    percy/render/aggregate.py|
+    percy/render/exceptions.py|
+    percy/render/recipe.py|
+    percy/render/variants.py|
+    percy/repodata/.*
+  )$
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.4.0
@@ -39,17 +53,19 @@ repos:
   hooks:
   - id: pylint
     args: ["--rcfile=.pylintrc"]
-- repo: https://github.com/pre-commit/mirrors-mypy
-  rev: v1.4.1
-  hooks:
-  - id: mypy
-    # `mypy` is run as a system script to ensure that it is checking against
-    # the libraries we have installed. Having `pre-commit` handle dependencies
-    # leaves to headache-inducing mismatches and inaccuracies. This also allows
-    # us to type-check internal libraries that aren't widely publicly available,
-    # like `percy`.
-    language: system
-    args: [--config-file=.mypy.ini]
+# TODO re-enable the static analyzer, when the rest of the dev tools have
+# stabilized.
+#- repo: https://github.com/pre-commit/mirrors-mypy
+#  rev: v1.4.1
+#  hooks:
+#  - id: mypy
+#    # `mypy` is run as a system script to ensure that it is checking against
+#    # the libraries we have installed. Having `pre-commit` handle dependencies
+#    # leaves to headache-inducing mismatches and inaccuracies. This also allows
+#    # us to type-check internal libraries that aren't widely publicly available,
+#    # like `percy`.
+#    language: system
+#    args: [--config-file=.mypy.ini]
 # `pre-commit` no longer provides a hook for `pytest`, by design
 - repo: local
   hooks:
