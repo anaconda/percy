@@ -428,7 +428,7 @@ class RecipeParser:
         output: JsonType = None
         try:
             output = yaml.load(s, yaml.SafeLoader)
-        except Exception:  # pylint: disable=W0718
+        except Exception:  # pylint: disable=broad-exception-caught
             # TODO this is a bit hacky and an area for improvement
             # If a construction exception is thrown, attempt to re-parse by
             # replacing Jinja macros (substrings in `{{}}`) with friendly string
@@ -581,12 +581,12 @@ class RecipeParser:
         # For complex types, generate the YAML equivalent and build
         # a new tree.
         if isinstance(value, (dict, list)):
-            return RecipeParser(  # pylint: disable=W0212
+            return RecipeParser(  # pylint: disable=protected-access
                 yaml.dump(value)
             )._root.children
 
         # Primitives can be safely stringified to generate a parse tree.
-        return RecipeParser(  # pylint: disable=W0212
+        return RecipeParser(  # pylint: disable=protected-access
             str(RecipeParser._stringify_yaml(value))
         )._root.children
 

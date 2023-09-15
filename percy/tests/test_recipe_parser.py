@@ -19,7 +19,7 @@ TEST_FILES_PATH = "percy/tests/test_aux_files"
 # Long multi-line description string found in the `simple-recipe.yaml` test file
 SIMPLE_DESCRIPTION: Final[
     str
-] = "This is a PEP 561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."  # pylint: disable=C0301
+] = "This is a PEP 561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."  # pylint: disable=line-too-long
 
 
 def load_file(file: Path | str) -> str:
@@ -52,12 +52,14 @@ def test_construction() -> None:
     """
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
     parser = recipe_parser.RecipeParser(types_toml)
-    assert parser._init_content == types_toml  # pylint: disable=W0212
-    assert parser._vars_tbl == {  # pylint: disable=W0212
+    assert (
+        parser._init_content == types_toml  # pylint: disable=protected-access
+    )
+    assert parser._vars_tbl == {  # pylint: disable=protected-access
         "name": "types-toml",
         "version": "0.10.8.6",
     }
-    assert not parser._is_modified  # pylint: disable=W0212
+    assert not parser._is_modified  # pylint: disable=protected-access
     # TODO assert on tree structure
     # TODO assert on selectors table
     # assert parser._root == TODO
