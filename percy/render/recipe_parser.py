@@ -906,7 +906,7 @@ class RecipeParser:
 
     ## Jinja Variable Functions ##
 
-    def list_vars(self) -> list[str]:
+    def list_variables(self) -> list[str]:
         """
         Returns variables found in the recipe, sorted by first appearance.
         :return: List of variables found in the recipe.

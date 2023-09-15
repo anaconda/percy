@@ -147,7 +147,7 @@ def test_list_variable() -> None:
     Validates the list of variables found
     """
     parser = load_recipe("simple-recipe.yaml")
-    assert parser.list_vars() == ["zz_non_alpha_first", "name", "version"]
+    assert parser.list_variables() == ["zz_non_alpha_first", "name", "version"]
     assert not parser.is_modified()
 
 
@@ -188,7 +188,7 @@ def test_set_variable() -> None:
     parser.set_variable("DNE", "The limit doesn't exist")
     # Validate
     assert parser.is_modified()
-    assert parser.list_vars() == [
+    assert parser.list_variables() == [
         "zz_non_alpha_first",
         "name",
         "version",
@@ -209,7 +209,7 @@ def test_del_variable() -> None:
     parser.del_variable("DNE")
     # Validate
     assert parser.is_modified()
-    assert parser.list_vars() == ["zz_non_alpha_first", "version"]
+    assert parser.list_variables() == ["zz_non_alpha_first", "version"]
     with pytest.raises(KeyError):
         parser.get_variable("name")
 
