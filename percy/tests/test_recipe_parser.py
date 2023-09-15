@@ -140,6 +140,8 @@ def test_get_value() -> None:
     with pytest.raises(KeyError):
         parser.get_value("/invalid/fake/path")
     assert parser.get_value("/invalid/fake/path", 42) == 42
+    # Tests that a user can pass `None` without throwing
+    assert parser.get_value("/invalid/fake/path", None) is None
     assert not parser.is_modified()
 
 
@@ -178,6 +180,8 @@ def test_get_variable() -> None:
     with pytest.raises(KeyError):
         parser.get_variable("fake_var")
     assert parser.get_variable("fake_var", 43) == 43
+    # Tests that a user can pass `None` without throwing
+    assert parser.get_variable("fake_var", None) is None
     assert not parser.is_modified()
 
 

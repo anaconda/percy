@@ -366,6 +366,9 @@ class RecipeParser:
     # Static set of patch operations that require `value`. The others require
     # `from`.
     _patch_ops_requiring_value = set(["add", "remove", "replace", "test"])
+    # Sentinel object used for detecting defaulting behavior.
+    # See here for a good explanation: https://peps.python.org/pep-0661/
+    _sentinel = object()
 
     @staticmethod
     def _num_tab_spaces(s: str) -> int:
@@ -857,7 +860,7 @@ class RecipeParser:
         path_stack = RecipeParser._str_to_stack_path(path)
         return _Traverse.traverse(self._root, path_stack) is not None
 
-    def get_value(self, path: str, default: JsonType = None) -> JsonType:
+    def get_value(self, path: str, default: JsonType = _sentinel) -> JsonType:
         """
         Retrieves a value at a given path. If the value is not found, return a
         specified default value or throw.
@@ -883,7 +886,7 @@ class RecipeParser:
 
         # Handle if the path was not found
         if node is None:
-            if default is None:
+            if default == RecipeParser._sentinel:
                 raise KeyError(f"No value/key found at path {path!r}")
             return default
 
@@ -926,7 +929,9 @@ class RecipeParser:
         """
         return var in self._vars_tbl
 
-    def get_variable(self, var: str, default: Primitives = None) -> Primitives:
+    def get_variable(
+        self, var: str, default: Primitives = _sentinel
+    ) -> Primitives:
         """
         Returns the value of a variable set in the recipe. If specified, a
         default value will be returned if the variable name is not found.
@@ -938,7 +943,7 @@ class RecipeParser:
                  variable name provided.
         """
         if var not in self._vars_tbl:
-            if default is None:
+            if default == RecipeParser._sentinel:
                 raise KeyError
             return default
         return self._vars_tbl[var]
