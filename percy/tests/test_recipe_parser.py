@@ -142,7 +142,7 @@ def test_get_value() -> None:
 ## Variables ##
 
 
-def test_list_var() -> None:
+def test_list_variable() -> None:
     """
     Validates the list of variables found
     """
@@ -151,41 +151,41 @@ def test_list_var() -> None:
     assert not parser.is_modified()
 
 
-def test_contains_var() -> None:
+def test_contains_variable() -> None:
     """
     Validates checking if a variable exists in a recipe
     """
     parser = load_recipe("simple-recipe.yaml")
-    assert parser.contains_var("zz_non_alpha_first")
-    assert parser.contains_var("name")
-    assert parser.contains_var("version")
-    assert not parser.contains_var("fake_var")
+    assert parser.contains_variable("zz_non_alpha_first")
+    assert parser.contains_variable("name")
+    assert parser.contains_variable("version")
+    assert not parser.contains_variable("fake_var")
     assert not parser.is_modified()
 
 
-def test_get_var() -> None:
+def test_get_variable() -> None:
     """
     Tests the value returned from fetching a variable
     """
     parser = load_recipe("simple-recipe.yaml")
-    assert parser.get_var("zz_non_alpha_first") == 42
-    assert parser.get_var("name") == "types-toml"
-    assert parser.get_var("version") == "0.10.8.6"
+    assert parser.get_variable("zz_non_alpha_first") == 42
+    assert parser.get_variable("name") == "types-toml"
+    assert parser.get_variable("version") == "0.10.8.6"
     with pytest.raises(KeyError):
-        parser.get_var("fake_var")
-    assert parser.get_var("fake_var", 43) == 43
+        parser.get_variable("fake_var")
+    assert parser.get_variable("fake_var", 43) == 43
     assert not parser.is_modified()
 
 
-def test_set_var() -> None:
+def test_set_variable() -> None:
     """
     Tests setting and adding a variable
     """
     parser = load_recipe("simple-recipe.yaml")
-    parser.set_var("name", "foobar")
-    parser.set_var("zz_non_alpha_first", 24)
+    parser.set_variable("name", "foobar")
+    parser.set_variable("zz_non_alpha_first", 24)
     # Ensure a missing variable gets added
-    parser.set_var("DNE", "The limit doesn't exist")
+    parser.set_variable("DNE", "The limit doesn't exist")
     # Validate
     assert parser.is_modified()
     assert parser.list_vars() == [
@@ -194,38 +194,38 @@ def test_set_var() -> None:
         "version",
         "DNE",
     ]
-    assert parser.get_var("name") == "foobar"
-    assert parser.get_var("zz_non_alpha_first") == 24
-    assert parser.get_var("DNE") == "The limit doesn't exist"
+    assert parser.get_variable("name") == "foobar"
+    assert parser.get_variable("zz_non_alpha_first") == 24
+    assert parser.get_variable("DNE") == "The limit doesn't exist"
 
 
-def test_del_var() -> None:
+def test_del_variable() -> None:
     """
     Tests deleting a variable
     """
     parser = load_recipe("simple-recipe.yaml")
-    parser.del_var("name")
+    parser.del_variable("name")
     # Ensure a missing var doesn't crash a delete
-    parser.del_var("DNE")
+    parser.del_variable("DNE")
     # Validate
     assert parser.is_modified()
     assert parser.list_vars() == ["zz_non_alpha_first", "version"]
     with pytest.raises(KeyError):
-        parser.get_var("name")
+        parser.get_variable("name")
 
 
-def test_get_var_paths() -> None:
+def test_get_variable_references() -> None:
     """
     Tests generating a list of paths that use a variable
     """
     parser = load_recipe("simple-recipe.yaml")
-    assert parser.get_var_paths("version") == [
+    assert parser.get_variable_references("version") == [
         "/test_var_usage/foo",
     ]
-    assert parser.get_var_paths("zz_non_alpha_first") == [
+    assert parser.get_variable_references("zz_non_alpha_first") == [
         "/test_var_usage/bar/1",
     ]
-    assert parser.get_var_paths("name") == [
+    assert parser.get_variable_references("name") == [
         "/package/name",
         "/test_var_usage/bar/3",
     ]

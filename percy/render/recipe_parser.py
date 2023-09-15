@@ -913,7 +913,7 @@ class RecipeParser:
         """
         return list(dict.fromkeys(self._vars_tbl))
 
-    def contains_var(self, var: str) -> bool:
+    def contains_variable(self, var: str) -> bool:
         """
         Determines if a variable is set in this recipe.
         :param var: Variable to check for.
@@ -922,7 +922,7 @@ class RecipeParser:
         """
         return var in self._vars_tbl
 
-    def get_var(self, var: str, default: Primitives = None) -> Primitives:
+    def get_variable(self, var: str, default: Primitives = None) -> Primitives:
         """
         Returns the value of a variable set in the recipe. If specified, a
         default value will be returned if the variable name is not found.
@@ -939,7 +939,7 @@ class RecipeParser:
             return default
         return self._vars_tbl[var]
 
-    def set_var(self, var: str, value: Primitives) -> None:
+    def set_variable(self, var: str, value: Primitives) -> None:
         """
         Adds or changes an existing Jinja variable.
         :param var:     Variable to modify
@@ -948,7 +948,7 @@ class RecipeParser:
         self._vars_tbl[var] = value
         self._is_modified = True
 
-    def del_var(self, var: str) -> None:
+    def del_variable(self, var: str) -> None:
         """
         Remove a variable from the project. If one is not found, no changes
         are made.
@@ -959,7 +959,7 @@ class RecipeParser:
         del self._vars_tbl[var]
         self._is_modified = True
 
-    def get_var_paths(self, var: str) -> list[str]:
+    def get_variable_references(self, var: str) -> list[str]:
         """
         Returns a list of paths that use particular variables.
         :param var: Variable of interest
@@ -974,12 +974,12 @@ class RecipeParser:
         # `{{ name | lower }}` expression, or similar piping functions.
         var_re = re.compile(r"{{.*" + var + r".*}}")
 
-        def _collect_var_usage(node: _Node, path: _StrStackImmutable):
+        def _collect_var_refs(node: _Node, path: _StrStackImmutable):
             # Variables can only be found inside string values.
             if isinstance(node.value, str) and var_re.search(node.value):
                 path_list.append(RecipeParser._stack_path_to_str(path))
 
-        _Traverse.traverse_all(self._root, _collect_var_usage)
+        _Traverse.traverse_all(self._root, _collect_var_refs)
         # The list should be de-duped and maintain order.
         return list(dict.fromkeys(path_list))
 
