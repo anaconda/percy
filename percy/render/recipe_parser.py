@@ -17,7 +17,7 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
 import ast
 import json
 import re
-from typing import Any, Final, Mapping, NamedTuple
+from typing import Any, Callable, Final, Mapping, NamedTuple
 
 import yaml
 from jsonschema import validate as schema_validate
@@ -40,7 +40,7 @@ _StrStack = list[str]
 _StrStackImmutable = tuple[str]
 
 # Type alias for a table that maps operations to functions.
-_OpsTable = dict[str, callable]
+_OpsTable = dict[str, Callable[[str, _StrStack, JsonType], bool]]
 
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
@@ -292,7 +292,7 @@ class _Traverse:
                  path. Otherwise returns `None`.
         """
         # Bootstrap recursive edge cases
-        if _Node is None:
+        if node is None:
             return None
         if len(path) == 0:
             return None
@@ -307,7 +307,7 @@ class _Traverse:
     @staticmethod
     def traverse_all(
         node: _Node | None,
-        func: callable,
+        func: Callable[[_Node, list[str]], None],
         path: _StrStackImmutable | None = None,
         idx_num: int = 0,
     ) -> None:
@@ -725,7 +725,7 @@ class RecipeParser:
                  otherwise.
         """
         if not isinstance(other, RecipeParser):
-            return NotImplemented
+            raise TypeError
         return self.render() == other.render()
 
     def is_modified(self) -> bool:
