@@ -633,7 +633,10 @@ class RecipeParser:
         for line in set_line_re.findall(self._init_content):
             key = line[line.find("set") + len("set") : line.find("=")].strip()
             value = line[line.find("=") + len("=") : line.find("%}")].strip()
-            self._vars_tbl[key] = ast.literal_eval(value)
+            try:
+                self._vars_tbl[key] = ast.literal_eval(value)
+            except:
+                self._vars_tbl[key] = value
 
         # Root of the parse tree
         self._root = _Node("")
