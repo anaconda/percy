@@ -588,7 +588,7 @@ class RecipeParser:
 
         def _collect_selectors(node: _Node, path: _StrStackImmutable):
             # Ignore empty comments
-            if node.comment is None or not node.comment:
+            if not node.comment:
                 return
             match = selector_re.search(node.comment)
             if match:
