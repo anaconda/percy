@@ -873,7 +873,7 @@ class RecipeParser:
         # Handle if the path was not found
         if node is None:
             if default is None:
-                raise KeyError
+                raise KeyError(f"No value/key found at path {path!r}")
             return default
 
         # Handle unpacking of the last key-value set of nodes, if `/` is
