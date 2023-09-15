@@ -911,7 +911,7 @@ class RecipeParser:
         Returns variables found in the recipe, sorted by first appearance.
         :return: List of variables found in the recipe.
         """
-        return list(dict.fromkeys(self._vars_tbl))
+        return list(self._vars_tbl.keys())
 
     def contains_variable(self, var: str) -> bool:
         """
@@ -990,7 +990,7 @@ class RecipeParser:
         Returns selectors found in the recipe, sorted by first appearance.
         :return: List of selectors found in the recipe.
         """
-        return list(dict.fromkeys(self._selector_tbl))
+        return list(self._selector_tbl.keys())
 
     def contains_selector(self, selector: str) -> bool:
         """
