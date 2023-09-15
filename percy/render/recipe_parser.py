@@ -179,23 +179,24 @@ class _Node:
         value: Primitives = None,
         comment: str = "",
         children: list["_Node"] | None = None,
-        is_list_member: bool = False,
-        is_multiline: bool = False,
+        list_member_flag: bool = False,
+        multiline_flag: bool = False,
     ):
         """
         Constructs a node
-        :param value:           Value of the current node
-        :param comment:         Comment on the line this node was found on
-        :param children:        List of children nodes, descendants of this node
-        :param is_list_member:  Indicates if this node is part of a list
-        :param is_multiline:    Indicates if the node represents a multiline
-                                value.
+        :param value:               Value of the current node
+        :param comment:             Comment on the line this node was found on
+        :param children:            List of children nodes, descendants of this
+                                    node
+        :param list_member_flag:    Indicates if this node is part of a list
+        :param multiline_flag:      Indicates if the node represents a multiline
+                                    value.
         """
         self.value = value
         self.comment = comment
         self.children: list[_Node] = children if children else []
-        self.is_list_member = is_list_member
-        self.is_multiline = is_multiline
+        self.list_member_flag = list_member_flag
+        self.multiline_flag = multiline_flag
 
     def __eq__(self, other: object) -> bool:
         """
@@ -209,8 +210,8 @@ class _Node:
         return (
             self.value == other.value
             and self.comment == other.comment
-            and self.is_list_member == other.is_list_member
-            and self.is_multiline == other.is_multiline
+            and self.list_member_flag == other.list_member_flag
+            and self.multiline_flag == other.multiline_flag
             # Save recursive (most expensive) check for last
             and self.children == other.children
         )
@@ -329,7 +330,7 @@ class _Traverse:
         # Initialize, if on the root node. Otherwise build-up the path
         if path is None:
             path = ("/",)
-        elif node.is_list_member:
+        elif node.list_member_flag:
             path = (str(idx_num),) + path
         elif not node.is_leaf():
             path = (node.value,) + path
@@ -496,7 +497,7 @@ class RecipeParser:
         # If a list is returned, then this line is a listed member of the parent
         # Node
         if isinstance(output, list):
-            return _Node(output[0], comment, is_list_member=True)
+            return _Node(output[0], comment, list_member_flag=True)
         # Other types are just leaf nodes. This is scenario should likely not
         # be triggered given our recipe files don't have single valid lines of
         # YAML, but we cover this case for the sake of correctness.
@@ -567,7 +568,7 @@ class RecipeParser:
             return [
                 _Node(
                     value=value.splitlines(),
-                    is_multiline=True,
+                    multiline_flag=True,
                 )
             ]
 
@@ -666,7 +667,7 @@ class RecipeParser:
                 # Per YAML spec, multiline statements can't be commented. In
                 # other words, the `#` symbol is seen as a string character in
                 # multiline values.
-                multiline_node = _Node([], is_multiline=True)
+                multiline_node = _Node([], multiline_flag=True)
                 multiline = lines[line_idx]
                 multiline_indent = RecipeParser._num_tab_spaces(multiline)
                 # Add the line to the list once it is verified to be the next
@@ -761,7 +762,7 @@ class RecipeParser:
         # Handle same-line printing
         if len(node.children) == 1 and len(node.children[0].children) == 0:
             # Handle the edge case of a list containing 1 member
-            if node.children[0].is_list_member:
+            if node.children[0].list_member_flag:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
                 lines.append(
                     f"{spaces}{TAB_AS_SPACES}- "
@@ -774,7 +775,7 @@ class RecipeParser:
             #
             # By the language spec, # symbols do not indicate comments on
             # multiline strings.
-            if node.children[0].is_multiline:
+            if node.children[0].multiline_flag:
                 lines.append(
                     f"{spaces}{node.value}: |  {node.comment}".rstrip()
                 )
@@ -796,7 +797,7 @@ class RecipeParser:
         if depth > -1:
             list_prefix = ""
             # Being in a list changes how the depth is rendered
-            if node.is_list_member:
+            if node.list_member_flag:
                 depth_delta += 1
                 list_prefix = "- "
             lines.append(
@@ -889,7 +890,7 @@ class RecipeParser:
         # for this rule for multiline strings, which need to be re-combined.
         if path_ends_in_slash:
             if len(node.children) == 1:
-                if node.children[0].is_multiline:
+                if node.children[0].multiline_flag:
                     return "\n".join(node.children[0].value)
                 return node.children[0].value
 
@@ -1059,7 +1060,7 @@ class RecipeParser:
         # Leaf nodes contain values and not path information. Paths should
         # not be made that access leaf nodes, with the exception of members
         # of a list. Making such a path violates the RFC.
-        if not node.is_list_member and node.is_leaf():
+        if not node.list_member_flag and node.is_leaf():
             return False
 
         new_children: Final[list[_Node]] = RecipeParser._generate_subtree(value)
@@ -1067,7 +1068,7 @@ class RecipeParser:
         if node_idx >= 0:
             # Ensure all children are marked as list members
             for child in new_children:
-                child.is_list_member = True
+                child.list_member_flag = True
             node.children[node_idx:node_idx] = new_children
             # Evict the old child, which is now behind the new children
             node.children.pop(node_idx + len(new_children))
