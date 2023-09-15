@@ -53,7 +53,7 @@ JSON_PATCH_SCHEMA: Final[SchemaType] = {
     "type": "object",
     "properties": {
         "op": {"enum": ["add", "remove", "replace", "move", "copy", "test"]},
-        "path": {"type": "string"},
+        "path": {"type": "string", "minLength": 1},
         "from": {"type": "string"},
         "value": {
             "type": [
@@ -1142,9 +1142,6 @@ class RecipeParser:
             raise JsonPatchValidationException(patch) from e
 
         path: Final[str] = patch["path"]
-        # Path must have length
-        if not path:
-            raise JsonPatchValidationException(patch)
         path_stack: Final[_StrStack] = RecipeParser._str_to_stack_path(path)
 
         # Check if the operation is currently supported (support for all ops
