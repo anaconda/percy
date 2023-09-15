@@ -733,7 +733,7 @@ class RecipeParser:
         Runs a series of checks against the original recipe file.
         """
         # TODO complete
-        return False
+        raise NotImplemented
 
     @staticmethod
     def _render_tree(node: _Node, depth: int, lines: list[str]) -> None:
