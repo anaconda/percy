@@ -91,6 +91,38 @@ def test_dog_food_medium() -> None:
     assert parser.render() == simple
 
 
+def test_render_to_object() -> None:
+    """
+    Tests rendering a recipe to an object format.
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    assert parser.render_to_object() == {
+        "about": {
+            "description": SIMPLE_DESCRIPTION,
+            "license": "Apache-2.0 AND MIT",
+            "summary": "This is a small recipe for testing",
+        },
+        "test_var_usage": {
+            "foo": "{{ version }}",
+            "bar": [
+                "baz",
+                "{{ zz_non_alpha_first }}",
+                "blah",
+                "This {{ name }} is silly",
+                "last",
+            ],
+        },
+        "build": {"is_true": True, "skip": True, "number": 0},
+        "package": {"name": "{{ name|lower }}"},
+        "requirements": {"host": ["setuptools", "fakereq"], "run": ["python"]},
+        "multi_level": {
+            "list_3": ["ls", "sl", "cowsay"],
+            "list_2": ["cat", "bat", "mat"],
+            "list_1": ["foo", "bar"],
+        },
+    }
+
+
 ## Values ##
 
 

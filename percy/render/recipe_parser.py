@@ -48,6 +48,8 @@ _OpsTable = dict[str, Callable[[str, _StrStack, JsonType], bool]]
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
 TAB_AS_SPACES: Final[str] = " " * TAB_SPACE_COUNT
+# String that represents a root node in our path.
+_ROOT_NODE_VALUE: Final[str] = "/"
 # Marker used to temporarily work around some Jinja-template parsing issues
 _PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
 
@@ -229,9 +231,16 @@ class _Node:
     def is_leaf(self) -> bool:
         """
         Indicates if a node is a leaf node
-        :return: True if the node is a leaf
+        :return: True if the node is a leaf. False otherwise.
         """
         return len(self.children) == 0
+
+    def is_root(self) -> bool:
+        """
+        Indicates if a node is a root node
+        :return: True if the node is a root node. False otherwise.
+        """
+        return self.value == _ROOT_NODE_VALUE
 
 
 class SelectorInfo(NamedTuple):
@@ -301,7 +310,7 @@ class _Traverse:
         if len(path) == 0:
             return None
         if len(path) == 1:
-            if path[0] == "/":
+            if path[0] == _ROOT_NODE_VALUE:
                 return node
             return None
         # Purge `root` from the path
@@ -332,7 +341,7 @@ class _Traverse:
             return
         # Initialize, if on the root node. Otherwise build-up the path
         if path is None:
-            path = ("/",)
+            path = (_ROOT_NODE_VALUE,)
         elif node.list_member_flag:
             path = (str(idx_num),) + path
         elif not node.is_leaf():
@@ -525,11 +534,11 @@ class RecipeParser:
         # TODO: validate the path starts with `/` (root)
 
         # `PurePath` could be used here, but isn't for performance gains.
-        # TODO reduce 3n operations to n operations
+        # TODO reduce 3 (O)n operations to 1 O(n) operation
 
         # Wipe the trailing `/`, if provided. It doesn't have meaning here;
         # only the `root` path is tracked.
-        if path[-1] == "/":
+        if path[-1] == _ROOT_NODE_VALUE:
             path = path[:-1]
         parts = path.split("/")
         # Replace empty strings with `/` for compatibility in other functions.
@@ -556,7 +565,7 @@ class RecipeParser:
             value = path_stack.pop()
             # Special case to bootstrap root; the first element will
             # automatically add the first slash.
-            if value == "/":
+            if value == _ROOT_NODE_VALUE:
                 continue
             path += f"/{value}"
         return path
@@ -639,7 +648,7 @@ class RecipeParser:
                 self._vars_tbl[key] = value
 
         # Root of the parse tree
-        self._root = _Node("")
+        self._root = _Node(_ROOT_NODE_VALUE)
         # Start by removing all Jinja lines. Then traverse line-by-line
         jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
         sanitized_yaml = jinja_line_re.sub("", self._init_content)
@@ -852,6 +861,61 @@ class RecipeParser:
 
         return "\n".join(lines)
 
+    @staticmethod
+    def _render_object_tree(
+        node: _Node, enable_variables: bool, data: JsonType
+    ) -> None:
+        """
+        Recursive helper function that traverses the parse tree to generate
+        a Pythonic data object.
+        :param node:                Current node in the tree
+        :param enable_variables:    If set to True, this replaces all variables
+                                    substitutions with their set values.
+        :param data:                Accumulated data structure
+        """
+        # Bootstrap/flatten the root-level
+        if node.is_root():
+            for child in node.children:
+                data.setdefault(child.value, {})
+                RecipeParser._render_object_tree(child, enable_variables, data)
+            return
+
+        key = node.value
+        for child in node.children:
+            # Handle multiline strings
+            value = (
+                child.value
+                if not child.multiline_flag
+                else "\n".join(child.value)
+            )
+
+            if child.list_member_flag:
+                if key not in data:
+                    data[key] = []
+                data[key].append(value)
+            elif child.is_leaf():
+                data[key] = value
+            else:
+                data.setdefault(key, {})
+                RecipeParser._render_object_tree(
+                    child, enable_variables, data[key]
+                )
+
+    def render_to_object(self, enable_variables: bool = False) -> JsonType:
+        """
+        Takes the underlying state of the parse tree and produces a Pythonic
+        object/dictionary representation. Analogous to `json.load()`.
+        :param enable_variables:    (Optional) If set to True, this replaces
+                                    all variable substitutions with their set
+                                    values.
+        :return: Pythonic data object representation of the recipe.
+        """
+        data: JsonType = {}
+
+        RecipeParser._render_object_tree(self._root, enable_variables, data)
+
+        return data
+
     ## YAML Access Functions ##
 
     def contains_value(self, path: str) -> bool:
@@ -883,7 +947,7 @@ class RecipeParser:
                  caller-specified default value.
         """
         # Ignore the root case
-        path_ends_in_slash = len(path) > 1 and path[-1] == "/"
+        path_ends_in_slash = len(path) > 1 and path[-1] == _ROOT_NODE_VALUE
         path_stack = RecipeParser._str_to_stack_path(path)
         node = _Traverse.traverse(self._root, path_stack)
 
