@@ -76,9 +76,9 @@ class Recipe:
     def __init__(
         self,
         recipe_file: Path,
-        variant_id: Optional(str) = None,
-        variant: Optional(Variant) = None,
-        renderer: Optional(RendererType) = None,
+        variant_id: Optional[str] = None,
+        variant: Optional[Variant] = None,
+        renderer: Optional[RendererType] = None,
     ):
         """Constructor
 

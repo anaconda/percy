@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, List, Optional
 from enum import Enum
 
-from percy.percy.render.recipe_parser import RecipeParser
+from percy.render.recipe_parser import RecipeParser
 
 try:
     from ruamel.yaml import YAML
@@ -165,7 +165,7 @@ def render(
     recipe_dir: Path | str,
     meta_yaml: str,
     selector_dict: dict[str, Any],
-    renderer_type: Optional(RendererType) = None,
+    renderer_type: Optional[RendererType] = None,
 ) -> dict[str, Any]:
     """
     Convert recipe text into data structure
@@ -262,7 +262,6 @@ def render(
             )
             return rendered[0][0].meta
         elif renderer_type == RendererType.PARSE_TREE:
-            # TODO complete
             parser = RecipeParser(meta_yaml)
             return parser.render_to_object()
         else:

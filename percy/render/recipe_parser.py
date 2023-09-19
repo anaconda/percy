@@ -888,6 +888,11 @@ class RecipeParser:
                 if not child.multiline_flag
                 else "\n".join(child.value)
             )
+            # TODO if enabled, string replace `{{}}` in `value`
+            # TODO handle `| lower` and similar
+            # TODO create new function for handling grammar
+            if enable_variables:
+                pass
 
             if child.list_member_flag:
                 if key not in data:
