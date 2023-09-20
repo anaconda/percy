@@ -261,7 +261,7 @@ def render(
                 variants=selector_dict,
             )
             return rendered[0][0].meta
-        elif renderer_type == RendererType.PARSE_TREE:
+        elif renderer_type == RendererType.PERCY:
             parser = RecipeParser(meta_yaml)
             return parser.render_to_object()
         else:

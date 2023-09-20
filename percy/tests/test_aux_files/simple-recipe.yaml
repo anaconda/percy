@@ -28,6 +28,7 @@ about:
 multi_level:
   list_1:
     - foo
+    # Ensure a comment in a list is supported
     - bar
   list_2:
     - cat

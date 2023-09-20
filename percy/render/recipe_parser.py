@@ -179,9 +179,14 @@ class _Node:
     the file are stored as text.
     """
 
+    # Sentinel used to discern a `null` in the YAML file and a defaulted, unset
+    # value. For example, comment-only lines should always be set to the
+    # `_sentinel` object.
+    _sentinel = object()
+
     def __init__(
         self,
-        value: Primitives = None,
+        value: Primitives = _sentinel,
         comment: str = "",
         children: Optional[list["_Node"]] = None,
         list_member_flag: bool = False,
@@ -241,6 +246,14 @@ class _Node:
         :return: True if the node is a root node. False otherwise.
         """
         return self.value == _ROOT_NODE_VALUE
+
+    def is_comment(self) -> bool:
+        """
+        Indicates if a line contains only a comment. When rendered, this will
+        be a comment only-line.
+        :return: True if the node represents only a comment. False otherwise.
+        """
+        return self.value == _Node._sentinel and self.comment
 
 
 class SelectorInfo(NamedTuple):
@@ -512,6 +525,10 @@ class RecipeParser:
         # If a list is returned, then this line is a listed member of the parent
         # Node
         if isinstance(output, list):
+            # The full line is a comment
+            if s.startswith("#"):
+                # Comments are list members to ensure indentation
+                return _Node(comment=comment, list_member_flag=True)
             return _Node(output[0], comment, list_member_flag=True)
         # Other types are just leaf nodes. This is scenario should likely not
         # be triggered given our recipe files don't have single valid lines of
@@ -773,7 +790,7 @@ class RecipeParser:
         spaces = TAB_AS_SPACES * depth
 
         # Handle lines that are just comments
-        if node.value is None and node.comment:
+        if node.is_comment():
             lines.append(node.comment)
             return
 
@@ -822,8 +839,12 @@ class RecipeParser:
                 f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip()
             )
         for child in node.children:
+            # Comments in a list are indented to list-level, but do not include
+            # a list `-` mark
+            if child.is_comment():
+                lines.append(f"{spaces}  " f"{child.comment}".rstrip())
             # Leaf nodes are rendered as members in a list
-            if child.is_leaf():
+            elif child.is_leaf():
                 lines.append(
                     f"{spaces}  - "
                     f"{RecipeParser._stringify_yaml(child.value)}  "
@@ -873,6 +894,10 @@ class RecipeParser:
                                     substitutions with their set values.
         :param data:                Accumulated data structure
         """
+        # Ignore comment-only lines
+        if node.is_comment():
+            return
+
         # Bootstrap/flatten the root-level
         if node.is_root():
             for child in node.children:
@@ -882,6 +907,10 @@ class RecipeParser:
 
         key = node.value
         for child in node.children:
+            # Ignore comment-only lines
+            if child.is_comment():
+                continue
+
             # Handle multiline strings
             value = (
                 child.value
