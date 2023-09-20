@@ -15,7 +15,7 @@ import configparser
 from typing import Any
 from multiprocessing import Pool
 
-from percy.render.recipe import render, Package
+from percy.render.recipe import render, Package, RendererType
 
 
 class PackageNode:
