@@ -3,12 +3,13 @@
 """
 
 import argparse
-from pathlib import Path
-import logging
-import re
 import copy
 import json
+import logging
+import re
+from pathlib import Path
 from typing import Any
+
 from ruamel.yaml import YAML
 
 yaml = YAML(typ="jinja2")
@@ -38,7 +39,9 @@ class Recipe:
             self.meta = yaml.load(fp)
             self.packages = {}
             if not self.meta.get("outputs", []):
-                name = self.meta.get("package", {}).get("name", "unknown").strip()
+                name = (
+                    self.meta.get("package", {}).get("name", "unknown").strip()
+                )
                 self.packages[name] = ""
             else:
                 outputs = self.meta.get("outputs", [])
@@ -185,7 +188,9 @@ class Recipe:
                 # apply package specific operation for all packages
                 for package_path in self.packages.values():
                     opcopy = copy.deepcopy(op)
-                    opcopy["path"] = opcopy["path"].replace("@output/", package_path)
+                    opcopy["path"] = opcopy["path"].replace(
+                        "@output/", package_path
+                    )
                     self._patch(opcopy)
                     self.save()
                     self.reload()
@@ -239,14 +244,18 @@ class Recipe:
                 # finding range of direct parent
                 # (not doing the leg work of going up the tree if parent is not found)
                 try:
-                    (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
+                    (start_row, start_col, end_row, _) = self.get_raw_range(
+                        parent_path
+                    )
                 except KeyError:
                     logging.warning(f"Path not found while applying op:{opop}")
                 else:
                     # adding value to end of parent
                     # if value is a list, adding as a list to parent
                     # if value is a string, adding as parent: value
-                    parent_range = copy.deepcopy(self.meta_yaml[start_row:end_row])
+                    parent_range = copy.deepcopy(
+                        self.meta_yaml[start_row:end_row]
+                    )
                     parent_insert_index = 0
                     for i, e in reversed(list(enumerate(parent_range))):
                         if e.strip():
@@ -254,11 +263,13 @@ class Recipe:
                             break
                     if isinstance(value, list):
                         parent_range.insert(
-                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}:",
                         )
                         for val in value:
                             parent_range.insert(
-                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                                parent_insert_index + 1,
+                                " " * start_col + f"  - {val}",
                             )
                     else:
                         parent_range.insert(
@@ -318,19 +329,22 @@ class Recipe:
             for new_val in value:
                 for i, m in match_lines.items():
                     to_insert.add(
-                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
-                            "#", "  #", 1
-                        )
+                        m.string.replace(
+                            m.groupdict()["pattern"], new_val
+                        ).replace("#", "  #", 1)
                     )
             if not to_insert:
                 to_insert = set(value)
             for new_val in to_insert:
                 if in_list:
                     range.insert(
-                        insert_index, " " * start_col + f"- {new_val.strip(' -')}"
+                        insert_index,
+                        " " * start_col + f"- {new_val.strip(' -')}",
                     )
                 else:
-                    range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
+                    range.insert(
+                        insert_index, " " * start_col + f"{new_val.strip()}"
+                    )
 
         # apply change
         self.meta_yaml[start_row:end_row] = range

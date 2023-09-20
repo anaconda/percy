@@ -1,8 +1,9 @@
+import argparse
+import json
 import os
 import subprocess
 import sys
-import json
-import argparse
+
 
 def dry_run(
     subdir="linux-64",
@@ -12,8 +13,7 @@ def dry_run(
     override_channels=False,
     packages=[],
 ):
-    """ Dry-run an environment and return it's json result.
-    """
+    """Dry-run an environment and return it's json result."""
     cmd = f"conda create -n test_env --dry-run --json --experimental-solver={solver}"
     for channel in channels:
         cmd += f" -c {channel}"
@@ -38,9 +38,9 @@ def dry_run(
     json_result["__command__"] = {"cmd": " ".join(cmd), "env": conda_env}
     return json_result
 
+
 def dry_run_assert(subdir, packages):
-    """ Dry-run an environment and assert that it succeeds.
-    """
+    """Dry-run an environment and assert that it succeeds."""
     json_result = dry_run(
         subdir=subdir,
         channels=["defaults"],
@@ -57,17 +57,23 @@ def dry_run_assert(subdir, packages):
         message += f"\n\n{json.dumps(json_result, indent=4)}"
     assert json_result.get("success", False), message
 
+
 def create_parser() -> argparse.ArgumentParser:
-    """ Create command line parser.
-    """
+    """Create command line parser."""
     parser = argparse.ArgumentParser(
         prog="test_env",
         description="Dry-run an environment.",
     )
     parser.add_argument(
-        "-a", "--subdir", type=str, help="Subdir: e.g. linux-64", default="linux-64"
+        "-a",
+        "--subdir",
+        type=str,
+        help="Subdir: e.g. linux-64",
+        default="linux-64",
     )
-    parser.add_argument("-g", "--glibc", type=str, help="glibc version", default=None)
+    parser.add_argument(
+        "-g", "--glibc", type=str, help="glibc version", default=None
+    )
     parser.add_argument(
         "-s",
         "--solver",

@@ -2,16 +2,18 @@
     Create corresponding tickets in Jira.
 """
 
-import percy.render.aggregate as aggregate
 import argparse
-from pathlib import Path
-import requests
-import json
 import itertools
+import json
 import logging
 import os
+from pathlib import Path
+
+import requests
 from jira.client import JIRA
 from jira.exceptions import JIRAError
+
+import percy.render.aggregate as aggregate
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -35,7 +37,9 @@ def add_issue(login, token, dry_run, current_epic_key, target_pkg, pkg):
             "https://anaconda.atlassian.net/", basic_auth=(login, token)
         )
         allfields = perseverance_jira.fields()
-        perseverance_fields_map = {field["name"]: field["id"] for field in allfields}
+        perseverance_fields_map = {
+            field["name"]: field["id"] for field in allfields
+        }
 
     logging.info(f"NEW {pkg}")
 
@@ -169,7 +173,9 @@ class JiraSync:
             epic_tasks.extend(
                 [
                     getattr(
-                        issue.fields, self.perseverance_fields_map["Package Name"], ""
+                        issue.fields,
+                        self.perseverance_fields_map["Package Name"],
+                        "",
                     ).lower()
                     for issue in issues
                 ]
@@ -191,9 +197,13 @@ class JiraSync:
                         "summary": desc,
                         "description": desc,
                         "issuetype": {"name": "Task"},
-                        self.perseverance_fields_map["Package Name"]: package_name,
+                        self.perseverance_fields_map[
+                            "Package Name"
+                        ]: package_name,
                     }
-                    issue_fields[self.perseverance_fields_map["Epic Link"]] = epic_key
+                    issue_fields[
+                        self.perseverance_fields_map["Epic Link"]
+                    ] = epic_key
                     try:
                         # create issue
                         if not self.dry_run:
@@ -218,7 +228,9 @@ def print_build_order(buildout):
     ]
     for i, stage in enumerate(stages):
         for feedstock in stage:
-            print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
+            print(
+                f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}"
+            )
 
 
 if __name__ == "__main__":
@@ -274,7 +286,9 @@ if __name__ == "__main__":
     for i, stage in enumerate(stages):
         for feedstock in stage:
             all_packages.update(set(feedstock.packages.keys()))
-            print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
+            print(
+                f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}"
+            )
     for pkg in main_pkgs.difference(all_packages):
         print(f"Missing from build order: {pkg}")
 

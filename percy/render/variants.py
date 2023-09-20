@@ -6,13 +6,14 @@ Largely inspired from conda build.
 # TODO: refactor long lines and remove the following linter mute
 # ruff: noqa: E501
 
+import copy
+import itertools
 import logging
 import os
 import re
-from typing import List, Sequence, Dict, Tuple
 from pathlib import Path
-import itertools
-import copy
+from typing import Dict, List, Sequence, Tuple
+
 import yaml
 
 try:
@@ -37,7 +38,9 @@ def _ensure_list(obj):
 
 
 # copied and adapted from conda-build
-def _find_config_files(metadata_or_path, variant_config_files, exclusive_config_files):
+def _find_config_files(
+    metadata_or_path, variant_config_files, exclusive_config_files
+):
     """
     Find config files to load. Config files are stacked in the following order:
         1. exclusive config files (see config.exclusive_config_files)
@@ -80,11 +83,15 @@ def _find_config_files(metadata_or_path, variant_config_files, exclusive_config_
             files.append(cfg)
         else:
             path = getattr(metadata_or_path, "path", metadata_or_path)
-            cfg = resolve(os.path.join(path, "..", "..", "conda_build_config.yaml"))
+            cfg = resolve(
+                os.path.join(path, "..", "..", "conda_build_config.yaml")
+            )
             if os.path.isfile(cfg):
                 files.append(cfg)
             else:
-                cfg = resolve(os.path.join(path, "..", "conda_build_config.yaml"))
+                cfg = resolve(
+                    os.path.join(path, "..", "conda_build_config.yaml")
+                )
                 if os.path.isfile(cfg):
                     files.append(cfg)
 
@@ -119,7 +126,9 @@ def _apply_selector(data, selector_dict):
     for line in data.splitlines():
         if (match := re.search(r"^(\s*)#.*$", line)) is not None:
             line = f"{match.group(1)}# comment "  # <-- this is to ignore potential bad jinja in comments
-        elif (match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)) is not None:
+        elif (
+            match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)
+        ) is not None:
             cond_str = match.group(3)
             try:
                 if not eval(cond_str, None, selector_dict):
@@ -267,7 +276,8 @@ def read_conda_build_config(
         if groups:
             group_keys, group_values = zip(*groups.items())
             group_permutations = [
-                dict(zip(group_keys, v)) for v in itertools.product(*group_values)
+                dict(zip(group_keys, v))
+                for v in itertools.product(*group_values)
             ]
             for d in group_permutations:
                 new_d = copy.deepcopy(d)
@@ -305,7 +315,9 @@ def read_conda_build_config(
                 if isinstance(v, list):
                     variant_selector_dict[k] = v[0]
             if "python" in variant_selector_dict:
-                python_short = str(variant_selector_dict["python"]).replace(".", "")
+                python_short = str(variant_selector_dict["python"]).replace(
+                    ".", ""
+                )
                 variant_selector_dict["py"] = int(python_short)
                 variant_selector_dict[f"py{python_short}"] = True
             perm["subdir"] = arch

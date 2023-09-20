@@ -2,18 +2,18 @@
 """
 
 import argparse
-from pathlib import Path
-import requests
+import grp
 import json
 import logging
-
-import grp
 import os
 import pwd
 import shutil
 import sys
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from typing import DefaultDict, List
+
+import requests
 
 ZEUS_DEST = Path("/www/pkgs/main")
 DEFAULT_PERMISSIONS = 0o664
@@ -84,7 +84,10 @@ def filter_repodata(subdir, local_dir):
                         m["name"] == v["name"]
                         and m["version"] == v["version"]
                         and m["build_number"] == v["build_number"]
-                        and ("python >=3.11,<3.12.0a0" in m["depends"] or "py311" in p)
+                        and (
+                            "python >=3.11,<3.12.0a0" in m["depends"]
+                            or "py311" in p
+                        )
                         for p, m in repodata_subdir_defaults["packages"].items()
                     ]
                 ):
@@ -95,7 +98,9 @@ def filter_repodata(subdir, local_dir):
                         return "mkl >=2021.4.0,<2022.0a0" in package["depends"]
 
                     if subdir == "osx-64" and depends_on_mkl(v):
-                        logger.warning(f"Skipping osx-64 mkl related package { k }")
+                        logger.warning(
+                            f"Skipping osx-64 mkl related package { k }"
+                        )
                         has_warnings = True
                         results["skip"].add(k)
                     else:
@@ -137,7 +142,9 @@ def filter_repodata(subdir, local_dir):
         fpathtarbz2 = ZEUS_DEST / subdir / k
         fpathconda = ZEUS_DEST / subdir / k.replace(".tar.bz2", ".conda")
         if fpathtarbz2.is_file() or fpathconda.is_file():
-            logger.warning(f"Package in target folder! {fpathtarbz2} {fpathconda}")
+            logger.warning(
+                f"Package in target folder! {fpathtarbz2} {fpathconda}"
+            )
             has_warnings = True
             filter_copied.add(fpathtarbz2)
             filter_copied.add(fpathconda)
@@ -180,7 +187,9 @@ def copy_files(files: DefaultDict[str, List[str]], dry_run: bool = True):
     try:
         group_id = grp.getgrnam(group_name).gr_gid
     except Exception:
-        copy_failed(f"Failed to obtain id for group '{group_name}'; terminating!")
+        copy_failed(
+            f"Failed to obtain id for group '{group_name}'; terminating!"
+        )
 
     for arch, list_of_files in files.items():
         final_path = ZEUS_DEST / arch
@@ -281,7 +290,9 @@ if __name__ == "__main__":
     parser = create_parser()
     args = parser.parse_args()
 
-    results, has_errors, has_warnings = filter_repodata(args.subdir, args.local_dir)
+    results, has_errors, has_warnings = filter_repodata(
+        args.subdir, args.local_dir
+    )
     if has_errors:
         logger.error("Errors were found. Abort...")
         if input("Do you wish to continue? (y/n)").lower() != "y":

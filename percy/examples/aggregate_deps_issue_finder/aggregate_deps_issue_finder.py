@@ -1,17 +1,19 @@
 """ Script to find issues in aggregate pinned feedstocks.
 """
 
-import percy.render.aggregate as aggregate
 import argparse
-from pathlib import Path
-import yaml
-import requests
-import json
 import itertools
+import json
+from pathlib import Path
+
+import requests
+import yaml
 from conda.models.version import VersionOrder
 
-def get_repodata_package_list(subdir):
+import percy.render.aggregate as aggregate
 
+
+def get_repodata_package_list(subdir):
     session = requests.Session()
 
     pkgs = {}
@@ -26,9 +28,11 @@ def get_repodata_package_list(subdir):
     for v in repodata_subdir["packages"].values():
         if v["name"] in pkgs:
             continue
-        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
-            pkgs[v["name"]] = { "version": v["version"], "noarch": False }
-    
+        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(
+            v["version"]
+        ):
+            pkgs[v["name"]] = {"version": v["version"], "noarch": False}
+
     repodata_noarch = None
     url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
     response = session.get(url)
@@ -39,13 +43,15 @@ def get_repodata_package_list(subdir):
     for v in repodata_noarch["packages"].values():
         if v["name"] in pkgs:
             continue
-        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
-            pkgs[v["name"]] = { "version": v["version"], "noarch": True }
+        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(
+            v["version"]
+        ):
+            pkgs[v["name"]] = {"version": v["version"], "noarch": True}
 
     return pkgs
 
-def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
 
+def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
     # load defaults
     defaults_pkgs = get_repodata_package_list(subdir)
 
@@ -57,20 +63,25 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
     aggregate_repo.load_local_feedstocks(subdir, python_ref, others)
 
     for name, rendered_pkg in aggregate_repo.packages.items():
-
         git_name = rendered_pkg.git_info.name
 
         def get_issue_type(issue_type):
             return issues[issue_type].setdefault(git_name, [])
 
         def get_issue(issue_type, name, proto):
-            return issues[issue_type].setdefault(git_name, {}).setdefault(name, proto)
+            return (
+                issues[issue_type]
+                .setdefault(git_name, {})
+                .setdefault(name, proto)
+            )
 
         # find local feedstocks with cbc run dep not set in host
         run_deps = set([run_dep.pkg for run_dep in rendered_pkg.run])
         host_deps = set([host_dep.pkg for host_dep in rendered_pkg.host])
-        for pkg in set(rendered_pkg.recipe.selector_dict).intersection(run_deps):
-            #print(name, pkg, host_deps)
+        for pkg in set(rendered_pkg.recipe.selector_dict).intersection(
+            run_deps
+        ):
+            # print(name, pkg, host_deps)
             if pkg not in host_deps and pkg not in excludes:
                 rec = get_issue_type("missing_host")
                 if pkg not in rec:
@@ -93,16 +104,23 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
             }
             if rendered_pkg.version == "-1":
                 rendered_pkg.version = "0a"
-            if VersionOrder(rendered_pkg.version) < VersionOrder(default_version):
+            if VersionOrder(rendered_pkg.version) < VersionOrder(
+                default_version
+            ):
                 prototype["subdir"] = [subdir]
                 rec = get_issue("outdated_local", name, prototype)
                 if subdir not in rec["subdir"]:  # dead code?
                     rec["subdir"].append(subdir)
-                if rendered_pkg.has_dep("run", "python") and not default_is_noarch:
+                if (
+                    rendered_pkg.has_dep("run", "python")
+                    and not default_is_noarch
+                ):
                     rec = get_issue("outdated_py_local", name, prototype)
                     if subdir not in rec["subdir"]:
                         rec["subdir"].append(subdir)
-            elif VersionOrder(rendered_pkg.version) > VersionOrder(default_version):
+            elif VersionOrder(rendered_pkg.version) > VersionOrder(
+                default_version
+            ):
                 rec = get_issue("outdated_defaults", subdir, [])
                 if rendered_pkg.name not in rec:
                     prototype["name"] = rendered_pkg.name
@@ -111,7 +129,7 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
             rec = get_issue_type("not_in_defaults")
             if rendered_pkg.name not in rec:
                 rec.append(rendered_pkg.name)
-    
+
     return issues
 
 
@@ -132,10 +150,9 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-
     parser = create_parser()
     args = parser.parse_args()
-    
+
     subdirs = [
         "osx-arm64",
         "osx-64",
@@ -154,20 +171,20 @@ if __name__ == "__main__":
     ]
 
     issues = {
-        "bad_ignore_run_exports" : {},
-        "missing_host" : {},
-        "outdated_local" : {},
-        "outdated_defaults" : {},
-        "outdated_py_local" : {},
-        "not_in_defaults" : {},
+        "bad_ignore_run_exports": {},
+        "missing_host": {},
+        "outdated_local": {},
+        "outdated_defaults": {},
+        "outdated_py_local": {},
+        "not_in_defaults": {},
     }
     issues_no_numpy_python = {
-        "bad_ignore_run_exports" : {},
-        "missing_host" : {},
-        "outdated_local" : {},
-        "outdated_defaults" : {},
-        "outdated_py_local" : {},
-        "not_in_defaults" : {},
+        "bad_ignore_run_exports": {},
+        "missing_host": {},
+        "outdated_local": {},
+        "outdated_defaults": {},
+        "outdated_py_local": {},
+        "not_in_defaults": {},
     }
 
     for subdir, pyver in itertools.product(subdirs, python):
