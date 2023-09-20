@@ -235,8 +235,11 @@ class _Node:
         Renders the Node as a string. Useful for debugging purposes.
         :return: The node's value, as a string
         """
+        value = self.value
+        if self.is_comment():
+            value = "Comment node"
         return (
-            f"Node: {self.value}\n"
+            f"Node: {value}\n"
             f"  - Comment:      {self.comment}\n"
             f"  - Child count:  {len(self.children)}\n"
             f"  - List?:        {self.list_member_flag}\n"
