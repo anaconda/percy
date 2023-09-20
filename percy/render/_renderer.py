@@ -32,7 +32,7 @@ class RendererType(Enum):
     PYYAML = 1
     RUAMEL = 2
     CONDA = 3
-    PARSE_TREE = 4  # Custom renderer, found in `recipe_parser.py`
+    PERCY = 4  # Custom parse-tree-based renderer, found in `recipe_parser.py`
 
 
 if has_ruamel:

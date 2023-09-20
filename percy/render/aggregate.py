@@ -12,7 +12,7 @@ import subprocess
 from pathlib import Path
 import logging
 import configparser
-from typing import Any
+from typing import Any, Optional
 from multiprocessing import Pool
 
 from percy.render.recipe import render, Package, RendererType
@@ -172,9 +172,9 @@ class Feedstock:
     weight: int
 
 
-def _render(feedstock_repo, recipe_path, subdir, python, others):
+def _render(feedstock_repo, recipe_path, subdir, python, others, renderer):
     try:
-        rendered_recipes = render(recipe_path, subdir, python, others)
+        rendered_recipes = render(recipe_path, subdir, python, others, renderer=renderer)
     except Exception as exc:
         logging.error(f"Render issue {feedstock_repo.name} : {exc}")
         rendered_recipes = []
@@ -267,7 +267,8 @@ class Aggregate:
         self,
         subdir: str = "linux-64",
         python: str = "3.10",
-        others: dict[str, Any] = None,
+        others: Optional[dict[str, Any]] = None,
+        renderer: Optional[RendererType] = None,
     ) -> dict[str, Package]:
         """Load aggregate feedstocks.
 
@@ -330,7 +331,7 @@ class Aggregate:
                 continue
 
             # add to render list
-            to_render.append((feedstock_repo, recipe_path, subdir, python, others))
+            to_render.append((feedstock_repo, recipe_path, subdir, python, others, renderer))
 
         # render recipes
         with Pool() as pool:
