@@ -1,11 +1,15 @@
 name: percy
 
 dependencies:
-  - python
+  - black
+  - isort
+  - conda-forge::mypy
+  - python>=3.8
   - pytest
   - pytest-cov
+  - pylint
   - pip
-  - click
+  - conda-forge::click>=8.1.6
   - conda
   - jinja2
   - pyyaml
@@ -13,3 +17,4 @@ dependencies:
   - ruamel.yaml
   - conda-build
   - jsonschema
+  - pre-commit

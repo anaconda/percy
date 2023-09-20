@@ -1,7 +1,17 @@
-.PHONY: clean clean-test clean-pyc clean-build clean-other help
-.DEFAULT_GOAL := help
+# The `.ONESHELL` and setting `SHELL` allows us to run commands that require
+# `conda activate`
+.ONESHELL:
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -o errexit
+CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
+# Resolve the path to `python3` and store it in a variable. Always invoke
+# `python` using this variable. This prevents a nasty scenario where the GitHub
+# Actions container fails to find `python` or `python3`, when running `make`
+# commands.
+PYTHON3 := $(shell which python3)
 
-SHELL := /bin/bash -o pipefail -o errexit
+.PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-cov pre-commit lint format analyze
+.DEFAULT_GOAL := help
 
 CONDA_ENV_NAME ?= percy
 
@@ -27,7 +37,10 @@ export PRINT_HELP_PYSCRIPT
 
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
-clean: clean-build clean-cov clean-docs clean-pyc clean-test clean-other ## remove all build, test, coverage and Python artifacts
+# For now, most tools only run on new files, not the entire project.
+LINTER_FILES := percy/render/recipe_parser.py
+
+clean: clean-cov clean-build clean-env clean-pyc clean-test clean-other ## remove all build, test, coverage and Python artifacts
 
 clean-cov:
 	@rm -rf .coverage
@@ -42,6 +55,9 @@ clean-build: ## remove build artifacts
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
 	find . -name '*.egg' -exec rm -f {} +
+
+clean-env:					## remove conda environment
+	conda remove -y -n $(CONDA_ENV_NAME) --all
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -60,16 +76,35 @@ clean-other:
 	rm -fr profile.html profile.json
 
 help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+	$(PYTHON3) -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-pre-commit:        ## Runs pre-commit against files
-	pre-commit run --all-files
-
-tests:
-	@pytest
-
-install: clean ## install the package to the active Python's site-packages
+install: clean	## install the package to the active Python's site-packages
 	pip install .
 
-dev: clean  ## install the package's development version
-	pip install -e .
+environment:    ## handles environment creation
+	conda env create -f environment.yaml --name $(CONDA_ENV_NAME) --force
+	conda run --name $(CONDA_ENV_NAME) pip install .
+
+dev: clean		## install the package's development version to a fresh environment
+	conda env create -f environment.yaml --name $(CONDA_ENV_NAME) --force
+	conda run --name $(CONDA_ENV_NAME) pip install -e .
+	$(CONDA_ACTIVATE) percy && pre-commit install
+
+pre-commit:     ## runs pre-commit against files. NOTE: older files are disabled in the pre-commit config.
+	pre-commit run --all-files
+
+test:			## runs test cases
+	$(PYTHON3) -m pytest --capture=no percy/tests/
+
+test-cov:		## checks test coverage requirements
+	$(PYTHON3) -m pytest --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=10 --cov-report term-missing
+
+lint:			## runs the linter against the project
+	pylint --rcfile=.pylintrc $(LINTER_FILES)
+
+format:			## runs the code auto-formatter
+	isort --profile black --line-length=80 $(LINTER_FILES) percy/tests/
+	black --line-length=80 $(LINTER_FILES) percy/tests/
+
+analyze:		## runs static analyzer on the project
+	mypy --config-file=.mypy.ini $(LINTER_FILES)

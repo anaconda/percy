@@ -1,0 +1,53 @@
+{% set zz_non_alpha_first = 42 %}
+{% set name = "types-toml" %}
+{% set version = "0.10.8.6" %}
+
+package:
+  name: {{ name|lower }}  # [unix]
+
+build:
+  number: 42
+  skip: true  # [py<37]
+  is_true: false
+
+requirements:
+  host:
+    - setuptools  # [unix]
+    - fakereq  # [unix]
+  run:
+    - cpython
+
+about:
+  summary:
+    - The Trial
+    - Never Ends
+    - Picard
+  description: |
+    This is a PEP 561
+    type stub package
+    for the toml package.
+  license: MIT
+
+multi_level:
+  list_1:
+    - foo
+    - bar
+  list_2:
+    - cat
+    - build:
+        number: 42
+        skip: true
+    - mat
+  list_3:
+    - ls
+    - sl
+    - cowsay
+
+test_var_usage:
+  foo: {{ version }}
+  bar:
+    - baz
+    - {{ zz_non_alpha_first }}
+    - blah
+    - This {{ name }} is silly
+    - last
