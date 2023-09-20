@@ -11,11 +11,14 @@ build:
   is_true: true
 
 requirements:
+  empty_field1:
   host:
     - setuptools  # [unix]
     - fakereq  # [unix]
+  empty_field2:
   run:
     - python
+  empty_field3:
 
 about:
   summary: This is a small recipe for testing

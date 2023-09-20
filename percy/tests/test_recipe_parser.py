@@ -114,7 +114,13 @@ def test_render_to_object() -> None:
         },
         "build": {"is_true": True, "skip": True, "number": 0},
         "package": {"name": "{{ name|lower }}"},
-        "requirements": {"host": ["setuptools", "fakereq"], "run": ["python"]},
+        "requirements": {
+            "empty_field1": None,
+            "host": ["setuptools", "fakereq"],
+            "empty_field2": None,
+            "run": ["python"],
+            "empty_field3": None,
+        },
         "multi_level": {
             "list_3": ["ls", "sl", "cowsay"],
             "list_2": ["cat", "bat", "mat"],

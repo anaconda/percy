@@ -191,6 +191,7 @@ class _Node:
         children: Optional[list["_Node"]] = None,
         list_member_flag: bool = False,
         multiline_flag: bool = False,
+        key_flag: bool = False,
     ):
         """
         Constructs a node
@@ -201,12 +202,15 @@ class _Node:
         :param list_member_flag:    Indicates if this node is part of a list
         :param multiline_flag:      Indicates if the node represents a multiline
                                     value.
+        :param key_flag:            Indicates if the node represents a key that
+                                    points to zero or more subsequent values.
         """
         self.value = value
         self.comment = comment
         self.children: list[_Node] = children if children else []
         self.list_member_flag = list_member_flag
         self.multiline_flag = multiline_flag
+        self.key_flag = key_flag
 
     def __eq__(self, other: object) -> bool:
         """
@@ -231,7 +235,14 @@ class _Node:
         Renders the Node as a string. Useful for debugging purposes.
         :return: The node's value, as a string
         """
-        return str(self.value)
+        return (
+            f"Node: {self.value}\n"
+            f"  - Comment:      {self.comment}\n"
+            f"  - Child count:  {len(self.children)}\n"
+            f"  - List?:        {self.list_member_flag}\n"
+            f"  - Multiline?:   {self.multiline_flag}\n"
+            f"  - Key?:         {self.key_flag}\n"
+        )
 
     def is_leaf(self) -> bool:
         """
@@ -254,6 +265,24 @@ class _Node:
         :return: True if the node represents only a comment. False otherwise.
         """
         return self.value == _Node._sentinel and self.comment
+
+    def is_empty_key(self) -> bool:
+        """
+        Indicates a line that is just a "label" and contains no child nodes.
+        These are effectively leaf nodes that need to be rendered specially.
+
+        Example empty key:
+          foo:
+        Versus a non-empty key:
+          foo:
+            - bar
+
+        When converted into a Pythonic data structure, the key will point to
+        an `None` value.
+
+        :return: True if the node represents an empty key. False otherwise.
+        """
+        return self.key_flag and self.is_leaf()
 
 
 class SelectorInfo(NamedTuple):
@@ -512,7 +541,8 @@ class RecipeParser:
 
         # If a dictionary is returned, we have a line containing a key and
         # potentially a value. There should only be 1 key/value pairing in 1
-        # line.
+        # line. Nodes representing keys should be flagged for handling edge
+        # cases.
         if isinstance(output, dict):
             children: list[_Node] = []
             key = list(output.keys())[0]
@@ -521,7 +551,7 @@ class RecipeParser:
                 # As the line is shared by both parent and child, the comment
                 # gets tagged to both.
                 children.append(_Node(output[key], comment))
-            return _Node(key, comment, children)
+            return _Node(key, comment, children, key_flag=True)
         # If a list is returned, then this line is a listed member of the parent
         # Node
         if isinstance(output, list):
@@ -795,7 +825,7 @@ class RecipeParser:
             return
 
         # Handle same-line printing
-        if len(node.children) == 1 and len(node.children[0].children) == 0:
+        if len(node.children) == 1 and node.children[0].is_leaf():
             # Handle the edge case of a list containing 1 member
             if node.children[0].list_member_flag:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
@@ -842,11 +872,21 @@ class RecipeParser:
             # Comments in a list are indented to list-level, but do not include
             # a list `-` mark
             if child.is_comment():
-                lines.append(f"{spaces}  " f"{child.comment}".rstrip())
+                lines.append(
+                    f"{spaces}{TAB_AS_SPACES}" f"{child.comment}".rstrip()
+                )
+            # Empty keys can be easily confused for leaf nodes. The difference
+            # is these nodes render with a "dangling" `:` mark
+            elif child.is_empty_key():
+                lines.append(
+                    f"{spaces}{TAB_AS_SPACES}"
+                    f"{RecipeParser._stringify_yaml(child.value)}:  "
+                    f"{child.comment}".rstrip()
+                )
             # Leaf nodes are rendered as members in a list
             elif child.is_leaf():
                 lines.append(
-                    f"{spaces}  - "
+                    f"{spaces}{TAB_AS_SPACES}- "
                     f"{RecipeParser._stringify_yaml(child.value)}  "
                     f"{child.comment}".rstrip()
                 )
@@ -898,13 +938,6 @@ class RecipeParser:
         if node.is_comment():
             return
 
-        # Bootstrap/flatten the root-level
-        if node.is_root():
-            for child in node.children:
-                data.setdefault(child.value, {})
-                RecipeParser._render_object_tree(child, enable_variables, data)
-            return
-
         key = node.value
         for child in node.children:
             # Ignore comment-only lines
@@ -923,17 +956,26 @@ class RecipeParser:
             if enable_variables:
                 pass
 
+            # Empty keys are interpreted to point to `None`
+            if child.is_empty_key():
+                data[key][child.value] = None
+                continue
+
+            # List members accumulate values in a list
             if child.list_member_flag:
                 if key not in data:
                     data[key] = []
                 data[key].append(value)
-            elif child.is_leaf():
+                continue
+
+            # Other (non list and non-empty-key) leaf nodes set values directly
+            if child.is_leaf():
                 data[key] = value
-            else:
-                data.setdefault(key, {})
-                RecipeParser._render_object_tree(
-                    child, enable_variables, data[key]
-                )
+                continue
+
+            # All other keys prep for containing more dictionaries
+            data.setdefault(key, {})
+            RecipeParser._render_object_tree(child, enable_variables, data[key])
 
     def render_to_object(self, enable_variables: bool = False) -> JsonType:
         """
@@ -946,7 +988,10 @@ class RecipeParser:
         """
         data: JsonType = {}
 
-        RecipeParser._render_object_tree(self._root, enable_variables, data)
+        # Bootstrap/flatten the root-level
+        for child in self._root.children:
+            data.setdefault(child.value, {})
+            RecipeParser._render_object_tree(child, enable_variables, data)
 
         return data
 
