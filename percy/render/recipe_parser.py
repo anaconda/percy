@@ -927,13 +927,13 @@ class RecipeParser:
 
     @staticmethod
     def _render_object_tree(
-        node: _Node, enable_variables: bool, data: JsonType
+        node: _Node, replace_variables: bool, data: JsonType
     ) -> None:
         """
         Recursive helper function that traverses the parse tree to generate
         a Pythonic data object.
         :param node:                Current node in the tree
-        :param enable_variables:    If set to True, this replaces all variables
+        :param replace_variables:   If set to True, this replaces all variable
                                     substitutions with their set values.
         :param data:                Accumulated data structure
         """
@@ -956,7 +956,7 @@ class RecipeParser:
             # TODO if enabled, string replace `{{}}` in `value`
             # TODO handle `| lower` and similar
             # TODO create new function for handling grammar
-            if enable_variables:
+            if replace_variables:
                 pass
 
             # Empty keys are interpreted to point to `None`
@@ -978,13 +978,15 @@ class RecipeParser:
 
             # All other keys prep for containing more dictionaries
             data.setdefault(key, {})
-            RecipeParser._render_object_tree(child, enable_variables, data[key])
+            RecipeParser._render_object_tree(
+                child, replace_variables, data[key]
+            )
 
-    def render_to_object(self, enable_variables: bool = False) -> JsonType:
+    def render_to_object(self, replace_variables: bool = False) -> JsonType:
         """
         Takes the underlying state of the parse tree and produces a Pythonic
         object/dictionary representation. Analogous to `json.load()`.
-        :param enable_variables:    (Optional) If set to True, this replaces
+        :param replace_variables:   (Optional) If set to True, this replaces
                                     all variable substitutions with their set
                                     values.
         :return: Pythonic data object representation of the recipe.
@@ -994,7 +996,7 @@ class RecipeParser:
         # Bootstrap/flatten the root-level
         for child in self._root.children:
             data.setdefault(child.value, {})
-            RecipeParser._render_object_tree(child, enable_variables, data)
+            RecipeParser._render_object_tree(child, replace_variables, data)
 
         return data
 
