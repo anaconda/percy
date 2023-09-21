@@ -240,7 +240,7 @@ class _Node:
             value = "Comment node"
         return (
             f"Node: {value}\n"
-            f"  - Comment:      {self.comment}\n"
+            f"  - Comment:      {self.comment!r}\n"
             f"  - Child count:  {len(self.children)}\n"
             f"  - List?:        {self.list_member_flag}\n"
             f"  - Multiline?:   {self.multiline_flag}\n"
