@@ -72,9 +72,7 @@ def base_options(f):
 
 
 @click.group(short_help="Commands for operating on a recipe.")
-@click.option(
-    "--recipe", "-r", metavar="FILE", help="Recipe meta.yaml to operate on."
-)
+@click.option("--recipe", "-r", metavar="FILE", help="Recipe meta.yaml to operate on.")
 @click.pass_context
 def recipe(ctx, recipe):
     """Commands that operate on a recipe."""
@@ -122,17 +120,13 @@ def outdated(obj, subdir, python, others, backend):
 
     # load defaults
     print(f"Checking outdated for subdir { subdir[0] }")
-    defaults_pkgs = percy.repodata.repodata.get_latest_package_list(
-        subdir[0], True
-    )
+    defaults_pkgs = percy.repodata.repodata.get_latest_package_list(subdir[0], True)
 
     # compare package with defaults
     for recipe in render_results:
         if subdir[0] in recipe.variant_id["subdir"]:
             for name, package in recipe.packages.items():
-                result = percy.repodata.repodata.compare_package_with_defaults(
-                    package, defaults_pkgs
-                )
+                result = percy.repodata.repodata.compare_package_with_defaults(package, defaults_pkgs)
                 if not result:
                     print("OK")
                 else:
@@ -152,9 +146,7 @@ def outdated(obj, subdir, python, others, backend):
     help="Increment build number",
 )
 @click.argument("patch_file", metavar="FILE")
-def patch(
-    obj, subdir, python, others, backend, increment_build_number, patch_file
-):
+def patch(obj, subdir, python, others, backend, increment_build_number, patch_file):
     """Patch a recipe. Takes a patch file as input, with content like:
 
     \b

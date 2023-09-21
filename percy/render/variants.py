@@ -38,9 +38,7 @@ def _ensure_list(obj):
 
 
 # copied and adapted from conda-build
-def _find_config_files(
-    metadata_or_path, variant_config_files, exclusive_config_files
-):
+def _find_config_files(metadata_or_path, variant_config_files, exclusive_config_files):
     """
     Find config files to load. Config files are stacked in the following order:
         1. exclusive config files (see config.exclusive_config_files)
@@ -83,15 +81,11 @@ def _find_config_files(
             files.append(cfg)
         else:
             path = getattr(metadata_or_path, "path", metadata_or_path)
-            cfg = resolve(
-                os.path.join(path, "..", "..", "conda_build_config.yaml")
-            )
+            cfg = resolve(os.path.join(path, "..", "..", "conda_build_config.yaml"))
             if os.path.isfile(cfg):
                 files.append(cfg)
             else:
-                cfg = resolve(
-                    os.path.join(path, "..", "conda_build_config.yaml")
-                )
+                cfg = resolve(os.path.join(path, "..", "conda_build_config.yaml"))
                 if os.path.isfile(cfg):
                     files.append(cfg)
 
@@ -126,17 +120,13 @@ def _apply_selector(data, selector_dict):
     for line in data.splitlines():
         if (match := re.search(r"^(\s*)#.*$", line)) is not None:
             line = f"{match.group(1)}# comment "  # <-- this is to ignore potential bad jinja in comments
-        elif (
-            match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)
-        ) is not None:
+        elif (match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)) is not None:
             cond_str = match.group(3)
             try:
                 if not eval(cond_str, None, selector_dict):
                     line = f"{match.group(1)}"
                 else:
-                    line = line.replace(
-                        match.group(2), ""
-                    )  # <-- comments sometimes causes trouble in jinja
+                    line = line.replace(match.group(2), "")  # <-- comments sometimes causes trouble in jinja
             except Exception:
                 continue
         updated_data.append(line)
@@ -231,21 +221,15 @@ def read_conda_build_config(
             base_selector_dict[f"py3{i}"] = False
 
         # List conda_build_config files for linter render.
-        conda_build_config_files = _find_config_files(
-            recipe_dir, variant_config_files, exclusive_config_files
-        )
+        conda_build_config_files = _find_config_files(recipe_dir, variant_config_files, exclusive_config_files)
         logging.debug(f"cbc files: {conda_build_config_files}")
 
         # Update base selector dict
         for cbc in conda_build_config_files:
             with open(cbc) as f_cbc:
                 try:
-                    cbc_selectors_str = _apply_selector(
-                        f_cbc.read(), base_selector_dict
-                    )
-                    cbc_selectors_yml = yaml.load(
-                        "\n".join(cbc_selectors_str), Loader=loader
-                    )
+                    cbc_selectors_str = _apply_selector(f_cbc.read(), base_selector_dict)
+                    cbc_selectors_yml = yaml.load("\n".join(cbc_selectors_str), Loader=loader)
                     if cbc_selectors_yml:
                         for k, v in cbc_selectors_yml.items():
                             if isinstance(v, list):
@@ -260,25 +244,16 @@ def read_conda_build_config(
         zip_keys = []
         groups = {}
         zip_key_groups = base_selector_dict.get("zip_keys", [])
-        zip_key_groups = (
-            [zip_key_groups]
-            if zip_key_groups and isinstance(zip_key_groups[0], str)
-            else zip_key_groups
-        )
+        zip_key_groups = [zip_key_groups] if zip_key_groups and isinstance(zip_key_groups[0], str) else zip_key_groups
         for key_group in zip_key_groups:
             zip_keys.extend(key_group)
-            groups[tuple(key_group)] = list(
-                zip(*[base_selector_dict[k] for k in key_group])
-            )
+            groups[tuple(key_group)] = list(zip(*[base_selector_dict[k] for k in key_group]))
         for k, v in base_selector_dict.items():
             if k not in zip_keys and isinstance(v, list) and len(v) > 1:
                 groups[k] = v
         if groups:
             group_keys, group_values = zip(*groups.items())
-            group_permutations = [
-                dict(zip(group_keys, v))
-                for v in itertools.product(*group_values)
-            ]
+            group_permutations = [dict(zip(group_keys, v)) for v in itertools.product(*group_values)]
             for d in group_permutations:
                 new_d = copy.deepcopy(d)
                 for k, v in new_d.items():
@@ -315,9 +290,7 @@ def read_conda_build_config(
                 if isinstance(v, list):
                     variant_selector_dict[k] = v[0]
             if "python" in variant_selector_dict:
-                python_short = str(variant_selector_dict["python"]).replace(
-                    ".", ""
-                )
+                python_short = str(variant_selector_dict["python"]).replace(".", "")
                 variant_selector_dict["py"] = int(python_short)
                 variant_selector_dict[f"py{python_short}"] = True
             perm["subdir"] = arch

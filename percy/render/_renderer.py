@@ -112,17 +112,7 @@ class _JinjaSilentUndefined(jinja2.Undefined):
         __getitem__
     ) = (
         __lt__
-    ) = (
-        __le__
-    ) = (
-        __gt__
-    ) = (
-        __ge__
-    ) = (
-        __int__
-    ) = (
-        __float__
-    ) = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
+    ) = __le__ = __gt__ = __ge__ = __int__ = __float__ = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
 
 
 _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
@@ -140,17 +130,13 @@ def _apply_selector(data: str, selector_dict: dict) -> List[str]:
     """
     updated_data = []
     for line in data.splitlines():
-        if (
-            match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)
-        ) is not None:
+        if (match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)) is not None:
             cond_str = match.group(3)
             try:
                 if not eval(cond_str, None, selector_dict):
                     line = f"{match.group(1)}"
                 else:
-                    line = line.replace(
-                        match.group(2), ""
-                    )  # <-- comments sometimes causes trouble in jinja
+                    line = line.replace(match.group(2), "")  # <-- comments sometimes causes trouble in jinja
             except Exception:
                 continue
         updated_data.append(line)
@@ -212,12 +198,8 @@ def render(
             "py2k": selector_dict.get("py3k", "0") == "0",
             "build_platform": selector_dict.get("target_platform", "win-64"),
             "target_platform": selector_dict.get("target_platform", "win-64"),
-            "ctng_target_platform": selector_dict.get(
-                "target_platform", "win-64"
-            ),
-            "cross_target_platform": selector_dict.get(
-                "target_platform", "win-64"
-            ),
+            "ctng_target_platform": selector_dict.get("target_platform", "win-64"),
+            "cross_target_platform": selector_dict.get("target_platform", "win-64"),
             "ctng_gcc": selector_dict.get("c_compiler_version", "7.3.0"),
             "ctng_binutils": selector_dict.get("c_compiler_version", "2.35"),
             "numpy": selector_dict.get("numpy", "1.16"),
@@ -239,9 +221,7 @@ def render(
         render_dict = {**JINJA_VARS, **selector_dict}
         yaml_text = _get_template(meta_yaml, selector_dict).render(render_dict)
     except jinja2.exceptions.TemplateSyntaxError as exc:
-        raise JinjaRenderFailure(
-            recipe_dir, message=exc.message, line=exc.lineno
-        )
+        raise JinjaRenderFailure(recipe_dir, message=exc.message, line=exc.lineno)
     except jinja2.exceptions.TemplateError as exc:
         raise JinjaRenderFailure(recipe_dir, message=exc.message)
     except TypeError as exc:
@@ -250,9 +230,7 @@ def render(
     try:
         if renderer_type == RendererType.RUAMEL:
             if not has_ruamel:
-                raise YAMLRenderFailure(
-                    recipe_dir, message="ruamel unavailable"
-                )
+                raise YAMLRenderFailure(recipe_dir, message="ruamel unavailable")
             # load yaml with ruamel
             return ruamel.load(yaml_text.replace("\t", " ").replace("%", " "))
         elif renderer_type == RendererType.PYYAML:
@@ -264,9 +242,7 @@ def render(
                 )
         elif renderer_type == RendererType.CONDA:
             if not has_conda_build:
-                raise YAMLRenderFailure(
-                    recipe_dir, message="conda build unavailable"
-                )
+                raise YAMLRenderFailure(recipe_dir, message="conda build unavailable")
             platform, arch = selector_dict.get("subdir").split("-")
             rendered = api.render(
                 recipe_dir,
@@ -281,8 +257,6 @@ def render(
             parser = RecipeParser(meta_yaml)
             return parser.render_to_object()
         else:
-            raise YAMLRenderFailure(
-                recipe_dir, message="Unknown renderer type."
-            )
+            raise YAMLRenderFailure(recipe_dir, message="Unknown renderer type.")
     except ParserError as exc:
         raise YAMLRenderFailure(recipe_dir, line=exc.problem_mark.line)

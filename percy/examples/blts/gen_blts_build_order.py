@@ -30,10 +30,7 @@ def gen_blts_build_order(aggregate_path, subdir, python_ref, packages):
     blts_buildout = aggregate_repo.get_build_order([], packages)
 
     # write stage build order
-    stages = [
-        list(result)
-        for key, result in groupby(blts_buildout, key=lambda f: f.weight)
-    ]
+    stages = [list(result) for key, result in groupby(blts_buildout, key=lambda f: f.weight)]
     build_order = {"python": python_ref, "stages": {}}
     for i, stage in enumerate(stages):
         stage_id = f"{i:03}"

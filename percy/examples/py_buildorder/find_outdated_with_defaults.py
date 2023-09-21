@@ -112,9 +112,7 @@ def compare_repodata(subdir, python_ref, python_target, block_list):
     results = {}
     for local_name, local in pkgs_local.items():
         defaults = pkgs_defaults.get(local_name)
-        if defaults and _is_newer_than(
-            defaults, local["vo"], local["build_number"]
-        ):
+        if defaults and _is_newer_than(defaults, local["vo"], local["build_number"]):
             results[local_name] = {
                 "312_version": local["version"],
                 "312_build_number": local["build_number"],
@@ -159,9 +157,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     block_list = []
-    filename = (
-        f"{args.subdir}/python_3.11_{args.subdir}_package_list_missing.yaml"
-    )
+    filename = f"{args.subdir}/python_3.11_{args.subdir}_package_list_missing.yaml"
     with open(filename) as file:
         block_list = yaml.safe_load(file)
 

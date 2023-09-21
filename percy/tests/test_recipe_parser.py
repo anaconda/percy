@@ -52,9 +52,7 @@ def test_construction() -> None:
     """
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
     parser = recipe_parser.RecipeParser(types_toml)
-    assert (
-        parser._init_content == types_toml  # pylint: disable=protected-access
-    )
+    assert parser._init_content == types_toml  # pylint: disable=protected-access
     assert parser._vars_tbl == {  # pylint: disable=protected-access
         "name": "types-toml",
         "version": "0.10.8.6",
@@ -172,9 +170,7 @@ def test_get_value() -> None:
     assert parser.get_value("/requirements/host/0") == "setuptools"
     assert parser.get_value("/requirements/host/1") == "fakereq"
     # Return a multiline string
-    assert parser.get_value("/about/description") == {
-        "description": SIMPLE_DESCRIPTION
-    }
+    assert parser.get_value("/about/description") == {"description": SIMPLE_DESCRIPTION}
     assert parser.get_value("/about/description/") == SIMPLE_DESCRIPTION
     # Path not found cases
     with pytest.raises(KeyError):
@@ -603,9 +599,7 @@ def test_patch_replace() -> None:
         {
             "op": "replace",
             "path": "/about/description",
-            "value": (
-                "This is a PEP 561\ntype stub package\nfor the toml package."
-            ),
+            "value": ("This is a PEP 561\ntype stub package\nfor the toml package."),
         }
     )
 
@@ -622,9 +616,7 @@ def test_patch_replace() -> None:
     # Sanity check: validate all modifications
     assert parser.is_modified()
     # NOTE: That patches, as of writing, cannot preserve selectors
-    assert parser.render() == load_file(
-        f"{TEST_FILES_PATH}/simple-recipe_test_patch_replace.yaml"
-    )
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_replace.yaml")
 
 
 ## Diff ##

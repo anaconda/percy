@@ -157,9 +157,7 @@ class JsonPatchValidationException(Exception):
         Constructs a JSON Patch Validation Exception
         :param op: Operation being encountered.
         """
-        super().__init__(
-            f"Invalid patch was attempted:\n{json.dumps(patch, indent=2)}"
-        )
+        super().__init__(f"Invalid patch was attempted:\n{json.dumps(patch, indent=2)}")
 
 
 class _Node:
@@ -498,13 +496,9 @@ class RecipeParser:
                 output = RecipeParser._substitute_markers(output, sub_list)
             if isinstance(output, dict):
                 key = list(output.keys())[0]
-                output[key] = RecipeParser._substitute_markers(
-                    output[key], sub_list
-                )
+                output[key] = RecipeParser._substitute_markers(output[key], sub_list)
             elif isinstance(output, list):
-                output[0] = RecipeParser._substitute_markers(
-                    output[0], sub_list
-                )
+                output[0] = RecipeParser._substitute_markers(output[0], sub_list)
             else:
                 # TODO throw
                 pass
@@ -640,14 +634,10 @@ class RecipeParser:
         # For complex types, generate the YAML equivalent and build
         # a new tree.
         if isinstance(value, (dict, list)):
-            return RecipeParser(  # pylint: disable=protected-access
-                yaml.dump(value)
-            )._root.children
+            return RecipeParser(yaml.dump(value))._root.children  # pylint: disable=protected-access
 
         # Primitives can be safely stringified to generate a parse tree.
-        return RecipeParser(  # pylint: disable=protected-access
-            str(RecipeParser._stringify_yaml(value))
-        )._root.children
+        return RecipeParser(str(RecipeParser._stringify_yaml(value)))._root.children  # pylint: disable=protected-access
 
     def _rebuild_selectors(self) -> None:
         """
@@ -844,14 +834,9 @@ class RecipeParser:
             # By the language spec, # symbols do not indicate comments on
             # multiline strings.
             if node.children[0].multiline_flag:
-                lines.append(
-                    f"{spaces}{node.value}: |  {node.comment}".rstrip()
-                )
+                lines.append(f"{spaces}{node.value}: |  {node.comment}".rstrip())
                 for val_line in node.children[0].value:
-                    lines.append(
-                        f"{spaces}{TAB_AS_SPACES}"
-                        f"{RecipeParser._stringify_yaml(val_line)}".rstrip()
-                    )
+                    lines.append(f"{spaces}{TAB_AS_SPACES}" f"{RecipeParser._stringify_yaml(val_line)}".rstrip())
                 return
             lines.append(
                 f"{spaces}{node.value}: "
@@ -868,16 +853,12 @@ class RecipeParser:
             if node.list_member_flag:
                 depth_delta += 1
                 list_prefix = "- "
-            lines.append(
-                f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip()
-            )
+            lines.append(f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip())
         for child in node.children:
             # Comments in a list are indented to list-level, but do not include
             # a list `-` mark
             if child.is_comment():
-                lines.append(
-                    f"{spaces}{TAB_AS_SPACES}" f"{child.comment}".rstrip()
-                )
+                lines.append(f"{spaces}{TAB_AS_SPACES}" f"{child.comment}".rstrip())
             # Empty keys can be easily confused for leaf nodes. The difference
             # is these nodes render with a "dangling" `:` mark
             elif child.is_empty_key():
@@ -926,9 +907,7 @@ class RecipeParser:
         return "\n".join(lines)
 
     @staticmethod
-    def _render_object_tree(
-        node: _Node, replace_variables: bool, data: JsonType
-    ) -> None:
+    def _render_object_tree(node: _Node, replace_variables: bool, data: JsonType) -> None:
         """
         Recursive helper function that traverses the parse tree to generate
         a Pythonic data object.
@@ -948,11 +927,7 @@ class RecipeParser:
                 continue
 
             # Handle multiline strings
-            value = (
-                child.value
-                if not child.multiline_flag
-                else "\n".join(child.value)
-            )
+            value = child.value if not child.multiline_flag else "\n".join(child.value)
             # TODO if enabled, string replace `{{}}` in `value`
             # TODO handle `| lower` and similar
             # TODO create new function for handling grammar
@@ -978,9 +953,7 @@ class RecipeParser:
 
             # All other keys prep for containing more dictionaries
             data.setdefault(key, {})
-            RecipeParser._render_object_tree(
-                child, replace_variables, data[key]
-            )
+            RecipeParser._render_object_tree(child, replace_variables, data[key])
 
     def render_to_object(self, replace_variables: bool = False) -> JsonType:
         """
@@ -1080,9 +1053,7 @@ class RecipeParser:
         """
         return var in self._vars_tbl
 
-    def get_variable(
-        self, var: str, default: Primitives = _sentinel
-    ) -> Primitives:
+    def get_variable(self, var: str, default: Primitives = _sentinel) -> Primitives:
         """
         Returns the value of a variable set in the recipe. If specified, a
         default value will be returned if the variable name is not found.
@@ -1190,9 +1161,7 @@ class RecipeParser:
 
     # TODO complete: set/add and remove selectors
 
-    def _patch_replace(
-        self, _: str, path_stack: _StrStack, value: JsonType
-    ) -> bool:
+    def _patch_replace(self, _: str, path_stack: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `replace` operation.
         :param path_stack:  Path that describes a location in the tree, as a
@@ -1313,15 +1282,11 @@ class RecipeParser:
             raise UnsupportedOpException(op)
 
         # The supplemental field name is determined by the operation type.
-        value_from: Final[str] = (
-            "value" if op in RecipeParser._patch_ops_requiring_value else "from"
-        )
+        value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
         # Both versions of the path are sent over so that the op can easily use
         # both private and public functions (without incurring even more
         # conversions between path types).
-        is_successful = supported_patch_ops[op](
-            path, path_stack, patch[value_from]
-        )
+        is_successful = supported_patch_ops[op](path, path_stack, patch[value_from])
 
         # Update the selector table and modified flag, if the operation
         # succeeded.
