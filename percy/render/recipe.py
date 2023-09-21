@@ -11,7 +11,7 @@ import re
 import itertools
 import logging
 from copy import deepcopy
-from typing import Any, Dict, List, Set, TextIO
+from typing import Any, Dict, List, Optional, Set, TextIO
 from pathlib import Path
 from dataclasses import dataclass, field
 from urllib.parse import urlparse
@@ -76,9 +76,9 @@ class Recipe:
     def __init__(
         self,
         recipe_file: Path,
-        variant_id: str = None,
-        variant: Variant = None,
-        renderer: RendererType = None,
+        variant_id: Optional[str] = None,
+        variant: Optional[Variant] = None,
+        renderer: Optional[RendererType] = None,
     ):
         """Constructor
 
@@ -249,7 +249,7 @@ class Recipe:
         """
         return self.meta_yaml != self.orig.meta_yaml
 
-    def dump(self):
+    def dump(self) -> str:
         """Dump recipe content"""
         return "\n".join(self.meta_yaml) + "\n"
 

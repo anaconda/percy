@@ -48,6 +48,8 @@ _OpsTable = dict[str, Callable[[str, _StrStack, JsonType], bool]]
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
 TAB_AS_SPACES: Final[str] = " " * TAB_SPACE_COUNT
+# String that represents a root node in our path.
+_ROOT_NODE_VALUE: Final[str] = "/"
 # Marker used to temporarily work around some Jinja-template parsing issues
 _PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
 
@@ -177,13 +179,19 @@ class _Node:
     the file are stored as text.
     """
 
+    # Sentinel used to discern a `null` in the YAML file and a defaulted, unset
+    # value. For example, comment-only lines should always be set to the
+    # `_sentinel` object.
+    _sentinel = object()
+
     def __init__(
         self,
-        value: Primitives = None,
+        value: Primitives = _sentinel,
         comment: str = "",
         children: Optional[list["_Node"]] = None,
         list_member_flag: bool = False,
         multiline_flag: bool = False,
+        key_flag: bool = False,
     ):
         """
         Constructs a node
@@ -194,12 +202,15 @@ class _Node:
         :param list_member_flag:    Indicates if this node is part of a list
         :param multiline_flag:      Indicates if the node represents a multiline
                                     value.
+        :param key_flag:            Indicates if the node represents a key that
+                                    points to zero or more subsequent values.
         """
         self.value = value
         self.comment = comment
         self.children: list[_Node] = children if children else []
         self.list_member_flag = list_member_flag
         self.multiline_flag = multiline_flag
+        self.key_flag = key_flag
 
     def __eq__(self, other: object) -> bool:
         """
@@ -224,14 +235,57 @@ class _Node:
         Renders the Node as a string. Useful for debugging purposes.
         :return: The node's value, as a string
         """
-        return str(self.value)
+        value = self.value
+        if self.is_comment():
+            value = "Comment node"
+        return (
+            f"Node: {value}\n"
+            f"  - Comment:      {self.comment!r}\n"
+            f"  - Child count:  {len(self.children)}\n"
+            f"  - List?:        {self.list_member_flag}\n"
+            f"  - Multiline?:   {self.multiline_flag}\n"
+            f"  - Key?:         {self.key_flag}\n"
+        )
 
     def is_leaf(self) -> bool:
         """
         Indicates if a node is a leaf node
-        :return: True if the node is a leaf
+        :return: True if the node is a leaf. False otherwise.
         """
         return len(self.children) == 0
+
+    def is_root(self) -> bool:
+        """
+        Indicates if a node is a root node
+        :return: True if the node is a root node. False otherwise.
+        """
+        return self.value == _ROOT_NODE_VALUE
+
+    def is_comment(self) -> bool:
+        """
+        Indicates if a line contains only a comment. When rendered, this will
+        be a comment only-line.
+        :return: True if the node represents only a comment. False otherwise.
+        """
+        return self.value == _Node._sentinel and self.comment
+
+    def is_empty_key(self) -> bool:
+        """
+        Indicates a line that is just a "label" and contains no child nodes.
+        These are effectively leaf nodes that need to be rendered specially.
+
+        Example empty key:
+          foo:
+        Versus a non-empty key:
+          foo:
+            - bar
+
+        When converted into a Pythonic data structure, the key will point to
+        an `None` value.
+
+        :return: True if the node represents an empty key. False otherwise.
+        """
+        return self.key_flag and self.is_leaf()
 
 
 class SelectorInfo(NamedTuple):
@@ -301,7 +355,7 @@ class _Traverse:
         if len(path) == 0:
             return None
         if len(path) == 1:
-            if path[0] == "/":
+            if path[0] == _ROOT_NODE_VALUE:
                 return node
             return None
         # Purge `root` from the path
@@ -332,7 +386,7 @@ class _Traverse:
             return
         # Initialize, if on the root node. Otherwise build-up the path
         if path is None:
-            path = ("/",)
+            path = (_ROOT_NODE_VALUE,)
         elif node.list_member_flag:
             path = (str(idx_num),) + path
         elif not node.is_leaf():
@@ -490,7 +544,8 @@ class RecipeParser:
 
         # If a dictionary is returned, we have a line containing a key and
         # potentially a value. There should only be 1 key/value pairing in 1
-        # line.
+        # line. Nodes representing keys should be flagged for handling edge
+        # cases.
         if isinstance(output, dict):
             children: list[_Node] = []
             key = list(output.keys())[0]
@@ -499,10 +554,14 @@ class RecipeParser:
                 # As the line is shared by both parent and child, the comment
                 # gets tagged to both.
                 children.append(_Node(output[key], comment))
-            return _Node(key, comment, children)
+            return _Node(key, comment, children, key_flag=True)
         # If a list is returned, then this line is a listed member of the parent
         # Node
         if isinstance(output, list):
+            # The full line is a comment
+            if s.startswith("#"):
+                # Comments are list members to ensure indentation
+                return _Node(comment=comment, list_member_flag=True)
             return _Node(output[0], comment, list_member_flag=True)
         # Other types are just leaf nodes. This is scenario should likely not
         # be triggered given our recipe files don't have single valid lines of
@@ -525,11 +584,11 @@ class RecipeParser:
         # TODO: validate the path starts with `/` (root)
 
         # `PurePath` could be used here, but isn't for performance gains.
-        # TODO reduce 3n operations to n operations
+        # TODO reduce 3 (O)n operations to 1 O(n) operation
 
         # Wipe the trailing `/`, if provided. It doesn't have meaning here;
         # only the `root` path is tracked.
-        if path[-1] == "/":
+        if path[-1] == _ROOT_NODE_VALUE:
             path = path[:-1]
         parts = path.split("/")
         # Replace empty strings with `/` for compatibility in other functions.
@@ -556,7 +615,7 @@ class RecipeParser:
             value = path_stack.pop()
             # Special case to bootstrap root; the first element will
             # automatically add the first slash.
-            if value == "/":
+            if value == _ROOT_NODE_VALUE:
                 continue
             path += f"/{value}"
         return path
@@ -639,7 +698,7 @@ class RecipeParser:
                 self._vars_tbl[key] = value
 
         # Root of the parse tree
-        self._root = _Node("")
+        self._root = _Node(_ROOT_NODE_VALUE)
         # Start by removing all Jinja lines. Then traverse line-by-line
         jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
         sanitized_yaml = jinja_line_re.sub("", self._init_content)
@@ -764,12 +823,12 @@ class RecipeParser:
         spaces = TAB_AS_SPACES * depth
 
         # Handle lines that are just comments
-        if node.value is None and node.comment:
+        if node.is_comment():
             lines.append(node.comment)
             return
 
         # Handle same-line printing
-        if len(node.children) == 1 and len(node.children[0].children) == 0:
+        if len(node.children) == 1 and node.children[0].is_leaf():
             # Handle the edge case of a list containing 1 member
             if node.children[0].list_member_flag:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
@@ -813,10 +872,24 @@ class RecipeParser:
                 f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip()
             )
         for child in node.children:
-            # Leaf nodes are rendered as members in a list
-            if child.is_leaf():
+            # Comments in a list are indented to list-level, but do not include
+            # a list `-` mark
+            if child.is_comment():
                 lines.append(
-                    f"{spaces}  - "
+                    f"{spaces}{TAB_AS_SPACES}" f"{child.comment}".rstrip()
+                )
+            # Empty keys can be easily confused for leaf nodes. The difference
+            # is these nodes render with a "dangling" `:` mark
+            elif child.is_empty_key():
+                lines.append(
+                    f"{spaces}{TAB_AS_SPACES}"
+                    f"{RecipeParser._stringify_yaml(child.value)}:  "
+                    f"{child.comment}".rstrip()
+                )
+            # Leaf nodes are rendered as members in a list
+            elif child.is_leaf():
+                lines.append(
+                    f"{spaces}{TAB_AS_SPACES}- "
                     f"{RecipeParser._stringify_yaml(child.value)}  "
                     f"{child.comment}".rstrip()
                 )
@@ -852,6 +925,81 @@ class RecipeParser:
 
         return "\n".join(lines)
 
+    @staticmethod
+    def _render_object_tree(
+        node: _Node, replace_variables: bool, data: JsonType
+    ) -> None:
+        """
+        Recursive helper function that traverses the parse tree to generate
+        a Pythonic data object.
+        :param node:                Current node in the tree
+        :param replace_variables:   If set to True, this replaces all variable
+                                    substitutions with their set values.
+        :param data:                Accumulated data structure
+        """
+        # Ignore comment-only lines
+        if node.is_comment():
+            return
+
+        key = node.value
+        for child in node.children:
+            # Ignore comment-only lines
+            if child.is_comment():
+                continue
+
+            # Handle multiline strings
+            value = (
+                child.value
+                if not child.multiline_flag
+                else "\n".join(child.value)
+            )
+            # TODO if enabled, string replace `{{}}` in `value`
+            # TODO handle `| lower` and similar
+            # TODO create new function for handling grammar
+            if replace_variables:
+                pass
+
+            # Empty keys are interpreted to point to `None`
+            if child.is_empty_key():
+                data[key][child.value] = None
+                continue
+
+            # List members accumulate values in a list
+            if child.list_member_flag:
+                if key not in data:
+                    data[key] = []
+                data[key].append(value)
+                continue
+
+            # Other (non list and non-empty-key) leaf nodes set values directly
+            if child.is_leaf():
+                data[key] = value
+                continue
+
+            # All other keys prep for containing more dictionaries
+            data.setdefault(key, {})
+            RecipeParser._render_object_tree(
+                child, replace_variables, data[key]
+            )
+
+    def render_to_object(self, replace_variables: bool = False) -> JsonType:
+        """
+        Takes the underlying state of the parse tree and produces a Pythonic
+        object/dictionary representation. Analogous to `json.load()`.
+        :param replace_variables:   (Optional) If set to True, this replaces
+                                    all variable substitutions with their set
+                                    values.
+        :return: Pythonic data object representation of the recipe.
+        """
+        data: JsonType = {}
+
+        # Bootstrap/flatten the root-level
+        for child in self._root.children:
+            data.setdefault(child.value, {})
+            RecipeParser._render_object_tree(child, replace_variables, data)
+
+        return data
+
     ## YAML Access Functions ##
 
     def contains_value(self, path: str) -> bool:
@@ -883,7 +1031,7 @@ class RecipeParser:
                  caller-specified default value.
         """
         # Ignore the root case
-        path_ends_in_slash = len(path) > 1 and path[-1] == "/"
+        path_ends_in_slash = len(path) > 1 and path[-1] == _ROOT_NODE_VALUE
         path_stack = RecipeParser._str_to_stack_path(path)
         node = _Traverse.traverse(self._root, path_stack)
 

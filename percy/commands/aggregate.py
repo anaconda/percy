@@ -7,6 +7,7 @@ import yaml
 from itertools import groupby
 import percy.render.aggregate
 import percy.repodata.repodata
+import percy.render.recipe
 
 
 def get_configured_aggregate(cmd_line=None):
@@ -32,7 +33,8 @@ def get_configured_aggregate(cmd_line=None):
     return cwd
 
 
-def load_aggregate(obj, subdir, python, others):
+def load_aggregate(obj, subdir, python, others, renderer: percy.render.recipe.RendererType):
+    print(f"Renderer in use: {renderer.name}")
     aggregate_path = obj["aggregate_directory"]
     aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
     if not others:
@@ -40,7 +42,7 @@ def load_aggregate(obj, subdir, python, others):
         if subdir.startswith("win-"):
             others["rust_compiler"] = "rust"
     others["r_implementation"] = "r-base"
-    aggregate_repo.load_local_feedstocks(subdir, python, others)
+    aggregate_repo.load_local_feedstocks(subdir, python, others, renderer)
     return aggregate_repo
 
 
@@ -50,6 +52,15 @@ def print_build_order(buildout):
         for feedstock in stage:
             print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
 
+def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererType:
+    """
+    Takes the renderer type as a user provided string and converts it to the
+    enum form.
+    :param value:   User-provided string to parse
+    :return: Enumerated version o the parser
+    """
+    # Access should be safe as `click` handles the input limitations for us.
+    return percy.render.recipe.RendererType[value.upper()]
 
 def base_options(f):
     @click.option(
@@ -75,6 +86,17 @@ def base_options(f):
         multiple=True,
         default={},
         help="Additional key values (e.g. -k blas_impl openblas)",
+    )
+    @click.option(
+        "--renderer",
+        "-r",
+        callback=sanitize_renderer_enum,
+        type=click.Choice(
+            [e.name for e in percy.render.recipe.renderer.RendererType],
+            case_sensitive=False,
+        ),
+        default="PYYAML",
+        help="Select which rendering engine to use",
     )
     @functools.wraps(f)
     def wrapper_base_options(*args, **kwargs):
@@ -169,6 +191,7 @@ def downstream(
     subdir,
     python,
     others,
+    renderer,
     groups,
     feedstocks,
     packages,
@@ -179,7 +202,7 @@ def downstream(
     """Prints build order of feedstock downstream dependencies"""
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
     buildout = aggregate_repo.get_depends_build_order(
@@ -202,11 +225,11 @@ def downstream(
 @click.pass_obj
 @base_options
 @order_options
-def upstream(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch):
+def upstream(obj, subdir, python, others, renderer, groups, feedstocks, packages, drop_noarch):
     """Prints build order of feedstock upstream dependencies"""
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
     buildout = aggregate_repo.get_build_order(
@@ -228,11 +251,11 @@ def upstream(obj, subdir, python, others, groups, feedstocks, packages, drop_noa
 @click.pass_obj
 @base_options
 @order_options
-def order(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch):
+def order(obj, subdir, python, others, renderer, groups, feedstocks, packages, drop_noarch):
     """Prints build order of specified feedstocks"""
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
     if not groups and not feedstocks and not packages:
@@ -273,13 +296,13 @@ def order(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch
     multiple=False,
     help="Identify packages from aggregate not on defaults",
 )
-def outdated(obj, subdir, python, others, missing_local, missing_defaults):
+def outdated(obj, subdir, python, others, renderer, missing_local, missing_defaults):
     """Prints outdated with defaults"""
 
     results = {}
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # load defaults
     defaults_pkgs = percy.repodata.repodata.get_latest_package_list(subdir, True)
