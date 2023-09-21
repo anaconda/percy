@@ -1,5 +1,6 @@
 import sys
 from typing import List, TextIO
+
 import yaml
 from ruamel.yaml import YAML
 
@@ -15,7 +16,9 @@ ruamel.width = 1000
 ruamel.default_flow_style = False
 
 
-def _dump_render_results_ruamel(render_results: List, out: TextIO = sys.stdout) -> None:
+def _dump_render_results_ruamel(
+    render_results: List, out: TextIO = sys.stdout
+) -> None:
     """Dumps a list of rendered variants of a recipe.
 
     Args:
@@ -34,7 +37,9 @@ def _dump_render_results_ruamel(render_results: List, out: TextIO = sys.stdout) 
     ruamel.dump(data_to_dump, out)
 
 
-def _dump_render_results_yaml(render_results: List, out: TextIO = sys.stdout) -> None:
+def _dump_render_results_yaml(
+    render_results: List, out: TextIO = sys.stdout
+) -> None:
     """Dumps a list of rendered variants of a recipe.
 
     Args:
@@ -59,7 +64,11 @@ def _dump_render_results_yaml(render_results: List, out: TextIO = sys.stdout) ->
         fields = FIELDS
 
         def to_omap(self):
-            return [(field, self[field]) for field in _MetaYaml.fields if field in self]
+            return [
+                (field, self[field])
+                for field in _MetaYaml.fields
+                if field in self
+            ]
 
     def _represent_omap(dumper, data):
         return dumper.represent_mapping("tag:yaml.org,2002:map", data.to_omap())

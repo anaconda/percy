@@ -1,11 +1,12 @@
 """ Update a recipe
 """
 
-import percy.render.recipe as recipe
 import argparse
-from pathlib import Path
-import logging
 import json
+import logging
+from pathlib import Path
+
+import percy.render.recipe as recipe
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -39,7 +40,12 @@ def create_parser() -> argparse.ArgumentParser:
 def load_recipe(recipe_path):
     others = {"r_implementation": "r-base"}
     rendered_recipes = recipe.render(
-        recipe_path, ["linux-64"], ["3.10"], others, False, recipe.RendererType.RUAMEL
+        recipe_path,
+        ["linux-64"],
+        ["3.10"],
+        others,
+        False,
+        recipe.RendererType.RUAMEL,
     )
     rendered_recipe = next(iter(rendered_recipes))
     return rendered_recipe

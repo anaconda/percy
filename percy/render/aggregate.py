@@ -6,16 +6,16 @@ May be used to get a rough build order of packages or gather health information.
 # TODO: refactor long lines and remove the linter mute below.
 # ruff: noqa: E501
 
+import configparser
+import logging
+import subprocess
 from collections import namedtuple
 from dataclasses import dataclass
-import subprocess
-from pathlib import Path
-import logging
-import configparser
-from typing import Any, Optional
 from multiprocessing import Pool
+from pathlib import Path
+from typing import Any, Optional
 
-from percy.render.recipe import render, Package, RendererType
+from percy.render.recipe import Package, RendererType, render
 
 
 class PackageNode:
@@ -174,14 +174,18 @@ class Feedstock:
 
 def _render(feedstock_repo, recipe_path, subdir, python, others, renderer):
     try:
-        rendered_recipes = render(recipe_path, subdir, python, others, renderer=renderer)
+        rendered_recipes = render(
+            recipe_path, subdir, python, others, renderer=renderer
+        )
     except Exception as exc:
         logging.error(f"Render issue {feedstock_repo.name} : {exc}")
         rendered_recipes = []
     return feedstock_repo, rendered_recipes
 
 
-FeedstockGitRepo = namedtuple("FeedstockGitRepo", ["name", "git_url", "branch", "path"])
+FeedstockGitRepo = namedtuple(
+    "FeedstockGitRepo", ["name", "git_url", "branch", "path"]
+)
 
 
 class Aggregate:
@@ -236,7 +240,9 @@ class Aggregate:
             name = section.split('"')[1]
             git_url = f"{self.git_url.rsplit('/')[0]}/{name}.git"
             git_branch = config[section].get("branch", "main")
-            self.submodules[name] = FeedstockGitRepo(name, git_url, git_branch, path)
+            self.submodules[name] = FeedstockGitRepo(
+                name, git_url, git_branch, path
+            )
 
         # packages, feedstocks and groups
         self.packages: dict[str:Package] = {}
@@ -331,7 +337,9 @@ class Aggregate:
                 continue
 
             # add to render list
-            to_render.append((feedstock_repo, recipe_path, subdir, python, others, renderer))
+            to_render.append(
+                (feedstock_repo, recipe_path, subdir, python, others, renderer)
+            )
 
         # render recipes
         with Pool() as pool:
@@ -357,7 +365,8 @@ class Aggregate:
                     for run_export in self.packages[dep.pkg].run_exports:
                         if (
                             "*" not in rendered_pkg.ignore_run_exports
-                            and run_export not in rendered_pkg.ignore_run_exports
+                            and run_export
+                            not in rendered_pkg.ignore_run_exports
                         ):
                             rendered_pkg.run.add(run_export)
 
@@ -393,7 +402,9 @@ class Aggregate:
         """
         package_to_feedstock = {}
         for name, package in self.packages.items():
-            package_to_feedstock.setdefault(name, []).append(package.git_info.path)
+            package_to_feedstock.setdefault(name, []).append(
+                package.git_info.path
+            )
         return dict(sorted(package_to_feedstock.items()))
 
     def _build_order(self) -> dict[str, Feedstock]:
@@ -421,7 +432,9 @@ class Aggregate:
             )
             v.weight = max(v.weight, node.weight)
             v.packages[pkg] = self.packages[pkg]
-        return sorted(feedstocks.values(), key=lambda x: (1.0 / (x.weight + 1), x.name))
+        return sorted(
+            feedstocks.values(), key=lambda x: (1.0 / (x.weight + 1), x.name)
+        )
 
     def get_build_order(
         self,
@@ -454,7 +467,9 @@ class Aggregate:
                 target_feedstocks.extend([f.name for f in self.groups[group]])
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
-                target_packages.extend(self.feedstocks[feedstock].packages.keys())
+                target_packages.extend(
+                    self.feedstocks[feedstock].packages.keys()
+                )
 
         # build graph walking up from packages
         for pkg in target_packages:
@@ -463,13 +478,17 @@ class Aggregate:
         # drop graph nodes not having package as a run dependency
         if no_upstream:
             PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if k in target_packages
+                k: v
+                for k, v in PackageNode.nodes.items()
+                if k in target_packages
             }
 
         # drop noarch graph nodes
         if drop_noarch:
             PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
+                k: v
+                for k, v in PackageNode.nodes.items()
+                if not v.package.is_noarch
             }
 
         # feedstock build order
@@ -509,7 +528,9 @@ class Aggregate:
                 target_feedstocks.extend([f.name for f in self.groups[group]])
         for feedstock in target_feedstocks:
             if feedstock in self.feedstocks.keys():
-                target_packages.extend(self.feedstocks[feedstock].packages.keys())
+                target_packages.extend(
+                    self.feedstocks[feedstock].packages.keys()
+                )
         logging.info(
             f"get_depends_build_order groups:{target_groups} feedstocks:{target_feedstocks} packages:{target_packages}"
         )
@@ -536,13 +557,17 @@ class Aggregate:
         PackageNode.nodes = {
             k: v
             for k, v in PackageNode.nodes.items()
-            if any([v.package.has_dep("run", target) for target in target_packages])
+            if any(
+                [v.package.has_dep("run", target) for target in target_packages]
+            )
         }
 
         # drop noarch graph nodes
         if drop_noarch:
             PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
+                k: v
+                for k, v in PackageNode.nodes.items()
+                if not v.package.is_noarch
             }
 
         # feedstock build order

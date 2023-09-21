@@ -6,22 +6,23 @@ Not as accurate as conda-build render, but faster and architecture independent.
 # TODO: refactor long lines and remove the following linter mute
 # ruff: noqa: E501
 
-import sys
-import re
 import itertools
 import logging
+import re
+import sys
 from copy import deepcopy
-from typing import Any, Dict, List, Optional, Set, TextIO
-from pathlib import Path
 from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, TextIO
 from urllib.parse import urlparse
+
 import jsonschema
 
-from percy.render.variants import read_conda_build_config, Variant
-from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+import percy.render._dumper as dumper
 import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
-import percy.render._dumper as dumper
+from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+from percy.render.variants import Variant, read_conda_build_config
 
 
 class Recipe:
@@ -62,7 +63,10 @@ class Recipe:
                 "op": {"enum": ["add", "replace", "remove"]},
                 "path": {"type": "string"},
                 "match": {"type": "string"},
-                "value": {"type": ["string", "array"], "items": {"type": "string"}},
+                "value": {
+                    "type": ["string", "array"],
+                    "items": {"type": "string"},
+                },
                 "description": {"type": "string"},
             },
             "required": [
@@ -112,7 +116,7 @@ class Recipe:
         #: Parsed recipe YAML
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str: Package] = dict()
+        self.packages: Dict[str:Package] = dict()
 
         # These will be filled in by _load_from_string()
         #: Lines of the raw recipe file
@@ -265,7 +269,7 @@ class Recipe:
         # re-init
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str: Package] = dict()
+        self.packages: Dict[str:Package] = dict()
 
         # render meta.yaml
         self.meta = renderer.render(
@@ -286,11 +290,15 @@ class Recipe:
             if not meta:
                 return default
             try:
-                dev_url = str(meta.get("about", {}).get("dev_url", "") or "").strip()
+                dev_url = str(
+                    meta.get("about", {}).get("dev_url", "") or ""
+                ).strip()
             except AttributeError:
                 dev_url = ""
             if dev_url:
-                org = next(iter(urlparse(dev_url).path.lstrip("/").split("/")), "")
+                org = next(
+                    iter(urlparse(dev_url).path.lstrip("/").split("/")), ""
+                )
                 org = str(org or "").strip().lower()
                 if org:
                     return org
@@ -300,7 +308,9 @@ class Recipe:
         # read main package deps
         name = self.meta.get("package", {}).get("name", "unknown").strip()
         version = str(self.meta.get("package", {}).get("version", "-1")).strip()
-        number = str(dict(self.meta.get("build", {}) or {}).get("number", "0")).strip()
+        number = str(
+            dict(self.meta.get("build", {}) or {}).get("number", "0")
+        ).strip()
         group = get_group_from_dev_url(self.meta, name)
         path_prefix = ""
         is_noarch = False
@@ -390,7 +400,9 @@ class Recipe:
                 ignore_run_exports = []
                 main_build = output.get("build", {})
                 if main_build:
-                    number = str(main_build.get("number", number) or number).strip()
+                    number = str(
+                        main_build.get("number", number) or number
+                    ).strip()
                     is_noarch = main_build.get("noarch", False)
                     run_exports = main_build.get("run_exports", [])
                     if not run_exports:
@@ -404,7 +416,9 @@ class Recipe:
                             and str(i).strip()
                         )
                     ]
-                    ignore_run_exports = main_build.get("ignore_run_exports", [])
+                    ignore_run_exports = main_build.get(
+                        "ignore_run_exports", []
+                    )
                     if not ignore_run_exports:
                         ignore_run_exports = []
                 output_pkg_reqs = deepcopy(pkg_reqs)
@@ -622,7 +636,9 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations, increment_build_number=False, evaluate_selectors=True):
+    def patch(
+        self, operations, increment_build_number=False, evaluate_selectors=True
+    ):
         """Patch the recipe given a set of operations.
         Args:
             operations: operations to apply
@@ -713,7 +729,9 @@ class Recipe:
                             "\n".join(value), self.selector_dict
                         )
                     else:
-                        rval = renderer._apply_selector(value, self.selector_dict)
+                        rval = renderer._apply_selector(
+                            value, self.selector_dict
+                        )
                     if rval.strip() == "":
                         logging.warning(f"Skipping op due to selector:{opop}")
                         return
@@ -721,7 +739,9 @@ class Recipe:
                 # finding range of direct parent
                 # (not doing the leg work of going up the tree if parent is not found)
                 try:
-                    (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
+                    (start_row, start_col, end_row, _) = self.get_raw_range(
+                        parent_path
+                    )
                 except KeyError:
                     logging.warning(f"Path not found while applying op:{opop}")
                 else:
@@ -736,11 +756,13 @@ class Recipe:
                             break
                     if isinstance(value, list):
                         parent_range.insert(
-                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}:",
                         )
                         for val in value:
                             parent_range.insert(
-                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                                parent_insert_index + 1,
+                                " " * start_col + f"  - {val}",
                             )
                     else:
                         parent_range.insert(
@@ -822,19 +844,22 @@ class Recipe:
             for new_val in value:
                 for i, m in match_lines.items():
                     to_insert.add(
-                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
-                            "#", "  #", 1
-                        )
+                        m.string.replace(
+                            m.groupdict()["pattern"], new_val
+                        ).replace("#", "  #", 1)
                     )
             if not to_insert:
                 to_insert = set(value)
             for new_val in to_insert:
                 if in_list:
                     range.insert(
-                        insert_index, " " * start_col + f"- {new_val.strip(' -')}"
+                        insert_index,
+                        " " * start_col + f"- {new_val.strip(' -')}",
                     )
                 else:
-                    range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
+                    range.insert(
+                        insert_index, " " * start_col + f"{new_val.strip()}"
+                    )
 
         # apply change
         self.meta_yaml[start_row:end_row] = range
@@ -953,7 +978,9 @@ class Package:
         Returns:
             bool: True if the package is present in the given section.
         """
-        return any([pkg_name.lower() == dep.pkg.lower() for dep in self[section]])
+        return any(
+            [pkg_name.lower() == dep.pkg.lower() for dep in self[section]]
+        )
 
     def merge_deps(self, other: "Package"):
         """Merge dependency list of another Package object into this Package.
@@ -1021,7 +1048,9 @@ def render(
     return render_results
 
 
-def dump_render_results(render_results: List[Recipe], out: TextIO = sys.stdout) -> None:
+def dump_render_results(
+    render_results: List[Recipe], out: TextIO = sys.stdout
+) -> None:
     """Dumps a list of rendered variants of a recipe.
 
     Args:

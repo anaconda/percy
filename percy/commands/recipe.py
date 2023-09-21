@@ -1,10 +1,12 @@
 # ruff: noqa: E501
 
-from pathlib import Path
-import click
-import os
 import functools
 import json
+import os
+from pathlib import Path
+
+import click
+
 import percy.render.recipe
 
 
@@ -70,7 +72,9 @@ def base_options(f):
 
 
 @click.group(short_help="Commands for operating on a recipe.")
-@click.option("--recipe", "-r", metavar="FILE", help="Recipe meta.yaml to operate on.")
+@click.option(
+    "--recipe", "-r", metavar="FILE", help="Recipe meta.yaml to operate on."
+)
 @click.pass_context
 def recipe(ctx, recipe):
     """Commands that operate on a recipe."""
@@ -118,7 +122,9 @@ def outdated(obj, subdir, python, others, backend):
 
     # load defaults
     print(f"Checking outdated for subdir { subdir[0] }")
-    defaults_pkgs = percy.repodata.repodata.get_latest_package_list(subdir[0], True)
+    defaults_pkgs = percy.repodata.repodata.get_latest_package_list(
+        subdir[0], True
+    )
 
     # compare package with defaults
     for recipe in render_results:
@@ -146,7 +152,9 @@ def outdated(obj, subdir, python, others, backend):
     help="Increment build number",
 )
 @click.argument("patch_file", metavar="FILE")
-def patch(obj, subdir, python, others, backend, increment_build_number, patch_file):
+def patch(
+    obj, subdir, python, others, backend, increment_build_number, patch_file
+):
     """Patch a recipe. Takes a patch file as input, with content like:
 
     \b

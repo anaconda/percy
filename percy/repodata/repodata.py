@@ -1,8 +1,10 @@
-import requests
 import json
 import logging
-from conda.models.version import VersionOrder
+
+import requests
 from conda.exceptions import InvalidVersionSpec
+from conda.models.version import VersionOrder
+
 from percy.render.recipe import Package
 
 
@@ -44,7 +46,8 @@ def get_latest_package_list(
                 or (
                     VersionOrder(pkgs_noarch[v["name"]]["version"])
                     == VersionOrder(v["version"])
-                    and pkgs_noarch[v["name"]]["build_number"] < v["build_number"]
+                    and pkgs_noarch[v["name"]]["build_number"]
+                    < v["build_number"]
                 )
             ):
                 pkgs_noarch[v["name"]] = {
@@ -95,7 +98,8 @@ def get_latest_package_list(
                 or (
                     VersionOrder(info["version"])
                     == VersionOrder(pkgs_defaults[name]["version"])
-                    and info["build_number"] > pkgs_defaults[name]["build_number"]
+                    and info["build_number"]
+                    > pkgs_defaults[name]["build_number"]
                 )
             ):
                 logging.info(f"Found newer noarch {name} {pkgs_noarch[name]}")
@@ -124,8 +128,12 @@ def compare_package_with_defaults(
         local_build_number = int(package.number)
         if local_name in defaults_pkgs:
             defaults_version = defaults_pkgs[local_name]["version"]
-            defaults_build_number = int(defaults_pkgs[local_name]["build_number"])
-            if (VersionOrder(local_version) < VersionOrder(defaults_version)) or (
+            defaults_build_number = int(
+                defaults_pkgs[local_name]["build_number"]
+            )
+            if (
+                VersionOrder(local_version) < VersionOrder(defaults_version)
+            ) or (
                 VersionOrder(local_version) == VersionOrder(defaults_version)
                 and local_build_number < defaults_build_number
             ):

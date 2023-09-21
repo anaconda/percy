@@ -103,8 +103,8 @@ lint:			## runs the linter against the project
 	pylint --rcfile=.pylintrc $(LINTER_FILES)
 
 format:			## runs the code auto-formatter
-	isort --profile black --line-length=80 $(LINTER_FILES) percy/tests/
-	black --line-length=80 $(LINTER_FILES) percy/tests/
+	isort --profile black --line-length=80 percy
+	black --line-length=80 percy
 
 analyze:		## runs static analyzer on the project
 	mypy --config-file=.mypy.ini $(LINTER_FILES)
