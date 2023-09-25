@@ -7,6 +7,7 @@ from pathlib import Path
 
 import click
 
+import percy.commands.aggregate
 import percy.render.recipe
 
 
@@ -29,7 +30,11 @@ def base_options(f):
     @click.option(
         "--backend",
         "-b",
-        type=click.Choice(["PYYAML", "RUAMEL", "CONDA"], case_sensitive=False),
+        callback=percy.commands.aggregate.sanitize_renderer_enum,
+        type=click.Choice(
+            [e.name for e in percy.render.recipe.renderer.RendererType],
+            case_sensitive=False,
+        ),
         default="PYYAML",
         help="Renderer backend. Defaults to pyyaml.",
     )
@@ -94,7 +99,7 @@ def render(obj, subdir, python, others, backend):
         python,
         dict(others),
         False,
-        percy.render.recipe.RendererType[backend],
+        backend,
     )
 
     # dump recipe
@@ -115,7 +120,7 @@ def outdated(obj, subdir, python, others, backend):
         python,
         dict(others),
         False,
-        percy.render.recipe.RendererType[backend],
+        backend,
     )
 
     # load defaults
@@ -145,8 +150,17 @@ def outdated(obj, subdir, python, others, backend):
     multiple=False,
     help="Increment build number",
 )
+@click.option(
+    "--parse_tree",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    multiple=False,
+    help="Uses the parse tree patching system over the original implementation.",
+)
 @click.argument("patch_file", metavar="FILE")
-def patch(obj, subdir, python, others, backend, increment_build_number, patch_file):
+def patch(obj, subdir, python, others, backend, increment_build_number: bool, parse_tree: bool, patch_file):
     """Patch a recipe. Takes a patch file as input, with content like:
 
     \b
@@ -168,17 +182,29 @@ def patch(obj, subdir, python, others, backend, increment_build_number, patch_fi
 
     # render recipe
     recipe_path = obj["recipe_path"]
-    render_results = percy.render.recipe.render(
-        recipe_path,
-        subdir,
-        python,
-        dict(others),
-        False,
-        percy.render.recipe.RendererType.RUAMEL,
-    )
+    op_mode = percy.render.recipe.OpMode.CLASSIC
+    recipe: percy.render.recipe.Recipe
+    # Enables parse-tree mode
+    if parse_tree:
+        backend = percy.render.recipe.RendererType.PERCY
+        op_mode = percy.render.recipe.OpMode.PARSE_TREE
+        recipe = percy.render.recipe.Recipe.from_file(
+            recipe_path,
+            renderer=backend,
+        )
+    # Default operation
+    else:
+        render_results = percy.render.recipe.render(
+            recipe_path,
+            subdir,
+            python,
+            dict(others),
+            False,
+            backend,
+        )
+        recipe = next(iter(render_results))
 
     # patch recipe
-    recipe = next(iter(render_results))
     with open(patch_file) as p:
-        recipe.patch(json.load(p), increment_build_number)
+        recipe.patch(json.load(p), increment_build_number, op_mode=op_mode)
     print("Done")

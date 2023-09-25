@@ -10,7 +10,7 @@ CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda act
 # commands.
 PYTHON3 := $(shell which python3)
 
-.PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-cov pre-commit lint format analyze
+.PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-debug test-cov pre-commit lint format analyze
 .DEFAULT_GOAL := help
 
 CONDA_ENV_NAME ?= percy
@@ -95,6 +95,9 @@ pre-commit:     ## runs pre-commit against files. NOTE: older files are disabled
 
 test:			## runs test cases
 	$(PYTHON3) -m pytest --capture=no percy/tests/
+
+test-debug:		## runs test cases with debugging info enabled
+	$(PYTHON3) -m pytest -vv --capture=no percy/tests/
 
 test-cov:		## checks test coverage requirements
 	$(PYTHON3) -m pytest --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=10 --cov-report term-missing
