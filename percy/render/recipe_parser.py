@@ -18,6 +18,7 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe
 from __future__ import annotations
 
 import ast
+import difflib
 import json
 import re
 from typing import Any, Callable, Final, Mapping, NamedTuple, Optional, Union
@@ -1324,14 +1325,19 @@ class RecipeParser:
     #     # TODO only support: add, remove, replace
     #     return False
 
-    # def diff(self) -> str:
-    #     """
-    #     Returns a diff of the current recipe state with original state of the
-    #     recipe.
-    #     :return: User-friendly displayable string that represents
-    #              notifications made to the recipe.
-    #     """
-    #     if not self.is_modified():
-    #         return "No diff"
-    #     # TODO complete
-    #     return ""
+    def diff(self) -> str:
+        """
+        Returns a git-like-styled diff of the current recipe state with original
+        state of the recipe. Useful for debugging and providing users with some
+        feedback.
+        :return: User-friendly displayable string that represents
+                 notifications made to the recipe.
+        """
+        if not self.is_modified():
+            return "No diff found"
+        # Utilize `difflib` to lower maintenance overhead.
+        return "\n".join(
+            difflib.unified_diff(
+                self._init_content.splitlines(), self.render().splitlines(), fromfile="original", tofile="current"
+            )
+        )

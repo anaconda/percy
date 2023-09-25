@@ -620,3 +620,60 @@ def test_patch_replace() -> None:
 
 
 ## Diff ##
+def test_diff() -> None:
+    parser = load_recipe("simple-recipe.yaml")
+    # Ensure a lack of a diff works
+    assert parser.diff() == "No diff found"
+
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/build/number",
+            "value": 42,
+        }
+    )
+    # Patch a bool
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/build/is_true",
+            "value": False,
+        }
+    )
+    # Patch a string
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/about/license",
+            "value": "MIT",
+        }
+    )
+    assert parser.diff() == (
+        "--- original\n"
+        "\n"
+        "+++ current\n"
+        "\n"
+        "@@ -6,9 +6,9 @@\n"
+        "\n"
+        "   name: {{ name|lower }}  # [unix]\n"
+        " \n"
+        " build:\n"
+        "-  number: 0\n"
+        "+  number: 42\n"
+        "   skip: true  # [py<37]\n"
+        "-  is_true: true\n"
+        "+  is_true: false\n"
+        " \n"
+        " requirements:\n"
+        "   empty_field1:\n"
+        "@@ -26,7 +26,7 @@\n"
+        "\n"
+        "     This is a PEP 561 type stub package for the toml package.\n"
+        "     It can be used by type-checking tools like mypy, pyright,\n"
+        "     pytype, PyCharm, etc. to check code that uses toml.\n"
+        "-  license: Apache-2.0 AND MIT\n"
+        "+  license: MIT\n"
+        " \n"
+        " multi_level:\n"
+        "   list_1:"
+    )
