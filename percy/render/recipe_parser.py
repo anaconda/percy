@@ -1334,7 +1334,7 @@ class RecipeParser:
                  notifications made to the recipe.
         """
         if not self.is_modified():
-            return "No diff found"
+            return ""
         # Utilize `difflib` to lower maintenance overhead.
         return "\n".join(
             difflib.unified_diff(

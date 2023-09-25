@@ -623,7 +623,7 @@ def test_patch_replace() -> None:
 def test_diff() -> None:
     parser = load_recipe("simple-recipe.yaml")
     # Ensure a lack of a diff works
-    assert parser.diff() == "No diff found"
+    assert parser.diff() == ""
 
     assert parser.patch(
         {
