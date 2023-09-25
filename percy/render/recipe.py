@@ -2,9 +2,7 @@
 
 Not as accurate as conda-build render, but faster and architecture independent.
 """
-
-# TODO: refactor long lines and remove the following linter mute
-# ruff: noqa: E501
+from __future__ import annotations
 
 import itertools
 import logging
@@ -12,8 +10,9 @@ import re
 import sys
 from copy import deepcopy
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, TextIO
+from typing import Any, Callable, Dict, List, Optional, Set, TextIO
 from urllib.parse import urlparse
 
 import jsonschema
@@ -22,7 +21,17 @@ import percy.render._dumper as dumper
 import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+from percy.render.recipe_parser import JsonPatchType, RecipeParser
 from percy.render.variants import Variant, read_conda_build_config
+
+
+class OpMode(Enum):
+    """
+    Enum that allows us to A/B test new recipe features
+    """
+
+    CLASSIC = 1  # Original operational mode
+    PARSE_TREE = 2  # Operational mode that uses the work in `recipe_parser.py`
 
 
 class Recipe:
@@ -606,15 +615,83 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations, increment_build_number=False, evaluate_selectors=True):
+    def patch_with_parser(self, callback: Callable[[RecipeParser], None]) -> bool:
+        """
+        By providing a callback, this function allows calling code to utilize
+        the new parse-tree/percy recipe parser in a way that is backwards
+        compatible with the `Recipe` class.
+
+        NOTE: Expect this function to be eventually deprecated. It is provided
+              as a stop-gap as we experiment and potentially transition to
+              primarily use the `RecipeParser`/parse tree implementation.
+
+        In general, prefer using the `patch()` function in the `PARSE_TREE`
+        operating mode for most recipe-patching needs. This mechanism is
+        provided to allow callers access to some of the newest features and
+        capabilities.
+
+        :param callback:    Callback that provides a `RecipeParser` instance
+                            that can make modifications that will be reflected
+                            in the `Recipe` class.
+        :return: True if the recipe was modified. False otherwise.
+        """
+        # Temporarily swap the rendering system out to ensure consistency
+        # with the other parse tree actions.
+        old_renderer = self.renderer
+        self.renderer = RendererType.PERCY
+        # Read in the file as a string. Remembering that `recipe` stores
+        # data as a list.
+        parser = RecipeParser("\n".join(self.meta_yaml))
+
+        # Execute the callback to perform actions against the parser.
+        callback(parser)
+
+        # Back-port deltas into the recipe instance and save the file.
+        self.meta_yaml = parser.render().splitlines()
+        self.save()
+        self.render()
+        self.renderer = old_renderer
+        return parser.is_modified()
+
+    def patch(
+        self,
+        operations: list[JsonPatchType],
+        increment_build_number: bool = False,
+        evaluate_selectors: bool = True,
+        op_mode: OpMode = OpMode.CLASSIC,
+    ) -> bool:
         """Patch the recipe given a set of operations.
         Args:
             operations: operations to apply
             increment_build_number: automatically increment the build number of the operations result in changes
             evaluate_selectors: don't evaluate selectors when applying operations
+            op_mode: selects which operational mode to perform patches with
         Returns:
             True if recipe was patched. (bool).
         """
+        # Early-escape the parse-tree operational mode. Allows us to A/B test
+        # and use the newer parse tree work.
+        if op_mode == OpMode.PARSE_TREE:
+
+            def _patch_all(parser: RecipeParser) -> None:
+                # Perform all requested patches
+                for patch_op in operations:
+                    parser.patch(patch_op)
+
+                # Handles auto-incrementing the build number
+                if increment_build_number and parser.contains_value("/build/number"):
+                    build_num = parser.get_value("/build/number")
+                    build_num += 1
+                    parser.patch(
+                        {
+                            "op": "replace",
+                            "path": "/build/number",
+                            "value": build_num,
+                        }
+                    )
+
+            return self.patch_with_parser(_patch_all)
+
         if self.skip:
             logging.warning(f"Not patching skipped recipe {self.recipe_dir}")
             return False

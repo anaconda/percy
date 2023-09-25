@@ -27,6 +27,8 @@ from jsonschema import validate as schema_validate
 
 # Base types that can store value
 Primitives = Union[str, int, float, bool, None]
+# Same primitives, as a tuple. Used with `isinstance()`
+PrimitivesTuple = (str, int, float, bool, None)
 
 # Type that represents a JSON-like type
 JsonType = Union[dict[str, "JsonType"], list["JsonType"], Primitives]
@@ -284,6 +286,17 @@ class _Node:
         :return: True if the node represents an empty key. False otherwise.
         """
         return self.key_flag and self.is_leaf()
+
+    def is_single_key(self) -> bool:
+        """
+        Indicates if a node contains a single child node and is a key.
+
+        This special case is used in several edge cases. Namely, it allows the
+        rendering algorithm to print such key-value pairs on the same line.
+
+        :return: True if the node represents a single key. False otherwise.
+        """
+        return self.key_flag and len(self.children) == 1 and self.children[0].is_leaf()
 
 
 class SelectorInfo(NamedTuple):
@@ -644,7 +657,7 @@ class RecipeParser:
         Re-builds the selector look-up table. This table allows quick access to
         tree nodes that have a selector specified.
 
-        This needs to be called when the three is modified.
+        This needs to be called when the tree or selectors are modified.
         """
         self._selector_tbl: dict[str, list[SelectorInfo]] = {}
         selector_re = re.compile(r"\[.*\]")
@@ -818,7 +831,7 @@ class RecipeParser:
             return
 
         # Handle same-line printing
-        if len(node.children) == 1 and node.children[0].is_leaf():
+        if node.is_single_key():
             # Handle the edge case of a list containing 1 member
             if node.children[0].list_member_flag:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
@@ -1019,7 +1032,7 @@ class RecipeParser:
         # trailing `/` if the value is a compound type. There is an exception
         # for this rule for multiline strings, which need to be re-combined.
         if path_ends_in_slash:
-            if len(node.children) == 1:
+            if node.is_single_key():
                 if node.children[0].multiline_flag:
                     return "\n".join(node.children[0].value)
                 return node.children[0].value
