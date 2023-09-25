@@ -130,11 +130,7 @@ def pytest_generate_tests(metafunc):
     if "arch" in metafunc.fixturenames:
         values = metafunc.config.option.arch
         metafunc.parametrize("arch", values)
-    recipe_path = (
-        Path(metafunc.config.option.feedstock).expanduser().absolute()
-        / "recipe"
-        / "meta.yaml"
-    )
+    recipe_path = Path(metafunc.config.option.feedstock).expanduser().absolute() / "recipe" / "meta.yaml"
     with open(recipe_path, "r") as stream:
         contents = stream.read()
         if "python" in contents:
@@ -146,9 +142,7 @@ def pytest_generate_tests(metafunc):
 
 def test_deps(feedstock_path, aggregate_path, arch, python, channels, extras):
     if not (arch == "osx-arm64" and python == "3.7"):
-        results = check_deps(
-            feedstock_path, aggregate_path, arch, python, channels, extras
-        )
+        results = check_deps(feedstock_path, aggregate_path, arch, python, channels, extras)
         for name, problems in results.items():
             success = problems.get("success", False)
             if not success:

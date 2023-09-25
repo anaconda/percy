@@ -47,9 +47,7 @@ def get_repodata_package_list(subdir, python_ref, include_noarch=False):
         next_minor = str(int(python_ref.split(".")[-1]) + 1)
         for v in repo_package["depends"]:
             if v.find("python ") >= 0:
-                if v.find(hlp) >= 0 or match_lower(
-                    python_ref[0], next_minor, v
-                ):
+                if v.find(hlp) >= 0 or match_lower(python_ref[0], next_minor, v):
                     return True
             elif v.find(hlp2) >= 0:
                 return True
@@ -68,11 +66,7 @@ def get_repodata_package_list(subdir, python_ref, include_noarch=False):
     else:
         repodata_subdir = json.loads(response.text)
 
-    pkgs = set(
-        v["name"]
-        for v in repodata_subdir["packages"].values()
-        if (depends_on_python(v, python_ref))
-    )
+    pkgs = set(v["name"] for v in repodata_subdir["packages"].values() if (depends_on_python(v, python_ref)))
 
     if include_noarch:
         repodata_noarch = None
@@ -82,13 +76,7 @@ def get_repodata_package_list(subdir, python_ref, include_noarch=False):
             raise Exception()
         else:
             repodata_noarch = json.loads(response.text)
-        pkgs.update(
-            set(
-                v["name"]
-                for v in repodata_noarch["packages"].values()
-                if (depends_on_python(v, python_ref))
-            )
-        )
+        pkgs.update(set(v["name"] for v in repodata_noarch["packages"].values() if (depends_on_python(v, python_ref))))
 
     return sorted(list(pkgs))
 
@@ -104,9 +92,7 @@ def gen_python_build_order(
 ):
     # Helper to generate script names.
     def _script(script_name_ending):
-        return (
-            f"./{subdir}/python_{python_target}_{subdir}_{script_name_ending}"
-        )
+        return f"./{subdir}/python_{python_target}_{subdir}_{script_name_ending}"
 
     if croot is None:
         if not subdir.startswith("win-"):
@@ -117,12 +103,8 @@ def gen_python_build_order(
     os.makedirs(f"./{subdir}/", exist_ok=True)
 
     # load repodata package list
-    repodata_package_list = sorted(
-        get_repodata_package_list(subdir, python_ref, False)
-    )
-    repodata_package_list_with_noarch = sorted(
-        get_repodata_package_list(subdir, python_ref, True)
-    )
+    repodata_package_list = sorted(get_repodata_package_list(subdir, python_ref, False))
+    repodata_package_list_with_noarch = sorted(get_repodata_package_list(subdir, python_ref, True))
 
     # load aggregate
     aggregate_repo = aggregate.Aggregate(aggregate_path)
@@ -138,14 +120,10 @@ def gen_python_build_order(
         yaml.dump(aggregate_repo.package_to_feedstock_path(), f)
 
     # get feedstock build order
-    allow_list = (
-        repodata_package_list  # only packages already in subdir defaults
-    )
+    allow_list = repodata_package_list  # only packages already in subdir defaults
     # only packages already in subdir and noarch defaults
     allow_list_noarch = repodata_package_list_with_noarch
-    python_buildout = aggregate_repo.get_depends_build_order(
-        [], [], ["python"], allow_list, block_list, True
-    )
+    python_buildout = aggregate_repo.get_depends_build_order([], [], ["python"], allow_list, block_list, True)
 
     # compare local aggregate package list to repodata package list - for reference
     aggregate_package_list = []
@@ -153,34 +131,22 @@ def gen_python_build_order(
         for pkg_name in feedstock.packages.keys():
             aggregate_package_list.append(pkg_name)
     aggregate_package_list = sorted(aggregate_package_list)
-    with open(
-        f"./{subdir}/python_{python_target}_{subdir}_package_list.yaml", "w"
-    ) as f:
+    with open(f"./{subdir}/python_{python_target}_{subdir}_package_list.yaml", "w") as f:
         yaml.dump(aggregate_package_list, f)
-    repodata_package_list = sorted(
-        get_repodata_package_list(subdir, python_ref)
-    )
-    with open(
-        f"./{subdir}/python_{python_ref}_{subdir}_package_list.yaml", "w"
-    ) as f:
+    repodata_package_list = sorted(get_repodata_package_list(subdir, python_ref))
+    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list.yaml", "w") as f:
         yaml.dump(repodata_package_list, f)
     with open(
         f"./{subdir}/python_{python_ref}_{subdir}_package_list_missing.yaml",
         "w",
     ) as f:
         yaml.dump(
-            sorted(
-                list(set(repodata_package_list) - set(aggregate_package_list))
-            ),
+            sorted(list(set(repodata_package_list) - set(aggregate_package_list))),
             f,
         )
-    with open(
-        f"./{subdir}/python_{python_ref}_{subdir}_package_list_new.yaml", "w"
-    ) as f:
+    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list_new.yaml", "w") as f:
         yaml.dump(
-            sorted(
-                list(set(aggregate_package_list) - set(repodata_package_list))
-            ),
+            sorted(list(set(aggregate_package_list) - set(repodata_package_list))),
             f,
         )
 
@@ -192,9 +158,7 @@ def gen_python_build_order(
     for feedstock in python_buildout_with_noarch:
         for pkg_name in feedstock.packages.keys():
             aggregate_package_list_with_noarch.append(pkg_name)
-    aggregate_package_list_with_noarch = sorted(
-        aggregate_package_list_with_noarch
-    )
+    aggregate_package_list_with_noarch = sorted(aggregate_package_list_with_noarch)
     with open(f"./{subdir}/python_full_package_list.yaml", "w") as f:
         yaml.dump(
             dict(
@@ -208,10 +172,7 @@ def gen_python_build_order(
     shutil.copy(Path(__file__).parent / "test_install.py", f"./{subdir}/")
 
     # write stage build scripts
-    stages = [
-        list(result)
-        for key, result in groupby(python_buildout, key=lambda f: f.weight)
-    ]
+    stages = [list(result) for key, result in groupby(python_buildout, key=lambda f: f.weight)]
     n_stages = len(stages)
 
     if not subdir.startswith("win-"):
@@ -361,9 +322,7 @@ def create_parser() -> argparse.ArgumentParser:
         help="aggregate path",
         default="/Users/cbousseau/work/recipes/aggregate2/",
     )
-    parser.add_argument(
-        "-s", "--subdir", type=str, help="Architecture", default="linux-64"
-    )
+    parser.add_argument("-s", "--subdir", type=str, help="Architecture", default="linux-64")
     parser.add_argument(
         "-r",
         "--python-ref",

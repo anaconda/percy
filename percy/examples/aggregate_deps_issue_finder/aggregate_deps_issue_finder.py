@@ -28,9 +28,7 @@ def get_repodata_package_list(subdir):
     for v in repodata_subdir["packages"].values():
         if v["name"] in pkgs:
             continue
-        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(
-            v["version"]
-        ):
+        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
             pkgs[v["name"]] = {"version": v["version"], "noarch": False}
 
     repodata_noarch = None
@@ -43,9 +41,7 @@ def get_repodata_package_list(subdir):
     for v in repodata_noarch["packages"].values():
         if v["name"] in pkgs:
             continue
-        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(
-            v["version"]
-        ):
+        if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
             pkgs[v["name"]] = {"version": v["version"], "noarch": True}
 
     return pkgs
@@ -69,18 +65,12 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
             return issues[issue_type].setdefault(git_name, [])
 
         def get_issue(issue_type, name, proto):
-            return (
-                issues[issue_type]
-                .setdefault(git_name, {})
-                .setdefault(name, proto)
-            )
+            return issues[issue_type].setdefault(git_name, {}).setdefault(name, proto)
 
         # find local feedstocks with cbc run dep not set in host
         run_deps = set([run_dep.pkg for run_dep in rendered_pkg.run])
         host_deps = set([host_dep.pkg for host_dep in rendered_pkg.host])
-        for pkg in set(rendered_pkg.recipe.selector_dict).intersection(
-            run_deps
-        ):
+        for pkg in set(rendered_pkg.recipe.selector_dict).intersection(run_deps):
             # print(name, pkg, host_deps)
             if pkg not in host_deps and pkg not in excludes:
                 rec = get_issue_type("missing_host")
@@ -104,23 +94,16 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
             }
             if rendered_pkg.version == "-1":
                 rendered_pkg.version = "0a"
-            if VersionOrder(rendered_pkg.version) < VersionOrder(
-                default_version
-            ):
+            if VersionOrder(rendered_pkg.version) < VersionOrder(default_version):
                 prototype["subdir"] = [subdir]
                 rec = get_issue("outdated_local", name, prototype)
                 if subdir not in rec["subdir"]:  # dead code?
                     rec["subdir"].append(subdir)
-                if (
-                    rendered_pkg.has_dep("run", "python")
-                    and not default_is_noarch
-                ):
+                if rendered_pkg.has_dep("run", "python") and not default_is_noarch:
                     rec = get_issue("outdated_py_local", name, prototype)
                     if subdir not in rec["subdir"]:
                         rec["subdir"].append(subdir)
-            elif VersionOrder(rendered_pkg.version) > VersionOrder(
-                default_version
-            ):
+            elif VersionOrder(rendered_pkg.version) > VersionOrder(default_version):
                 rec = get_issue("outdated_defaults", subdir, [])
                 if rendered_pkg.name not in rec:
                     prototype["name"] = rendered_pkg.name

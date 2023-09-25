@@ -71,9 +71,7 @@ def create_parser() -> argparse.ArgumentParser:
         help="Subdir: e.g. linux-64",
         default="linux-64",
     )
-    parser.add_argument(
-        "-g", "--glibc", type=str, help="glibc version", default=None
-    )
+    parser.add_argument("-g", "--glibc", type=str, help="glibc version", default=None)
     parser.add_argument(
         "-s",
         "--solver",
@@ -82,9 +80,7 @@ def create_parser() -> argparse.ArgumentParser:
         choices=["classic", "libmamba"],
         default="libmamba",
     )
-    parser.add_argument(
-        "-c", "--channel", type=str, action="append", default=["defaults"]
-    )
+    parser.add_argument("-c", "--channel", type=str, action="append", default=["defaults"])
     parser.add_argument("--override-channels", action="store_true")
     parser.add_argument(
         "packages",

@@ -24,9 +24,7 @@ def get_configured_aggregate(cmd_line=None):
     cwd = Path(os.getcwd())
     path = cwd
     while path != path.parent:
-        if (path / "manifest.yaml").exists() or (
-            path / "make-mixed-crlf-patch.py"
-        ).exists():
+        if (path / "manifest.yaml").exists() or (path / "make-mixed-crlf-patch.py").exists():
             return path
         path = path.parent
     # look in well known locations
@@ -35,9 +33,7 @@ def get_configured_aggregate(cmd_line=None):
     return cwd
 
 
-def load_aggregate(
-    obj, subdir, python, others, renderer: percy.render.recipe.RendererType
-):
+def load_aggregate(obj, subdir, python, others, renderer: percy.render.recipe.RendererType):
     print(f"Renderer in use: {renderer.name}")
     aggregate_path = obj["aggregate_directory"]
     aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
@@ -51,20 +47,13 @@ def load_aggregate(
 
 
 def print_build_order(buildout):
-    stages = [
-        list(result)
-        for key, result in groupby(buildout, key=lambda f: f.weight)
-    ]
+    stages = [list(result) for key, result in groupby(buildout, key=lambda f: f.weight)]
     for i, stage in enumerate(stages):
         for feedstock in stage:
-            print(
-                f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}"
-            )
+            print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
 
 
-def sanitize_renderer_enum(
-    _0, _1, value: str
-) -> percy.render.recipe.RendererType:
+def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererType:
     """
     Takes the renderer type as a user provided string and converts it to the
     enum form.
@@ -221,9 +210,7 @@ def downstream(
     aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_depends_build_order(
-        groups, feedstocks, packages, allow_list, block_list, drop_noarch
-    )
+    buildout = aggregate_repo.get_depends_build_order(groups, feedstocks, packages, allow_list, block_list, drop_noarch)
 
     # print build order
     order = " ".join(
@@ -260,9 +247,7 @@ def upstream(
     aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_build_order(
-        groups, feedstocks, packages, drop_noarch, False
-    )
+    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, False)
 
     # print build order
     order = " ".join(
@@ -300,9 +285,7 @@ def order(
     # get feedstock build order
     if not groups and not feedstocks and not packages:
         feedstocks = aggregate_repo.feedstocks.keys()
-    buildout = aggregate_repo.get_build_order(
-        groups, feedstocks, packages, drop_noarch, True
-    )
+    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, True)
 
     # print build order
     order = " ".join(
@@ -338,9 +321,7 @@ def order(
     multiple=False,
     help="Identify packages from aggregate not on defaults",
 )
-def outdated(
-    obj, subdir, python, others, renderer, missing_local, missing_defaults
-):
+def outdated(obj, subdir, python, others, renderer, missing_local, missing_defaults):
     """Prints outdated with defaults"""
 
     results = {}
@@ -349,15 +330,11 @@ def outdated(
     aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # load defaults
-    defaults_pkgs = percy.repodata.repodata.get_latest_package_list(
-        subdir, True
-    )
+    defaults_pkgs = percy.repodata.repodata.get_latest_package_list(subdir, True)
 
     # compare aggregate with defaults
     for local_name, package in aggregate_repo.packages.items():
-        result = percy.repodata.repodata.compare_package_with_defaults(
-            package, defaults_pkgs
-        )
+        result = percy.repodata.repodata.compare_package_with_defaults(package, defaults_pkgs)
         if result:
             results[local_name] = result
 
@@ -369,9 +346,7 @@ def outdated(
                 "local_version": None,
                 "local_build_number": None,
                 "defaults_version": defaults_pkgs[name]["version"],
-                "defaults_build_number": int(
-                    defaults_pkgs[name]["build_number"]
-                ),
+                "defaults_build_number": int(defaults_pkgs[name]["build_number"]),
             }
 
     # find missing from defaults
