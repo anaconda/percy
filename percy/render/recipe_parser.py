@@ -46,7 +46,7 @@ _StrStack = list[str]
 _StrStackImmutable = tuple[str]
 
 # Type alias for a table that maps operations to functions.
-_OpsTable = dict[str, Callable[[str, _StrStack, JsonType], bool]]
+_OpsTable = dict[str, Callable[[str, _StrStack, Optional[JsonType]], bool]]
 
 # Indicates how many spaces are in a level of indentation
 TAB_SPACE_COUNT: Final[str] = 2
@@ -89,16 +89,10 @@ JSON_PATCH_SCHEMA: Final[SchemaType] = {
         "path",
     ],
     "allOf": [
-        # `value` is required for `add`/`remove`/`replace`/`test`
+        # `value` is required for `add`/`replace`/`test`
         {
             "if": {
                 "properties": {"op": {"const": "add"}},
-            },
-            "then": {"required": ["value"]},
-        },
-        {
-            "if": {
-                "properties": {"op": {"const": "remove"}},
             },
             "then": {"required": ["value"]},
         },
@@ -337,13 +331,20 @@ class _Traverse:
             path_idx = int(path_part)
             if path_idx < 0 or path_idx > max_idx:
                 return None
+            # Edge case: someone attempts to use the index syntax on a non-list
+            # member. As children are stored as a list per node, this could "work"
+            # with unintended consequences. In other words, users could accidentally
+            # abuse underlying implementation details.
+            if not node.children[path_idx].list_member_flag:
+                return None
+
             path.pop()
             return _Traverse._traverse_recurse(node.children[path_idx], path)
 
         for child in node.children:
             # Remember: for nodes that represent part of the path, the "value"
             # stored in the node is part of the path-name.
-            if child.value == path[-1]:
+            if child.value == path_part:
                 path.pop()
                 return _Traverse._traverse_recurse(child, path)
         # Path not found
@@ -373,6 +374,35 @@ class _Traverse:
         # Purge `root` from the path
         path.pop()
         return _Traverse._traverse_recurse(node, path)
+
+    @staticmethod
+    def traverse_with_index(root: _Node, path: _StrStack) -> tuple[Optional[_Node], int]:
+        """
+        Given a path, return the node of interest OR the parent node with
+        indexing information, if the node is in a list.
+        :param root:    Starting node of the tree/branch to traverse.
+        :param path:    Path, as a stack, that describes a location in the tree.
+        :return: A tuple containing two items:
+                   - `_Node` object if a node is found in the parse tree at that
+                     path. Otherwise returns `None`. If the path terminates in
+                     an index, the parent is returned with the index location.
+                   - If the node is a member of a list, the index returned will
+                     be >= 0.
+        """
+        if len(path) == 0:
+            return None
+
+        node: _Node
+        node_idx: int = -1
+        # Pre-determine if the path is targeting a list position. Patching
+        # only applies on the last index provided.
+        if path[0].isdigit():
+            # Find the index position of the target on the parent's list
+            node_idx = int(path.pop(0))
+
+        node = _Traverse.traverse(root, path)
+
+        return node, node_idx
 
     @staticmethod
     def traverse_all(
@@ -876,10 +906,11 @@ class RecipeParser:
             # Empty keys can be easily confused for leaf nodes. The difference
             # is these nodes render with a "dangling" `:` mark
             elif child.is_empty_key():
+                # Top-level empty-key edge case: Top level keys should have no
+                # additional indentation.
+                extra_tab = "" if depth < 0 else TAB_AS_SPACES
                 lines.append(
-                    f"{spaces}{TAB_AS_SPACES}"
-                    f"{RecipeParser._stringify_yaml(child.value)}:  "
-                    f"{child.comment}".rstrip()
+                    f"{spaces}{extra_tab}" f"{RecipeParser._stringify_yaml(child.value)}:  " f"{child.comment}".rstrip()
                 )
             # Leaf nodes are rendered as members in a list
             elif child.is_leaf():
@@ -1175,34 +1206,114 @@ class RecipeParser:
 
     # TODO complete: set/add and remove selectors
 
-    def _patch_replace(self, _: str, path_stack: _StrStack, value: JsonType) -> bool:
+    @staticmethod
+    def _is_valid_patch_node(node: _Node, node_idx: int) -> bool:
         """
-        Performs a JSON patch `replace` operation.
-        :param path_stack:  Path that describes a location in the tree, as a
-                            list, treated like a stack.
-        :param value:   Value to update with.
-        :raises UnsupportedOpException: If the operation preformed is not
-                                        supported. TODO Exception will no longer
-                                        be raised when support is added.
+        Indicates if the target node to perform a patch operation against is
+        a valid node. This is based on the RFC spec for JSON patching paths.
+        :param node:        Target node to validate
+        :param node_idx:    If caller is evaluating if a list member, exists,
+                            this is the index into that list. Otherwise this
+                            value should be less than 0.
+        :return: True if the node can be patched. False otherwise.
         """
-        node: _Node
-        node_idx: int = -1
-        # Pre-determine if the path is targeting a list position. Patching
-        # only applies on the last index provided.
-        if path_stack[0].isdigit():
-            # Find the index and parent of the target
-            node_idx = int(path_stack.pop(0))
-            node = _Traverse.traverse(self._root, path_stack)
-        else:
-            node = _Traverse.traverse(self._root, path_stack)
         # Path not found
         if node is None:
             return False
 
         # Leaf nodes contain values and not path information. Paths should
         # not be made that access leaf nodes, with the exception of members
-        # of a list. Making such a path violates the RFC.
-        if not node.list_member_flag and node.is_leaf():
+        # of a list and keys. Making such a path violates the RFC.
+        if not node.list_member_flag and not node.key_flag and node.is_leaf():
+            return False
+
+        # Check the bounds if the target requires the use of an index.
+        if node_idx >= 0 and node_idx > (len(node.children) - 1):
+            return False
+
+        return True
+
+    def _patch_add(self, _: str, path_stack: _StrStack, value: JsonType) -> bool:
+        """
+        Performs a JSON patch `add` operation.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
+        :param value:       Value to add.
+        """
+        if len(path_stack) == 0:
+            return False
+
+        # Special case that only applies to `add`. The `-` character indicates
+        # the new element can be added to the end of the list.
+        append_to_list = False
+        if path_stack[0] == "-":
+            path_stack.pop(0)
+            append_to_list = True
+
+        node, node_idx = _Traverse.traverse_with_index(self._root, path_stack)
+        if not RecipeParser._is_valid_patch_node(node, node_idx):
+            return False
+
+        new_children: Final[list[_Node]] = RecipeParser._generate_subtree(value)
+        # Mark children as list members if they are list members
+        if append_to_list or node_idx >= 0:
+            for child in new_children:
+                child.list_member_flag = True
+
+        # Insert members if an index is specified. Otherwise, extend the list of
+        # child nodes from the existing list.
+        if node_idx >= 0:
+            node.children[node_idx:node_idx] = new_children
+        else:
+            node.children.extend(new_children)
+
+        return True
+
+    def _patch_remove(
+        self, _0: str, path_stack: _StrStack, _1: Optional[JsonType]  # pylint: disable=invalid-name
+    ) -> bool:
+        """
+        Performs a JSON patch `remove` operation.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
+        """
+        if len(path_stack) == 0:
+            return False
+
+        # Removal in all scenarios requires targeting the parent node.
+        node_idx = -1 if not path_stack[0].isdigit() else int(path_stack[0])
+        # `traverse()` is destructive to the stack, so make a copy for the second
+        # traversal call.
+        path_stack_copy = path_stack.copy()
+        node_to_rm = _Traverse.traverse(self._root, path_stack)
+        path_stack_copy.pop(0)
+        node = _Traverse.traverse(self._root, path_stack_copy)
+
+        if not RecipeParser._is_valid_patch_node(node_to_rm, -1) or not RecipeParser._is_valid_patch_node(
+            node, node_idx
+        ):
+            return False
+
+        if node_idx >= 0:
+            node.children.pop(node_idx)
+            return True
+
+        # In all other cases, the node to be removed must be found before eviction
+        for i in range(len(node.children)):
+            if node.children[i] == node_to_rm:
+                node.children.pop(i)
+                return True
+        return False
+
+    def _patch_replace(self, _: str, path_stack: _StrStack, value: JsonType) -> bool:
+        """
+        Performs a JSON patch `replace` operation.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
+        :param value:       Value to update with.
+        """
+        node, node_idx = _Traverse.traverse_with_index(self._root, path_stack)
+        if not RecipeParser._is_valid_patch_node(node, node_idx):
             return False
 
         new_children: Final[list[_Node]] = RecipeParser._generate_subtree(value)
@@ -1216,7 +1327,7 @@ class RecipeParser:
             node.children.pop(node_idx + len(new_children))
             return True
 
-        # Leaves that represent values/paths of values can evict all
+        # Leafs that represent values/paths of values can evict all
         # children, and be replaced with new children, derived from a new
         # tree of values.
         node.children = new_children
@@ -1225,8 +1336,8 @@ class RecipeParser:
     def _patch_test(self, path: str, _: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `test` operation.
-        :param path:        Path as a string. Useful for invoking public
-                            class members.
+        :param path:    Path as a string. Useful for invoking public
+                        class members.
         :param value:   Value to evaluate against.
         """
         try:
@@ -1244,6 +1355,8 @@ class RecipeParser:
         operations are currently available AND simplifies "switch"-like logic.
         """
         return {
+            "add": self._patch_add,
+            "remove": self._patch_remove,
             "replace": self._patch_replace,
             "test": self._patch_test,
         }
@@ -1299,8 +1412,9 @@ class RecipeParser:
         value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
         # Both versions of the path are sent over so that the op can easily use
         # both private and public functions (without incurring even more
-        # conversions between path types).
-        is_successful = supported_patch_ops[op](path, path_stack, patch[value_from])
+        # conversions between path types). NOTE: The `remove` op has no `value`
+        # or `from` field to pass in.
+        is_successful = supported_patch_ops[op](path, path_stack, None if op == "remove" else patch[value_from])
 
         # Update the selector table and modified flag, if the operation
         # succeeded.
