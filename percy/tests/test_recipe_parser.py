@@ -19,7 +19,7 @@ TEST_FILES_PATH = "percy/tests/test_aux_files"
 # Long multi-line description string found in the `simple-recipe.yaml` test file
 SIMPLE_DESCRIPTION: Final[
     str
-] = "This is a PEP 561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."  # pylint: disable=line-too-long
+] = "This is a PEP '561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."  # pylint: disable=line-too-long
 
 
 def load_file(file: Path | str) -> str:
@@ -451,15 +451,6 @@ def test_patch_path_invalid() -> None:
         parser.patch(
             {
                 "op": "add",
-                "path": "/build/skip/true",
-                "value": False,
-            }
-        )
-    )
-    assert not (
-        parser.patch(
-            {
-                "op": "add",
                 "path": "/multi_level/list2/4",
                 "value": 42,
             }
@@ -656,6 +647,101 @@ def test_patch_add() -> None:
     """
     parser = load_recipe("simple-recipe.yaml")
 
+    # As per the RFC, `add` will not construct multiple-levels of non-existing
+    # structures. The containing object(s)/list(s) must exist.
+    assert not parser.patch(
+        {
+            "op": "add",
+            "path": "/build/fake/meaning_of_life",
+            "value": 42,
+        }
+    )
+    # Similarly, appending to a list
+    assert not parser.patch(
+        {
+            "op": "add",
+            "path": "/requirements/empty_field1/-/blah",
+            "value": 42,
+        }
+    )
+    assert not parser.is_modified()
+
+    # Add primitive values
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/build/meaning_of_life",
+            "value": 42,
+        }
+    )
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/package/is_cool_name",
+            "value": True,
+        }
+    )
+
+    # Add to empty-key node
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/requirements/empty_field2",
+            "value": "Not so empty now",
+        }
+    )
+
+    # Add list items
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/multi_level/list_2/1",
+            "value": "We got it all on UHF",
+        }
+    )
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/multi_level/list_1/0",
+            "value": "There's just one place to go for all your spatula needs!",
+        }
+    )
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/multi_level/list_1/-",
+            "value": "Spatula City!",
+        }
+    )
+
+    # Add a complex value
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/test_var_usage",
+            "value": {
+                "Stanley": [
+                    "Oh, Joel Miller, you've just found the marble in the oatmeal.",
+                    "You're a lucky, lucky, lucky little boy.",
+                    "'Cause you know why?",
+                    "You get to drink from... the FIRE HOOOOOSE!",
+                ]
+            },
+        }
+    )
+
+    # Add a top-level complex value
+    assert parser.patch(
+        {
+            "op": "add",
+            "path": "/U62",
+            "value": {
+                "George": ["How'd you like your own TV show?", "You're on"],
+                "Stanley": ["Ok"],
+            },
+        }
+    )
+
     # Sanity check: validate all modifications
     assert parser.is_modified()
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_add.yaml")
@@ -666,6 +752,7 @@ def test_patch_remove() -> None:
     Tests the `remove` patch op.
     """
     parser = load_recipe("simple-recipe.yaml")
+
     # Remove primitive values
     assert parser.patch(
         {
@@ -679,6 +766,7 @@ def test_patch_remove() -> None:
             "path": "/package/name",
         }
     )
+
     # Remove empty-key node
     assert parser.patch(
         {
@@ -850,7 +938,7 @@ def test_diff() -> None:
         "   empty_field1:\n"
         "@@ -26,7 +26,7 @@\n"
         "\n"
-        "     This is a PEP 561 type stub package for the toml package.\n"
+        "     This is a PEP '561 type stub package for the toml package.\n"
         "     It can be used by type-checking tools like mypy, pyright,\n"
         "     pytype, PyCharm, etc. to check code that uses toml.\n"
         "-  license: Apache-2.0 AND MIT\n"

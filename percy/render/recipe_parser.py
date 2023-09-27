@@ -157,6 +157,16 @@ class JsonPatchValidationException(Exception):
         super().__init__(f"Invalid patch was attempted:\n{json.dumps(patch, indent=2)}")
 
 
+class ForceIndentDumper(yaml.Dumper):
+    """
+    Custom YAML dumper used to include optional indentation for human readability.
+    Adapted from: https://stackoverflow.com/questions/25108581/python-yaml-dump-bad-indentation
+    """
+
+    def increase_indent(self, flow=False, indentless=False):  # pylint: disable=unused-argument
+        return super().increase_indent(flow, False)
+
+
 class _Node:
     """
     Private class representing a node in a recipe parse tree.
@@ -497,11 +507,14 @@ class RecipeParser:
         return s
 
     @staticmethod
-    def _stringify_yaml(val: Primitives) -> Primitives:
+    def _stringify_yaml(val: Primitives, multiline_flag: bool = False) -> Primitives:
         """
         Special function for handling edge cases when converting values back
         to YAML.
         :param val: Value to check
+        :param multiline_flag:  (Optional) If the value being processed is a
+                                multiline string, set this flag to True to
+                                prevent unintended quote-escaping.
         :return: YAML version of a value, as a string.
         """
         # None -> null
@@ -512,6 +525,15 @@ class RecipeParser:
             if val:
                 return "true"
             return "false"
+        # Ensure string quote escaping if quote marks are present. Otherwise
+        # this has the unintended consequence of quoting all YAML strings.
+        # Although not wrong, it does not follow our common practices.
+        # Quote escaping is not required for multiline strings.
+        if not multiline_flag and isinstance(val, str):
+            if "'" in val or '"' in val:
+                # The PyYaml equivalent function injects newlines, hence why
+                # we abuse the JSON library to write our YAML.
+                return json.dumps(val)
         return val
 
     @staticmethod
@@ -678,7 +700,11 @@ class RecipeParser:
         # For complex types, generate the YAML equivalent and build
         # a new tree.
         if isinstance(value, (dict, list)):
-            return RecipeParser(yaml.dump(value))._root.children  # pylint: disable=protected-access
+            # Although not technically required by YAML, we add the optional
+            # spacing for human readability.
+            return RecipeParser(  # pylint: disable=protected-access
+                yaml.dump(value, Dumper=ForceIndentDumper)
+            )._root.children
 
         # Primitives can be safely stringified to generate a parse tree.
         return RecipeParser(str(RecipeParser._stringify_yaml(value)))._root.children  # pylint: disable=protected-access
@@ -868,7 +894,7 @@ class RecipeParser:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
                 lines.append(
                     f"{spaces}{TAB_AS_SPACES}- "
-                    f"{RecipeParser._stringify_yaml(node.children[0].value)}  "
+                    f"{RecipeParser._stringify_yaml(node.children[0].value, True)}  "
                     f"{node.children[0].comment}".rstrip()
                 )
                 return
@@ -880,7 +906,7 @@ class RecipeParser:
             if node.children[0].multiline_flag:
                 lines.append(f"{spaces}{node.value}: |  {node.comment}".rstrip())
                 for val_line in node.children[0].value:
-                    lines.append(f"{spaces}{TAB_AS_SPACES}" f"{RecipeParser._stringify_yaml(val_line)}".rstrip())
+                    lines.append(f"{spaces}{TAB_AS_SPACES}" f"{RecipeParser._stringify_yaml(val_line, True)}".rstrip())
                 return
             lines.append(
                 f"{spaces}{node.value}: "
@@ -1204,8 +1230,6 @@ class RecipeParser:
 
     ## YAML Patching Functions ##
 
-    # TODO complete: set/add and remove selectors
-
     @staticmethod
     def _is_valid_patch_node(node: _Node, node_idx: int) -> bool:
         """
@@ -1231,6 +1255,11 @@ class RecipeParser:
         if node_idx >= 0 and node_idx > (len(node.children) - 1):
             return False
 
+        # You cannot use the list access feature to access non-lists
+        if node_idx >= 0 and len(node.children):
+            if not node.children[0].list_member_flag:
+                return False
+
         return True
 
     def _patch_add(self, _: str, path_stack: _StrStack, value: JsonType) -> bool:
@@ -1240,6 +1269,14 @@ class RecipeParser:
                             list, treated like a stack.
         :param value:       Value to add.
         """
+        # NOTE: From the RFC:
+        #    "Because this operation is designed to add to existing objects and
+        #    arrays, its target location will often not exist...However, the
+        #    object itself or an array containing it does need to exist"
+        # In other words, the
+        # In addition, that also implies that trying to append to an existing
+        # list only applies if the append operation is `-`
+
         if len(path_stack) == 0:
             return False
 
@@ -1250,9 +1287,23 @@ class RecipeParser:
             path_stack.pop(0)
             append_to_list = True
 
+        path_stack_copy = path_stack.copy()
         node, node_idx = _Traverse.traverse_with_index(self._root, path_stack)
+        # Attempt to run a second time, if no node is found. As per the RFC,
+        # the containing object/list must exist. That allows us to create only
+        # 1 level in the path.
+        path_to_create = ""
+        if node is None:
+            path_to_create = path_stack_copy.pop(0)
+            node, node_idx = _Traverse.traverse_with_index(self._root, path_stack_copy)
+
         if not RecipeParser._is_valid_patch_node(node, node_idx):
             return False
+
+        # If we couldn't find 1 level in the path, ensure that we re-insert that
+        # as the "root" of the sub-tree we are about to create.
+        if path_to_create:
+            value = {path_to_create: value}
 
         new_children: Final[list[_Node]] = RecipeParser._generate_subtree(value)
         # Mark children as list members if they are list members
