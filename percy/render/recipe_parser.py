@@ -113,34 +113,17 @@ JSON_PATCH_SCHEMA: Final[SchemaType] = {
             "if": {
                 "properties": {"op": {"const": "move"}},
             },
-            "then": {"required": ["from"], "type": "string"},
+            "then": {"required": ["from"]},
         },
         {
             "if": {
                 "properties": {"op": {"const": "copy"}},
             },
-            "then": {"required": ["from"], "type": "string"},
+            "then": {"required": ["from"]},
         },
     ],
     "additionalProperties": False,
 }
-
-
-class UnsupportedOpException(Exception):
-    """
-    Indicates that the calling code has attempted to perform an unsupported
-    operation.
-    """
-
-    def __init__(self, op: str):
-        """
-        Constructs an Unsupported Operation Exception
-        :param op: Operation being encountered.
-        """
-        message = "An unspecified operation was encountered."
-        if op:
-            message = f"Unsupported operation encountered: {op}"
-        super().__init__(message)
 
 
 class JsonPatchValidationException(Exception):
@@ -322,6 +305,36 @@ class _Traverse:
     """
 
     @staticmethod
+    def _remap_child_indices(children: list[_Node]) -> list[int]:
+        """
+        Given a list of child nodes, generate a look-up table to map the
+        "virtual" index positions with the "physical" locations.
+
+        A recipe file may have comment lines, represented as child nodes. For
+        rendering, these nodes must be preserved, in-order.
+
+        For manipulating and accessing list members, however, comments are to
+        be ignored. The calling program should not rely on our implementation
+        details and should be able to access a member of a list as expected.
+        In other words, users will not consider comments in a list as indexable
+        list members.
+
+        :param children:    Child node list to process.
+        :return: A list of indices. Indexing this list with the "virtual"
+                 (user-provided) index will return the "physical" list position.
+        """
+        mapping: list[int] = []
+        cntr = 0
+        for child in children:
+            if child.is_comment():
+                cntr += 1
+                continue
+            mapping.append(cntr)
+            cntr += 1
+
+        return mapping
+
+    @staticmethod
     def _traverse_recurse(node: _Node, path: _StrStack) -> Optional[_Node]:
         """
         Recursive helper function for traversing a tree.
@@ -336,11 +349,15 @@ class _Traverse:
         path_part = path[-1]
         # Check if the path is attempting an array index.
         if path_part.isdigit():
-            # Check if index is in range
-            max_idx = len(node.children) - 1
-            path_idx = int(path_part)
-            if path_idx < 0 or path_idx > max_idx:
+            # Map virtual to physical indices and perform some out-of-bounds
+            # checks.
+            idx_map = _Traverse._remap_child_indices(node.children)
+            virtual_idx = int(path_part)
+            max_idx = len(idx_map) - 1
+            if virtual_idx < 0 or virtual_idx > max_idx:
                 return None
+
+            path_idx = idx_map[virtual_idx]
             # Edge case: someone attempts to use the index syntax on a non-list
             # member. As children are stored as a list per node, this could "work"
             # with unintended consequences. In other words, users could accidentally
@@ -1059,23 +1076,13 @@ class RecipeParser:
         """
         Retrieves a value at a given path. If the value is not found, return a
         specified default value or throw.
-        :param path:    JSON patch (RFC 6902)-style path to a value. NOTE: There
-                        is no "get" op in JSON patch. To get the value (not
-                        the key-value pair) at a path, add a `/` at the end
-                        of the path. For paths that are lists/objects, this is
-                        ignored.
-
-                        For example:
-                            /build/number  -> { "number": 0 }
-                            /build/number/ -> 0
+        :param path:    JSON patch (RFC 6902)-style path to a value.
         :param default: (Optional) If the value is not found, return this value
                         instead.
         :raises KeyError: If the value is not found AND no default is specified
         :return: If found, the value in the recipe at that path. Otherwise, the
                  caller-specified default value.
         """
-        # Ignore the root case
-        path_ends_in_slash = len(path) > 1 and path[-1] == _ROOT_NODE_VALUE
         path_stack = RecipeParser._str_to_stack_path(path)
         node = _Traverse.traverse(self._root, path_stack)
 
@@ -1085,15 +1092,11 @@ class RecipeParser:
                 raise KeyError(f"No value/key found at path {path!r}")
             return default
 
-        # Handle unpacking of the last key-value set of nodes, if `/` is
-        # specified and the target node is a single key-value-pair. Ignore the
-        # trailing `/` if the value is a compound type. There is an exception
-        # for this rule for multiline strings, which need to be re-combined.
-        if path_ends_in_slash:
-            if node.is_single_key():
-                if node.children[0].multiline_flag:
-                    return "\n".join(node.children[0].value)
-                return node.children[0].value
+        # Handle unpacking of the last key-value set of nodes.
+        if node.is_single_key() and not node.is_root():
+            if node.children[0].multiline_flag:
+                return "\n".join(node.children[0].value)
+            return node.children[0].value
 
         # Leaf nodes can return their value directly
         if node.is_leaf():
@@ -1269,8 +1272,8 @@ class RecipeParser:
                             list, treated like a stack.
         :param value:       Value to add.
         """
-        # NOTE: From the RFC:
-        #    "Because this operation is designed to add to existing objects and
+        # NOTE from the RFC:
+        #   "Because this operation is designed to add to existing objects and
         #    arrays, its target location will often not exist...However, the
         #    object itself or an array containing it does need to exist"
         # In other words, the
@@ -1315,8 +1318,13 @@ class RecipeParser:
         # child nodes from the existing list.
         if node_idx >= 0:
             node.children[node_idx:node_idx] = new_children
-        else:
+        # Extend the list of children if we're appending or adding a new key.
+        elif append_to_list or path_to_create:
             node.children.extend(new_children)
+        # NOTE from the RFC:
+        #   "If the member already exists, it is replaced by the specified value."
+        else:
+            node.children = new_children
 
         return True
 
@@ -1384,6 +1392,59 @@ class RecipeParser:
         node.children = new_children
         return True
 
+    def _patch_move(self, path: str, path_stack: _StrStack, value_from: JsonType) -> bool:
+        """
+        Performs a JSON patch `add` operation.
+        :param path:        Path as a string.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
+        :param value_from:  The "from" value in the JSON payload, i.e. the
+                            path the value originates from.
+        """
+        # NOTE from the RFC:
+        #   This operation is functionally identical to a "remove" operation on
+        #   the "from" location, followed immediately by an "add" operation at
+        #   the target location with the value that was just removed.
+        # So to save on development and maintenance, that is how this op is
+        # written. EXCEPT we perform the `add` operation first. This prevents
+        # a scenario where we remove a value that is ineligible for being
+        # added. As we have to query for the value being moved on the `remove`-
+        # path, we can check there if the path is valid.
+        original_value: JsonType
+        try:
+            original_value = self.get_value(value_from)
+        except KeyError:
+            return False
+
+        # return self._patch_add(path, path_stack, original_value) and self._patch_remove(
+        #    value_from, RecipeParser._str_to_stack_path(value_from), None
+        # )
+        return self._patch_remove(value_from, RecipeParser._str_to_stack_path(value_from), None) and self._patch_add(
+            path, path_stack, original_value
+        )
+
+    def _patch_copy(self, path: str, path_stack: _StrStack, value_from: JsonType) -> bool:
+        """
+        Performs a JSON patch `add` operation.
+        :param path:        Path as a string.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
+        :param value_from:  The "from" value in the JSON payload, i.e. the
+                            path the value originates from.
+        """
+        # NOTE from the RFC:
+        #   This operation is functionally identical to an "add" operation at the
+        #   target location using the value specified in the "from" member.
+        # So to save on development and maintenance, that is how this op is
+        # written.
+        original_value: JsonType
+        try:
+            original_value = self.get_value(value_from)
+        except KeyError:
+            return False
+
+        return self._patch_add(path, path_stack, original_value)
+
     def _patch_test(self, path: str, _: _StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `test` operation.
@@ -1392,9 +1453,7 @@ class RecipeParser:
         :param value:   Value to evaluate against.
         """
         try:
-            # Remember that `get_value()` returns the object at the path IF
-            # the ending `/` is not specified.
-            return self.get_value(path + "/") == value
+            return self.get_value(path) == value
         except KeyError:
             # Path not found
             return False
@@ -1409,6 +1468,8 @@ class RecipeParser:
             "add": self._patch_add,
             "remove": self._patch_remove,
             "replace": self._patch_replace,
+            "move": self._patch_move,
+            "copy": self._patch_copy,
             "test": self._patch_test,
         }
 
@@ -1435,8 +1496,6 @@ class RecipeParser:
                                                 with.
         :raises JsonPatchValidationException:   If the JSON-patch payload does
                                                 not conform to our schema/spec.
-        :raises UnsupportedOpException:         If the operation preformed is
-                                                not supported
         :return: If the calling code attempts to perform the `test` operation,
                  this indicates the return value of the `test` request. In other
                  words, if `value` matches the target variable, return True.
@@ -1451,16 +1510,19 @@ class RecipeParser:
         path: Final[str] = patch["path"]
         path_stack: Final[_StrStack] = RecipeParser._str_to_stack_path(path)
 
-        # Check if the operation is currently supported (support for all ops
-        # will be added over time. If all ops are supported, the schema will
-        # check this by the `enum` value)
+        # All RFC ops are supported, so the JSON schema validation checks will
+        # prevent us from getting this far, if there is an issue.
         op: Final[str] = patch["op"]
         supported_patch_ops: Final[_OpsTable] = self._get_supported_patch_ops()
-        if op not in supported_patch_ops:
-            raise UnsupportedOpException(op)
 
         # The supplemental field name is determined by the operation type.
         value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
+
+        # A no-op move is silly, but we might as well make it efficient AND
+        # ensure a no-op move doesn't corrupt our modification flag.
+        if op == "move" and path == patch[value_from]:
+            return True
+
         # Both versions of the path are sent over so that the op can easily use
         # both private and public functions (without incurring even more
         # conversions between path types). NOTE: The `remove` op has no `value`
