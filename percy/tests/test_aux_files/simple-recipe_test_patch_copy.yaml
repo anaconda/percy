@@ -15,7 +15,7 @@ requirements:
   host:
     - setuptools  # [unix]
     - fakereq  # [unix]
-    - foo
+    - bar
   empty_field2:
   run:
     - python

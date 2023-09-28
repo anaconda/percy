@@ -519,8 +519,9 @@ class RecipeParser:
         :param subs:    List of substitutions to make, in order of appearance
         :return: New string, with substitutions removed
         """
-        for sub in subs:
-            s = s.replace(_PERCY_SUB_MARKER, sub, 1)
+        while s.find(_PERCY_SUB_MARKER) >= 0 and len(subs):
+            s = s.replace(_PERCY_SUB_MARKER, subs[0], 1)
+            subs.pop(0)
         return s
 
     @staticmethod
@@ -556,7 +557,7 @@ class RecipeParser:
     @staticmethod
     def _parse_yaml(s: str) -> JsonType:
         """
-        Parse a line of YAML into a Pythonic data structure
+        Parse a line (or multiple) of YAML into a Pythonic data structure
         :param s:   String to parse
         :return: Pythonic data corresponding to the line of YAML
         """
@@ -578,13 +579,11 @@ class RecipeParser:
             if isinstance(output, str):
                 output = RecipeParser._substitute_markers(output, sub_list)
             if isinstance(output, dict):
-                key = list(output.keys())[0]
-                output[key] = RecipeParser._substitute_markers(output[key], sub_list)
+                for key in output.keys():
+                    output[key] = RecipeParser._substitute_markers(output[key], sub_list)
             elif isinstance(output, list):
-                output[0] = RecipeParser._substitute_markers(output[0], sub_list)
-            else:
-                # TODO throw
-                pass
+                for i in range(len(output)):
+                    output[i] = RecipeParser._substitute_markers(output[i], sub_list)
         return output
 
     @staticmethod

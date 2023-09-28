@@ -1110,7 +1110,6 @@ def test_patch_copy() -> None:
     )
 
     # Copying list item to a different list
-    # TODO fix
     assert parser.patch(
         {
             "op": "copy",
@@ -1136,12 +1135,6 @@ def test_patch_copy() -> None:
             "from": "/test_var_usage/bar",
         }
     )
-
-    # TODO rm
-    print("---- TODO rm ----")
-    # print(parser.get_value("/multi_level/list_3/0")),
-    # print(parser.get_value("/test_var_usage/bar")),
-    print(parser.render())
 
     # Sanity check: validate all modifications
     assert parser.is_modified()
