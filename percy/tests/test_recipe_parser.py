@@ -900,13 +900,14 @@ def test_patch_remove() -> None:
     assert parser.patch(
         {
             "op": "remove",
-            "path": "/multi_level/list_2/1",
+            "path": "/multi_level/list_2/0",
         }
     )
+    # Ensure comments don't get erased
     assert parser.patch(
         {
             "op": "remove",
-            "path": "/multi_level/list_1/0",
+            "path": "/multi_level/list_1/1",
         }
     )
 
@@ -1018,24 +1019,23 @@ def test_patch_move() -> None:
             "from": "/build/number",
         }
     )
-    assert not parser.is_modified()
-
     # Special failure case: trying to "add" to an illegal path while the
     # "remove" path is still valid
     assert not parser.patch(
         {
             "op": "move",
-            "path": "/build/number",
-            "from": "/build/number/0",
+            "path": "/build/number/0",
+            "from": "/build/number",
         }
     )
     assert not parser.is_modified()
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
 
     # Simple move
     assert parser.patch(
         {
             "op": "move",
-            "path": "/requirements",
+            "path": "/requirements/number",
             "from": "/build/number",
         }
     )
@@ -1071,13 +1071,10 @@ def test_patch_move() -> None:
     assert parser.patch(
         {
             "op": "move",
-            "path": "/multi_level",
+            "path": "/multi_level/bar",
             "from": "/test_var_usage/bar",
         }
     )
-
-    # TODO rm
-    print(parser.render())
 
     # Sanity check: validate all modifications
     assert parser.is_modified()

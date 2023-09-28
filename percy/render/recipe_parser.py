@@ -305,7 +305,7 @@ class _Traverse:
     """
 
     @staticmethod
-    def _remap_child_indices(children: list[_Node]) -> list[int]:
+    def remap_child_indices(children: list[_Node]) -> list[int]:
         """
         Given a list of child nodes, generate a look-up table to map the
         "virtual" index positions with the "physical" locations.
@@ -351,7 +351,7 @@ class _Traverse:
         if path_part.isdigit():
             # Map virtual to physical indices and perform some out-of-bounds
             # checks.
-            idx_map = _Traverse._remap_child_indices(node.children)
+            idx_map = _Traverse.remap_child_indices(node.children)
             virtual_idx = int(path_part)
             max_idx = len(idx_map) - 1
             if virtual_idx < 0 or virtual_idx > max_idx:
@@ -1238,7 +1238,7 @@ class RecipeParser:
         Indicates if the target node to perform a patch operation against is
         a valid node. This is based on the RFC spec for JSON patching paths.
         :param node:        Target node to validate
-        :param node_idx:    If caller is evaluating if a list member, exists,
+        :param node_idx:    If the caller is evaluating that a list member, exists,
                             this is the index into that list. Otherwise this
                             value should be less than 0.
         :return: True if the node can be patched. False otherwise.
@@ -1253,34 +1253,36 @@ class RecipeParser:
         if not node.list_member_flag and not node.key_flag and node.is_leaf():
             return False
 
-        # Check the bounds if the target requires the use of an index.
-        if node_idx >= 0 and node_idx > (len(node.children) - 1):
-            return False
-
-        # You cannot use the list access feature to access non-lists
-        if node_idx >= 0 and len(node.children):
-            if not node.children[0].list_member_flag:
+        if node_idx >= 0:
+            # You cannot use the list access feature to access non-lists
+            if len(node.children) and not node.children[0].list_member_flag:
+                return False
+            # Check the bounds if the target requires the use of an index,
+            # remembering to use the virtual look-up table.
+            idx_map = _Traverse.remap_child_indices(node.children)
+            if node_idx > (len(idx_map) - 1):
                 return False
 
         return True
 
-    def _patch_add(self, _: str, path_stack: _StrStack, value: JsonType) -> bool:
+    def _patch_add_find_target(self, path_stack: _StrStack) -> tuple[Optional[_Node], int, str, bool]:
         """
-        Performs a JSON patch `add` operation.
+        Finds the target node of an `add()` operation, along with some
+        supporting information.
+
+        This function does not modify the parse tree.
+
         :param path_stack:  Path that describes a location in the tree, as a
                             list, treated like a stack.
-        :param value:       Value to add.
+        :return: A tuple containing:
+                   - The target node, if found (or the parent node if the target
+                     is a list member)
+                   - The index of a node if the target is a list member
+                   - An additional path that needs to be created, if applicable
+                   - A flag indicating if the new data will be appended to a list
         """
-        # NOTE from the RFC:
-        #   "Because this operation is designed to add to existing objects and
-        #    arrays, its target location will often not exist...However, the
-        #    object itself or an array containing it does need to exist"
-        # In other words, the
-        # In addition, that also implies that trying to append to an existing
-        # list only applies if the append operation is `-`
-
         if len(path_stack) == 0:
-            return False
+            return None, -1, "", False
 
         # Special case that only applies to `add`. The `-` character indicates
         # the new element can be added to the end of the list.
@@ -1298,6 +1300,24 @@ class RecipeParser:
         if node is None:
             path_to_create = path_stack_copy.pop(0)
             node, node_idx = _Traverse.traverse_with_index(self._root, path_stack_copy)
+
+        return node, node_idx, path_to_create, append_to_list
+
+    def _patch_add(self, _: str, path_stack: _StrStack, value: JsonType) -> bool:
+        """
+        Performs a JSON patch `add` operation.
+        :param path_stack:  Path that describes a location in the tree, as a
+                            list, treated like a stack.
+        :param value:       Value to add.
+        """
+        # NOTE from the RFC:
+        #   Because this operation is designed to add to existing objects and
+        #   arrays, its target location will often not exist...However, the
+        #   object itself or an array containing it does need to exist
+        # In other words, the patch op will, at most, create 1 new path level.
+        # In addition, that also implies that trying to append to an existing
+        # list only applies if the append operator is at the end of the list.
+        node, node_idx, path_to_create, append_to_list = self._patch_add_find_target(path_stack)
 
         if not RecipeParser._is_valid_patch_node(node, node_idx):
             return False
@@ -1353,7 +1373,9 @@ class RecipeParser:
             return False
 
         if node_idx >= 0:
-            node.children.pop(node_idx)
+            # Pop the "physical" index, not the "virtual" one to ensure
+            # comments have been accounted for.
+            node.children.pop(_Traverse.remap_child_indices(node.children)[node_idx])
             return True
 
         # In all other cases, the node to be removed must be found before eviction
@@ -1405,19 +1427,18 @@ class RecipeParser:
         #   the "from" location, followed immediately by an "add" operation at
         #   the target location with the value that was just removed.
         # So to save on development and maintenance, that is how this op is
-        # written. EXCEPT we perform the `add` operation first. This prevents
-        # a scenario where we remove a value that is ineligible for being
-        # added. As we have to query for the value being moved on the `remove`-
-        # path, we can check there if the path is valid.
+        # written.
         original_value: JsonType
         try:
             original_value = self.get_value(value_from)
         except KeyError:
             return False
 
-        # return self._patch_add(path, path_stack, original_value) and self._patch_remove(
-        #    value_from, RecipeParser._str_to_stack_path(value_from), None
-        # )
+        # Validate that `add`` will succeed before we `remove` anything
+        node, node_idx, _, _ = self._patch_add_find_target(path_stack.copy())
+        if not RecipeParser._is_valid_patch_node(node, node_idx):
+            return False
+
         return self._patch_remove(value_from, RecipeParser._str_to_stack_path(value_from), None) and self._patch_add(
             path, path_stack, original_value
         )
