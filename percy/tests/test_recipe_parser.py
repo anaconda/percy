@@ -643,7 +643,7 @@ def test_patch_test() -> None:
 
 def test_patch_add() -> None:
     """
-    Tests the `remove` patch op.
+    Tests the `add` patch op.
     """
     parser = load_recipe("simple-recipe.yaml")
 
