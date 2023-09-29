@@ -12,6 +12,7 @@ import subprocess
 from collections import namedtuple
 from dataclasses import dataclass
 from multiprocessing import Pool
+import yaml
 from pathlib import Path
 from typing import Any, Optional
 
@@ -196,7 +197,7 @@ class Aggregate:
         feedstocks (dict[str,Feedstock]): Feedstocks. (Populated after calling load_local_feedstocks.)
     """
 
-    def __init__(self, aggregate_path: str):
+    def __init__(self, aggregate_path: str, manifest_path: str = None):
         """Constructor
 
         Args:
@@ -224,15 +225,27 @@ class Aggregate:
 
         # read git submodules info
         self.submodules = {}
-        aggregate_gitmodules = self.local_path / ".gitmodules"
-        config = configparser.ConfigParser()
-        config.read(aggregate_gitmodules)
-        for section in config.sections():
-            path = config[section].get("url").rsplit(".git")[0][1:]
-            name = section.split('"')[1]
-            git_url = f"{self.git_url.rsplit('/')[0]}/{name}.git"
-            git_branch = config[section].get("branch", "main")
-            self.submodules[name] = FeedstockGitRepo(name, git_url, git_branch, path)
+        if not manifest_path:
+            aggregate_gitmodules = self.local_path / ".gitmodules"
+            config = configparser.ConfigParser()
+            config.read(aggregate_gitmodules)
+            for section in config.sections():
+                path = config[section].get("url").rsplit(".git")[0][1:]
+                name = section.split('"')[1]
+                git_url = f"{self.git_url.rsplit('/')[0]}/{name}.git"
+                git_branch = config[section].get("branch", "main")
+                self.submodules[name] = FeedstockGitRepo(name, git_url, git_branch, path)
+        else:
+            try:
+                with open(Path(manifest_path),'r') as file:
+                    manifest = yaml.load(file, Loader=yaml.SafeLoader)
+            except FileNotFoundError:
+                raise FileNotFoundError(f"Manifest file not found at {manifest_path}")
+            except yaml.YAMLError:
+                raise ValueError(f"Error parsing YAML: {manifest_path}")
+            
+            for name, git_info in manifest['feedstocks'].items():
+                self.submodules[name] = FeedstockGitRepo(name, None, git_info['branch'], None)
 
         # packages, feedstocks and groups
         self.packages: dict[str:Package] = {}
