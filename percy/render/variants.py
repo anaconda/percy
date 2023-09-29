@@ -6,13 +6,14 @@ Largely inspired from conda build.
 # TODO: refactor long lines and remove the following linter mute
 # ruff: noqa: E501
 
+import copy
+import itertools
 import logging
 import os
 import re
-from typing import List, Sequence, Dict, Tuple
 from pathlib import Path
-import itertools
-import copy
+from typing import Dict, List, Sequence, Tuple
+
 import yaml
 
 try:
@@ -125,9 +126,7 @@ def _apply_selector(data, selector_dict):
                 if not eval(cond_str, None, selector_dict):
                     line = f"{match.group(1)}"
                 else:
-                    line = line.replace(
-                        match.group(2), ""
-                    )  # <-- comments sometimes causes trouble in jinja
+                    line = line.replace(match.group(2), "")  # <-- comments sometimes causes trouble in jinja
             except Exception:
                 continue
         updated_data.append(line)
@@ -222,21 +221,15 @@ def read_conda_build_config(
             base_selector_dict[f"py3{i}"] = False
 
         # List conda_build_config files for linter render.
-        conda_build_config_files = _find_config_files(
-            recipe_dir, variant_config_files, exclusive_config_files
-        )
+        conda_build_config_files = _find_config_files(recipe_dir, variant_config_files, exclusive_config_files)
         logging.debug(f"cbc files: {conda_build_config_files}")
 
         # Update base selector dict
         for cbc in conda_build_config_files:
             with open(cbc) as f_cbc:
                 try:
-                    cbc_selectors_str = _apply_selector(
-                        f_cbc.read(), base_selector_dict
-                    )
-                    cbc_selectors_yml = yaml.load(
-                        "\n".join(cbc_selectors_str), Loader=loader
-                    )
+                    cbc_selectors_str = _apply_selector(f_cbc.read(), base_selector_dict)
+                    cbc_selectors_yml = yaml.load("\n".join(cbc_selectors_str), Loader=loader)
                     if cbc_selectors_yml:
                         for k, v in cbc_selectors_yml.items():
                             if isinstance(v, list):
@@ -251,24 +244,16 @@ def read_conda_build_config(
         zip_keys = []
         groups = {}
         zip_key_groups = base_selector_dict.get("zip_keys", [])
-        zip_key_groups = (
-            [zip_key_groups]
-            if zip_key_groups and isinstance(zip_key_groups[0], str)
-            else zip_key_groups
-        )
+        zip_key_groups = [zip_key_groups] if zip_key_groups and isinstance(zip_key_groups[0], str) else zip_key_groups
         for key_group in zip_key_groups:
             zip_keys.extend(key_group)
-            groups[tuple(key_group)] = list(
-                zip(*[base_selector_dict[k] for k in key_group])
-            )
+            groups[tuple(key_group)] = list(zip(*[base_selector_dict[k] for k in key_group]))
         for k, v in base_selector_dict.items():
             if k not in zip_keys and isinstance(v, list) and len(v) > 1:
                 groups[k] = v
         if groups:
             group_keys, group_values = zip(*groups.items())
-            group_permutations = [
-                dict(zip(group_keys, v)) for v in itertools.product(*group_values)
-            ]
+            group_permutations = [dict(zip(group_keys, v)) for v in itertools.product(*group_values)]
             for d in group_permutations:
                 new_d = copy.deepcopy(d)
                 for k, v in new_d.items():

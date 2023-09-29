@@ -1,6 +1,7 @@
 import click
-from percy.commands.recipe import recipe
+
 from percy.commands.aggregate import aggregate
+from percy.commands.recipe import recipe
 
 
 # root click group

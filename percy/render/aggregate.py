@@ -6,17 +6,17 @@ May be used to get a rough build order of packages or gather health information.
 # TODO: refactor long lines and remove the linter mute below.
 # ruff: noqa: E501
 
+import configparser
+import logging
+import subprocess
 from collections import namedtuple
 from dataclasses import dataclass
-import subprocess
-from pathlib import Path
-import logging
-import configparser
-from typing import Any
 from multiprocessing import Pool
 import yaml
+from pathlib import Path
+from typing import Any, Optional
 
-from percy.render.recipe import render, Package
+from percy.render.recipe import Package, RendererType, render
 
 
 class PackageNode:
@@ -96,9 +96,7 @@ class PackageNode:
                     return [parent.package_name] + ancestors
                 else:
                     for p in parent.parents:
-                        r = check_cycle(
-                            package_name, p, [parent.package_name] + ancestors
-                        )
+                        r = check_cycle(package_name, p, [parent.package_name] + ancestors)
                         if package_name in r:
                             return r
             return ancestors
@@ -173,9 +171,9 @@ class Feedstock:
     weight: int
 
 
-def _render(feedstock_repo, recipe_path, subdir, python, others):
+def _render(feedstock_repo, recipe_path, subdir, python, others, renderer):
     try:
-        rendered_recipes = render(recipe_path, subdir, python, others)
+        rendered_recipes = render(recipe_path, subdir, python, others, renderer=renderer)
     except Exception as exc:
         logging.error(f"Render issue {feedstock_repo.name} : {exc}")
         rendered_recipes = []
@@ -215,9 +213,7 @@ class Aggregate:
             encoding="utf-8",
             cwd=self.local_path,
         )
-        self.git_url = x.stdout.strip().replace(
-            "git@github.com:", "https://github.com/"
-        )
+        self.git_url = x.stdout.strip().replace("git@github.com:", "https://github.com/")
         x = subprocess.run(
             ["git rev-parse --abbrev-ref HEAD"],
             capture_output=True,
@@ -280,7 +276,8 @@ class Aggregate:
         self,
         subdir: str = "linux-64",
         python: str = "3.10",
-        others: dict[str, Any] = None,
+        others: Optional[dict[str, Any]] = None,
+        renderer: Optional[RendererType] = None,
     ) -> dict[str, Package]:
         """Load aggregate feedstocks.
 
@@ -334,16 +331,12 @@ class Aggregate:
                     f"Skipping feedstock {feedstock_name} now replaced by binutils-feedstock and gcc_toolchain-toolchain"
                 )
                 continue
-            if (
-                "_cos6_" in feedstock_name
-                or "_cos7_" in feedstock_name
-                or "_amzn2_" in feedstock_name
-            ):
+            if "_cos6_" in feedstock_name or "_cos7_" in feedstock_name or "_amzn2_" in feedstock_name:
                 logging.warning(f"Skipping cdt {feedstock_name}")
                 continue
 
             # add to render list
-            to_render.append((feedstock_repo, recipe_path, subdir, python, others))
+            to_render.append((feedstock_repo, recipe_path, subdir, python, others, renderer))
 
         # render recipes
         with Pool() as pool:
@@ -390,9 +383,7 @@ class Aggregate:
 
         # fill groups
         for name, feedstock in self.feedstocks.items():
-            v = self.groups.setdefault(
-                next(iter(feedstock.packages.values())).group, []
-            )
+            v = self.groups.setdefault(next(iter(feedstock.packages.values())).group, [])
             v.append(feedstock)
 
         return self.packages
@@ -474,15 +465,11 @@ class Aggregate:
 
         # drop graph nodes not having package as a run dependency
         if no_upstream:
-            PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if k in target_packages
-            }
+            PackageNode.nodes = {k: v for k, v in PackageNode.nodes.items() if k in target_packages}
 
         # drop noarch graph nodes
         if drop_noarch:
-            PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
-            }
+            PackageNode.nodes = {k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch}
 
         # feedstock build order
         return self._build_order()
@@ -540,8 +527,7 @@ class Aggregate:
         PackageNode.nodes = {
             k: v
             for k, v in PackageNode.nodes.items()
-            if (not package_allowlist or k in package_allowlist)
-            and v.feedstock.name not in feedstock_blocklist
+            if (not package_allowlist or k in package_allowlist) and v.feedstock.name not in feedstock_blocklist
         }
 
         # drop graph nodes not having package as a run dependency
@@ -553,9 +539,7 @@ class Aggregate:
 
         # drop noarch graph nodes
         if drop_noarch:
-            PackageNode.nodes = {
-                k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch
-            }
+            PackageNode.nodes = {k: v for k, v in PackageNode.nodes.items() if not v.package.is_noarch}
 
         # feedstock build order
         return self._build_order()

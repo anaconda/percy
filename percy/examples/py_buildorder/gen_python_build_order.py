@@ -1,17 +1,19 @@
 """ Generate build scripts to build all packages depending on python.
 """
 
-import percy.render.aggregate as aggregate
-from config import block_list
-from config import extras_versions as extras
 import argparse
-from pathlib import Path
-from itertools import groupby
-import requests
 import json
 import os
 import shutil
+from itertools import groupby
+from pathlib import Path
+
+import requests
 import yaml
+from config import block_list
+from config import extras_versions as extras
+
+import percy.render.aggregate as aggregate
 
 
 def get_repodata_package_list(subdir, python_ref, include_noarch=False):
@@ -64,11 +66,7 @@ def get_repodata_package_list(subdir, python_ref, include_noarch=False):
     else:
         repodata_subdir = json.loads(response.text)
 
-    pkgs = set(
-        v["name"]
-        for v in repodata_subdir["packages"].values()
-        if (depends_on_python(v, python_ref))
-    )
+    pkgs = set(v["name"] for v in repodata_subdir["packages"].values() if (depends_on_python(v, python_ref)))
 
     if include_noarch:
         repodata_noarch = None
@@ -78,19 +76,19 @@ def get_repodata_package_list(subdir, python_ref, include_noarch=False):
             raise Exception()
         else:
             repodata_noarch = json.loads(response.text)
-        pkgs.update(
-            set(
-                v["name"]
-                for v in repodata_noarch["packages"].values()
-                if (depends_on_python(v, python_ref))
-            )
-        )
+        pkgs.update(set(v["name"] for v in repodata_noarch["packages"].values() if (depends_on_python(v, python_ref))))
 
     return sorted(list(pkgs))
 
 
 def gen_python_build_order(
-    aggregate_path, subdir, python_ref, python_target, numpy_target, croot, channel
+    aggregate_path,
+    subdir,
+    python_ref,
+    python_target,
+    numpy_target,
+    croot,
+    channel,
 ):
     # Helper to generate script names.
     def _script(script_name_ending):
@@ -106,9 +104,7 @@ def gen_python_build_order(
 
     # load repodata package list
     repodata_package_list = sorted(get_repodata_package_list(subdir, python_ref, False))
-    repodata_package_list_with_noarch = sorted(
-        get_repodata_package_list(subdir, python_ref, True)
-    )
+    repodata_package_list_with_noarch = sorted(get_repodata_package_list(subdir, python_ref, True))
 
     # load aggregate
     aggregate_repo = aggregate.Aggregate(aggregate_path)
@@ -127,9 +123,7 @@ def gen_python_build_order(
     allow_list = repodata_package_list  # only packages already in subdir defaults
     # only packages already in subdir and noarch defaults
     allow_list_noarch = repodata_package_list_with_noarch
-    python_buildout = aggregate_repo.get_depends_build_order(
-        [], [], ["python"], allow_list, block_list, True
-    )
+    python_buildout = aggregate_repo.get_depends_build_order([], [], ["python"], allow_list, block_list, True)
 
     # compare local aggregate package list to repodata package list - for reference
     aggregate_package_list = []
@@ -137,24 +131,23 @@ def gen_python_build_order(
         for pkg_name in feedstock.packages.keys():
             aggregate_package_list.append(pkg_name)
     aggregate_package_list = sorted(aggregate_package_list)
-    with open(
-        f"./{subdir}/python_{python_target}_{subdir}_package_list.yaml", "w"
-    ) as f:
+    with open(f"./{subdir}/python_{python_target}_{subdir}_package_list.yaml", "w") as f:
         yaml.dump(aggregate_package_list, f)
     repodata_package_list = sorted(get_repodata_package_list(subdir, python_ref))
     with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list.yaml", "w") as f:
         yaml.dump(repodata_package_list, f)
     with open(
-        f"./{subdir}/python_{python_ref}_{subdir}_package_list_missing.yaml", "w"
+        f"./{subdir}/python_{python_ref}_{subdir}_package_list_missing.yaml",
+        "w",
     ) as f:
         yaml.dump(
-            sorted(list(set(repodata_package_list) - set(aggregate_package_list))), f
+            sorted(list(set(repodata_package_list) - set(aggregate_package_list))),
+            f,
         )
-    with open(
-        f"./{subdir}/python_{python_ref}_{subdir}_package_list_new.yaml", "w"
-    ) as f:
+    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list_new.yaml", "w") as f:
         yaml.dump(
-            sorted(list(set(aggregate_package_list) - set(repodata_package_list))), f
+            sorted(list(set(aggregate_package_list) - set(repodata_package_list))),
+            f,
         )
 
     # also export subdir + noarch list
@@ -169,16 +162,17 @@ def gen_python_build_order(
     with open(f"./{subdir}/python_full_package_list.yaml", "w") as f:
         yaml.dump(
             dict(
-                map(lambda e: (e, [croot, channel]), aggregate_package_list_with_noarch)
+                map(
+                    lambda e: (e, [croot, channel]),
+                    aggregate_package_list_with_noarch,
+                )
             ),
             f,
         )
     shutil.copy(Path(__file__).parent / "test_install.py", f"./{subdir}/")
 
     # write stage build scripts
-    stages = [
-        list(result) for key, result in groupby(python_buildout, key=lambda f: f.weight)
-    ]
+    stages = [list(result) for key, result in groupby(python_buildout, key=lambda f: f.weight)]
     n_stages = len(stages)
 
     if not subdir.startswith("win-"):
@@ -328,17 +322,27 @@ def create_parser() -> argparse.ArgumentParser:
         help="aggregate path",
         default="/Users/cbousseau/work/recipes/aggregate2/",
     )
+    parser.add_argument("-s", "--subdir", type=str, help="Architecture", default="linux-64")
     parser.add_argument(
-        "-s", "--subdir", type=str, help="Architecture", default="linux-64"
+        "-r",
+        "--python-ref",
+        type=str,
+        help="Reference python version",
+        default="3.11",
     )
     parser.add_argument(
-        "-r", "--python-ref", type=str, help="Reference python version", default="3.11"
+        "-p",
+        "--python-target",
+        type=str,
+        help="Target python version",
+        default="3.12",
     )
     parser.add_argument(
-        "-p", "--python-target", type=str, help="Target python version", default="3.12"
-    )
-    parser.add_argument(
-        "-n", "--numpy-target", type=str, help="Target numpy version", default="1.25"
+        "-n",
+        "--numpy-target",
+        type=str,
+        help="Target numpy version",
+        default="1.25",
     )
     parser.add_argument(
         "-c",

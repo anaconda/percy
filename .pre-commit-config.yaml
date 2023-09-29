@@ -1,0 +1,83 @@
+# Apply to all files without committing:
+#   pre-commit run --all-files
+# Update this file:
+#   pre-commit autoupdate
+# TODO remove when other files are updated to pass. NOTE: keep the first line
+# as-is.
+exclude: |
+  (?x)^(
+    .*/versioneer\.py|.*/_version\.py|.*/.*\.svg|percy/tests/test_aux_files/.*|
+    percy/commands/.*|
+    percy/examples/.*|
+    percy/render/_dumper.py|
+    percy/render/_renderer.py|
+    percy/render/aggregate.py|
+    percy/render/exceptions.py|
+    percy/render/recipe.py|
+    percy/render/variants.py|
+    percy/repodata/.*
+  )$
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: check-added-large-files
+    exclude_types: ["json"]
+  - id: check-ast
+  - id: fix-byte-order-marker
+  - id: check-case-conflict
+  - id: check-executables-have-shebangs
+  - id: check-merge-conflict
+  - id: check-shebang-scripts-are-executable
+  - id: check-yaml
+  - id: debug-statements
+  - id: detect-private-key
+  - id: end-of-file-fixer
+  - id: mixed-line-ending
+  - id: trailing-whitespace
+# Notes:
+# - By default, `black` uses a line-length of 88.
+# - `isort` will conflict with `black`, if not properly configured
+- repo: https://github.com/pycqa/isort
+  rev: 5.12.0
+  hooks:
+  - id: isort
+    args: ["--profile", "black", --line-length=120]
+- repo: https://github.com/psf/black
+  rev: 23.7.0
+  hooks:
+  - id: black
+    args: [--line-length=120]
+- repo: https://github.com/PyCQA/pylint
+  rev: v2.17.5
+  hooks:
+  - id: pylint
+    args: ["--rcfile=.pylintrc"]
+# TODO re-enable the static analyzer, when the rest of the dev tools have
+# stabilized.
+#- repo: https://github.com/pre-commit/mirrors-mypy
+#  rev: v1.4.1
+#  hooks:
+#  - id: mypy
+#    # `mypy` is run as a system script to ensure that it is checking against
+#    # the libraries we have installed. Having `pre-commit` handle dependencies
+#    # leaves to headache-inducing mismatches and inaccuracies. This also allows
+#    # us to type-check internal libraries that aren't widely publicly available,
+#    # like `percy`.
+#    language: system
+#    args: [--config-file=.mypy.ini]
+# `pre-commit` no longer provides a hook for `pytest`, by design
+- repo: local
+  hooks:
+  - id: pytest
+    language: system
+    name: pytest
+    always_run: true
+    pass_filenames: false
+    entry: make test
+  - id: pytest-cov
+    language: system
+    name: pytest-cov
+    always_run: true
+    pass_filenames: false
+    entry: make test-cov

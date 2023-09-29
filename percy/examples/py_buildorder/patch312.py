@@ -2,11 +2,12 @@
 
 """
 
-from pathlib import Path
+import copy
 import logging
 import re
-import copy
+from pathlib import Path
 from typing import Any
+
 from ruamel.yaml import YAML
 
 yaml = YAML(typ="jinja2")
@@ -201,9 +202,7 @@ class Recipe:
         op = operation["op"]
         path = operation["path"]
         match = operation.get("match", ".*")
-        expanded_match = re.compile(
-            f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
-        )
+        expanded_match = re.compile(f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?")
         value = operation.get("value", [""])
         if value == []:
             value = [""]
@@ -252,11 +251,13 @@ class Recipe:
                             break
                     if isinstance(value, list):
                         parent_range.insert(
-                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}:",
                         )
                         for val in value:
                             parent_range.insert(
-                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                                parent_insert_index + 1,
+                                " " * start_col + f"  - {val}",
                             )
                     else:
                         parent_range.insert(
@@ -315,17 +316,14 @@ class Recipe:
             to_insert = set()
             for new_val in value:
                 for i, m in match_lines.items():
-                    to_insert.add(
-                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
-                            "#", "  #", 1
-                        )
-                    )
+                    to_insert.add(m.string.replace(m.groupdict()["pattern"], new_val).replace("#", "  #", 1))
             if not to_insert:
                 to_insert = set(value)
             for new_val in to_insert:
                 if in_list:
                     range.insert(
-                        insert_index, " " * start_col + f"- {new_val.strip(' -')}"
+                        insert_index,
+                        " " * start_col + f"- {new_val.strip(' -')}",
                     )
                 else:
                     range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
@@ -353,53 +351,52 @@ class Recipe:
 
 
 if __name__ == "__main__":
-
     operations = [
         {
             "op": "replace",
             "path": "@output/requirements/host",
             "match": "cython\\s+0.29.\\d+",
-            "value": ["cython 0.29"]
+            "value": ["cython 0.29"],
         },
         {
             "op": "replace",
             "path": "@output/requirements/host",
             "match": "packaging\\s+2\\d.\\d",
-            "value": ["packaging 23"]
+            "value": ["packaging 23"],
         },
         {
             "op": "replace",
             "path": "@output/requirements/host",
             "match": "flit-core\\s+3.\\d.\\d",
-            "value": ["flit-core 3"]
+            "value": ["flit-core 3"],
         },
         {
             "op": "replace",
             "path": "@output/requirements/host",
             "match": "poetry-core\\s+1.5.\\d",
-            "value": ["poetry-core 1.5"]
+            "value": ["poetry-core 1.5"],
         },
         {
             "op": "replace",
             "path": "@output/requirements/host",
             "match": "hatchling\\s+1.\\d+.\\d",
-            "value": ["hatchling 1.18"]
+            "value": ["hatchling 1.18"],
         },
         {
             "op": "replace",
             "path": "@output/requirements/host",
             "match": "setuptools\\s+6\\d.\\d",
-            "value": ["setuptools"]
+            "value": ["setuptools"],
         },
         {
             "op": "replace",
             "path": "@output/requirements/host",
             "match": "setuptools_scm\\s+[\\d\\.]+",
-            "value": ["setuptools_scm"]
-        }
+            "value": ["setuptools_scm"],
+        },
     ]
 
-    p = Path('.')
+    p = Path(".")
     for recipe_path in p.glob("**/recipe/meta.yaml"):
         try:
             recipe = Recipe(str(recipe_path))

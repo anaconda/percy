@@ -1,9 +1,15 @@
+from __future__ import annotations
+
+import contextlib
 import re
+from enum import Enum
+from pathlib import Path
+from typing import Any, List, Optional
+
 import jinja2
 import yaml
-import contextlib
-from typing import List
-from enum import Enum
+
+from percy.render.recipe_parser import RecipeParser
 
 try:
     from ruamel.yaml import YAML
@@ -27,6 +33,7 @@ class RendererType(Enum):
     PYYAML = 1
     RUAMEL = 2
     CONDA = 3
+    PERCY = 4  # Custom parse-tree-based renderer, found in `recipe_parser.py`
 
 
 if has_ruamel:
@@ -105,15 +112,7 @@ class _JinjaSilentUndefined(jinja2.Undefined):
         __getitem__
     ) = (
         __lt__
-    ) = (
-        __le__
-    ) = (
-        __gt__
-    ) = (
-        __ge__
-    ) = (
-        __int__
-    ) = __float__ = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
+    ) = __le__ = __gt__ = __ge__ = __int__ = __float__ = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
 
 
 _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
@@ -137,9 +136,7 @@ def _apply_selector(data: str, selector_dict: dict) -> List[str]:
                 if not eval(cond_str, None, selector_dict):
                     line = f"{match.group(1)}"
                 else:
-                    line = line.replace(
-                        match.group(2), ""
-                    )  # <-- comments sometimes causes trouble in jinja
+                    line = line.replace(match.group(2), "")  # <-- comments sometimes causes trouble in jinja
             except Exception:
                 continue
         updated_data.append(line)
@@ -156,17 +153,23 @@ def _get_template(meta_yaml, selector_dict):
 
 
 def render(
-    recipe_dir,
-    meta_yaml,
-    selector_dict,
-    renderer_type: RendererType = None,
-) -> None:
-    """Convert recipe text into data structure
+    recipe_dir: Path | str,
+    meta_yaml: str,
+    selector_dict: dict[str, Any],
+    renderer_type: Optional[RendererType] = None,
+) -> dict[str, Any]:
+    """
+    Convert recipe text into data structure
 
     - create jinja template from recipe content
     - render template
     - parse yaml
     - normalize
+    :param recipe_dir:      Directory that contains the target `meta.yaml` file.
+    :param meta_yaml:       Raw YAML text string from the file.
+    :param selector_dict:   Dictionary of selector statements
+    :param renderer_type:   Rendering engine to target
+    :return: Parsed YAML, as a dictionary of keys and values.
     """
 
     if not renderer_type:
@@ -234,7 +237,8 @@ def render(
             # load yaml with pyyaml
             with _stringify_numbers():
                 return yaml.load(
-                    yaml_text.replace("\t", " ").replace("%", " "), Loader=loader
+                    yaml_text.replace("\t", " ").replace("%", " "),
+                    Loader=loader,
                 )
         elif renderer_type == RendererType.CONDA:
             if not has_conda_build:
@@ -249,6 +253,9 @@ def render(
                 variants=selector_dict,
             )
             return rendered[0][0].meta
+        elif renderer_type == RendererType.PERCY:
+            parser = RecipeParser(meta_yaml)
+            return parser.render_to_object()
         else:
             raise YAMLRenderFailure(recipe_dir, message="Unknown renderer type.")
     except ParserError as exc:

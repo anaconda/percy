@@ -2,26 +2,36 @@
 
 Not as accurate as conda-build render, but faster and architecture independent.
 """
+from __future__ import annotations
 
-# TODO: refactor long lines and remove the following linter mute
-# ruff: noqa: E501
-
-import sys
-import re
 import itertools
 import logging
+import re
+import sys
 from copy import deepcopy
-from typing import Any, Dict, List, Set, TextIO
-from pathlib import Path
 from dataclasses import dataclass, field
+from enum import Enum
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Set, TextIO
 from urllib.parse import urlparse
+
 import jsonschema
 
-from percy.render.variants import read_conda_build_config, Variant
-from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+import percy.render._dumper as dumper
 import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
-import percy.render._dumper as dumper
+from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+from percy.render.recipe_parser import JsonPatchType, RecipeParser
+from percy.render.variants import Variant, read_conda_build_config
+
+
+class OpMode(Enum):
+    """
+    Enum that allows us to A/B test new recipe features
+    """
+
+    CLASSIC = 1  # Original operational mode
+    PARSE_TREE = 2  # Operational mode that uses the work in `recipe_parser.py`
 
 
 class Recipe:
@@ -62,7 +72,10 @@ class Recipe:
                 "op": {"enum": ["add", "replace", "remove"]},
                 "path": {"type": "string"},
                 "match": {"type": "string"},
-                "value": {"type": ["string", "array"], "items": {"type": "string"}},
+                "value": {
+                    "type": ["string", "array"],
+                    "items": {"type": "string"},
+                },
                 "description": {"type": "string"},
             },
             "required": [
@@ -76,9 +89,9 @@ class Recipe:
     def __init__(
         self,
         recipe_file: Path,
-        variant_id: str = None,
-        variant: Variant = None,
-        renderer: RendererType = None,
+        variant_id: Optional[str] = None,
+        variant: Optional[Variant] = None,
+        renderer: Optional[RendererType] = None,
     ):
         """Constructor
 
@@ -112,7 +125,7 @@ class Recipe:
         #: Parsed recipe YAML
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str: Package] = dict()
+        self.packages: Dict[str:Package] = dict()
 
         # These will be filled in by _load_from_string()
         #: Lines of the raw recipe file
@@ -249,7 +262,7 @@ class Recipe:
         """
         return self.meta_yaml != self.orig.meta_yaml
 
-    def dump(self):
+    def dump(self) -> str:
         """Dump recipe content"""
         return "\n".join(self.meta_yaml) + "\n"
 
@@ -265,12 +278,10 @@ class Recipe:
         # re-init
         self.meta: Dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str: Package] = dict()
+        self.packages: Dict[str:Package] = dict()
 
         # render meta.yaml
-        self.meta = renderer.render(
-            self.recipe_dir, self.dump(), self.selector_dict, self.renderer
-        )
+        self.meta = renderer.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
 
         # should this be skipped?
         bld = self.meta.get("build", {})
@@ -315,11 +326,7 @@ class Recipe:
             run_exports = [
                 Dep(i, "build/run_exports")
                 for i in run_exports
-                if (
-                    i is not None
-                    and i not in ["noarch", "strong", "weak"]
-                    and str(i).strip()
-                )
+                if (i is not None and i not in ["noarch", "strong", "weak"] and str(i).strip())
             ]
             ignore_run_exports = main_build.get("ignore_run_exports", [])
             if not ignore_run_exports:
@@ -338,11 +345,7 @@ class Recipe:
                         else:
                             pkg_reqs[s].extend([reqs])
             for s in pkg_reqs.keys():
-                pkg_reqs[s] = [
-                    Dep(i, f"requirements/{s}")
-                    for i in pkg_reqs[s]
-                    if (i is not None and str(i).strip())
-                ]
+                pkg_reqs[s] = [Dep(i, f"requirements/{s}") for i in pkg_reqs[s] if (i is not None and str(i).strip())]
         test = self.meta.get("test", {})
         test_reqs = []
         if test is not None:
@@ -353,11 +356,7 @@ class Recipe:
                         test_reqs.extend(reqs)
                     else:
                         test_reqs.extend([reqs])
-            test_reqs = [
-                Dep(i, "test/requires")
-                for i in test_reqs
-                if (i is not None and str(i).strip())
-            ]
+            test_reqs = [Dep(i, "test/requires") for i in test_reqs if (i is not None and str(i).strip())]
         if not self.meta.get("outputs", []):
             # only add if not a multi output recipe
             self.packages[name] = Package(
@@ -398,11 +397,7 @@ class Recipe:
                     run_exports = [
                         Dep(i, f"outputs/{n}/run_exports")
                         for i in run_exports
-                        if (
-                            i is not None
-                            and i not in ["noarch", "strong", "weak"]
-                            and str(i).strip()
-                        )
+                        if (i is not None and i not in ["noarch", "strong", "weak"] and str(i).strip())
                     ]
                     ignore_run_exports = main_build.get("ignore_run_exports", [])
                     if not ignore_run_exports:
@@ -437,9 +432,7 @@ class Recipe:
                             else:
                                 test_reqs.extend([reqs])
                     test_reqs = [
-                        Dep(i, f"outputs/{n}/test/requires")
-                        for i in test_reqs
-                        if (i is not None and str(i).strip())
+                        Dep(i, f"outputs/{n}/test/requires") for i in test_reqs if (i is not None and str(i).strip())
                     ]
                 self.packages[name] = Package(
                     self,
@@ -622,15 +615,83 @@ class Recipe:
                     return True
         return False
 
-    def patch(self, operations, increment_build_number=False, evaluate_selectors=True):
+    def patch_with_parser(self, callback: Callable[[RecipeParser], None]) -> bool:
+        """
+        By providing a callback, this function allows calling code to utilize
+        the new parse-tree/percy recipe parser in a way that is backwards
+        compatible with the `Recipe` class.
+
+        NOTE: Expect this function to be eventually deprecated. It is provided
+              as a stop-gap as we experiment and potentially transition to
+              primarily use the `RecipeParser`/parse tree implementation.
+
+        In general, prefer using the `patch()` function in the `PARSE_TREE`
+        operating mode for most recipe-patching needs. This mechanism is
+        provided to allow callers access to some of the newest features and
+        capabilities.
+
+        :param callback:    Callback that provides a `RecipeParser` instance
+                            that can make modifications that will be reflected
+                            in the `Recipe` class.
+        :return: True if the recipe was modified. False otherwise.
+        """
+        # Temporarily swap the rendering system out to ensure consistency
+        # with the other parse tree actions.
+        old_renderer = self.renderer
+        self.renderer = RendererType.PERCY
+        # Read in the file as a string. Remembering that `recipe` stores
+        # data as a list.
+        parser = RecipeParser("\n".join(self.meta_yaml))
+
+        # Execute the callback to perform actions against the parser.
+        callback(parser)
+
+        # Back-port deltas into the recipe instance and save the file.
+        self.meta_yaml = parser.render().splitlines()
+        self.save()
+        self.render()
+        self.renderer = old_renderer
+        return parser.is_modified()
+
+    def patch(
+        self,
+        operations: list[JsonPatchType],
+        increment_build_number: bool = False,
+        evaluate_selectors: bool = True,
+        op_mode: OpMode = OpMode.CLASSIC,
+    ) -> bool:
         """Patch the recipe given a set of operations.
         Args:
             operations: operations to apply
             increment_build_number: automatically increment the build number of the operations result in changes
             evaluate_selectors: don't evaluate selectors when applying operations
+            op_mode: selects which operational mode to perform patches with
         Returns:
             True if recipe was patched. (bool).
         """
+        # Early-escape the parse-tree operational mode. Allows us to A/B test
+        # and use the newer parse tree work.
+        if op_mode == OpMode.PARSE_TREE:
+
+            def _patch_all(parser: RecipeParser) -> None:
+                # Perform all requested patches
+                for patch_op in operations:
+                    parser.patch(patch_op)
+
+                # Handles auto-incrementing the build number
+                if increment_build_number and parser.contains_value("/build/number"):
+                    build_num = parser.get_value("/build/number")
+                    build_num += 1
+                    parser.patch(
+                        {
+                            "op": "replace",
+                            "path": "/build/number",
+                            "value": build_num,
+                        }
+                    )
+
+            return self.patch_with_parser(_patch_all)
+
         if self.skip:
             logging.warning(f"Not patching skipped recipe {self.recipe_dir}")
             return False
@@ -648,9 +709,7 @@ class Recipe:
                 # apply package specific operation for all packages
                 for package in self.packages.values():
                     opcopy = deepcopy(op)
-                    opcopy["path"] = opcopy["path"].replace(
-                        "@output/", package.path_prefix
-                    )
+                    opcopy["path"] = opcopy["path"].replace("@output/", package.path_prefix)
                     self._patch(opcopy, evaluate_selectors)
                     self.save()
                     self.render()
@@ -668,9 +727,7 @@ class Recipe:
         op = operation["op"]
         path = operation["path"]
         match = operation.get("match", ".*")
-        expanded_match = re.compile(
-            f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
-        )
+        expanded_match = re.compile(f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?")
         value = operation.get("value", [""])
         if value == []:
             value = [""]
@@ -709,9 +766,7 @@ class Recipe:
                 # Example: adding skip: True # [py<35]
                 if evaluate_selectors:
                     if isinstance(value, list):
-                        rval = renderer._apply_selector(
-                            "\n".join(value), self.selector_dict
-                        )
+                        rval = renderer._apply_selector("\n".join(value), self.selector_dict)
                     else:
                         rval = renderer._apply_selector(value, self.selector_dict)
                     if rval.strip() == "":
@@ -736,11 +791,13 @@ class Recipe:
                             break
                     if isinstance(value, list):
                         parent_range.insert(
-                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}:",
                         )
                         for val in value:
                             parent_range.insert(
-                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                                parent_insert_index + 1,
+                                " " * start_col + f"  - {val}",
                             )
                     else:
                         parent_range.insert(
@@ -821,17 +878,14 @@ class Recipe:
             to_insert = set()
             for new_val in value:
                 for i, m in match_lines.items():
-                    to_insert.add(
-                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
-                            "#", "  #", 1
-                        )
-                    )
+                    to_insert.add(m.string.replace(m.groupdict()["pattern"], new_val).replace("#", "  #", 1))
             if not to_insert:
                 to_insert = set(value)
             for new_val in to_insert:
                 if in_list:
                     range.insert(
-                        insert_index, " " * start_col + f"- {new_val.strip(' -')}"
+                        insert_index,
+                        " " * start_col + f"- {new_val.strip(' -')}",
                     )
                 else:
                     range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
@@ -1010,9 +1064,7 @@ def render(
     # render for each variant and combine similar results
     render_results = []
     for variant_id, variant in variants:
-        r = Recipe.from_file(
-            recipe_path, variant_id, variant, return_exceptions, renderer
-        )
+        r = Recipe.from_file(recipe_path, variant_id, variant, return_exceptions, renderer)
         if match := next((x for x in render_results if r.meta == x.meta), None):
             for key, value in r.variant_id.items():
                 match.variant_id.get(key, set()).update(value)

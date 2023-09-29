@@ -1,17 +1,19 @@
 """ Script to find issues in aggregate pinned feedstocks.
 """
 
-import percy.render.aggregate as aggregate
 import argparse
-from pathlib import Path
-import yaml
-import requests
-import json
 import itertools
+import json
+from pathlib import Path
+
+import requests
+import yaml
 from conda.models.version import VersionOrder
 
-def get_repodata_package_list(subdir):
+import percy.render.aggregate as aggregate
 
+
+def get_repodata_package_list(subdir):
     session = requests.Session()
 
     pkgs = {}
@@ -27,8 +29,8 @@ def get_repodata_package_list(subdir):
         if v["name"] in pkgs:
             continue
         if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
-            pkgs[v["name"]] = { "version": v["version"], "noarch": False }
-    
+            pkgs[v["name"]] = {"version": v["version"], "noarch": False}
+
     repodata_noarch = None
     url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
     response = session.get(url)
@@ -40,12 +42,12 @@ def get_repodata_package_list(subdir):
         if v["name"] in pkgs:
             continue
         if VersionOrder(pkgs[v["name"]]["version"]) < VersionOrder(v["version"]):
-            pkgs[v["name"]] = { "version": v["version"], "noarch": True }
+            pkgs[v["name"]] = {"version": v["version"], "noarch": True}
 
     return pkgs
 
-def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
 
+def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
     # load defaults
     defaults_pkgs = get_repodata_package_list(subdir)
 
@@ -57,7 +59,6 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
     aggregate_repo.load_local_feedstocks(subdir, python_ref, others)
 
     for name, rendered_pkg in aggregate_repo.packages.items():
-
         git_name = rendered_pkg.git_info.name
 
         def get_issue_type(issue_type):
@@ -70,7 +71,7 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
         run_deps = set([run_dep.pkg for run_dep in rendered_pkg.run])
         host_deps = set([host_dep.pkg for host_dep in rendered_pkg.host])
         for pkg in set(rendered_pkg.recipe.selector_dict).intersection(run_deps):
-            #print(name, pkg, host_deps)
+            # print(name, pkg, host_deps)
             if pkg not in host_deps and pkg not in excludes:
                 rec = get_issue_type("missing_host")
                 if pkg not in rec:
@@ -111,7 +112,7 @@ def find_issues(aggregate_path, subdir, python_ref, issues, excludes):
             rec = get_issue_type("not_in_defaults")
             if rendered_pkg.name not in rec:
                 rec.append(rendered_pkg.name)
-    
+
     return issues
 
 
@@ -132,10 +133,9 @@ def create_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-
     parser = create_parser()
     args = parser.parse_args()
-    
+
     subdirs = [
         "osx-arm64",
         "osx-64",
@@ -154,20 +154,20 @@ if __name__ == "__main__":
     ]
 
     issues = {
-        "bad_ignore_run_exports" : {},
-        "missing_host" : {},
-        "outdated_local" : {},
-        "outdated_defaults" : {},
-        "outdated_py_local" : {},
-        "not_in_defaults" : {},
+        "bad_ignore_run_exports": {},
+        "missing_host": {},
+        "outdated_local": {},
+        "outdated_defaults": {},
+        "outdated_py_local": {},
+        "not_in_defaults": {},
     }
     issues_no_numpy_python = {
-        "bad_ignore_run_exports" : {},
-        "missing_host" : {},
-        "outdated_local" : {},
-        "outdated_defaults" : {},
-        "outdated_py_local" : {},
-        "not_in_defaults" : {},
+        "bad_ignore_run_exports": {},
+        "missing_host": {},
+        "outdated_local": {},
+        "outdated_defaults": {},
+        "outdated_py_local": {},
+        "not_in_defaults": {},
     }
 
     for subdir, pyver in itertools.product(subdirs, python):

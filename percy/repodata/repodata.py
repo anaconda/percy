@@ -1,14 +1,14 @@
-import requests
 import json
 import logging
-from conda.models.version import VersionOrder
+
+import requests
 from conda.exceptions import InvalidVersionSpec
+from conda.models.version import VersionOrder
+
 from percy.render.recipe import Package
 
 
-def get_latest_package_list(
-    subdir: str = "linux-64", merge_noarch: bool = True
-) -> dict[str, dict]:
+def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True) -> dict[str, dict]:
     """Get latest packages on defaults
 
     Args:
@@ -37,13 +37,9 @@ def get_latest_package_list(
         for v in repodata_subdir["packages"].values():
             if (
                 (v["name"] not in pkgs_noarch)
+                or (VersionOrder(pkgs_noarch[v["name"]]["version"]) < VersionOrder(v["version"]))
                 or (
-                    VersionOrder(pkgs_noarch[v["name"]]["version"])
-                    < VersionOrder(v["version"])
-                )
-                or (
-                    VersionOrder(pkgs_noarch[v["name"]]["version"])
-                    == VersionOrder(v["version"])
+                    VersionOrder(pkgs_noarch[v["name"]]["version"]) == VersionOrder(v["version"])
                     and pkgs_noarch[v["name"]]["build_number"] < v["build_number"]
                 )
             ):
@@ -65,13 +61,9 @@ def get_latest_package_list(
     for v in repodata_subdir["packages"].values():
         if (
             (v["name"] not in pkgs_subdir)
+            or (VersionOrder(pkgs_subdir[v["name"]]["version"]) < VersionOrder(v["version"]))
             or (
-                VersionOrder(pkgs_subdir[v["name"]]["version"])
-                < VersionOrder(v["version"])
-            )
-            or (
-                VersionOrder(pkgs_subdir[v["name"]]["version"])
-                == VersionOrder(v["version"])
+                VersionOrder(pkgs_subdir[v["name"]]["version"]) == VersionOrder(v["version"])
                 and pkgs_subdir[v["name"]]["build_number"] < v["build_number"]
             )
         ):
@@ -88,13 +80,9 @@ def get_latest_package_list(
     if merge_noarch:
         for name, info in pkgs_noarch.items():
             if name in pkgs_defaults and (
-                (
-                    VersionOrder(info["version"])
-                    > VersionOrder(pkgs_defaults[name]["version"])
-                )
+                (VersionOrder(info["version"]) > VersionOrder(pkgs_defaults[name]["version"]))
                 or (
-                    VersionOrder(info["version"])
-                    == VersionOrder(pkgs_defaults[name]["version"])
+                    VersionOrder(info["version"]) == VersionOrder(pkgs_defaults[name]["version"])
                     and info["build_number"] > pkgs_defaults[name]["build_number"]
                 )
             ):
@@ -104,9 +92,7 @@ def get_latest_package_list(
     return pkgs_defaults
 
 
-def compare_package_with_defaults(
-    package: Package, defaults_pkgs: dict[str, dict]
-) -> dict:
+def compare_package_with_defaults(package: Package, defaults_pkgs: dict[str, dict]) -> dict:
     """Compare a local package with its latest version on defaults
 
     Args:

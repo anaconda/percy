@@ -1,15 +1,15 @@
 """ Generate build scripts to build all packages depending on python.
 """
 
-import percy.render.aggregate as aggregate
-from itertools import groupby
 import os
+from itertools import groupby
+
 import yaml
 
-def gen_blts_build_order(
-    aggregate_path, subdir, python_ref, packages
-):
+import percy.render.aggregate as aggregate
 
+
+def gen_blts_build_order(aggregate_path, subdir, python_ref, packages):
     os.makedirs(f"./{subdir}/", exist_ok=True)
 
     # load aggregate
@@ -30,10 +30,8 @@ def gen_blts_build_order(
     blts_buildout = aggregate_repo.get_build_order([], packages)
 
     # write stage build order
-    stages = [
-        list(result) for key, result in groupby(blts_buildout, key=lambda f: f.weight)
-    ]
-    build_order = { "python" : python_ref, "stages" : {} }
+    stages = [list(result) for key, result in groupby(blts_buildout, key=lambda f: f.weight)]
+    build_order = {"python": python_ref, "stages": {}}
     for i, stage in enumerate(stages):
         stage_id = f"{i:03}"
         build_order["stages"][stage_id] = []
@@ -42,8 +40,8 @@ def gen_blts_build_order(
     with open(f"./{subdir}/blts_{subdir}_build_order.yaml", "w") as f:
         yaml.dump(build_order, f)
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     gen_blts_build_order(
         "/Users/cbousseau/work/recipes/aggregate/",
         "linux-64",
@@ -58,7 +56,7 @@ if __name__ == "__main__":
             "scipy",
             "conda",
             "conda-build",
-        ]
+        ],
     )
 
     gen_blts_build_order(
@@ -75,5 +73,5 @@ if __name__ == "__main__":
             "scipy",
             "conda",
             "conda-build",
-        ]
+        ],
     )

@@ -2,16 +2,18 @@
     Create corresponding tickets in Jira.
 """
 
-import percy.render.aggregate as aggregate
 import argparse
-from pathlib import Path
-import requests
-import json
 import itertools
+import json
 import logging
 import os
+from pathlib import Path
+
+import requests
 from jira.client import JIRA
 from jira.exceptions import JIRAError
+
+import percy.render.aggregate as aggregate
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -31,9 +33,7 @@ def add_issue(login, token, dry_run, current_epic_key, target_pkg, pkg):
     global perseverance_fields_map
 
     if not perseverance_jira:
-        perseverance_jira = JIRA(
-            "https://anaconda.atlassian.net/", basic_auth=(login, token)
-        )
+        perseverance_jira = JIRA("https://anaconda.atlassian.net/", basic_auth=(login, token))
         allfields = perseverance_jira.fields()
         perseverance_fields_map = {field["name"]: field["id"] for field in allfields}
 
@@ -113,12 +113,8 @@ def create_parser() -> argparse.ArgumentParser:
         default="/Users/cbousseau/work/recipes/aggregate2/",
     )
     parser.add_argument("--epic", type=str, help="Epic key")
-    parser.add_argument(
-        "--target", type=str, help="Target feedstock to rebuild against"
-    )
-    parser.add_argument(
-        "--dry_run", help="If set, no actual sync is done.", action="store_true"
-    )
+    parser.add_argument("--target", type=str, help="Target feedstock to rebuild against")
+    parser.add_argument("--dry_run", help="If set, no actual sync is done.", action="store_true")
     parser.add_argument(
         "--login",
         type=str,
@@ -140,13 +136,9 @@ class JiraSync:
         """
         self.dry_run = dry_run
         self.perseverance_project = "PKG"
-        self.perseverance_jira = JIRA(
-            "https://anaconda.atlassian.net/", basic_auth=(login, token)
-        )
+        self.perseverance_jira = JIRA("https://anaconda.atlassian.net/", basic_auth=(login, token))
         allfields = self.perseverance_jira.fields()
-        self.perseverance_fields_map = {
-            field["name"]: field["id"] for field in allfields
-        }
+        self.perseverance_fields_map = {field["name"]: field["id"] for field in allfields}
 
     def sync(self, epic_key, target, stages):
         """
@@ -169,7 +161,9 @@ class JiraSync:
             epic_tasks.extend(
                 [
                     getattr(
-                        issue.fields, self.perseverance_fields_map["Package Name"], ""
+                        issue.fields,
+                        self.perseverance_fields_map["Package Name"],
+                        "",
                     ).lower()
                     for issue in issues
                 ]
@@ -181,9 +175,7 @@ class JiraSync:
             for feedstock in stage:
                 package_name = next(iter(feedstock.packages)).lower()
                 if package_name not in epic_tasks:
-                    logging.info(
-                        f"No existing ticket {package_name} : creating new ticket"
-                    )
+                    logging.info(f"No existing ticket {package_name} : creating new ticket")
                     issue_key = f"{i+1:03}/{n_stages:03} {feedstock.name}"
                     desc = f"{issue_key} rebuild against {target}"
                     issue_fields = {
@@ -197,25 +189,18 @@ class JiraSync:
                     try:
                         # create issue
                         if not self.dry_run:
-                            self.perseverance_jira.create_issue(
-                                fields=issue_fields, prefetch=True
-                            )
+                            self.perseverance_jira.create_issue(fields=issue_fields, prefetch=True)
                         else:
                             logging.info(issue_fields)
 
                     except JIRAError as err:
-                        logging.error(
-                            f"Failed to add issue {feedstock.name}. {err.text}"
-                        )
+                        logging.error(f"Failed to add issue {feedstock.name}. {err.text}")
                 else:
                     logging.info(f"Existing ticket {package_name} : skip")
 
 
 def print_build_order(buildout):
-    stages = [
-        list(result)
-        for key, result in itertools.groupby(buildout, key=lambda f: f.weight)
-    ]
+    stages = [list(result) for key, result in itertools.groupby(buildout, key=lambda f: f.weight)]
     for i, stage in enumerate(stages):
         for feedstock in stage:
             print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
@@ -260,16 +245,11 @@ if __name__ == "__main__":
             json.dump(results, f, indent=4)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_depends_build_order(
-        [], [args.target], [], [], [], False
-    )
+    buildout = aggregate_repo.get_depends_build_order([], [args.target], [], [], [], False)
 
     # print build order
     print("\n\nDownstream build order:")
-    stages = [
-        list(result)
-        for key, result in itertools.groupby(buildout, key=lambda f: f.weight)
-    ]
+    stages = [list(result) for key, result in itertools.groupby(buildout, key=lambda f: f.weight)]
     all_packages = set()
     for i, stage in enumerate(stages):
         for feedstock in stage:

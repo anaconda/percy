@@ -3,12 +3,13 @@
 """
 
 import argparse
-from pathlib import Path
-import logging
-import re
 import copy
 import json
+import logging
+import re
+from pathlib import Path
 from typing import Any
+
 from ruamel.yaml import YAML
 
 yaml = YAML(typ="jinja2")
@@ -203,9 +204,7 @@ class Recipe:
         op = operation["op"]
         path = operation["path"]
         match = operation.get("match", ".*")
-        expanded_match = re.compile(
-            f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
-        )
+        expanded_match = re.compile(f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?")
         value = operation.get("value", [""])
         if value == []:
             value = [""]
@@ -254,11 +253,13 @@ class Recipe:
                             break
                     if isinstance(value, list):
                         parent_range.insert(
-                            parent_insert_index, " " * start_col + f"{parent_name}:"
+                            parent_insert_index,
+                            " " * start_col + f"{parent_name}:",
                         )
                         for val in value:
                             parent_range.insert(
-                                parent_insert_index + 1, " " * start_col + f"  - {val}"
+                                parent_insert_index + 1,
+                                " " * start_col + f"  - {val}",
                             )
                     else:
                         parent_range.insert(
@@ -317,17 +318,14 @@ class Recipe:
             to_insert = set()
             for new_val in value:
                 for i, m in match_lines.items():
-                    to_insert.add(
-                        m.string.replace(m.groupdict()["pattern"], new_val).replace(
-                            "#", "  #", 1
-                        )
-                    )
+                    to_insert.add(m.string.replace(m.groupdict()["pattern"], new_val).replace("#", "  #", 1))
             if not to_insert:
                 to_insert = set(value)
             for new_val in to_insert:
                 if in_list:
                     range.insert(
-                        insert_index, " " * start_col + f"- {new_val.strip(' -')}"
+                        insert_index,
+                        " " * start_col + f"- {new_val.strip(' -')}",
                     )
                 else:
                     range.insert(insert_index, " " * start_col + f"{new_val.strip()}")

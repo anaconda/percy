@@ -1,11 +1,14 @@
-from pathlib import Path
-import click
+import functools
 import os
 import sys
-import functools
-import yaml
 from itertools import groupby
+from pathlib import Path
+
+import click
+import yaml
+
 import percy.render.aggregate
+import percy.render.recipe
 import percy.repodata.repodata
 
 
@@ -21,9 +24,7 @@ def get_configured_aggregate(cmd_line=None):
     cwd = Path(os.getcwd())
     path = cwd
     while path != path.parent:
-        if (path / "manifest.yaml").exists() or (
-            path / "make-mixed-crlf-patch.py"
-        ).exists():
+        if (path / "manifest.yaml").exists() or (path / "make-mixed-crlf-patch.py").exists():
             return path
         path = path.parent
     # look in well known locations
@@ -32,7 +33,8 @@ def get_configured_aggregate(cmd_line=None):
     return cwd
 
 
-def load_aggregate(obj, subdir, python, others):
+def load_aggregate(obj, subdir, python, others, renderer: percy.render.recipe.RendererType):
+    print(f"Renderer in use: {renderer.name}")
     aggregate_path = obj["aggregate_directory"]
     aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
     if not others:
@@ -40,7 +42,7 @@ def load_aggregate(obj, subdir, python, others):
         if subdir.startswith("win-"):
             others["rust_compiler"] = "rust"
     others["r_implementation"] = "r-base"
-    aggregate_repo.load_local_feedstocks(subdir, python, others)
+    aggregate_repo.load_local_feedstocks(subdir, python, others, renderer)
     return aggregate_repo
 
 
@@ -49,6 +51,17 @@ def print_build_order(buildout):
     for i, stage in enumerate(stages):
         for feedstock in stage:
             print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
+
+
+def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererType:
+    """
+    Takes the renderer type as a user provided string and converts it to the
+    enum form.
+    :param value:   User-provided string to parse
+    :return: Enumerated version o the parser
+    """
+    # Access should be safe as `click` handles the input limitations for us.
+    return percy.render.recipe.RendererType[value.upper()]
 
 
 def base_options(f):
@@ -75,6 +88,17 @@ def base_options(f):
         multiple=True,
         default={},
         help="Additional key values (e.g. -k blas_impl openblas)",
+    )
+    @click.option(
+        "--renderer",
+        "-r",
+        callback=sanitize_renderer_enum,
+        type=click.Choice(
+            [e.name for e in percy.render.recipe.renderer.RendererType],
+            case_sensitive=False,
+        ),
+        default="PYYAML",
+        help="Select which rendering engine to use",
     )
     @functools.wraps(f)
     def wrapper_base_options(*args, **kwargs):
@@ -126,7 +150,10 @@ def order_options(f):
 
 @click.group(short_help="Commands for operating on aggregates.")
 @click.option(
-    "--aggregate", "-a", metavar="DIRECTORY", help="Aggregate directory to operate on."
+    "--aggregate",
+    "-a",
+    metavar="DIRECTORY",
+    help="Aggregate directory to operate on.",
 )
 @click.pass_context
 def aggregate(ctx, aggregate):
@@ -169,6 +196,7 @@ def downstream(
     subdir,
     python,
     others,
+    renderer,
     groups,
     feedstocks,
     packages,
@@ -179,21 +207,21 @@ def downstream(
     """Prints build order of feedstock downstream dependencies"""
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_depends_build_order(
-        groups, feedstocks, packages, allow_list, block_list, drop_noarch
-    )
+    buildout = aggregate_repo.get_depends_build_order(groups, feedstocks, packages, allow_list, block_list, drop_noarch)
 
     # print build order
-    order = " ".join([
-        f"groups:{groups}",
-        f"feedstocks:{feedstocks}",
-        f"packages:{packages}",
-        f"allow_list:{allow_list}",
-        f"block_list:{block_list}",
-    ])
+    order = " ".join(
+        [
+            f"groups:{groups}",
+            f"feedstocks:{feedstocks}",
+            f"packages:{packages}",
+            f"allow_list:{allow_list}",
+            f"block_list:{block_list}",
+        ]
+    )
     print(f"\n\nDownstream build order ({order}):")
     print_build_order(buildout)
 
@@ -202,24 +230,34 @@ def downstream(
 @click.pass_obj
 @base_options
 @order_options
-def upstream(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch):
+def upstream(
+    obj,
+    subdir,
+    python,
+    others,
+    renderer,
+    groups,
+    feedstocks,
+    packages,
+    drop_noarch,
+):
     """Prints build order of feedstock upstream dependencies"""
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_build_order(
-        groups, feedstocks, packages, drop_noarch, False
-    )
+    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, False)
 
     # print build order
-    order = " ".join([
-        f"groups:{groups}",
-        f"feedstocks:{feedstocks}",
-        f"packages:{packages}",
-        f"drop_noarch:{drop_noarch}",
-    ])
+    order = " ".join(
+        [
+            f"groups:{groups}",
+            f"feedstocks:{feedstocks}",
+            f"packages:{packages}",
+            f"drop_noarch:{drop_noarch}",
+        ]
+    )
     print(f"\n\nUpstream build order ({order}):")
     print_build_order(buildout)
 
@@ -228,26 +266,36 @@ def upstream(obj, subdir, python, others, groups, feedstocks, packages, drop_noa
 @click.pass_obj
 @base_options
 @order_options
-def order(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch):
+def order(
+    obj,
+    subdir,
+    python,
+    others,
+    renderer,
+    groups,
+    feedstocks,
+    packages,
+    drop_noarch,
+):
     """Prints build order of specified feedstocks"""
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
     if not groups and not feedstocks and not packages:
         feedstocks = aggregate_repo.feedstocks.keys()
-    buildout = aggregate_repo.get_build_order(
-        groups, feedstocks, packages, drop_noarch, True
-    )
+    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, True)
 
     # print build order
-    order = " ".join([
-        f"groups:{groups}",
-        f"feedstocks:{feedstocks}",
-        f"packages:{packages}",
-        f"drop_noarch:{drop_noarch}",
-    ])
+    order = " ".join(
+        [
+            f"groups:{groups}",
+            f"feedstocks:{feedstocks}",
+            f"packages:{packages}",
+            f"drop_noarch:{drop_noarch}",
+        ]
+    )
     print(f"\n\nBuild order ({order})):")
     print_build_order(buildout)
 
@@ -273,22 +321,20 @@ def order(obj, subdir, python, others, groups, feedstocks, packages, drop_noarch
     multiple=False,
     help="Identify packages from aggregate not on defaults",
 )
-def outdated(obj, subdir, python, others, missing_local, missing_defaults):
+def outdated(obj, subdir, python, others, renderer, missing_local, missing_defaults):
     """Prints outdated with defaults"""
 
     results = {}
 
     # load aggregate
-    aggregate_repo = load_aggregate(obj, subdir, python, others)
+    aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # load defaults
     defaults_pkgs = percy.repodata.repodata.get_latest_package_list(subdir, True)
 
     # compare aggregate with defaults
     for local_name, package in aggregate_repo.packages.items():
-        result = percy.repodata.repodata.compare_package_with_defaults(
-            package, defaults_pkgs
-        )
+        result = percy.repodata.repodata.compare_package_with_defaults(package, defaults_pkgs)
         if result:
             results[local_name] = result
 
