@@ -19,10 +19,10 @@ requirements:
 
 multi_level:
   list_1:
+    - foo
     # Ensure a comment in a list is supported
-    - bar
   list_2:
-    - cat
+    - bat
     - mat
 
 test_var_usage:

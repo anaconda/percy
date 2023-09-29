@@ -140,6 +140,8 @@ def test_contains_value() -> None:
     assert parser.contains_value("/build")
     assert parser.contains_value("/requirements/host/0")
     assert parser.contains_value("/requirements/host/1")
+    # Comments in lists could throw-off array indexing
+    assert parser.contains_value("/multi_level/list_1/1")
     # Path not found cases
     assert not parser.contains_value("/invalid/fake/path")
     assert not parser.is_modified()
@@ -151,7 +153,7 @@ def test_get_value() -> None:
     """
     parser = load_recipe("simple-recipe.yaml")
     # Return a single value
-    assert parser.get_value("/build/number") == {"number": 0}
+    assert parser.get_value("/build/number") == 0
     assert parser.get_value("/build/number/") == 0
     # Return a compound value
     assert parser.get_value("/build") == {
@@ -170,7 +172,7 @@ def test_get_value() -> None:
     assert parser.get_value("/requirements/host/0") == "setuptools"
     assert parser.get_value("/requirements/host/1") == "fakereq"
     # Return a multiline string
-    assert parser.get_value("/about/description") == {"description": SIMPLE_DESCRIPTION}
+    assert parser.get_value("/about/description") == SIMPLE_DESCRIPTION
     assert parser.get_value("/about/description/") == SIMPLE_DESCRIPTION
     # Path not found cases
     with pytest.raises(KeyError):
@@ -178,6 +180,8 @@ def test_get_value() -> None:
     assert parser.get_value("/invalid/fake/path", 42) == 42
     # Tests that a user can pass `None` without throwing
     assert parser.get_value("/invalid/fake/path", None) is None
+    # Comments in lists could throw-off array indexing
+    assert parser.get_value("/multi_level/list_1/1") == "bar"
     assert not parser.is_modified()
 
 
@@ -526,6 +530,121 @@ def test_patch_path_invalid() -> None:
             }
         )
     )
+
+    # move, `path` is invalid
+    assert not (
+        parser.patch(
+            {
+                "op": "move",
+                "path": "/package/path/to/fake/value",
+                "from": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "move",
+                "path": "/build/number/0",
+                "from": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "move",
+                "path": "/multi_level/list2/4",
+                "from": "/about/summary",
+            }
+        )
+    )
+    # move, `from` is invalid
+    assert not (
+        parser.patch(
+            {
+                "op": "move",
+                "from": "/package/path/to/fake/value",
+                "path": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "move",
+                "from": "/build/number/0",
+                "path": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "move",
+                "from": "/multi_level/list2/4",
+                "path": "/about/summary",
+            }
+        )
+    )
+
+    # copy, `path` is invalid
+    assert not (
+        parser.patch(
+            {
+                "op": "copy",
+                "path": "/package/path/to/fake/value",
+                "from": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "copy",
+                "path": "/build/number/0",
+                "from": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "copy",
+                "path": "/multi_level/list2/4",
+                "from": "/about/summary",
+            }
+        )
+    )
+    # copy, `from` is invalid
+    assert not (
+        parser.patch(
+            {
+                "op": "copy",
+                "from": "/package/path/to/fake/value",
+                "path": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "copy",
+                "from": "/build/number/0",
+                "path": "/about/summary",
+            }
+        )
+    )
+    assert not (
+        parser.patch(
+            {
+                "op": "copy",
+                "from": "/multi_level/list2/4",
+                "path": "/about/summary",
+            }
+        )
+    )
+
     # test
     assert not (
         parser.patch(
@@ -718,15 +837,13 @@ def test_patch_add() -> None:
     assert parser.patch(
         {
             "op": "add",
-            "path": "/test_var_usage",
-            "value": {
-                "Stanley": [
-                    "Oh, Joel Miller, you've just found the marble in the oatmeal.",
-                    "You're a lucky, lucky, lucky little boy.",
-                    "'Cause you know why?",
-                    "You get to drink from... the FIRE HOOOOOSE!",
-                ]
-            },
+            "path": "/test_var_usage/Stanley",
+            "value": [
+                "Oh, Joel Miller, you've just found the marble in the oatmeal.",
+                "You're a lucky, lucky, lucky little boy.",
+                "'Cause you know why?",
+                "You get to drink from... the FIRE HOOOOOSE!",
+            ],
         }
     )
 
@@ -741,6 +858,10 @@ def test_patch_add() -> None:
             },
         }
     )
+
+    # Edge case: adding a value to an existing key (non-list) actually replaces
+    # the value at that key, as per the RFC.
+    assert parser.patch({"op": "add", "path": "/about/summary", "value": 62})
 
     # Sanity check: validate all modifications
     assert parser.is_modified()
@@ -779,13 +900,14 @@ def test_patch_remove() -> None:
     assert parser.patch(
         {
             "op": "remove",
-            "path": "/multi_level/list_2/1",
+            "path": "/multi_level/list_2/0",
         }
     )
+    # Ensure comments don't get erased
     assert parser.patch(
         {
             "op": "remove",
-            "path": "/multi_level/list_1/0",
+            "path": "/multi_level/list_1/1",
         }
     )
 
@@ -882,6 +1004,139 @@ def test_patch_replace() -> None:
     assert parser.is_modified()
     # NOTE: That patches, as of writing, cannot preserve selectors
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_replace.yaml")
+
+
+def test_patch_move() -> None:
+    """
+    Tests the `move` patch op.
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    # No-op moves should not corrupt our modification state.
+    assert parser.patch(
+        {
+            "op": "move",
+            "path": "/build/number",
+            "from": "/build/number",
+        }
+    )
+    # Special failure case: trying to "add" to an illegal path while the
+    # "remove" path is still valid
+    assert not parser.patch(
+        {
+            "op": "move",
+            "path": "/build/number/0",
+            "from": "/build/number",
+        }
+    )
+    assert not parser.is_modified()
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
+
+    # Simple move
+    assert parser.patch(
+        {
+            "op": "move",
+            "path": "/requirements/number",
+            "from": "/build/number",
+        }
+    )
+
+    # Moving list item to a new key (replaces existing value)
+    assert parser.patch(
+        {
+            "op": "move",
+            "path": "/build/is_true",
+            "from": "/multi_level/list_3/0",
+        }
+    )
+
+    # Moving list item to a different list
+    assert parser.patch(
+        {
+            "op": "move",
+            "path": "/requirements/host/-",
+            "from": "/multi_level/list_1/1",
+        }
+    )
+
+    # Moving a list entry to another list entry position
+    assert parser.patch(
+        {
+            "op": "move",
+            "path": "/multi_level/list_2/0",
+            "from": "/multi_level/list_2/1",
+        }
+    )
+
+    # Moving a compound type
+    assert parser.patch(
+        {
+            "op": "move",
+            "path": "/multi_level/bar",
+            "from": "/test_var_usage/bar",
+        }
+    )
+
+    # Sanity check: validate all modifications
+    assert parser.is_modified()
+    # NOTE: That patches, as of writing, cannot preserve selectors
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_move.yaml")
+
+
+def test_patch_copy() -> None:
+    """
+    Tests the `copy` patch op.
+    """
+    parser = load_recipe("simple-recipe.yaml")
+
+    # Simple copy
+    assert parser.patch(
+        {
+            "op": "copy",
+            "path": "/requirements/number",
+            "from": "/build/number",
+        }
+    )
+
+    # Copying list item to a new key
+    assert parser.patch(
+        {
+            "op": "copy",
+            "path": "/build/is_true",
+            "from": "/multi_level/list_3/0",
+        }
+    )
+
+    # Copying list item to a different list
+    assert parser.patch(
+        {
+            "op": "copy",
+            "path": "/requirements/host/-",
+            "from": "/multi_level/list_1/1",
+        }
+    )
+
+    # Copying a list entry to another list entry position
+    assert parser.patch(
+        {
+            "op": "copy",
+            "path": "/multi_level/list_2/0",
+            "from": "/multi_level/list_2/1",
+        }
+    )
+
+    # Copying a compound type
+    assert parser.patch(
+        {
+            "op": "copy",
+            "path": "/multi_level/bar",
+            "from": "/test_var_usage/bar",
+        }
+    )
+
+    # Sanity check: validate all modifications
+    assert parser.is_modified()
+    # NOTE: That patches, as of writing, cannot preserve selectors
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_copy.yaml")
 
 
 ## Diff ##

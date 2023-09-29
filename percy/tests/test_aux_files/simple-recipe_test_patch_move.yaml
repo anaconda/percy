@@ -4,26 +4,25 @@
 
 package:
   name: {{ name|lower }}  # [unix]
-  is_cool_name: true
 
 build:
-  number: 0
   skip: true  # [py<37]
-  is_true: true
-  meaning_of_life: 42
+  is_true: ls
 
 requirements:
   empty_field1:
   host:
     - setuptools  # [unix]
     - fakereq  # [unix]
-  empty_field2: Not so empty now
+    - bar
+  empty_field2:
   run:
     - python
   empty_field3:
+  number: 0
 
 about:
-  summary: 62
+  summary: This is a small recipe for testing
   description: |
     This is a PEP '561 type stub package for the toml package.
     It can be used by type-checking tools like mypy, pyright,
@@ -32,38 +31,21 @@ about:
 
 multi_level:
   list_1:
-    - "There's just one place to go for all your spatula needs!"
     - foo
     # Ensure a comment in a list is supported
-    - bar
-    - Spatula City!
   list_2:
-    - cat
-    - We got it all on UHF
     - bat
+    - cat
     - mat
   list_3:
-    - ls
     - sl
     - cowsay
-
-test_var_usage:
-  foo: {{ version }}
   bar:
     - baz
     - {{ zz_non_alpha_first }}
     - blah
     - This {{ name }} is silly
     - last
-  Stanley:
-    - "Oh, Joel Miller, you've just found the marble in the oatmeal."
-    - "You're a lucky, lucky, lucky little boy."
-    - "'Cause you know why?"
-    - You get to drink from... the FIRE HOOOOOSE!
 
-U62:
-  George:
-    - "How'd you like your own TV show?"
-    - "You're on"
-  Stanley:
-    - Ok
+test_var_usage:
+  foo: {{ version }}
