@@ -89,6 +89,30 @@ def test_dog_food_medium() -> None:
     assert parser.render() == simple
 
 
+@pytest.mark.skip(reason="To be re-enable when PKG-2964 is fixed")
+def test_loading_obj_in_list() -> None:
+    """
+    Regression test: at one point, the parser would crash loading this file,
+    containing an object in a list.
+    """
+    replace = load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_replace.yaml")
+    parser = recipe_parser.RecipeParser(replace)
+    assert parser.render() == replace
+
+
+def test_dog_food_multi_output() -> None:
+    """
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render
+    and ensure the output matches the input.
+
+    This tests multi-output recipes, to ensure compatibility with some more
+    complex recipe examples.
+    """
+    multi = load_file(f"{TEST_FILES_PATH}/multi-output.yaml")
+    parser = recipe_parser.RecipeParser(multi)
+    assert parser.render() == multi
+
+
 def test_render_to_object() -> None:
     """
     Tests rendering a recipe to an object format.

@@ -226,6 +226,8 @@ class _Node:
         value = self.value
         if self.is_comment():
             value = "Comment node"
+        if self.is_collection_element():
+            value = "Collection node"
         return (
             f"Node: {value}\n"
             f"  - Comment:      {self.comment!r}\n"
@@ -255,7 +257,7 @@ class _Node:
         be a comment only-line.
         :return: True if the node represents only a comment. False otherwise.
         """
-        return self.value == _Node._sentinel and self.comment
+        return self.value == _Node._sentinel and self.comment and not self.children
 
     def is_empty_key(self) -> bool:
         """
@@ -285,6 +287,16 @@ class _Node:
         :return: True if the node represents a single key. False otherwise.
         """
         return self.key_flag and len(self.children) == 1 and self.children[0].is_leaf()
+
+    def is_collection_element(self) -> bool:
+        """
+        Indicates if the node is a list member that contains other collection
+        types. In other words, this node has no value itself BUT it contains
+        children that do.
+        :return: True if the noe represents an element that is a collection.
+                 False otherwise.
+        """
+        return self.value == _Node._sentinel and self.list_member_flag and len(self.children)
 
 
 class SelectorInfo(NamedTuple):
@@ -638,6 +650,26 @@ class RecipeParser:
             if s.startswith("#"):
                 # Comments are list members to ensure indentation
                 return _Node(comment=comment, list_member_flag=True)
+            # Special scenarios that can occur on 1 line:
+            #   1. Lists can contain lists: - - foo -> [["foo"]]
+            #   2. Lists can contain keys:  - foo: bar -> [{"foo": "bar"}]
+            # And, of course, there can be n values in each of these collections
+            # on 1 line as well. Scenario 2 occurs in multi-output recipe files
+            # so we need to support the scenario here.
+            #
+            # `PKG-3006` tracks an investigation effort into what we need to
+            # support for our purposes.
+            if isinstance(output[0], dict):
+                # Build up the key-and-potentially-value pair nodes first
+                key_children: list[_Node] = []
+                key = list(output[0].keys())[0]
+                if output[0][key] is not None:
+                    key_children.append(_Node(output[0][key], comment))
+                key_node = _Node(key, comment, key_children, key_flag=True)
+
+                elem_node = _Node(comment=comment, list_member_flag=True)
+                elem_node.children.append(key_node)
+                return elem_node
             return _Node(output[0], comment, list_member_flag=True)
         # Other types are just leaf nodes. This is scenario should likely not
         # be triggered given our recipe files don't have single valid lines of
@@ -837,7 +869,7 @@ class RecipeParser:
                 # TODO Figure out tab-depth of the recipe being read. 4 spaces
                 #      is technically valid in YAML
                 depth_to_pop = (cur_indent - new_indent) // TAB_SPACE_COUNT
-                for _ in range(0, depth_to_pop):
+                for _ in range(depth_to_pop):
                     node_stack.pop()
             cur_indent = new_indent
             # Look at the stack to determine the parent Node and then append
@@ -855,12 +887,45 @@ class RecipeParser:
         # modified with `patch()`.
         self._rebuild_selectors()
 
+    @staticmethod
+    def _str_tree_recurse(node: _Node, depth: int, lines: list[str]) -> str:
+        """
+        Helper function that renders a parse tree as a text-based dependency
+        tree. Useful for debugging.
+        :param node:    Node of interest
+        :param depth:   Current depth of the node
+        :param lines:   Accumulated list of lines to text to render
+        """
+        spaces = TAB_AS_SPACES * depth
+        branch = "" if depth == 0 else "|- "
+        value = node.value
+        if node.is_comment():
+            value = f"<Comment: {node.comment}>"
+        if node.is_collection_element():
+            value = "<Collection Node>"
+        lines.append(f"{spaces}{branch}{value}")
+        for child in node.children:
+            RecipeParser._str_tree_recurse(child, depth + 1, lines)
+
     def __str__(self) -> str:
         """
-        Casts the parser into a string.
+        Casts the parser into a string. Useful for debugging.
         :return: String representation of the recipe file
         """
-        return self.render()
+        s = "--------------------\n"
+        tree_lines: list[str] = []
+        RecipeParser._str_tree_recurse(self._root, 0, tree_lines)
+        s += "RecipeParser Instance\n"
+        s += "- Variables Table:\n"
+        s += json.dumps(self._vars_tbl, indent=TAB_AS_SPACES) + "\n"
+        s += "- Selectors Table:\n"
+        for key, val in self._selector_tbl.items():
+            s += f"{TAB_AS_SPACES}{key}: {val}\n"
+        s += f"- is_modified?: {self._is_modified}\n"
+        s += "- Tree:\n" + "\n".join(tree_lines) + "\n"
+        s += "--------------------\n"
+
+        return s
 
     def __eq__(self, other: object) -> bool:
         """
@@ -888,13 +953,15 @@ class RecipeParser:
         raise NotImplementedError
 
     @staticmethod
-    def _render_tree(node: _Node, depth: int, lines: list[str]) -> None:
+    def _render_tree(node: _Node, depth: int, lines: list[str], parent: Optional[_Node] = None) -> None:
         """
         Recursive helper function that traverses the parse tree to generate
         a file.
         :param node:    Current node in the tree
         :param depth:   Current depth of the recursion
         :param lines:   Accumulated list of lines in the recipe file
+        :param parent:  (Optional) Parent node to the current node. Set by
+                        recursive calls only.
         """
         spaces = TAB_AS_SPACES * depth
 
@@ -905,7 +972,7 @@ class RecipeParser:
 
         # Handle same-line printing
         if node.is_single_key():
-            # Handle the edge case of a list containing 1 member
+            # Edge case: Handle a list containing 1 member
             if node.children[0].list_member_flag:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
                 lines.append(
@@ -914,6 +981,17 @@ class RecipeParser:
                     f"{node.children[0].comment}".rstrip()
                 )
                 return
+
+            # Edge case: The first element of dictionary in a list has a list `- ` prefix.
+            # Subsequent keys in the dictionary just have a tab.
+            if parent is not None and parent.is_collection_element() and node == parent.children[0]:
+                lines.append(
+                    f"{TAB_AS_SPACES * (depth-1)}- {node.value}: "
+                    f"{RecipeParser._stringify_yaml(node.children[0].value)}  "
+                    f"{node.children[0].comment}".rstrip()
+                )
+                return
+
             # Handle multi-line statements. In theory this will probably only
             # ever be strings, but we'll try to account for other types.
             #
@@ -932,14 +1010,16 @@ class RecipeParser:
             return
 
         depth_delta = 1
-        # Don't render a `:` for the non-visible root node
-        if depth > -1:
+        # Don't render a `:` for the non-visible root node. Also don't render invisible collection nodes.
+        if depth > -1 and not node.is_collection_element():
             list_prefix = ""
             # Being in a list changes how the depth is rendered
             if node.list_member_flag:
                 depth_delta += 1
                 list_prefix = "- "
+            # Nodes representing collections in a list have nothing to render
             lines.append(f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip())
+
         for child in node.children:
             # Comments in a list are indented to list-level, but do not include
             # a list `-` mark
@@ -962,7 +1042,7 @@ class RecipeParser:
                     f"{child.comment}".rstrip()
                 )
             else:
-                RecipeParser._render_tree(child, depth + depth_delta, lines)
+                RecipeParser._render_tree(child, depth + depth_delta, lines, node)
             # By tradition, recipes have a blank line after every top-level
             # section.
             if depth < 0:

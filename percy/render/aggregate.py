@@ -12,9 +12,10 @@ import subprocess
 from collections import namedtuple
 from dataclasses import dataclass
 from multiprocessing import Pool
-import yaml
 from pathlib import Path
 from typing import Any, Optional
+
+import yaml
 
 from percy.render.recipe import Package, RendererType, render
 
@@ -237,15 +238,15 @@ class Aggregate:
                 self.submodules[name] = FeedstockGitRepo(name, git_url, git_branch, path)
         else:
             try:
-                with open(Path(manifest_path),'r') as file:
+                with open(Path(manifest_path), "r") as file:
                     manifest = yaml.load(file, Loader=yaml.SafeLoader)
             except FileNotFoundError:
                 raise FileNotFoundError(f"Manifest file not found at {manifest_path}")
             except yaml.YAMLError:
                 raise ValueError(f"Error parsing YAML: {manifest_path}")
-            
-            for name, git_info in manifest['feedstocks'].items():
-                self.submodules[name] = FeedstockGitRepo(name, None, git_info['branch'], None)
+
+            for name, git_info in manifest["feedstocks"].items():
+                self.submodules[name] = FeedstockGitRepo(name, None, git_info["branch"], None)
 
         # packages, feedstocks and groups
         self.packages: dict[str:Package] = {}
