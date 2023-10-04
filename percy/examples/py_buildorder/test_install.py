@@ -22,7 +22,7 @@ def dry_run(
     packages=[],
 ):
     """Dry-run an environment and return it's json result."""
-    cmd = f"conda create -n test_env --dry-run --json --experimental-solver={solver}"
+    cmd = f"conda create -n test_env --dry-run --json --solver={solver}"
     for channel in channels:
         cmd += f" -c {channel}"
     if override_channels:
