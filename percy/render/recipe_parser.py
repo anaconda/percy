@@ -572,7 +572,9 @@ class RecipeParser:
         # this has the unintended consequence of quoting all YAML strings.
         # Although not wrong, it does not follow our common practices.
         # Quote escaping is not required for multiline strings.
-        if not multiline_flag and isinstance(val, str):
+        # We do not escape quotes for Jinja value statements.
+        jinja_re = re.compile(r"{{.*}}")
+        if not multiline_flag and isinstance(val, str) and not jinja_re.match(val):
             if "'" in val or '"' in val:
                 # The PyYaml equivalent function injects newlines, hence why
                 # we abuse the JSON library to write our YAML.
