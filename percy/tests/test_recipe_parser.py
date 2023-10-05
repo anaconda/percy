@@ -209,6 +209,29 @@ def test_get_value() -> None:
     assert not parser.is_modified()
 
 
+def test_find_value() -> None:
+    """
+    Tests finding a value from a parsed YAML example.
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    # Values in the recipe
+    assert parser.find_value(None) == [
+        "/requirements/empty_field1",
+        "/requirements/empty_field2",
+        "/requirements/empty_field3",
+    ]
+    assert parser.find_value("fakereq") == ["/requirements/host/1"]
+    assert parser.find_value(True) == ["/build/skip", "/build/is_true"]
+    assert parser.find_value("foo") == ["/multi_level/list_1/0"]
+    assert parser.find_value("Apache-2.0 AND MIT") == ["/about/license"]
+    # Values not in the recipe
+    assert not parser.find_value(43)
+    assert not parser.find_value("fooz")
+    assert not parser.find_value("")
+    # Find does not modify the parser
+    assert not parser.is_modified()
+
+
 ## Variables ##
 
 
@@ -340,6 +363,58 @@ def test_get_selector_paths() -> None:
     ]
     assert not parser.get_selector_paths("[fake selector]")
     assert not parser.is_modified()
+
+
+def test_add_selector() -> None:
+    """
+    Tests adding a selector to a recipe
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    # Test that selector validation is working
+    with pytest.raises(KeyError):
+        parser.add_selector("/package/path/to/fake/value", "[unix]")
+    with pytest.raises(ValueError):
+        parser.add_selector("/build/number", "bad selector")
+    assert not parser.is_modified()
+
+    # Add selectors to lines without existing selectors
+    parser.add_selector("/requirements/empty_field3", "[unix]")
+    parser.add_selector("/multi_level/list_1/0", "[unix]")
+    parser.add_selector("/build/number", "[win]")
+    parser.add_selector("/multi_level/list_2/1", "[win]")
+    assert parser.get_selector_paths("[unix]") == [
+        "/package/name",
+        "/requirements/host/0",
+        "/requirements/host/1",
+        "/requirements/empty_field3",
+        "/multi_level/list_1/0",
+    ]
+    assert parser.get_selector_paths("[win]") == [
+        "/build/number",
+        "/multi_level/list_2/1",
+    ]
+
+    # Add selectors to existing selectors
+    parser.add_selector("/requirements/host/0", "[win]", recipe_parser.SelectorConflictMode.REPLACE)
+    assert parser.get_selector_paths("[win]") == [
+        "/build/number",
+        "/requirements/host/0",
+        "/multi_level/list_2/1",
+    ]
+    parser.add_selector("/requirements/host/1", "[win]", recipe_parser.SelectorConflictMode.AND)
+    assert parser.get_selector_paths("[unix and win]") == ["/requirements/host/1"]
+    parser.add_selector("/build/skip", "[win]", recipe_parser.SelectorConflictMode.OR)
+    assert parser.get_selector_paths("[py<37 or win]") == ["/build/skip"]
+    parser.add_selector("/requirements/run/0", "[win]", recipe_parser.SelectorConflictMode.AND)
+    assert parser.get_selector_paths("[win]") == [
+        "/build/number",
+        "/requirements/host/0",
+        "/requirements/run/0",
+        "/multi_level/list_2/1",
+    ]
+
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_add_selector.yaml")
+    assert parser.is_modified()
 
 
 ## Patch and Search ##

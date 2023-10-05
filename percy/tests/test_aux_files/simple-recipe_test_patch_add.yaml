@@ -19,7 +19,7 @@ requirements:
     - fakereq  # [unix]
   empty_field2: Not so empty now
   run:
-    - python
+    - python  # not a selector
   empty_field3:
 
 about:

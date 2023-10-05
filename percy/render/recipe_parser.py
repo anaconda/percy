@@ -21,6 +21,7 @@ import ast
 import difflib
 import json
 import re
+from enum import Enum
 from typing import Any, Callable, Final, Mapping, NamedTuple, Optional, Union
 
 import yaml
@@ -124,6 +125,16 @@ JSON_PATCH_SCHEMA: Final[SchemaType] = {
     ],
     "additionalProperties": False,
 }
+
+
+class SelectorConflictMode(Enum):
+    """
+    Defines how to handle the addition of a selector if one already exists.
+    """
+
+    AND = 1  # Logically "and" the new selector with the old
+    OR = 2  # Logically "or" the new selector with the old
+    REPLACE = 3  # Replace the existing selector
 
 
 class JsonPatchValidationException(Exception):
@@ -470,7 +481,9 @@ class _Traverse:
             path = (_ROOT_NODE_VALUE,)
         elif node.list_member_flag:
             path = (str(idx_num),) + path
-        elif not node.is_leaf():
+        # Leafs do not contain their values in the path, unless the leaf is an
+        # empty key (as the key is part of the path).
+        elif node.is_empty_key() or not node.is_leaf():
             path = (node.value,) + path
         func(node, list(path))
         # Used for paths that contain lists of items
@@ -1188,6 +1201,24 @@ class RecipeParser:
         RecipeParser._render_tree(node, -1, lst)
         return RecipeParser._parse_yaml("\n".join(lst))
 
+    def find_value(self, value: JsonType) -> list[str]:
+        """
+        Given a value, find all the paths that contain that value.
+        :param value:   Value to find in the recipe.
+        :return: List of paths where the value can be found.
+        """
+        paths: list[str] = []
+
+        def _find_value_paths(node: _Node, path_stack: _StrStack):
+            # Special case: empty keys imply a null value, although they don't
+            # contain a null child.
+            if (value is None and node.is_empty_key()) or (node.is_leaf() and node.value == value):
+                paths.append(RecipeParser._stack_path_to_str(path_stack))
+
+        _Traverse.traverse_all(self._root, _find_value_paths)
+
+        return paths
+
     ## Jinja Variable Functions ##
 
     def list_variables(self) -> list[str]:
@@ -1309,6 +1340,55 @@ class RecipeParser:
         #   skip: True  # [unix]
         # The nodes for both `skip` and `True` contain the comment `[unix]`
         return list(dict.fromkeys(path_list))
+
+    def add_selector(self, path: str, selector: str, mode: SelectorConflictMode = SelectorConflictMode.REPLACE) -> None:
+        """
+        Given a path, add a selector (include the surrounding brackets) to
+        the line denoted by path.
+        :param path:        Path to add a selector to
+        :param selector:    Selector statement to add
+        :param mode:        (Optional) Indicates how to handle a conflict if a
+                            selector already exists at this path.
+        :raises KeyError:   If the path provided is not found
+        :raises ValueError: If the selector provided is malformed
+        """
+        path_stack = RecipeParser._str_to_stack_path(path)
+        node = _Traverse.traverse(self._root, path_stack)
+
+        if node is None:
+            raise KeyError(f"Path not found: {path!r}")
+        selector_re = re.compile(r"\[.*\]")
+        if not selector_re.match(selector):
+            raise ValueError(f"Invalid selector provided: {selector}")
+
+        # Helper function that extracts the outer set of []'s in a selector
+        def _extract_selector(s: str) -> str:
+            return s.replace("[", "", 1)[::-1].replace("]", "", 1)[::-1]
+
+        comment = ""
+        old_selector_found = selector_re.search(node.comment)
+        if node.comment == "" or mode == SelectorConflictMode.REPLACE:
+            comment = f"# {selector}"
+        # "Append" to existing selectors
+        elif old_selector_found:
+            logic_op = "and" if mode == SelectorConflictMode.AND else "or"
+            old_selector = _extract_selector(old_selector_found.group())
+            new_selector = _extract_selector(selector)
+            comment = f"# [{old_selector} {logic_op} {new_selector}]"
+        # If the comment is not a selector, put the selector first, then append
+        # the comment.
+        else:
+            # Strip the existing comment of it's leading `#` symbol
+            comment = f"# {selector} {node.comment.replace('#', '', 1).strip()}"
+
+        node.comment = comment
+        # Some lines of YAML correspond to multiple nodes. For consistency,
+        # we need to ensure that comments are duplicate across all nodes on a line.
+        if node.is_single_key():
+            node.children[0].comment = comment
+
+        self._rebuild_selectors()
+        self._is_modified = True
 
     ## YAML Patching Functions ##
 

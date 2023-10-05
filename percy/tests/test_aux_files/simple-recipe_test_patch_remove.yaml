@@ -14,7 +14,7 @@ requirements:
     - setuptools  # [unix]
     - fakereq  # [unix]
   run:
-    - python
+    - python  # not a selector
   empty_field3:
 
 multi_level:
