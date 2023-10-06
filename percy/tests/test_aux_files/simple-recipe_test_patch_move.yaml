@@ -9,6 +9,7 @@ build:
   skip: true  # [py<37]
   is_true: ls
 
+# Comment above a top-level structure
 requirements:
   empty_field1:
   host:

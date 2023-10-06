@@ -12,6 +12,7 @@ build:
   is_true: true
   meaning_of_life: 42
 
+# Comment above a top-level structure
 requirements:
   empty_field1:
   host:
