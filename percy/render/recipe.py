@@ -487,7 +487,7 @@ class Recipe:
         Returns:
           a tuple of first_row, first_column, last_row, last_column
         """
-        if not path or not self.renderer == RendererType.RUAMEL:
+        if not path or self.renderer != RendererType.RUAMEL:
             if self.meta_yaml:
                 return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
             else:
@@ -635,10 +635,6 @@ class Recipe:
                             in the `Recipe` class.
         :return: True if the recipe was modified. False otherwise.
         """
-        # Temporarily swap the rendering system out to ensure consistency
-        # with the other parse tree actions.
-        old_renderer = self.renderer
-        self.renderer = RendererType.PERCY
         # Read in the file as a string. Remembering that `recipe` stores
         # data as a list.
         parser = RecipeParser("\n".join(self.meta_yaml))
@@ -649,8 +645,12 @@ class Recipe:
         # Back-port deltas into the recipe instance and save the file.
         self.meta_yaml = parser.render().splitlines()
         self.save()
+        # Re-render using the rendering backend selected. Some programs, like
+        # Anaconda Linter, expect features provided by specific rendering
+        # engines. In Anaconda Linter's case, it requires the `lc` value
+        # provided by the rendered data structure. See here for more details:
+        # https://yaml.readthedocs.io/en/latest/detail.html
         self.render()
-        self.renderer = old_renderer
         return parser.is_modified()
 
     def patch(
