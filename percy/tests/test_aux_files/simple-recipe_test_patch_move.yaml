@@ -17,7 +17,7 @@ requirements:
     - bar
   empty_field2:
   run:
-    - python
+    - python  # not a selector
   empty_field3:
   number: 0
 

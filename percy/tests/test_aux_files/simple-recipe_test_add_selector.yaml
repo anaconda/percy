@@ -6,21 +6,19 @@ package:
   name: {{ name|lower }}  # [unix]
 
 build:
-  number: 0
-  skip: true  # [py<37]
-  is_true: ls
+  number: 0  # [win]
+  skip: true  # [py<37 or win]
+  is_true: true
 
 requirements:
   empty_field1:
   host:
-    - setuptools  # [unix]
-    - fakereq  # [unix]
-    - bar
+    - setuptools  # [win]
+    - fakereq  # [unix and win]
   empty_field2:
   run:
-    - python  # not a selector
-  empty_field3:
-  number: 0
+    - python  # [win] not a selector
+  empty_field3:  # [unix]
 
 about:
   summary: This is a small recipe for testing
@@ -32,24 +30,17 @@ about:
 
 multi_level:
   list_1:
-    - foo
+    - foo  # [unix]
     # Ensure a comment in a list is supported
     - bar
   list_2:
-    - bat
     - cat
-    - bat
+    - bat  # [win]
     - mat
   list_3:
     - ls
     - sl
     - cowsay
-  bar:
-    - baz
-    - {{ zz_non_alpha_first }}
-    - blah
-    - This {{ name }} is silly
-    - last
 
 test_var_usage:
   foo: {{ version }}
