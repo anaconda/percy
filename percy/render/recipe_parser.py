@@ -980,11 +980,6 @@ class RecipeParser:
         """
         spaces = TAB_AS_SPACES * depth
 
-        # Handle lines that are just comments
-        if node.is_comment():
-            lines.append(node.comment)
-            return
-
         # Handle same-line printing
         if node.is_single_key():
             # Edge case: Handle a list containing 1 member
@@ -1036,16 +1031,16 @@ class RecipeParser:
             lines.append(f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip())
 
         for child in node.children:
+            # Top-level empty-key edge case: Top level keys should have no
+            # additional indentation.
+            extra_tab = "" if depth < 0 else TAB_AS_SPACES
             # Comments in a list are indented to list-level, but do not include
             # a list `-` mark
             if child.is_comment():
-                lines.append(f"{spaces}{TAB_AS_SPACES}" f"{child.comment}".rstrip())
+                lines.append(f"{spaces}{extra_tab}" f"{child.comment}".rstrip())
             # Empty keys can be easily confused for leaf nodes. The difference
             # is these nodes render with a "dangling" `:` mark
             elif child.is_empty_key():
-                # Top-level empty-key edge case: Top level keys should have no
-                # additional indentation.
-                extra_tab = "" if depth < 0 else TAB_AS_SPACES
                 lines.append(
                     f"{spaces}{extra_tab}" f"{RecipeParser._stringify_yaml(child.value)}:  " f"{child.comment}".rstrip()
                 )
@@ -1059,8 +1054,9 @@ class RecipeParser:
             else:
                 RecipeParser._render_tree(child, depth + depth_delta, lines, node)
             # By tradition, recipes have a blank line after every top-level
-            # section.
-            if depth < 0:
+            # section, unless they are a comment. Comments should be left where
+            # they are.
+            if depth < 0 and not child.is_comment():
                 lines.append("")
 
     def render(self) -> str:
@@ -1150,6 +1146,8 @@ class RecipeParser:
 
         # Bootstrap/flatten the root-level
         for child in self._root.children:
+            if child.is_comment():
+                continue
             data.setdefault(child.value, {})
             RecipeParser._render_object_tree(child, replace_variables, data)
 
