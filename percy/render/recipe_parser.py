@@ -253,7 +253,7 @@ class _Node:
         Indicates if a node is a leaf node
         :return: True if the node is a leaf. False otherwise.
         """
-        return len(self.children) == 0
+        return not self.children and not self.is_comment()
 
     def is_root(self) -> bool:
         """
@@ -328,7 +328,7 @@ class _Traverse:
     """
 
     @staticmethod
-    def remap_child_indices(children: list[_Node]) -> list[int]:
+    def remap_child_indices_virt_to_phys(children: list[_Node]) -> list[int]:
         """
         Given a list of child nodes, generate a look-up table to map the
         "virtual" index positions with the "physical" locations.
@@ -358,6 +358,21 @@ class _Traverse:
         return mapping
 
     @staticmethod
+    def remap_child_indices_phys_to_virt(children: list[_Node]) -> list[int]:
+        """
+        Produces the "inverted" table created by `remap_child_indices_virt_to_phys()`
+        See `remap_child_indices_virt_to_phys()` for more details.
+        :param children:    Child node list to process.
+        :return: A list of indices. Indexing this list with the "physical"
+                 (class-provided) index will return the "virtual" list position.
+        """
+        mapping: list[int] = _Traverse.remap_child_indices_virt_to_phys(children)
+        new_mapping: list[int] = [0] * len(children)
+        for i in range(len(mapping)):
+            new_mapping[mapping[i]] = i
+        return new_mapping
+
+    @staticmethod
     def _traverse_recurse(node: _Node, path: _StrStack) -> Optional[_Node]:
         """
         Recursive helper function for traversing a tree.
@@ -374,7 +389,7 @@ class _Traverse:
         if path_part.isdigit():
             # Map virtual to physical indices and perform some out-of-bounds
             # checks.
-            idx_map = _Traverse.remap_child_indices(node.children)
+            idx_map = _Traverse.remap_child_indices_virt_to_phys(node.children)
             virtual_idx = int(path_part)
             max_idx = len(idx_map) - 1
             if virtual_idx < 0 or virtual_idx > max_idx:
@@ -464,6 +479,11 @@ class _Traverse:
         """
         Given a node, traverse all child nodes and apply a function to each
         node. Useful for updating or extracting information on the whole tree.
+
+        NOTE: The paths provided will return virtual indices, not physical
+              indices. In other words, comments in a list do not count towards
+              the index position of a list member.
+
         :param node:    Node to start with
         :param func:    Function to apply against all traversed nodes.
         :param path:    CALLERS: DO NOT SET. This value tracks the current path
@@ -487,10 +507,9 @@ class _Traverse:
             path = (node.value,) + path
         func(node, list(path))
         # Used for paths that contain lists of items
-        idx_num = 0
-        for child in node.children:
-            _Traverse.traverse_all(child, func, path, idx_num)
-            idx_num += 1
+        mapping = _Traverse.remap_child_indices_phys_to_virt(node.children)
+        for i in range(len(node.children)):
+            _Traverse.traverse_all(node.children[i], func, path, mapping[i])
 
 
 class RecipeParser:
@@ -1155,6 +1174,21 @@ class RecipeParser:
 
     ## YAML Access Functions ##
 
+    def list_value_paths(self) -> list[str]:
+        """
+        Provides a list of all known terminal paths. This can be used by the
+        caller to perform search operations.
+        :return: List of all terminal paths in the parse tree.
+        """
+        lst: list[str] = []
+
+        def _find_paths(node: _Node, path_stack: _StrStack):
+            if node.is_leaf():
+                lst.append(RecipeParser._stack_path_to_str(path_stack))
+
+        _Traverse.traverse_all(self._root, _find_paths)
+        return lst
+
     def contains_value(self, path: str) -> bool:
         """
         Determines if a value (via a path) is contained in this recipe.
@@ -1428,7 +1462,7 @@ class RecipeParser:
                 return False
             # Check the bounds if the target requires the use of an index,
             # remembering to use the virtual look-up table.
-            idx_map = _Traverse.remap_child_indices(node.children)
+            idx_map = _Traverse.remap_child_indices_virt_to_phys(node.children)
             if node_idx > (len(idx_map) - 1):
                 return False
 
@@ -1544,7 +1578,7 @@ class RecipeParser:
         if node_idx >= 0:
             # Pop the "physical" index, not the "virtual" one to ensure
             # comments have been accounted for.
-            node.children.pop(_Traverse.remap_child_indices(node.children)[node_idx])
+            node.children.pop(_Traverse.remap_child_indices_virt_to_phys(node.children)[node_idx])
             return True
 
         # In all other cases, the node to be removed must be found before eviction

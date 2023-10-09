@@ -154,6 +154,42 @@ def test_render_to_object() -> None:
 ## Values ##
 
 
+def test_list_value_paths() -> None:
+    """
+    Tests retrieval of all value paths
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    assert parser.list_value_paths() == [
+        "/package/name",
+        "/build/number",
+        "/build/skip",
+        "/build/is_true",
+        "/requirements/empty_field1",
+        "/requirements/host/0",
+        "/requirements/host/1",
+        "/requirements/empty_field2",
+        "/requirements/run/0",
+        "/requirements/empty_field3",
+        "/about/summary",
+        "/about/description",
+        "/about/license",
+        "/multi_level/list_1/0",
+        "/multi_level/list_1/1",
+        "/multi_level/list_2/0",
+        "/multi_level/list_2/1",
+        "/multi_level/list_2/2",
+        "/multi_level/list_3/0",
+        "/multi_level/list_3/1",
+        "/multi_level/list_3/2",
+        "/test_var_usage/foo",
+        "/test_var_usage/bar/0",
+        "/test_var_usage/bar/1",
+        "/test_var_usage/bar/2",
+        "/test_var_usage/bar/3",
+        "/test_var_usage/bar/4",
+    ]
+
+
 def test_contains_value() -> None:
     """
     Tests retrieval of a value from a parsed YAML example.
