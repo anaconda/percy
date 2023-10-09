@@ -30,7 +30,7 @@ from jsonschema import validate as schema_validate
 # Base types that can store value
 Primitives = Union[str, int, float, bool, None]
 # Same primitives, as a tuple. Used with `isinstance()`
-PrimitivesTuple = (str, int, float, bool, None)
+PRIMITIVES_TUPLE: Final[tuple] = (str, int, float, bool, type(None))
 
 # Type that represents a JSON-like type
 JsonType = Union[dict[str, "JsonType"], list["JsonType"], Primitives]
@@ -762,7 +762,7 @@ class RecipeParser:
 
         # For complex types, generate the YAML equivalent and build
         # a new tree.
-        if isinstance(value, (dict, list)):
+        if not isinstance(value, PRIMITIVES_TUPLE):
             # Although not technically required by YAML, we add the optional
             # spacing for human readability.
             return RecipeParser(  # pylint: disable=protected-access
@@ -1157,7 +1157,8 @@ class RecipeParser:
 
     def contains_value(self, path: str) -> bool:
         """
-        Determines if a value (via a path) is contained in this recipe
+        Determines if a value (via a path) is contained in this recipe.
+        This also allows the caller to determine if a path exists.
         :param path:    JSON patch (RFC 6902)-style path to a value.
         :return: True if the path exists. False otherwise.
         """
@@ -1201,12 +1202,20 @@ class RecipeParser:
         RecipeParser._render_tree(node, -1, lst)
         return RecipeParser._parse_yaml("\n".join(lst))
 
-    def find_value(self, value: JsonType) -> list[str]:
+    def find_value(self, value: Primitives) -> list[str]:
         """
         Given a value, find all the paths that contain that value.
+
+        NOTE: This only supports searching for "primitive" values, i.e. you
+        cannot search for collections.
+
         :param value:   Value to find in the recipe.
+        :raises ValueError: If the value provided is not a primitive type.
         :return: List of paths where the value can be found.
         """
+        if not isinstance(value, PRIMITIVES_TUPLE):
+            raise ValueError(f"A non-primitive value was provided: {value}")
+
         paths: list[str] = []
 
         def _find_value_paths(node: _Node, path_stack: _StrStack):

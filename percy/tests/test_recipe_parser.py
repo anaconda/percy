@@ -228,6 +228,13 @@ def test_find_value() -> None:
     assert not parser.find_value(43)
     assert not parser.find_value("fooz")
     assert not parser.find_value("")
+    # Values that are not supported for searching
+    with pytest.raises(ValueError):
+        parser.find_value(["foo", "bar"])
+    with pytest.raises(ValueError):
+        parser.find_value(("foo", "bar"))
+    with pytest.raises(ValueError):
+        parser.find_value({"foo": "bar"})
     # Find does not modify the parser
     assert not parser.is_modified()
 
