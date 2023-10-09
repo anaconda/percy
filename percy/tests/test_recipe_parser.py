@@ -1281,7 +1281,27 @@ def test_patch_copy() -> None:
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_copy.yaml")
 
 
-## Diff ##
+def test_search() -> None:
+    """
+    Tests searching for values
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    assert parser.search(r"fake") == ["/requirements/host/1"]
+    assert parser.search(r"^0$") == ["/build/number"]
+    assert parser.search(r"true") == ["/build/skip", "/build/is_true"]
+    assert parser.search(r"py.*") == ["/requirements/run/0", "/about/description"]
+    assert parser.search(r"py.*", True) == ["/build/skip", "/requirements/run/0", "/about/description"]
+    assert not parser.is_modified()
+
+
+def test_search_and_patch() -> None:
+    """
+    Tests searching for values and then patching them
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    assert parser.search_and_patch(r"py.*", {"op": "replace", "value": "conda"}, True)
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_search_and_patch.yaml")
+    assert parser.is_modified()
 
 
 def test_diff() -> None:

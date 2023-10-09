@@ -1763,17 +1763,53 @@ class RecipeParser:
 
         return is_successful
 
-    # TODO re-enable stubs when built. Commented out to shut the linter up
-    # about unused variables (W0613)
+    def search(self, regex: str, include_comment: bool = False) -> list[str]:
+        """
+        Given a regex string, return the list of paths that match the regex.
 
-    # def search(self, regex: str) -> list[str]:
-    #     # TODO complete
-    #     return []
+        NOTE: This function only searches against primitive values. All
+              variables and selectors can be fully provided by using their
+              respective `list_*()` functions.
 
-    # def search_and_patch(self, regex: str, patch: JsonPatchType) -> bool:
-    #     # TODO complete
-    #     # TODO only support: add, remove, replace
-    #     return False
+        :param regex:           Regular expression to match with
+        :param include_comment: (Optional) If set to `True`, this function
+                                will execute the regular expression on values
+                                WITH their comments provided. For example:
+                                    42  # This is a comment
+        :return: Returns a list of paths where the matched value was found.
+        """
+        re_obj = re.compile(regex)
+        paths: list[str] = []
+
+        def _search_paths(node: _Node, path_stack: _StrStack):
+            value = str(RecipeParser._stringify_yaml(node.value))
+            if include_comment and node.comment:
+                value = f"{value}{TAB_AS_SPACES}{node.comment}"
+            if node.is_leaf() and re_obj.search(value):
+                paths.append(RecipeParser._stack_path_to_str(path_stack))
+
+        _Traverse.traverse_all(self._root, _search_paths)
+
+        return paths
+
+    def search_and_patch(self, regex: str, patch: JsonPatchType, include_comment: bool = False) -> bool:
+        """
+        :param regex:           Regular expression to match with
+        :param patch:           JSON patch to perform. NOTE: The `path` field
+                                will be replaced with the path(s) found, so it
+                                does not need to be provided.
+        :param include_comment: (Optional) If set to `True`, this function
+                                will execute the regular expression on values
+                                WITH their comments provided. For example:
+                                    42  # This is a comment
+        :return: Returns a list of paths where the matched value was found.
+        """
+        paths = self.search(regex, include_comment)
+        summation: bool = True
+        for path in paths:
+            patch["path"] = path
+            summation = summation and self.patch(patch)
+        return summation
 
     def diff(self) -> str:
         """
