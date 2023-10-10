@@ -1433,6 +1433,41 @@ class RecipeParser:
         self._rebuild_selectors()
         self._is_modified = True
 
+    def remove_selector(self, path: str) -> None:
+        """
+        Given a path, remove a selector to the line denoted by path.
+        If a selector does not exist, nothing happens.
+        If a comment exists after the selector, keep it, discard the selector.
+        :param path:        Path to add a selector to
+        :raises KeyError:   If the path provided is not found
+        """
+        path_stack = RecipeParser._str_to_stack_path(path)
+        node = _Traverse.traverse(self._root, path_stack)
+
+        if node is None:
+            raise KeyError(f"Path not found: {path!r}")
+
+        selector_re = re.compile(r"\[.*\]")
+        search_results = selector_re.search(node.comment)
+        if not search_results:
+            return
+
+        comment = node.comment.replace(search_results.group(0), "")
+        # Sanitize potential double-space scenario after a removal
+        comment = comment.replace("#  ", "# ")
+        # Detect and remove empty comments. Other comments should remain intact.
+        if comment.strip() == "#":
+            comment = ""
+
+        node.comment = comment
+        # Some lines of YAML correspond to multiple nodes. For consistency,
+        # we need to ensure that comments are duplicate across all nodes on a line.
+        if node.is_single_key():
+            node.children[0].comment = comment
+
+        self._rebuild_selectors()
+        self._is_modified = True
+
     ## YAML Patching Functions ##
 
     @staticmethod

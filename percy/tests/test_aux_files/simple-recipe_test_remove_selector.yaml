@@ -3,25 +3,23 @@
 {% set version = "0.10.8.6" %}
 
 package:
-  name: {{ name|lower }}  # [unix]
+  name: {{ name|lower }}
 
 build:
   number: 0
   skip: true  # [py<37]
-  is_true: ls
+  is_true: true
 
 # Comment above a top-level structure
 requirements:
   empty_field1:
   host:
     - setuptools  # [unix]
-    - fakereq  # [unix] selector with comment
-    - bar
+    - fakereq  # selector with comment
   empty_field2:
   run:
     - python  # not a selector
   empty_field3:
-  number: 0
 
 about:
   summary: This is a small recipe for testing
@@ -37,7 +35,6 @@ multi_level:
     # Ensure a comment in a list is supported
     - bar
   list_2:
-    - bat
     - cat
     - bat
     - mat
@@ -45,12 +42,6 @@ multi_level:
     - ls
     - sl
     - cowsay
-  bar:
-    - baz
-    - {{ zz_non_alpha_first }}
-    - blah
-    - This {{ name }} is silly
-    - last
 
 test_var_usage:
   foo: {{ version }}

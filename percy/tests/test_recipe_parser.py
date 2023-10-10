@@ -460,6 +460,37 @@ def test_add_selector() -> None:
     assert parser.is_modified()
 
 
+def test_remove_selector() -> None:
+    """
+    Tests removing a selector to a recipe
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    # Test that selector validation is working
+    with pytest.raises(KeyError):
+        parser.remove_selector("/package/path/to/fake/value")
+
+    # Don't fail when a selector doesn't exist on a line
+    parser.remove_selector("/build/number")
+    # Don't remove a non-selector comment
+    parser.remove_selector("/requirements/run/0")
+    assert not parser.is_modified()
+
+    # Remove a selector
+    parser.remove_selector("/package/name")
+    assert parser.get_selector_paths("[unix]") == [
+        "/requirements/host/0",
+        "/requirements/host/1",
+    ]
+    # Remove a selector with a comment
+    parser.remove_selector("/requirements/host/1")
+    assert parser.get_selector_paths("[unix]") == [
+        "/requirements/host/0",
+    ]
+
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_remove_selector.yaml")
+    assert parser.is_modified()
+
+
 ## Patch and Search ##
 
 
