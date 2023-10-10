@@ -537,6 +537,14 @@ class RecipeParser:
     # See here for a good explanation: https://peps.python.org/pep-0661/
     _sentinel = object()
 
+    # Non-variable-based regular expressions are static members to promote re-use while simultaneously reducing
+    # construction costs.
+    _jinja_sub_re = re.compile(r"{{.*}}")
+    _jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
+    _jinja_set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
+    _selector_re = re.compile(r"\[.*\]")
+    _multiline_re = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
+
     @staticmethod
     def _num_tab_spaces(s: str) -> int:
         """
@@ -592,8 +600,7 @@ class RecipeParser:
         # Although not wrong, it does not follow our common practices.
         # Quote escaping is not required for multiline strings.
         # We do not escape quotes for Jinja value statements.
-        jinja_re = re.compile(r"{{.*}}")
-        if not multiline_flag and isinstance(val, str) and not jinja_re.match(val):
+        if not multiline_flag and isinstance(val, str) and not RecipeParser._jinja_sub_re.match(val):
             if "'" in val or '"' in val:
                 # The PyYaml equivalent function injects newlines, hence why
                 # we abuse the JSON library to write our YAML.
@@ -617,9 +624,8 @@ class RecipeParser:
             # substitution markers, then re-inject the substitutions back in.
             # We classify all Jinja substitutions as string values, so we don't
             # have to worry about the type of the actual substitution.
-            jinja_sub_re = re.compile(r"{{.*}}")
-            sub_list = jinja_sub_re.findall(s)
-            s = jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
+            sub_list = RecipeParser._jinja_sub_re.findall(s)
+            s = RecipeParser._jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
             output = yaml.load(s, yaml.SafeLoader)
             # Add the substitutions back in
             if isinstance(output, str):
@@ -799,13 +805,12 @@ class RecipeParser:
         This needs to be called when the tree or selectors are modified.
         """
         self._selector_tbl: dict[str, list[SelectorInfo]] = {}
-        selector_re = re.compile(r"\[.*\]")
 
         def _collect_selectors(node: _Node, path: _StrStackImmutable):
             # Ignore empty comments
             if not node.comment:
                 return
-            match = selector_re.search(node.comment)
+            match = RecipeParser._selector_re.search(node.comment)
             if match:
                 selector = match.group(0)
                 selector_info = SelectorInfo(node, path)
@@ -830,8 +835,7 @@ class RecipeParser:
         # Tracks Jinja variables set by the file
         self._vars_tbl: dict[str, JsonType] = {}
         # Find all the set statements and record the values
-        set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
-        for line in set_line_re.findall(self._init_content):
+        for line in RecipeParser._jinja_set_line_re.findall(self._init_content):
             key = line[line.find("set") + len("set") : line.find("=")].strip()
             value = line[line.find("=") + len("=") : line.find("%}")].strip()
             try:
@@ -842,8 +846,7 @@ class RecipeParser:
         # Root of the parse tree
         self._root = _Node(_ROOT_NODE_VALUE)
         # Start by removing all Jinja lines. Then traverse line-by-line
-        jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
-        sanitized_yaml = jinja_line_re.sub("", self._init_content)
+        sanitized_yaml = RecipeParser._jinja_line_re.sub("", self._init_content)
 
         # Read the YAML line-by-line, maintaining a stack to manage the last
         # owning node in the tree.
@@ -852,8 +855,6 @@ class RecipeParser:
         # marks (spaces)
         cur_indent = 0
         last_node = node_stack[-1]
-        # Regex for detecting the start of a multiline node
-        multiline_re = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
 
         # Iterate with an index variable, so we can handle multiline values
         line_idx = 0
@@ -873,7 +874,7 @@ class RecipeParser:
             new_node = RecipeParser._parse_line_node(clean_line)
             # If the last node ended (pre-comments) with a |, reset the value
             # to be a list of the following, extra-indented strings
-            if multiline_re.match(line):
+            if RecipeParser._multiline_re.match(line):
                 # Per YAML spec, multiline statements can't be commented. In
                 # other words, the `#` symbol is seen as a string character in
                 # multiline values.
@@ -1400,8 +1401,7 @@ class RecipeParser:
 
         if node is None:
             raise KeyError(f"Path not found: {path!r}")
-        selector_re = re.compile(r"\[.*\]")
-        if not selector_re.match(selector):
+        if not RecipeParser._selector_re.match(selector):
             raise ValueError(f"Invalid selector provided: {selector}")
 
         # Helper function that extracts the outer set of []'s in a selector
@@ -1409,7 +1409,7 @@ class RecipeParser:
             return s.replace("[", "", 1)[::-1].replace("]", "", 1)[::-1]
 
         comment = ""
-        old_selector_found = selector_re.search(node.comment)
+        old_selector_found = RecipeParser._selector_re.search(node.comment)
         if node.comment == "" or mode == SelectorConflictMode.REPLACE:
             comment = f"# {selector}"
         # "Append" to existing selectors
@@ -1447,8 +1447,7 @@ class RecipeParser:
         if node is None:
             raise KeyError(f"Path not found: {path!r}")
 
-        selector_re = re.compile(r"\[.*\]")
-        search_results = selector_re.search(node.comment)
+        search_results = RecipeParser._selector_re.search(node.comment)
         if not search_results:
             return
 

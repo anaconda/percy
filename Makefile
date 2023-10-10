@@ -100,7 +100,7 @@ test-debug:		## runs test cases with debugging info enabled
 	$(PYTHON3) -m pytest -vv --capture=no percy/tests/
 
 test-cov:		## checks test coverage requirements
-	$(PYTHON3) -m pytest --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=10 --cov-report term-missing
+	$(PYTHON3) -m pytest --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=17 --cov-report term-missing
 
 lint:			## runs the linter against the project
 	pylint --rcfile=.pylintrc $(LINTER_FILES)
