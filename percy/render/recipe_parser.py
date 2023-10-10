@@ -232,7 +232,7 @@ class _Node:
     def __str__(self) -> str:
         """
         Renders the Node as a string. Useful for debugging purposes.
-        :return: The node's value, as a string
+        :return: The node, as a string
         """
         value = self.value
         if self.is_comment():
@@ -247,6 +247,17 @@ class _Node:
             f"  - Multiline?:   {self.multiline_flag}\n"
             f"  - Key?:         {self.key_flag}\n"
         )
+
+    def short_str(self) -> str:
+        """
+        Renders the Node as a simple string. Useful for other `__str__()` functions to call.
+        :return: The node, as a simplified string.
+        """
+        if self.is_comment():
+            return f"<Comment: {self.comment}>"
+        if self.is_collection_element():
+            return "<Collection Node>"
+        return self.value
 
     def is_leaf(self) -> bool:
         """
@@ -318,6 +329,14 @@ class SelectorInfo(NamedTuple):
 
     node: _Node
     path: _StrStack
+
+    def __str__(self) -> str:
+        """
+        Generates the string form of a `SelectorInfo` object. Useful for debugging.
+        :return: String representation of a `SelectorInfo` instance
+        """
+        path_str = RecipeParser._stack_path_to_str(self.path.copy())
+        return f"{self.node.short_str()} -> {path_str}"
 
 
 class _Traverse:
@@ -933,12 +952,7 @@ class RecipeParser:
         """
         spaces = TAB_AS_SPACES * depth
         branch = "" if depth == 0 else "|- "
-        value = node.value
-        if node.is_comment():
-            value = f"<Comment: {node.comment}>"
-        if node.is_collection_element():
-            value = "<Collection Node>"
-        lines.append(f"{spaces}{branch}{value}")
+        lines.append(f"{spaces}{branch}{node.short_str()}")
         for child in node.children:
             RecipeParser._str_tree_recurse(child, depth + 1, lines)
 
@@ -955,7 +969,9 @@ class RecipeParser:
         s += json.dumps(self._vars_tbl, indent=TAB_AS_SPACES) + "\n"
         s += "- Selectors Table:\n"
         for key, val in self._selector_tbl.items():
-            s += f"{TAB_AS_SPACES}{key}: {val}\n"
+            s += f"{TAB_AS_SPACES}{key}\n"
+            for info in val:
+                s += f"{TAB_AS_SPACES}{TAB_AS_SPACES}- {info}\n"
         s += f"- is_modified?: {self._is_modified}\n"
         s += "- Tree:\n" + "\n".join(tree_lines) + "\n"
         s += "--------------------\n"

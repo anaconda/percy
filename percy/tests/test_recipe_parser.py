@@ -63,6 +63,32 @@ def test_construction() -> None:
     # assert parser._root == TODO
 
 
+def test_str() -> None:
+    """
+    Tests string casting
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    assert str(parser) == load_file(f"{TEST_FILES_PATH}/simple-recipe_to_str.out")
+    # Regression test: Run a function a second time to ensure that `SelectorInfo::__str__()` doesn't accidentally purge
+    # the underlying stack when the string is being rendered.
+    assert str(parser) == load_file(f"{TEST_FILES_PATH}/simple-recipe_to_str.out")
+    assert not parser.is_modified()
+
+
+def test_eq() -> None:
+    """
+    Tests equivalency function
+    """
+    parser0 = load_recipe("simple-recipe.yaml")
+    parser1 = load_recipe("simple-recipe.yaml")
+    parser2 = load_recipe("types-toml.yaml")
+    assert parser0 == parser1
+    assert parser0 != parser2
+    assert not parser0.is_modified()
+    assert not parser1.is_modified()
+    assert not parser2.is_modified()
+
+
 def test_dog_food_easy() -> None:
     """
     Test "eating our own dog food": Take a recipe, construct a parser, re-render
