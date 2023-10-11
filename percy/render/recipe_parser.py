@@ -563,6 +563,7 @@ class RecipeParser:
     _jinja_set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
     _selector_re = re.compile(r"\[.*\]")
     _multiline_re = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
+    _detect_trailing_comment_re = re.compile(r"(\s)+(#)")
 
     @staticmethod
     def _num_tab_spaces(s: str) -> int:
@@ -684,10 +685,12 @@ class RecipeParser:
         # The full line is a comment
         if s.startswith("#"):
             return _Node(comment=s)
-        # There is a comment at the end of the line
-        comment_start = s.rfind("#")
-        if comment_start > 0:
-            comment = s[comment_start:]
+        # There is a comment at the end of the line if a `#` symbol is found with leading whitespace before it. If it is
+        # "touching" a character on the left-side, it is just part of a string.
+        comment_re_result = RecipeParser._detect_trailing_comment_re.search(s)
+        if comment_re_result is not None:
+            # Group 0 is the whole match, Group 1 is the leading whitespace, Group 2 locates the `#`
+            comment = s[comment_re_result.start(2) :]
 
         # If a dictionary is returned, we have a line containing a key and
         # potentially a value. There should only be 1 key/value pairing in 1
@@ -1449,13 +1452,14 @@ class RecipeParser:
         self._rebuild_selectors()
         self._is_modified = True
 
-    def remove_selector(self, path: str) -> None:
+    def remove_selector(self, path: str) -> Optional[str]:
         """
         Given a path, remove a selector to the line denoted by path.
-        If a selector does not exist, nothing happens.
-        If a comment exists after the selector, keep it, discard the selector.
+        - If a selector does not exist, nothing happens.
+        - If a comment exists after the selector, keep it, discard the selector.
         :param path:        Path to add a selector to
         :raises KeyError:   If the path provided is not found
+        :return: If found, the selector removed (includes surrounding brackets). Otherwise, returns None
         """
         path_stack = RecipeParser._str_to_stack_path(path)
         node = _Traverse.traverse(self._root, path_stack)
@@ -1465,11 +1469,12 @@ class RecipeParser:
 
         search_results = RecipeParser._selector_re.search(node.comment)
         if not search_results:
-            return
+            return None
 
-        comment = node.comment.replace(search_results.group(0), "")
-        # Sanitize potential double-space scenario after a removal
-        comment = comment.replace("#  ", "# ")
+        selector = search_results.group(0)
+        comment = node.comment.replace(selector, "")
+        # Sanitize potential edge-case scenarios after a removal
+        comment = comment.replace("#  ", "# ").replace("# # ", "# ")
         # Detect and remove empty comments. Other comments should remain intact.
         if comment.strip() == "#":
             comment = ""
@@ -1482,6 +1487,7 @@ class RecipeParser:
 
         self._rebuild_selectors()
         self._is_modified = True
+        return selector
 
     ## YAML Patching Functions ##
 

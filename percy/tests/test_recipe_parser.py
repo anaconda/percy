@@ -404,7 +404,7 @@ def test_list_selectors() -> None:
     Validates the list of selectors found
     """
     parser = load_recipe("simple-recipe.yaml")
-    assert parser.list_selectors() == ["[unix]", "[py<37]"]
+    assert parser.list_selectors() == ["[unix]", "[py<37]", "[unix and win]"]
     assert not parser.is_modified()
 
 
@@ -471,7 +471,7 @@ def test_add_selector() -> None:
         "/multi_level/list_2/1",
     ]
     parser.add_selector("/requirements/host/1", "[win]", recipe_parser.SelectorConflictMode.AND)
-    assert parser.get_selector_paths("[unix and win]") == ["/requirements/host/1"]
+    assert parser.get_selector_paths("[unix and win]") == ["/requirements/host/1", "/requirements/empty_field2"]
     parser.add_selector("/build/skip", "[win]", recipe_parser.SelectorConflictMode.OR)
     assert parser.get_selector_paths("[py<37 or win]") == ["/build/skip"]
     parser.add_selector("/requirements/run/0", "[win]", recipe_parser.SelectorConflictMode.AND)
@@ -496,22 +496,25 @@ def test_remove_selector() -> None:
         parser.remove_selector("/package/path/to/fake/value")
 
     # Don't fail when a selector doesn't exist on a line
-    parser.remove_selector("/build/number")
+    assert parser.remove_selector("/build/number") is None
     # Don't remove a non-selector comment
-    parser.remove_selector("/requirements/run/0")
+    assert parser.remove_selector("/requirements/run/0") is None
     assert not parser.is_modified()
 
     # Remove a selector
-    parser.remove_selector("/package/name")
+    assert parser.remove_selector("/package/name") == "[unix]"
     assert parser.get_selector_paths("[unix]") == [
         "/requirements/host/0",
         "/requirements/host/1",
     ]
     # Remove a selector with a comment
-    parser.remove_selector("/requirements/host/1")
+    assert parser.remove_selector("/requirements/host/1") == "[unix]"
     assert parser.get_selector_paths("[unix]") == [
         "/requirements/host/0",
     ]
+    # Remove a selector with a "double comment (extra `#` symbols used)"
+    assert parser.remove_selector("/requirements/empty_field2") == "[unix and win]"
+    assert not parser.get_selector_paths("[unix and win]")
 
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_remove_selector.yaml")
     assert parser.is_modified()
