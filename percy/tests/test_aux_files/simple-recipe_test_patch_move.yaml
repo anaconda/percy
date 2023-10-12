@@ -14,9 +14,9 @@ requirements:
   empty_field1:
   host:
     - setuptools  # [unix]
-    - fakereq  # [unix]
+    - fakereq  # [unix] selector with comment
     - bar
-  empty_field2:
+  empty_field2:  # [unix and win] # selector with comment with comment symbol
   run:
     - python  # not a selector
   empty_field3:

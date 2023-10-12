@@ -63,6 +63,32 @@ def test_construction() -> None:
     # assert parser._root == TODO
 
 
+def test_str() -> None:
+    """
+    Tests string casting
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    assert str(parser) == load_file(f"{TEST_FILES_PATH}/simple-recipe_to_str.out")
+    # Regression test: Run a function a second time to ensure that `SelectorInfo::__str__()` doesn't accidentally purge
+    # the underlying stack when the string is being rendered.
+    assert str(parser) == load_file(f"{TEST_FILES_PATH}/simple-recipe_to_str.out")
+    assert not parser.is_modified()
+
+
+def test_eq() -> None:
+    """
+    Tests equivalency function
+    """
+    parser0 = load_recipe("simple-recipe.yaml")
+    parser1 = load_recipe("simple-recipe.yaml")
+    parser2 = load_recipe("types-toml.yaml")
+    assert parser0 == parser1
+    assert parser0 != parser2
+    assert not parser0.is_modified()
+    assert not parser1.is_modified()
+    assert not parser2.is_modified()
+
+
 def test_dog_food_easy() -> None:
     """
     Test "eating our own dog food": Take a recipe, construct a parser, re-render
@@ -378,7 +404,7 @@ def test_list_selectors() -> None:
     Validates the list of selectors found
     """
     parser = load_recipe("simple-recipe.yaml")
-    assert parser.list_selectors() == ["[unix]", "[py<37]"]
+    assert parser.list_selectors() == ["[unix]", "[py<37]", "[unix and win]"]
     assert not parser.is_modified()
 
 
@@ -445,7 +471,7 @@ def test_add_selector() -> None:
         "/multi_level/list_2/1",
     ]
     parser.add_selector("/requirements/host/1", "[win]", recipe_parser.SelectorConflictMode.AND)
-    assert parser.get_selector_paths("[unix and win]") == ["/requirements/host/1"]
+    assert parser.get_selector_paths("[unix and win]") == ["/requirements/host/1", "/requirements/empty_field2"]
     parser.add_selector("/build/skip", "[win]", recipe_parser.SelectorConflictMode.OR)
     assert parser.get_selector_paths("[py<37 or win]") == ["/build/skip"]
     parser.add_selector("/requirements/run/0", "[win]", recipe_parser.SelectorConflictMode.AND)
@@ -457,6 +483,40 @@ def test_add_selector() -> None:
     ]
 
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_add_selector.yaml")
+    assert parser.is_modified()
+
+
+def test_remove_selector() -> None:
+    """
+    Tests removing a selector to a recipe
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    # Test that selector validation is working
+    with pytest.raises(KeyError):
+        parser.remove_selector("/package/path/to/fake/value")
+
+    # Don't fail when a selector doesn't exist on a line
+    assert parser.remove_selector("/build/number") is None
+    # Don't remove a non-selector comment
+    assert parser.remove_selector("/requirements/run/0") is None
+    assert not parser.is_modified()
+
+    # Remove a selector
+    assert parser.remove_selector("/package/name") == "[unix]"
+    assert parser.get_selector_paths("[unix]") == [
+        "/requirements/host/0",
+        "/requirements/host/1",
+    ]
+    # Remove a selector with a comment
+    assert parser.remove_selector("/requirements/host/1") == "[unix]"
+    assert parser.get_selector_paths("[unix]") == [
+        "/requirements/host/0",
+    ]
+    # Remove a selector with a "double comment (extra `#` symbols used)"
+    assert parser.remove_selector("/requirements/empty_field2") == "[unix and win]"
+    assert not parser.get_selector_paths("[unix and win]")
+
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_remove_selector.yaml")
     assert parser.is_modified()
 
 

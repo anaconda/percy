@@ -15,8 +15,8 @@ requirements:
   empty_field1:
   host:
     - setuptools  # [unix]
-    - fakereq  # [unix]
-  empty_field2:
+    - fakereq  # [unix] selector with comment
+  empty_field2:  # [unix and win] # selector with comment with comment symbol
   run:
     - conda
   empty_field3:

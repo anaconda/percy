@@ -232,7 +232,7 @@ class _Node:
     def __str__(self) -> str:
         """
         Renders the Node as a string. Useful for debugging purposes.
-        :return: The node's value, as a string
+        :return: The node, as a string
         """
         value = self.value
         if self.is_comment():
@@ -247,6 +247,17 @@ class _Node:
             f"  - Multiline?:   {self.multiline_flag}\n"
             f"  - Key?:         {self.key_flag}\n"
         )
+
+    def short_str(self) -> str:
+        """
+        Renders the Node as a simple string. Useful for other `__str__()` functions to call.
+        :return: The node, as a simplified string.
+        """
+        if self.is_comment():
+            return f"<Comment: {self.comment}>"
+        if self.is_collection_element():
+            return "<Collection Node>"
+        return self.value
 
     def is_leaf(self) -> bool:
         """
@@ -318,6 +329,14 @@ class SelectorInfo(NamedTuple):
 
     node: _Node
     path: _StrStack
+
+    def __str__(self) -> str:
+        """
+        Generates the string form of a `SelectorInfo` object. Useful for debugging.
+        :return: String representation of a `SelectorInfo` instance
+        """
+        path_str = RecipeParser._stack_path_to_str(self.path.copy())
+        return f"{self.node.short_str()} -> {path_str}"
 
 
 class _Traverse:
@@ -537,6 +556,15 @@ class RecipeParser:
     # See here for a good explanation: https://peps.python.org/pep-0661/
     _sentinel = object()
 
+    # Non-variable-based regular expressions are static members to promote re-use while simultaneously reducing
+    # construction costs.
+    _jinja_sub_re = re.compile(r"{{.*}}")
+    _jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
+    _jinja_set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
+    _selector_re = re.compile(r"\[.*\]")
+    _multiline_re = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
+    _detect_trailing_comment_re = re.compile(r"(\s)+(#)")
+
     @staticmethod
     def _num_tab_spaces(s: str) -> int:
         """
@@ -592,8 +620,7 @@ class RecipeParser:
         # Although not wrong, it does not follow our common practices.
         # Quote escaping is not required for multiline strings.
         # We do not escape quotes for Jinja value statements.
-        jinja_re = re.compile(r"{{.*}}")
-        if not multiline_flag and isinstance(val, str) and not jinja_re.match(val):
+        if not multiline_flag and isinstance(val, str) and not RecipeParser._jinja_sub_re.match(val):
             if "'" in val or '"' in val:
                 # The PyYaml equivalent function injects newlines, hence why
                 # we abuse the JSON library to write our YAML.
@@ -617,9 +644,8 @@ class RecipeParser:
             # substitution markers, then re-inject the substitutions back in.
             # We classify all Jinja substitutions as string values, so we don't
             # have to worry about the type of the actual substitution.
-            jinja_sub_re = re.compile(r"{{.*}}")
-            sub_list = jinja_sub_re.findall(s)
-            s = jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
+            sub_list = RecipeParser._jinja_sub_re.findall(s)
+            s = RecipeParser._jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
             output = yaml.load(s, yaml.SafeLoader)
             # Add the substitutions back in
             if isinstance(output, str):
@@ -659,10 +685,12 @@ class RecipeParser:
         # The full line is a comment
         if s.startswith("#"):
             return _Node(comment=s)
-        # There is a comment at the end of the line
-        comment_start = s.rfind("#")
-        if comment_start > 0:
-            comment = s[comment_start:]
+        # There is a comment at the end of the line if a `#` symbol is found with leading whitespace before it. If it is
+        # "touching" a character on the left-side, it is just part of a string.
+        comment_re_result = RecipeParser._detect_trailing_comment_re.search(s)
+        if comment_re_result is not None:
+            # Group 0 is the whole match, Group 1 is the leading whitespace, Group 2 locates the `#`
+            comment = s[comment_re_result.start(2) :]
 
         # If a dictionary is returned, we have a line containing a key and
         # potentially a value. There should only be 1 key/value pairing in 1
@@ -799,13 +827,12 @@ class RecipeParser:
         This needs to be called when the tree or selectors are modified.
         """
         self._selector_tbl: dict[str, list[SelectorInfo]] = {}
-        selector_re = re.compile(r"\[.*\]")
 
         def _collect_selectors(node: _Node, path: _StrStackImmutable):
             # Ignore empty comments
             if not node.comment:
                 return
-            match = selector_re.search(node.comment)
+            match = RecipeParser._selector_re.search(node.comment)
             if match:
                 selector = match.group(0)
                 selector_info = SelectorInfo(node, path)
@@ -830,8 +857,7 @@ class RecipeParser:
         # Tracks Jinja variables set by the file
         self._vars_tbl: dict[str, JsonType] = {}
         # Find all the set statements and record the values
-        set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
-        for line in set_line_re.findall(self._init_content):
+        for line in RecipeParser._jinja_set_line_re.findall(self._init_content):
             key = line[line.find("set") + len("set") : line.find("=")].strip()
             value = line[line.find("=") + len("=") : line.find("%}")].strip()
             try:
@@ -842,8 +868,7 @@ class RecipeParser:
         # Root of the parse tree
         self._root = _Node(_ROOT_NODE_VALUE)
         # Start by removing all Jinja lines. Then traverse line-by-line
-        jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
-        sanitized_yaml = jinja_line_re.sub("", self._init_content)
+        sanitized_yaml = RecipeParser._jinja_line_re.sub("", self._init_content)
 
         # Read the YAML line-by-line, maintaining a stack to manage the last
         # owning node in the tree.
@@ -852,8 +877,6 @@ class RecipeParser:
         # marks (spaces)
         cur_indent = 0
         last_node = node_stack[-1]
-        # Regex for detecting the start of a multiline node
-        multiline_re = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
 
         # Iterate with an index variable, so we can handle multiline values
         line_idx = 0
@@ -873,7 +896,7 @@ class RecipeParser:
             new_node = RecipeParser._parse_line_node(clean_line)
             # If the last node ended (pre-comments) with a |, reset the value
             # to be a list of the following, extra-indented strings
-            if multiline_re.match(line):
+            if RecipeParser._multiline_re.match(line):
                 # Per YAML spec, multiline statements can't be commented. In
                 # other words, the `#` symbol is seen as a string character in
                 # multiline values.
@@ -932,12 +955,7 @@ class RecipeParser:
         """
         spaces = TAB_AS_SPACES * depth
         branch = "" if depth == 0 else "|- "
-        value = node.value
-        if node.is_comment():
-            value = f"<Comment: {node.comment}>"
-        if node.is_collection_element():
-            value = "<Collection Node>"
-        lines.append(f"{spaces}{branch}{value}")
+        lines.append(f"{spaces}{branch}{node.short_str()}")
         for child in node.children:
             RecipeParser._str_tree_recurse(child, depth + 1, lines)
 
@@ -954,7 +972,9 @@ class RecipeParser:
         s += json.dumps(self._vars_tbl, indent=TAB_AS_SPACES) + "\n"
         s += "- Selectors Table:\n"
         for key, val in self._selector_tbl.items():
-            s += f"{TAB_AS_SPACES}{key}: {val}\n"
+            s += f"{TAB_AS_SPACES}{key}\n"
+            for info in val:
+                s += f"{TAB_AS_SPACES}{TAB_AS_SPACES}- {info}\n"
         s += f"- is_modified?: {self._is_modified}\n"
         s += "- Tree:\n" + "\n".join(tree_lines) + "\n"
         s += "--------------------\n"
@@ -1400,8 +1420,7 @@ class RecipeParser:
 
         if node is None:
             raise KeyError(f"Path not found: {path!r}")
-        selector_re = re.compile(r"\[.*\]")
-        if not selector_re.match(selector):
+        if not RecipeParser._selector_re.match(selector):
             raise ValueError(f"Invalid selector provided: {selector}")
 
         # Helper function that extracts the outer set of []'s in a selector
@@ -1409,7 +1428,7 @@ class RecipeParser:
             return s.replace("[", "", 1)[::-1].replace("]", "", 1)[::-1]
 
         comment = ""
-        old_selector_found = selector_re.search(node.comment)
+        old_selector_found = RecipeParser._selector_re.search(node.comment)
         if node.comment == "" or mode == SelectorConflictMode.REPLACE:
             comment = f"# {selector}"
         # "Append" to existing selectors
@@ -1432,6 +1451,43 @@ class RecipeParser:
 
         self._rebuild_selectors()
         self._is_modified = True
+
+    def remove_selector(self, path: str) -> Optional[str]:
+        """
+        Given a path, remove a selector to the line denoted by path.
+        - If a selector does not exist, nothing happens.
+        - If a comment exists after the selector, keep it, discard the selector.
+        :param path:        Path to add a selector to
+        :raises KeyError:   If the path provided is not found
+        :return: If found, the selector removed (includes surrounding brackets). Otherwise, returns None
+        """
+        path_stack = RecipeParser._str_to_stack_path(path)
+        node = _Traverse.traverse(self._root, path_stack)
+
+        if node is None:
+            raise KeyError(f"Path not found: {path!r}")
+
+        search_results = RecipeParser._selector_re.search(node.comment)
+        if not search_results:
+            return None
+
+        selector = search_results.group(0)
+        comment = node.comment.replace(selector, "")
+        # Sanitize potential edge-case scenarios after a removal
+        comment = comment.replace("#  ", "# ").replace("# # ", "# ")
+        # Detect and remove empty comments. Other comments should remain intact.
+        if comment.strip() == "#":
+            comment = ""
+
+        node.comment = comment
+        # Some lines of YAML correspond to multiple nodes. For consistency,
+        # we need to ensure that comments are duplicate across all nodes on a line.
+        if node.is_single_key():
+            node.children[0].comment = comment
+
+        self._rebuild_selectors()
+        self._is_modified = True
+        return selector
 
     ## YAML Patching Functions ##
 
