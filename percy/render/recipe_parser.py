@@ -558,9 +558,11 @@ class RecipeParser:
 
     # Non-variable-based regular expressions are static members to promote re-use while simultaneously reducing
     # construction costs.
-    _jinja_sub_re = re.compile(r"{{.*}}")
+    _jinja_variable_function_pattern = r"[a-zA-Z_][a-zA-Z0-9_\|\'\(\)]*"
+    _jinja_sub_re = re.compile(r"{{\s*" + _jinja_variable_function_pattern + r"\s*}}")
+    _jinja_function_lower_re = re.compile(r"\|\s*lower")
     _jinja_line_re = re.compile(r"({%.*%}|{#.*#})\n")
-    _jinja_set_line_re = re.compile(r"{%\s*set.*=.*%}\s*\n")
+    _jinja_set_line_re = re.compile(r"{%\s*set\s*" + _jinja_variable_function_pattern + r"\s*=.*%}\s*\n")
     _selector_re = re.compile(r"\[.*\]")
     _multiline_re = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
     _detect_trailing_comment_re = re.compile(r"(\s)+(#)")
@@ -615,47 +617,60 @@ class RecipeParser:
             if val:
                 return "true"
             return "false"
-        # Ensure string quote escaping if quote marks are present. Otherwise
-        # this has the unintended consequence of quoting all YAML strings.
-        # Although not wrong, it does not follow our common practices.
-        # Quote escaping is not required for multiline strings.
-        # We do not escape quotes for Jinja value statements.
+        # Ensure string quote escaping if quote marks are present. Otherwise this has the unintended consequence of
+        # quoting all YAML strings. Although not wrong, it does not follow our common practices. Quote escaping is not
+        # required for multiline strings. We do not escape quotes for Jinja value statements.
         if not multiline_flag and isinstance(val, str) and not RecipeParser._jinja_sub_re.match(val):
             if "'" in val or '"' in val:
-                # The PyYaml equivalent function injects newlines, hence why
-                # we abuse the JSON library to write our YAML.
+                # The PyYaml equivalent function injects newlines, hence why we abuse the JSON library to write our YAML
                 return json.dumps(val)
         return val
 
     @staticmethod
-    def _parse_yaml(s: str) -> JsonType:
+    def _parse_yaml(s: str, parser: Optional[RecipeParser] = None) -> JsonType:
         """
         Parse a line (or multiple) of YAML into a Pythonic data structure
-        :param s:   String to parse
+        :param s:       String to parse
+        :param parser:  (Optional) If provided, this will substitute Jinja variables with values specified in in the
+                        recipe file. Since `_parse_yaml()` is critical to constructing recipe files, this function must
+                        remain static. Also, during construction, we shouldn't be using a variables until the entire
+                        recipe is read/parsed.
         :return: Pythonic data corresponding to the line of YAML
         """
+
+        # Recursive helper function used when we need to perform variable substitutions
+        def _parse_yaml_recursive_sub(data: JsonType, modifier: Callable[[JsonType], JsonType]) -> JsonType:
+            # Add the substitutions back in
+            if isinstance(data, str):
+                data = modifier(data)
+            if isinstance(data, dict):
+                for key in data.keys():
+                    data[key] = _parse_yaml_recursive_sub(data[key], modifier)
+            elif isinstance(data, list):
+                for i in range(len(data)):
+                    data[i] = _parse_yaml_recursive_sub(data[i], modifier)
+            return data
+
         output: JsonType = None
         try:
-            output = yaml.load(s, yaml.SafeLoader)
+            output = yaml.safe_load(s)
         except Exception:  # pylint: disable=broad-exception-caught
-            # TODO this is a bit hacky and an area for improvement
-            # If a construction exception is thrown, attempt to re-parse by
-            # replacing Jinja macros (substrings in `{{}}`) with friendly string
-            # substitution markers, then re-inject the substitutions back in.
-            # We classify all Jinja substitutions as string values, so we don't
-            # have to worry about the type of the actual substitution.
+            # If a construction exception is thrown, attempt to re-parse by replacing Jinja macros (substrings in
+            # `{{}}`) with friendly string substitution markers, then re-inject the substitutions back in. We classify
+            # all Jinja substitutions as string values, so we don't have to worry about the type of the actual
+            # substitution.
             sub_list = RecipeParser._jinja_sub_re.findall(s)
             s = RecipeParser._jinja_sub_re.sub(_PERCY_SUB_MARKER, s)
-            output = yaml.load(s, yaml.SafeLoader)
-            # Add the substitutions back in
-            if isinstance(output, str):
-                output = RecipeParser._substitute_markers(output, sub_list)
-            if isinstance(output, dict):
-                for key in output.keys():
-                    output[key] = RecipeParser._substitute_markers(output[key], sub_list)
-            elif isinstance(output, list):
-                for i in range(len(output)):
-                    output[i] = RecipeParser._substitute_markers(output[i], sub_list)
+            output = _parse_yaml_recursive_sub(
+                yaml.safe_load(s), lambda d: RecipeParser._substitute_markers(d, sub_list)
+            )
+            # Because we leverage PyYaml to parse the data structures, we need to perform a second pass to perform
+            # variable substitutions.
+            if parser is not None:
+                output = _parse_yaml_recursive_sub(
+                    output, parser._render_jinja_vars  # pylint: disable=protected-access
+                )
+
         return output
 
     @staticmethod
@@ -818,6 +833,38 @@ class RecipeParser:
 
         # Primitives can be safely stringified to generate a parse tree.
         return RecipeParser(str(RecipeParser._stringify_yaml(value)))._root.children  # pylint: disable=protected-access
+
+    def _render_jinja_vars(self, s: str) -> JsonType:
+        """
+        Helper function that replaces Jinja substitutions with their actual
+        set values.
+        :param s:    String to be re-rendered
+        :return: The original value, augmented with Jinja substitutions. If
+                 substitutions have taken place, the type is re-evaluated.
+        """
+        replacement = False
+        # Search the string, replacing all substitutions we can recognize
+        for match in RecipeParser._jinja_sub_re.findall(s):
+            lower_case = False
+            # The regex guarantees the string starts and ends with double braces
+            key = match[2:-2].strip()
+            # A brief search through `aggregate` shows that `|lower` is a commonly used Jinja command. Few, if any,
+            # other commands are used, as of writing. If others are found, we might need to support them here.
+            lower_match = RecipeParser._jinja_function_lower_re.search(key)
+            if lower_match is not None:
+                lower_case = True
+                key = key.replace(lower_match.group(), "").strip()
+
+            if key in self._vars_tbl:
+                # Replace value as a string. Re-interpret the entire value before returning.
+                value = str(self._vars_tbl[key])
+                if lower_case:
+                    value = value.lower()
+                s = s.replace(match, value)
+                replacement = True
+        if replacement:
+            return yaml.safe_load(s)
+        return s
 
     def _rebuild_selectors(self) -> None:
         """
@@ -1219,16 +1266,15 @@ class RecipeParser:
         path_stack = RecipeParser._str_to_stack_path(path)
         return _Traverse.traverse(self._root, path_stack) is not None
 
-    def get_value(self, path: str, default: JsonType = _sentinel) -> JsonType:
+    def get_value(self, path: str, default: JsonType = _sentinel, sub_vars: bool = False) -> JsonType:
         """
-        Retrieves a value at a given path. If the value is not found, return a
-        specified default value or throw.
-        :param path:    JSON patch (RFC 6902)-style path to a value.
-        :param default: (Optional) If the value is not found, return this value
-                        instead.
+        Retrieves a value at a given path. If the value is not found, return a specified default value or throw.
+        :param path:        JSON patch (RFC 6902)-style path to a value.
+        :param default:     (Optional) If the value is not found, return this value instead.
+        :param sub_vars:    (Optional) If set to True and the value contains a Jinja template variable, the Jinja value
+                            will be "rendered".
         :raises KeyError: If the value is not found AND no default is specified
-        :return: If found, the value in the recipe at that path. Otherwise, the
-                 caller-specified default value.
+        :return: If found, the value in the recipe at that path. Otherwise, the caller-specified default value.
         """
         path_stack = RecipeParser._str_to_stack_path(path)
         node = _Traverse.traverse(self._root, path_stack)
@@ -1239,22 +1285,34 @@ class RecipeParser:
                 raise KeyError(f"No value/key found at path {path!r}")
             return default
 
+        return_value: JsonType = None
         # Handle unpacking of the last key-value set of nodes.
         if node.is_single_key() and not node.is_root():
+            # As of writing, Jinja substitutions are not used
             if node.children[0].multiline_flag:
-                return "\n".join(node.children[0].value)
-            return node.children[0].value
-
+                # PyYaml will not preserve newlines passed into strings, so we can directly check for variable
+                # substitutions on a multiline string
+                multiline_str = "\n".join(node.children[0].value)
+                if sub_vars:
+                    return self._render_jinja_vars(multiline_str)
+                return multiline_str
+            return_value = node.children[0].value
         # Leaf nodes can return their value directly
-        if node.is_leaf():
-            return node.value
+        elif node.is_leaf():
+            return_value = node.value
+        else:
+            # NOTE: Traversing the tree and generating our own data structures will
+            # be more efficient than rendering and leveraging the YAML parser, BUT
+            # this method re-uses code and is easier to maintain.
+            lst = []
+            RecipeParser._render_tree(node, -1, lst)
+            return_value = "\n".join(lst)
 
-        # NOTE: Traversing the tree and generating our own data structures will
-        # be more efficient than rendering and leveraging the YAML parser, BUT
-        # this method re-uses code and is easier to maintain.
-        lst = []
-        RecipeParser._render_tree(node, -1, lst)
-        return RecipeParser._parse_yaml("\n".join(lst))
+        # Collection types may contain strings that need to be re-rendered
+        if isinstance(return_value, (list, dict, str)):
+            parser = self if sub_vars else None
+            return RecipeParser._parse_yaml(return_value, parser)
+        return return_value
 
     def find_value(self, value: Primitives) -> list[str]:
         """

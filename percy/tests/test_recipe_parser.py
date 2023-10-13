@@ -252,6 +252,8 @@ def test_get_value() -> None:
         "skip": True,
         "is_true": True,
     }
+    # Return a Jinja value (substitution flag not in use)
+    assert parser.get_value("/package/name") == "{{ name|lower }}"
     # Return a value in a list
     assert parser.get_value("/requirements/host") == ["setuptools", "fakereq"]
     assert parser.get_value("/requirements/host/") == ["setuptools", "fakereq"]
@@ -268,6 +270,52 @@ def test_get_value() -> None:
     assert parser.get_value("/invalid/fake/path", None) is None
     # Comments in lists could throw-off array indexing
     assert parser.get_value("/multi_level/list_1/1") == "bar"
+    # Render a recursive, complex type.
+    assert parser.get_value("/test_var_usage", sub_vars=True) == {
+        "foo": "0.10.8.6",
+        "bar": [
+            "baz",
+            42,
+            "blah",
+            "This types-toml is silly",
+            "last",
+        ],
+    }
+    assert not parser.is_modified()
+
+
+def test_get_value_with_var_subs() -> None:
+    """
+    Tests retrieval of a value from a parsed YAML example, with Jinja variable substitutions enabled.
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    # TODO re-enable checks
+    # No change on lines without any variable substitutions
+    # assert parser.get_value("/requirements/host", sub_vars=True) == ["setuptools", "fakereq"]
+
+    ## Test base types
+    assert parser.get_value("/test_var_usage/foo", sub_vars=True) == "0.10.8.6"
+    assert parser.get_value("/test_var_usage/bar/1", sub_vars=True) == 42
+    # Test string with `|lower` function applied
+    assert parser.get_value("/package/name", sub_vars=True) == "types-toml"
+    # Test collection types
+    assert parser.get_value("/test_var_usage/bar", sub_vars=True) == [
+        "baz",
+        42,
+        "blah",
+        "This types-toml is silly",
+        "last",
+    ]
+    assert parser.get_value("/test_var_usage", sub_vars=True) == {
+        "foo": "0.10.8.6",
+        "bar": [
+            "baz",
+            42,
+            "blah",
+            "This types-toml is silly",
+            "last",
+        ],
+    }
     assert not parser.is_modified()
 
 
