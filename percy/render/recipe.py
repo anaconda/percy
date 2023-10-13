@@ -21,7 +21,7 @@ import percy.render._dumper as dumper
 import percy.render._renderer as renderer
 from percy.render._renderer import RendererType
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
-from percy.render.recipe_parser import JsonPatchType, RecipeParser
+from percy.render.parser.recipe_parser import JsonPatchType, RecipeParser
 from percy.render.variants import Variant, read_conda_build_config
 
 

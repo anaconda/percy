@@ -38,7 +38,7 @@ export PRINT_HELP_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 # For now, most tools only run on new files, not the entire project.
-LINTER_FILES := percy/render/recipe_parser.py
+LINTER_FILES := percy/render/parser/*.py
 
 clean: clean-cov clean-build clean-env clean-pyc clean-test clean-other ## remove all build, test, coverage and Python artifacts
 

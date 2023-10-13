@@ -9,7 +9,7 @@ from typing import Any, List, Optional
 import jinja2
 import yaml
 
-from percy.render.recipe_parser import RecipeParser
+from percy.render.parser.recipe_parser import RecipeParser
 
 try:
     from ruamel.yaml import YAML
