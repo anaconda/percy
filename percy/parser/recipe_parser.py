@@ -521,8 +521,7 @@ class RecipeParser:
 
         return "\n".join(lines)
 
-    @staticmethod
-    def _render_object_tree(node: Node, replace_variables: bool, data: JsonType) -> None:
+    def _render_object_tree(self, node: Node, replace_variables: bool, data: JsonType) -> None:
         """
         Recursive helper function that traverses the parse tree to generate a Pythonic data object.
         :param node:                Current node in the tree
@@ -541,15 +540,23 @@ class RecipeParser:
 
             # Handle multiline strings
             value = child.value if not child.multiline_flag else "\n".join(child.value)
-            # TODO if enabled, string replace `{{}}` in `value`
-            # TODO handle `| lower` and similar
-            # TODO create new function for handling grammar
-            if replace_variables:
-                pass
+            if replace_variables and isinstance(value, str):
+                value = self._render_jinja_vars(value)
 
             # Empty keys are interpreted to point to `None`
             if child.is_empty_key():
                 data[key][child.value] = None
+                continue
+
+            # Collection nodes are skipped as they are placeholders. However, their children are rendered recursively
+            # and added to a list.
+            if child.is_collection_element():
+                elem_dict = {}
+                for element in child.children:
+                    self._render_object_tree(element, replace_variables, elem_dict)
+                if len(data[key]) == 0:
+                    data[key] = []
+                data[key].append(elem_dict)
                 continue
 
             # List members accumulate values in a list
@@ -566,7 +573,7 @@ class RecipeParser:
 
             # All other keys prep for containing more dictionaries
             data.setdefault(key, {})
-            RecipeParser._render_object_tree(child, replace_variables, data[key])
+            self._render_object_tree(child, replace_variables, data[key])
 
     def render_to_object(self, replace_variables: bool = False) -> JsonType:
         """
@@ -583,7 +590,7 @@ class RecipeParser:
             if child.is_comment():
                 continue
             data.setdefault(child.value, {})
-            RecipeParser._render_object_tree(child, replace_variables, data)
+            self._render_object_tree(child, replace_variables, data)
 
         return data
 
