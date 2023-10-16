@@ -1,9 +1,7 @@
 """
-File:           test_recipe_parser.py
+File:           test_py
 Description:    Unit tests for the recipe parser class and tools
 """
-# Allows older versions of python to use newer forms of type annotation. There
-# are major features introduced in 3.9 and 3.10.
 from __future__ import annotations
 
 from pathlib import Path
@@ -11,7 +9,9 @@ from typing import Final
 
 import pytest
 
-from percy.render import recipe_parser
+from percy.parser.enums import SelectorConflictMode
+from percy.parser.exceptions import JsonPatchValidationException
+from percy.parser.recipe_parser import RecipeParser
 
 # Path to supplementary files used in test cases
 TEST_FILES_PATH = "percy/tests/test_aux_files"
@@ -32,14 +32,14 @@ def load_file(file: Path | str) -> str:
         return f.read()
 
 
-def load_recipe(file_name: str) -> recipe_parser.RecipeParser:
+def load_recipe(file_name: str) -> RecipeParser:
     """
     Convenience function that simplifies initializing a recipe parser.
     :param file_name:   File name of the test recipe to load
     :return: RecipeParser instance, based on the file
     """
     recipe = load_file(f"{TEST_FILES_PATH}/{file_name}")
-    return recipe_parser.RecipeParser(recipe)
+    return RecipeParser(recipe)
 
 
 ## Construction and rendering sanity checks ##
@@ -47,11 +47,10 @@ def load_recipe(file_name: str) -> recipe_parser.RecipeParser:
 
 def test_construction() -> None:
     """
-    Tests the construction of a recipe parser instance with a simple, common
-    example file.
+    Tests the construction of a recipe parser instance with a simple, common example file.
     """
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
-    parser = recipe_parser.RecipeParser(types_toml)
+    parser = RecipeParser(types_toml)
     assert parser._init_content == types_toml  # pylint: disable=protected-access
     assert parser._vars_tbl == {  # pylint: disable=protected-access
         "name": "types-toml",
@@ -91,51 +90,44 @@ def test_eq() -> None:
 
 def test_dog_food_easy() -> None:
     """
-    Test "eating our own dog food": Take a recipe, construct a parser, re-render
-    and ensure the output matches the input.
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
 
-    This is the "easy" recipe test, to ensure compatibility with "basic" recipe
-    structures with no gotchas.
+    This is the "easy" recipe test, to ensure compatibility with "basic" recipe structures with no gotchas.
     """
     types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
-    parser = recipe_parser.RecipeParser(types_toml)
+    parser = RecipeParser(types_toml)
     assert parser.render() == types_toml
 
 
 def test_dog_food_medium() -> None:
     """
-    Test "eating our own dog food": Take a recipe, construct a parser, re-render
-    and ensure the output matches the input.
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
 
-    This is the "medium" recipe test, to ensure compatibility with some more
-    contrived examples
+    This is the "medium" recipe test, to ensure compatibility with some more contrived examples
     """
     simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = recipe_parser.RecipeParser(simple)
+    parser = RecipeParser(simple)
     assert parser.render() == simple
 
 
 @pytest.mark.skip(reason="To be re-enable when PKG-2964 is fixed")
 def test_loading_obj_in_list() -> None:
     """
-    Regression test: at one point, the parser would crash loading this file,
-    containing an object in a list.
+    Regression test: at one point, the parser would crash loading this file, containing an object in a list.
     """
     replace = load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_replace.yaml")
-    parser = recipe_parser.RecipeParser(replace)
+    parser = RecipeParser(replace)
     assert parser.render() == replace
 
 
 def test_dog_food_multi_output() -> None:
     """
-    Test "eating our own dog food": Take a recipe, construct a parser, re-render
-    and ensure the output matches the input.
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
 
-    This tests multi-output recipes, to ensure compatibility with some more
-    complex recipe examples.
+    This tests multi-output recipes, to ensure compatibility with some more complex recipe examples.
     """
     multi = load_file(f"{TEST_FILES_PATH}/multi-output.yaml")
-    parser = recipe_parser.RecipeParser(multi)
+    parser = RecipeParser(multi)
     assert parser.render() == multi
 
 
@@ -289,9 +281,8 @@ def test_get_value_with_var_subs() -> None:
     Tests retrieval of a value from a parsed YAML example, with Jinja variable substitutions enabled.
     """
     parser = load_recipe("simple-recipe.yaml")
-    # TODO re-enable checks
     # No change on lines without any variable substitutions
-    # assert parser.get_value("/requirements/host", sub_vars=True) == ["setuptools", "fakereq"]
+    assert parser.get_value("/requirements/host", sub_vars=True) == ["setuptools", "fakereq"]
 
     ## Test base types
     assert parser.get_value("/test_var_usage/foo", sub_vars=True) == "0.10.8.6"
@@ -512,17 +503,17 @@ def test_add_selector() -> None:
     ]
 
     # Add selectors to existing selectors
-    parser.add_selector("/requirements/host/0", "[win]", recipe_parser.SelectorConflictMode.REPLACE)
+    parser.add_selector("/requirements/host/0", "[win]", SelectorConflictMode.REPLACE)
     assert parser.get_selector_paths("[win]") == [
         "/build/number",
         "/requirements/host/0",
         "/multi_level/list_2/1",
     ]
-    parser.add_selector("/requirements/host/1", "[win]", recipe_parser.SelectorConflictMode.AND)
+    parser.add_selector("/requirements/host/1", "[win]", SelectorConflictMode.AND)
     assert parser.get_selector_paths("[unix and win]") == ["/requirements/host/1", "/requirements/empty_field2"]
-    parser.add_selector("/build/skip", "[win]", recipe_parser.SelectorConflictMode.OR)
+    parser.add_selector("/build/skip", "[win]", SelectorConflictMode.OR)
     assert parser.get_selector_paths("[py<37 or win]") == ["/build/skip"]
-    parser.add_selector("/requirements/run/0", "[win]", recipe_parser.SelectorConflictMode.AND)
+    parser.add_selector("/requirements/run/0", "[win]", SelectorConflictMode.AND)
     assert parser.get_selector_paths("[win]") == [
         "/build/number",
         "/requirements/host/0",
@@ -573,12 +564,12 @@ def test_remove_selector() -> None:
 
 def test_patch_schema_validation() -> None:
     """
-    Tests edge cases that should trigger an exception on JSON patch schema
-    validation. Valid schemas are inherently tested in the other patching tests.
+    Tests edge cases that should trigger an exception on JSON patch schema validation. Valid schemas are inherently
+    tested in the other patching tests.
     """
     parser = load_recipe("simple-recipe.yaml")
     # Invalid enum/unknown op
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "fakeop",
@@ -586,7 +577,7 @@ def test_patch_schema_validation() -> None:
                 "value": 42,
             }
         )
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "",
@@ -595,7 +586,7 @@ def test_patch_schema_validation() -> None:
             }
         )
     # Patch has extra field(s)
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "replace",
@@ -605,14 +596,14 @@ def test_patch_schema_validation() -> None:
             }
         )
     # Patch is missing required fields
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "path": "/build/number",
                 "value": 42,
             }
         )
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "replace",
@@ -620,35 +611,35 @@ def test_patch_schema_validation() -> None:
             }
         )
     # Patch is missing required fields, based on `op`
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "add",
                 "path": "/build/number",
             }
         )
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "replace",
                 "path": "/build/number",
             }
         )
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "move",
                 "path": "/build/number",
             }
         )
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "copy",
                 "path": "/build/number",
             }
         )
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch(
             {
                 "op": "test",
@@ -656,22 +647,20 @@ def test_patch_schema_validation() -> None:
             }
         )
     # Patch has invalid types in critical fields
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch({"op": "move", "path": 42, "value": 42})
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    with pytest.raises(JsonPatchValidationException):
         parser.patch({"op": "move", "path": "/build/number", "from": 42})
 
 
 def test_patch_path_invalid() -> None:
     """
-    Tests if `patch` returns false on all ops when the path is not found.
-    Also checks if the tree has been modified.
+    Tests if `patch` returns false on all ops when the path is not found. Also checks if the tree has been modified.
     """
     parser = load_recipe("simple-recipe.yaml")
 
-    # Passing an empty path fails at the JSON schema validation layer, so it
-    # applies to all patch functions.
-    with pytest.raises(recipe_parser.JsonPatchValidationException):
+    # Passing an empty path fails at the JSON schema validation layer, so it applies to all patch functions.
+    with pytest.raises(JsonPatchValidationException):
         assert not (
             parser.patch(
                 {
@@ -911,8 +900,8 @@ def test_patch_path_invalid() -> None:
 
 def test_patch_test() -> None:
     """
-    Tests the `test` patch op. The `test` op may be useful for other test
-    assertions, so it is tested before the other patch operations.
+    Tests the `test` patch op. The `test` op may be useful for other test assertions, so it is tested before the other
+    patch operations.
     """
     parser = load_recipe("simple-recipe.yaml")
 
@@ -1016,8 +1005,8 @@ def test_patch_add() -> None:
     """
     parser = load_recipe("simple-recipe.yaml")
 
-    # As per the RFC, `add` will not construct multiple-levels of non-existing
-    # structures. The containing object(s)/list(s) must exist.
+    # As per the RFC, `add` will not construct multiple-levels of non-existing structures. The containing
+    # object(s)/list(s) must exist.
     assert not parser.patch(
         {
             "op": "add",
@@ -1109,8 +1098,7 @@ def test_patch_add() -> None:
         }
     )
 
-    # Edge case: adding a value to an existing key (non-list) actually replaces
-    # the value at that key, as per the RFC.
+    # Edge case: adding a value to an existing key (non-list) actually replaces the value at that key, as per the RFC.
     assert parser.patch({"op": "add", "path": "/about/summary", "value": 62})
 
     # Sanity check: validate all modifications
@@ -1240,8 +1228,7 @@ def test_patch_replace() -> None:
         }
     )
 
-    # Hard mode: replace a string with an object containing multiple types in
-    # a complex data structure.
+    # Hard mode: replace a string with an object containing multiple types in a complex data structure.
     assert parser.patch(
         {
             "op": "replace",
@@ -1269,8 +1256,7 @@ def test_patch_move() -> None:
             "from": "/build/number",
         }
     )
-    # Special failure case: trying to "add" to an illegal path while the
-    # "remove" path is still valid
+    # Special failure case: trying to "add" to an illegal path while the "remove" path is still valid
     assert not parser.patch(
         {
             "op": "move",
