@@ -9,9 +9,9 @@ from typing import Final
 
 import pytest
 
-from percy.render.parser.enums import SelectorConflictMode
-from percy.render.parser.exceptions import JsonPatchValidationException
-from percy.render.parser.recipe_parser import RecipeParser
+from percy.parser.enums import SelectorConflictMode
+from percy.parser.exceptions import JsonPatchValidationException
+from percy.parser.recipe_parser import RecipeParser
 
 # Path to supplementary files used in test cases
 TEST_FILES_PATH = "percy/tests/test_aux_files"

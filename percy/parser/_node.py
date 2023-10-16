@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import Optional
 
-from percy.render.parser._types import ROOT_NODE_VALUE
-from percy.render.parser.types import Primitives
+from percy.parser._types import ROOT_NODE_VALUE
+from percy.parser.types import Primitives
 
 
 class Node:

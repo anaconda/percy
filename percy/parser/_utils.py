@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import json
 
-from percy.render.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, Regex, StrStack, StrStackImmutable
-from percy.render.parser.types import Primitives
+from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, Regex, StrStack, StrStackImmutable
+from percy.parser.types import Primitives
 
 
 def str_to_stack_path(path: str) -> StrStack:

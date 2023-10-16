@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import Callable, Optional
 
-from percy.render.parser._node import Node
-from percy.render.parser._types import ROOT_NODE_VALUE, StrStack, StrStackImmutable
+from percy.parser._node import Node
+from percy.parser._types import ROOT_NODE_VALUE, StrStack, StrStackImmutable
 
 
 def remap_child_indices_virt_to_phys(children: list[Node]) -> list[int]:

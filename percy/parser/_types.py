@@ -9,7 +9,7 @@ from typing import Callable, Final, Optional
 
 import yaml
 
-from percy.render.parser.types import JsonType
+from percy.parser.types import JsonType
 
 #### Private Types (Not to be used external to the `parser` module) ####
 

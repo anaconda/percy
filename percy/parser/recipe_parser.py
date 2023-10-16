@@ -23,10 +23,10 @@ from typing import Callable, Final, Optional
 import yaml
 from jsonschema import validate as schema_validate
 
-from percy.render.parser._node import Node
-from percy.render.parser._selector_info import SelectorInfo
-from percy.render.parser._traverse import remap_child_indices_virt_to_phys, traverse, traverse_all, traverse_with_index
-from percy.render.parser._types import (
+from percy.parser._node import Node
+from percy.parser._selector_info import SelectorInfo
+from percy.parser._traverse import remap_child_indices_virt_to_phys, traverse, traverse_all, traverse_with_index
+from percy.parser._types import (
     PERCY_SUB_MARKER,
     ROOT_NODE_VALUE,
     ForceIndentDumper,
@@ -35,16 +35,10 @@ from percy.render.parser._types import (
     StrStack,
     StrStackImmutable,
 )
-from percy.render.parser._utils import (
-    num_tab_spaces,
-    stack_path_to_str,
-    str_to_stack_path,
-    stringify_yaml,
-    substitute_markers,
-)
-from percy.render.parser.enums import SelectorConflictMode
-from percy.render.parser.exceptions import JsonPatchValidationException
-from percy.render.parser.types import (
+from percy.parser._utils import num_tab_spaces, stack_path_to_str, str_to_stack_path, stringify_yaml, substitute_markers
+from percy.parser.enums import SelectorConflictMode
+from percy.parser.exceptions import JsonPatchValidationException
+from percy.parser.types import (
     JSON_PATCH_SCHEMA,
     PRIMITIVES_TUPLE,
     TAB_AS_SPACES,

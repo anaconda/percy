@@ -6,9 +6,9 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
-from percy.render.parser._node import Node
-from percy.render.parser._types import StrStack
-from percy.render.parser._utils import stack_path_to_str
+from percy.parser._node import Node
+from percy.parser._types import StrStack
+from percy.parser._utils import stack_path_to_str
 
 
 class SelectorInfo(NamedTuple):
