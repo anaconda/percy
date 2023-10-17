@@ -71,7 +71,7 @@ class PackageNode:
     def make_node(
         cls,
         package_name: str,
-        walk_up: bool,
+        walk_up_sections: tuple[str] = ("build", "host", "run"),
         origin_section: str = "run",
         parent: "PackageNode" = None,
     ) -> "PackageNode":
@@ -79,7 +79,7 @@ class PackageNode:
 
         Args:
             package_name (str): The name of the package.
-            walk_up (bool): Whether to create to call make_node on dependencies of the package.
+            walk_up_sections (tuple): Call make_node on dependencies from these sections.
             origin_section (str, optional): If the package was used in a run section or other. Defaults to "run".
             parent (PackageNode, optional): Parent node. Defaults to None.
 
@@ -124,8 +124,8 @@ class PackageNode:
                 # new package
                 node = cls(parent, package_name, package, is_run)
                 PackageNode.nodes[package_name] = node
-                if walk_up:
-                    node._walk_up_requirements()
+                if walk_up_sections:
+                    node._walk_up_requirements(walk_up_sections)
 
             if parent:
                 # update parent edge
@@ -156,10 +156,10 @@ class PackageNode:
             return NotImplemented
         return self.package_name == other.package_name
 
-    def _walk_up_requirements(self):
-        for section in ["build", "host", "run"]:
+    def _walk_up_requirements(self, walk_up_sections):
+        for section in walk_up_sections:
             for dep in self.package[section]:
-                PackageNode.make_node(dep.pkg, True, section, self)
+                PackageNode.make_node(dep.pkg, walk_up_sections, section, self)
 
 
 @dataclass
@@ -434,6 +434,7 @@ class Aggregate:
         target_packages: list[str] = [],
         drop_noarch: bool = False,
         no_upstream: bool = False,
+        walk_up_sections: tuple[str] = ("build", "host", "run")
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on a list of leaf packages.
 
@@ -443,6 +444,7 @@ class Aggregate:
             target_packages (list[str]): List of leaf package names.
             drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
             no_upstream (bool, optional): Whether to drop unspecified packages. Defaults to False.
+            walk_up_sections (tuple[str], optional): Walk up sections.
 
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
@@ -462,7 +464,7 @@ class Aggregate:
 
         # build graph walking up from packages
         for pkg in target_packages:
-            PackageNode.make_node(pkg, True)
+            PackageNode.make_node(pkg, walk_up_sections)
 
         # drop graph nodes not having package as a run dependency
         if no_upstream:
@@ -483,6 +485,7 @@ class Aggregate:
         package_allowlist: list[str] = [],
         feedstock_blocklist: list[str] = [],
         drop_noarch: bool = False,
+        walk_up_sections: tuple[str] = ("build", "host", "run")
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on packages having target as a dependency.
 
@@ -493,6 +496,7 @@ class Aggregate:
             package_allowlist (list[str], optional): List of package names to consider. Defaults to [].
             feedstock_blocklist (list[str], optional): List of feedstock names to exclude. Defaults to [].
             drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
+            walk_up_sections (tuple[str], optional): Walk up sections
 
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
@@ -522,7 +526,7 @@ class Aggregate:
                 ) and package.git_info.name not in feedstock_blocklist:
                     for dep in package.run:
                         if dep.pkg == target:
-                            PackageNode.make_node(name, True, "run")
+                            PackageNode.make_node(name, walk_up_sections, "run")
 
         # drop graph nodes in blocklist or not in allowlist
         PackageNode.nodes = {
