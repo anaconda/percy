@@ -13,7 +13,7 @@ PYTHON3 := $(shell which python3)
 .PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-debug test-cov pre-commit lint format analyze
 .DEFAULT_GOAL := help
 
-CONDA_ENV_NAME ?= percydev
+CONDA_ENV_NAME ?= percy
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
