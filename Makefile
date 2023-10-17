@@ -3,7 +3,6 @@
 .ONESHELL:
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -o errexit
-CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
 # Resolve the path to `python3` and store it in a variable. Always invoke
 # `python` using this variable. This prevents a nasty scenario where the GitHub
 # Actions container fails to find `python` or `python3`, when running `make`
@@ -15,16 +14,7 @@ PYTHON3 := $(shell which python3)
 
 CONDA_ENV_NAME ?= percy
 
-define BROWSER_PYSCRIPT
-import os, webbrowser, sys
-
-from urllib.request import pathname2url
-
-webbrowser.open("file://" + pathname2url(os.path.abspath(sys.argv[1])))
-endef
-export BROWSER_PYSCRIPT
-
-define PRINT_HELP_PYSCRIPT
+define PRINT_HELP
 import re, sys
 
 for line in sys.stdin:
@@ -33,9 +23,7 @@ for line in sys.stdin:
 		target, help = match.groups()
 		print("%-20s %s" % (target, help))
 endef
-export PRINT_HELP_PYSCRIPT
-
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+export PRINT_HELP
 
 # For now, most tools only run on new files, not the entire project.
 LINTER_FILES := percy/parser/*.py
@@ -76,7 +64,7 @@ clean-other:
 	rm -fr profile.html profile.json
 
 help:
-	$(PYTHON3) -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+	$(PYTHON3) -c "$$PRINT_HELP" < $(MAKEFILE_LIST)
 
 install: clean	## install the package to the active Python's site-packages
 	pip install .

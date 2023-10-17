@@ -18,5 +18,3 @@ dependencies:
   - conda-build
   - jsonschema
   - pre-commit
-  - pytest
-  - pytest-cov

@@ -74,10 +74,10 @@ repos:
     name: pytest
     always_run: true
     pass_filenames: false
-    entry: make test
+    entry: source $CONDA/etc/profile.d/conda.sh && make test
   - id: pytest-cov
     language: system
     name: pytest-cov
     always_run: true
     pass_filenames: false
-    entry: make test-cov
+    entry: source $CONDA/etc/profile.d/conda.sh && make test-cov
