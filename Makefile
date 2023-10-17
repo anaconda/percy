@@ -13,7 +13,7 @@ PYTHON3 := $(shell which python3)
 .PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-debug test-cov pre-commit lint format analyze
 .DEFAULT_GOAL := help
 
-CONDA_ENV_NAME ?= percy
+CONDA_ENV_NAME ?= percydev
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
@@ -88,19 +88,19 @@ environment:    ## handles environment creation
 dev: clean		## install the package's development version to a fresh environment
 	conda env create -f environment.yaml --name $(CONDA_ENV_NAME) --force
 	conda run --name $(CONDA_ENV_NAME) pip install -e .
-	$(CONDA_ACTIVATE) percy && pre-commit install
+	conda run --name $(CONDA_ENV_NAME) pre-commit install
 
 pre-commit:     ## runs pre-commit against files. NOTE: older files are disabled in the pre-commit config.
 	pre-commit run --all-files
 
 test:			## runs test cases
-	$(PYTHON3) -m pytest --capture=no percy/tests/
+	conda run --name $(CONDA_ENV_NAME) python -m pytest --capture=no percy/tests/
 
 test-debug:		## runs test cases with debugging info enabled
-	$(PYTHON3) -m pytest -vv --capture=no percy/tests/
+	conda run --name $(CONDA_ENV_NAME) python -m pytest -vv --capture=no percy/tests/
 
 test-cov:		## checks test coverage requirements
-	$(PYTHON3) -m pytest --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=17 --cov-report term-missing
+	conda run --name $(CONDA_ENV_NAME) python -m pytest --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=17 --cov-report term-missing
 
 lint:			## runs the linter against the project
 	pylint --rcfile=.pylintrc $(LINTER_FILES)
