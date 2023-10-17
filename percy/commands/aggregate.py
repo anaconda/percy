@@ -141,6 +141,13 @@ def order_options(f):
         multiple=False,
         help="Drop noarch",
     )
+    @click.option(
+        "--sections",
+        type=str,
+        multiple=True,
+        default=["build", "host", "run"],
+        help="Sections to consider [default: [\"build\", \"host\", \"run\"]]",
+    )
     @functools.wraps(f)
     def wrapper_order_options(*args, **kwargs):
         return f(*args, **kwargs)
@@ -203,6 +210,7 @@ def downstream(
     allow_list,
     block_list,
     drop_noarch,
+    sections,
 ):
     """Prints build order of feedstock downstream dependencies"""
 
@@ -210,7 +218,7 @@ def downstream(
     aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_depends_build_order(groups, feedstocks, packages, allow_list, block_list, drop_noarch)
+    buildout = aggregate_repo.get_depends_build_order(groups, feedstocks, packages, allow_list, block_list, drop_noarch, sections)
 
     # print build order
     order = " ".join(
@@ -220,6 +228,8 @@ def downstream(
             f"packages:{packages}",
             f"allow_list:{allow_list}",
             f"block_list:{block_list}",
+            f"drop_noarch:{drop_noarch}",
+            f"sections:{sections}",
         ]
     )
     print(f"\n\nDownstream build order ({order}):")
@@ -240,6 +250,7 @@ def upstream(
     feedstocks,
     packages,
     drop_noarch,
+    sections,
 ):
     """Prints build order of feedstock upstream dependencies"""
 
@@ -247,7 +258,7 @@ def upstream(
     aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, False)
+    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, ())
 
     # print build order
     order = " ".join(
@@ -256,6 +267,7 @@ def upstream(
             f"feedstocks:{feedstocks}",
             f"packages:{packages}",
             f"drop_noarch:{drop_noarch}",
+            f"sections:{()}",
         ]
     )
     print(f"\n\nUpstream build order ({order}):")
@@ -276,6 +288,7 @@ def order(
     feedstocks,
     packages,
     drop_noarch,
+    sections,
 ):
     """Prints build order of specified feedstocks"""
 
@@ -285,7 +298,7 @@ def order(
     # get feedstock build order
     if not groups and not feedstocks and not packages:
         feedstocks = aggregate_repo.feedstocks.keys()
-    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, True)
+    buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, sections)
 
     # print build order
     order = " ".join(
@@ -294,6 +307,7 @@ def order(
             f"feedstocks:{feedstocks}",
             f"packages:{packages}",
             f"drop_noarch:{drop_noarch}",
+            f"sections:{sections}",
         ]
     )
     print(f"\n\nBuild order ({order})):")
