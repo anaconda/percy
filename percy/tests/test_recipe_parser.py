@@ -131,6 +131,17 @@ def test_dog_food_multi_output() -> None:
     assert parser.render() == multi
 
 
+def test_dog_food_blank_lines_in_multiline() -> None:
+    """
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
+
+    This tests recipes that contain extra blank lines in their multiline strings.
+    """
+    blank_lines = load_file(f"{TEST_FILES_PATH}/huggingface_hub.yaml")
+    parser = RecipeParser(blank_lines)
+    assert parser.render() == blank_lines
+
+
 def test_render_to_object() -> None:
     """
     Tests rendering a recipe to an object format.
@@ -166,6 +177,78 @@ def test_render_to_object() -> None:
             "list_2": ["cat", "bat", "mat"],
             "list_1": ["foo", "bar"],
         },
+    }
+    # Tests variable substitution mode
+    assert parser.render_to_object(True) == {
+        "about": {
+            "description": SIMPLE_DESCRIPTION,
+            "license": "Apache-2.0 AND MIT",
+            "summary": "This is a small recipe for testing",
+        },
+        "test_var_usage": {
+            "foo": "0.10.8.6",
+            "bar": [
+                "baz",
+                42,
+                "blah",
+                "This types-toml is silly",
+                "last",
+            ],
+        },
+        "build": {"is_true": True, "skip": True, "number": 0},
+        "package": {"name": "types-toml"},
+        "requirements": {
+            "empty_field1": None,
+            "host": ["setuptools", "fakereq"],
+            "empty_field2": None,
+            "run": ["python"],
+            "empty_field3": None,
+        },
+        "multi_level": {
+            "list_3": ["ls", "sl", "cowsay"],
+            "list_2": ["cat", "bat", "mat"],
+            "list_1": ["foo", "bar"],
+        },
+    }
+
+
+def test_render_to_object_multi_output() -> None:
+    """
+    Tests rendering a recipe to an object format.
+    """
+    parser = load_recipe("multi-output.yaml")
+    assert parser.render_to_object() == {
+        "outputs": [
+            {
+                "name": "libdb",
+                "build": {
+                    "run_exports": ["bar"],
+                },
+                "test": {
+                    "commands": [
+                        "test -f ${PREFIX}/lib/libdb${SHLIB_EXT}",
+                        r"if not exist %LIBRARY_BIN%\libdb%SHLIB_EXT%",
+                    ],
+                },
+            },
+            {
+                "name": "db",
+                "requirements": {
+                    "build": [
+                        "foo3",
+                        "foo2",
+                        "{{ compiler('c') }}",
+                        "{{ compiler('cxx') }}",
+                    ],
+                    "run": ["foo"],
+                },
+                "test": {
+                    "commands": [
+                        "db_archive -m hello",
+                    ]
+                },
+            },
+        ]
     }
 
 
