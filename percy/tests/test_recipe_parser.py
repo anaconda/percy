@@ -131,6 +131,17 @@ def test_dog_food_multi_output() -> None:
     assert parser.render() == multi
 
 
+def test_dog_food_blank_lines_in_multiline() -> None:
+    """
+    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
+
+    This tests recipes that contain extra blank lines in their multiline strings.
+    """
+    blank_lines = load_file(f"{TEST_FILES_PATH}/huggingface_hub.yaml")
+    parser = RecipeParser(blank_lines)
+    assert parser.render() == blank_lines
+
+
 def test_render_to_object() -> None:
     """
     Tests rendering a recipe to an object format.

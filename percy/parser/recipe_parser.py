@@ -322,8 +322,9 @@ class RecipeParser:
                 multiline = lines[line_idx]
                 multiline_indent = num_tab_spaces(multiline)
                 # Add the line to the list once it is verified to be the next line to capture in this node. This means
-                # that `line_idx` will point to the line of the next node, post-processing.
-                while multiline_indent > new_indent:
+                # that `line_idx` will point to the line of the next node, post-processing. Note that blank lines are
+                # valid in multi-line strings, occasionally found in `/about/summary` sections.
+                while multiline_indent > new_indent or multiline == "":
                     multiline_node.value.append(multiline.strip())
                     line_idx += 1
                     multiline = lines[line_idx]
