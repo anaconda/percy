@@ -4,10 +4,8 @@
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -o errexit
 CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda activate ; conda activate
-# Resolve the path to `python3` and store it in a variable. Always invoke
-# `python` using this variable. This prevents a nasty scenario where the GitHub
-# Actions container fails to find `python` or `python3`, when running `make`
-# commands.
+# Resolve the path to `python3` and store it in a variable. Always invoke `python` using this variable. This prevents a
+# nasty scenario where the GitHub Actions container fails to find `python` or `python3`, when running `make` commands.
 PYTHON3 := $(shell which python3)
 
 .PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-debug test-cov pre-commit lint format analyze
@@ -94,13 +92,13 @@ pre-commit:     ## runs pre-commit against files. NOTE: older files are disabled
 	pre-commit run --all-files
 
 test:			## runs test cases
-	$(PYTHON3) -m pytest --capture=no percy/tests/
+	$(PYTHON3) -m pytest -n auto --capture=no percy/tests/
 
 test-debug:		## runs test cases with debugging info enabled
-	$(PYTHON3) -m pytest -vv --capture=no percy/tests/
+	$(PYTHON3) -m pytest -n auto -vv --capture=no percy/tests/
 
 test-cov:		## checks test coverage requirements
-	$(PYTHON3) -m pytest --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=17 --cov-report term-missing
+	$(PYTHON3) -m pytest -n auto --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=20 --cov-report term-missing
 
 lint:			## runs the linter against the project
 	pylint --rcfile=.pylintrc $(LINTER_FILES)

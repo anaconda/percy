@@ -14,7 +14,7 @@ from percy.parser.exceptions import JsonPatchValidationException
 from percy.parser.recipe_parser import RecipeParser
 
 # Path to supplementary files used in test cases
-TEST_FILES_PATH = "percy/tests/test_aux_files"
+TEST_FILES_PATH: Final[str] = "percy/tests/test_aux_files"
 
 # Long multi-line description string found in the `simple-recipe.yaml` test file
 SIMPLE_DESCRIPTION: Final[

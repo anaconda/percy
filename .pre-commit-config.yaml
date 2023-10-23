@@ -22,7 +22,7 @@ repos:
   rev: v4.5.0
   hooks:
   - id: check-added-large-files
-    exclude_types: ["json"]
+    exclude_types: ["json", "yaml"]
   - id: check-ast
   - id: fix-byte-order-marker
   - id: check-case-conflict
