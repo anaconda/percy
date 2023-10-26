@@ -46,7 +46,7 @@ make environment
 conda activate percy
 ```
 
-# Developer Installation
+# Developer Notes
 ```sh
 make dev
 conda activate percy
@@ -115,6 +115,16 @@ A group name corresponds to the github/gitlab... organization name, extracted fr
 
         percy aggregate outdated --help
         percy aggregate outdated
+
+## Release process
+Here is a rough outline of how to conduct a release of this project:
+1. Update `CHANGELOG.md`
+1. Update the version number in `pyproject.toml`
+1. Ensure `environment.yaml` is up to date with the latest dependencies
+1. Create a new release on GitHub with a version tag.
+1. The Anaconda packaging team will need to update
+[the feedstock](https://github.com/AnacondaRecipes/percy-feedstock)
+and [aggregate](https://github.com/AnacondaRecipes/aggregate) and publish to `distro-tooling`
 
 ## Other examples
 
