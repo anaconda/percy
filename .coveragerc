@@ -1,4 +1,3 @@
 [run]
 omit =
     percy/tests/*
-    */__init__.py

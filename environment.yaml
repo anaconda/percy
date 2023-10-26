@@ -1,4 +1,6 @@
 name: percy
+channels:
+  - defaults
 
 dependencies:
   - black
@@ -10,7 +12,7 @@ dependencies:
   - pytest-xdist
   - pylint
   - pip
-  - conda-forge::click>=8.1.6
+  - click>=8.1.6
   - conda
   - jinja2
   - pyyaml
