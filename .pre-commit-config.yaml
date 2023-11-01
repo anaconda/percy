@@ -35,6 +35,12 @@ repos:
   - id: end-of-file-fixer
   - id: mixed-line-ending
   - id: trailing-whitespace
+- repo: https://github.com/python-jsonschema/check-jsonschema
+  rev: 0.27.0
+  hooks:
+  - id: check-github-actions
+  - id: check-github-workflows
+  - id: check-renovate
 # Notes:
 # - By default, `black` uses a line-length of 88.
 # - `isort` will conflict with `black`, if not properly configured
@@ -56,7 +62,7 @@ repos:
 # TODO re-enable the static analyzer, when the rest of the dev tools have
 # stabilized.
 #- repo: https://github.com/pre-commit/mirrors-mypy
-#  rev: v1.4.1
+#  rev: v1.6.1
 #  hooks:
 #  - id: mypy
 #    # `mypy` is run as a system script to ensure that it is checking against

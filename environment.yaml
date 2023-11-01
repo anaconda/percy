@@ -5,6 +5,7 @@ channels:
 dependencies:
   - black
   - isort
+  - make
   - mypy
   - python>=3.8
   - pytest
