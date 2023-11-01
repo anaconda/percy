@@ -1,9 +1,13 @@
 # Runs pre-commit checks, including static analyzer.
 # For now, we only run tests on the latest supported version of Python.
-name: pre-commit checks and tests
+
 on:
+  push:
+    branches:
+      - main
   pull_request:
-    branches: main
+
+name: pre-commit checks and tests
 
 jobs:
   pre-commit:
@@ -24,4 +28,4 @@ jobs:
           conda env create -f environment.yaml --name percy --force
           conda run --name percy pip install .
           conda activate percy
-      - uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
+          make pre-commit
