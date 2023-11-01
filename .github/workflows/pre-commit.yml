@@ -2,9 +2,10 @@
 # For now, we only run tests on the latest supported version of Python.
 name: pre-commit checks and tests
 on:
-  pull_request:
+  push:
     branches:
       - main
+  pull_request:
 
 jobs:
   pre-commit:
