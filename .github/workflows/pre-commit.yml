@@ -3,7 +3,8 @@
 name: pre-commit checks and tests
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
 
 jobs:
   pre-commit:
@@ -24,4 +25,4 @@ jobs:
           conda env create -f environment.yaml --name percy --force
           conda run --name percy pip install .
           conda activate percy
-      - uses: pre-commit/action@646c83fcd040023954eafda54b4db0192ce70507 # v3.0.0
+          make pre-commit
