@@ -1,3 +1,9 @@
+"""
+File:           repodata.py
+Description:    Provides tools for processing information about a repository
+"""
+from __future__ import annotations
+
 import json
 import logging
 
@@ -16,7 +22,7 @@ def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True)
         merge_noarch (bool, optional): Include noarch versions. Defaults to True.
 
     Raises:
-        Exception: Failed to retrieve repodata
+        requests.HTTPError: Failed to retrieve repodata
 
     Returns:
         dict[str,dict]: { pkg_name : { version, build_number, noarch } }
@@ -30,10 +36,8 @@ def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True)
         repodata_subdir = None
         url = "https://repo.anaconda.com/pkgs/main/noarch/repodata.json"
         response = session.get(url)
-        if response.status_code != 200:
-            raise Exception("Failed to retrive noarch data.")
-        else:
-            repodata_subdir = json.loads(response.text)
+        response.raise_for_status()
+        repodata_subdir = json.loads(response.text)
         for v in repodata_subdir["packages"].values():
             if (
                 (v["name"] not in pkgs_noarch)
@@ -54,10 +58,8 @@ def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True)
     repodata_subdir = None
     url = f"https://repo.anaconda.com/pkgs/main/{subdir}/repodata.json"
     response = session.get(url)
-    if response.status_code != 200:
-        raise Exception("Failed to retrive subdir data.")
-    else:
-        repodata_subdir = json.loads(response.text)
+    response.raise_for_status()
+    repodata_subdir = json.loads(response.text)
     for v in repodata_subdir["packages"].values():
         if (
             (v["name"] not in pkgs_subdir)
@@ -86,7 +88,7 @@ def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True)
                     and info["build_number"] > pkgs_defaults[name]["build_number"]
                 )
             ):
-                logging.info(f"Found newer noarch {name} {pkgs_noarch[name]}")
+                logging.info("Found newer noarch %s %s", name, info)
                 pkgs_defaults[name] = pkgs_noarch[name]
 
     return pkgs_defaults
@@ -122,8 +124,6 @@ def compare_package_with_defaults(package: Package, defaults_pkgs: dict[str, dic
                     "defaults_version": defaults_version,
                     "defaults_build_number": defaults_build_number,
                 }
-    except InvalidVersionSpec as exc:
-        logging.error(f"Exception: {local_name} {exc}")
-    except ValueError as exc:
-        logging.error(f"Exception: {local_name} {exc}")
+    except (ValueError, InvalidVersionSpec) as exc:
+        logging.error("Exception: %s %s", local_name, exc)
     return result

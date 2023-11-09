@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # Now do the actual modifications required.
     rendered_recipe = recipe.Recipe.from_file(args.recipe_path)
-    with open(args.patch_file) as p:
+    with open(args.patch_file, encoding="utf-8") as p:
         rendered_recipe.patch(json.load(p), False)
 
     # rendered_recipe = load_recipe(args.recipe_path)

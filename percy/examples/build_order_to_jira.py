@@ -37,7 +37,7 @@ def add_issue(login, token, dry_run, current_epic_key, target_pkg, pkg):
         allfields = perseverance_jira.fields()
         perseverance_fields_map = {field["name"]: field["id"] for field in allfields}
 
-    logging.info(f"NEW {pkg}")
+    logging.info("NEW %s", pkg)
 
     issue_fields = {
         "project": {"key": "PKG"},
@@ -56,7 +56,7 @@ def add_issue(login, token, dry_run, current_epic_key, target_pkg, pkg):
             logging.info(issue_fields)
 
     except JIRAError as err:
-        logging.error(f"Failed to add issue {pkg}. {err.text}")
+        logging.error("Failed to add issue %s. %s", pkg, err.text)
 
 
 def depends_on_target(repo_package, target):
@@ -175,7 +175,7 @@ class JiraSync:
             for feedstock in stage:
                 package_name = next(iter(feedstock.packages)).lower()
                 if package_name not in epic_tasks:
-                    logging.info(f"No existing ticket {package_name} : creating new ticket")
+                    logging.info("No existing ticket %s : creating new ticket", package_name)
                     issue_key = f"{i+1:03}/{n_stages:03} {feedstock.name}"
                     desc = f"{issue_key} rebuild against {target}"
                     issue_fields = {
@@ -194,9 +194,9 @@ class JiraSync:
                             logging.info(issue_fields)
 
                     except JIRAError as err:
-                        logging.error(f"Failed to add issue {feedstock.name}. {err.text}")
+                        logging.error("Failed to add issue %s. %s", feedstock.name, err.text)
                 else:
-                    logging.info(f"Existing ticket {package_name} : skip")
+                    logging.info("Existing ticket %s : skip", package_name)
 
 
 def print_build_order(buildout):
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     for subdir in subdirs + ["noarch"]:
         results = process_repodata(subdir, pkg_targets)
         main_pkgs.update(set([r["name"] for r in results]))
-        with open(f"./{args.target}_{subdir}.json", "w") as f:
+        with open(f"./{args.target}_{subdir}.json", "w", encoding="utf-8") as f:
             json.dump(results, f, indent=4)
 
     # get feedstock build order

@@ -1,20 +1,33 @@
-# ruff: noqa: E501
+"""
+File:           recipe.py
+Description:    CLI for interacting with recipe files.
+"""
+from __future__ import annotations
 
 import functools
 import json
 import os
 from pathlib import Path
+from typing import Callable, Optional
 
 import click
 
 import percy.commands.aggregate
 import percy.render.recipe
 
+# pylint: disable=line-too-long
 
-def get_recipe(cmd_line=None):
+
+def get_recipe(cmd_line: Optional[str | Path] = None) -> Path:
+    """
+    Determine the path to the target recipe file
+    :param cmd_line:    (Optional) If specified, this is the path to a recipe file to operate on. If not specified, the
+                        recipe file is determined by the current working directory.
+    :return: Path to the recipe file of interest
+    """
     # command line has highest precedence
     if cmd_line:
-        return cmd_line
+        return Path(cmd_line)
     # look through current directory
     path = Path(os.getcwd()) / "recipe" / "meta.yaml"
     if path.is_file():
@@ -26,7 +39,12 @@ def get_recipe(cmd_line=None):
     return path
 
 
-def base_options(f):
+def base_options(f: Callable):
+    """
+    Base options/flags supported by this command
+    :param f:   Function callback
+    """
+
     @click.option(
         "--backend",
         "-b",
@@ -79,7 +97,7 @@ def base_options(f):
 @click.group(short_help="Commands for operating on a recipe.")
 @click.option("--recipe", "-r", metavar="FILE", help="Recipe meta.yaml to operate on.")
 @click.pass_context
-def recipe(ctx, recipe):
+def recipe(ctx, recipe: str):  # pylint: disable=redefined-outer-name
     """Commands that operate on a recipe."""
     ctx.ensure_object(dict)
     ctx.obj["recipe_path"] = Path(get_recipe(recipe))
@@ -128,9 +146,9 @@ def outdated(obj, subdir, python, others, backend):
     defaults_pkgs = percy.repodata.repodata.get_latest_package_list(subdir[0], True)
 
     # compare package with defaults
-    for recipe in render_results:
-        if subdir[0] in recipe.variant_id["subdir"]:
-            for name, package in recipe.packages.items():
+    for rendered_recipe in render_results:
+        if subdir[0] in rendered_recipe.variant_id["subdir"]:
+            for name, package in rendered_recipe.packages.items():
                 result = percy.repodata.repodata.compare_package_with_defaults(package, defaults_pkgs)
                 if not result:
                     print("OK")
@@ -183,7 +201,7 @@ def patch(obj, subdir, python, others, backend, increment_build_number: bool, pa
     # render recipe
     recipe_path = obj["recipe_path"]
     op_mode = percy.render.recipe.OpMode.CLASSIC
-    recipe: percy.render.recipe.Recipe
+    recipe: percy.render.recipe.Recipe  # pylint: disable=redefined-outer-name
     # Enables parse-tree mode
     if parse_tree:
         backend = percy.render.recipe.RendererType.PERCY
@@ -205,6 +223,6 @@ def patch(obj, subdir, python, others, backend, increment_build_number: bool, pa
         recipe = next(iter(render_results))
 
     # patch recipe
-    with open(patch_file) as p:
+    with open(patch_file, encoding="utf-8") as p:
         recipe.patch(json.load(p), increment_build_number, op_mode=op_mode)
     print("Done")

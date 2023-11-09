@@ -1,5 +1,11 @@
+"""
+File:           _dumper.py
+Description:    Provides utilities to dump rendering results
+"""
+from __future__ import annotations
+
 import sys
-from typing import List, TextIO
+from typing import Final, TextIO
 
 import yaml
 from ruamel.yaml import YAML
@@ -15,13 +21,28 @@ ruamel.allow_duplicate_keys = True
 ruamel.width = 1000
 ruamel.default_flow_style = False
 
+# List of top-level recipe fields
+FIELDS: Final[list[str]] = [
+    "variant",
+    "package",
+    "source",
+    "build",
+    "requirements",
+    "test",
+    "app",
+    "outputs",
+    "about",
+    "extra",
+]
 
-def _dump_render_results_ruamel(render_results: List, out: TextIO = sys.stdout) -> None:
+
+# TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
+def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) -> None:
     """Dumps a list of rendered variants of a recipe.
 
     Args:
-        render_results (List[Recipe]): List of rendered variants.
-        out (TextIO, optional): Output stream. Defaults to sys.stdout.
+        render_results: List of rendered variants.
+        out: Output stream. Defaults to sys.stdout.
 
     """
     data_to_dump = []
@@ -35,26 +56,15 @@ def _dump_render_results_ruamel(render_results: List, out: TextIO = sys.stdout) 
     ruamel.dump(data_to_dump, out)
 
 
-def _dump_render_results_yaml(render_results: List, out: TextIO = sys.stdout) -> None:
+# TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
+def _dump_render_results_yaml(render_results: list, out: TextIO = sys.stdout) -> None:
     """Dumps a list of rendered variants of a recipe.
 
     Args:
-        render_results (List[Recipe]): List of rendered variants.
-        out (TextIO, optional): Output stream. Defaults to sys.stdout.
+        render_results: List of rendered variants.
+        out: Output stream. Defaults to sys.stdout.
 
     """
-    FIELDS = [
-        "variant",
-        "package",
-        "source",
-        "build",
-        "requirements",
-        "test",
-        "app",
-        "outputs",
-        "about",
-        "extra",
-    ]
 
     class _MetaYaml(dict):
         fields = FIELDS
@@ -68,10 +78,10 @@ def _dump_render_results_yaml(render_results: List, out: TextIO = sys.stdout) ->
     yaml.add_representer(_MetaYaml, _represent_omap)
 
     class _IndentDumper(yaml.Dumper):
-        def increase_indent(self, flow=False, indentless=False):
+        def increase_indent(self, flow=False, indentless=False):  # pylint: disable=unused-argument
             return super().increase_indent(flow, False)
 
-        def ignore_aliases(self, data):
+        def ignore_aliases(self, data):  # pylint: disable=unused-argument
             return True
 
     data_to_dump = []
@@ -91,7 +101,8 @@ def _dump_render_results_yaml(render_results: List, out: TextIO = sys.stdout) ->
     )
 
 
-def dump_render_results(render_results: List, out: TextIO = sys.stdout) -> None:
+# TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
+def dump_render_results(render_results: list, out: TextIO = sys.stdout) -> None:
     if render_results and render_results[0].renderer == RendererType.RUAMEL:
         _dump_render_results_ruamel(render_results, out)
     else:

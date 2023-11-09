@@ -101,7 +101,7 @@ test-cov:		## checks test coverage requirements
 	$(PYTHON3) -m pytest -n auto --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=20 --cov-report term-missing
 
 lint:			## runs the linter against the project
-	pylint --rcfile=.pylintrc $(LINTER_FILES)
+	pylint --rcfile=.pylintrc percy
 
 format:			## runs the code auto-formatter
 	isort --profile black --line-length=120 percy

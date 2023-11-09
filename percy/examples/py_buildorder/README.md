@@ -2,13 +2,13 @@
     <arch> is one of linux-64, linux-aarch64, linux-s390x, linux-ppc64le, osx-64, osx-arm64, win-64
 
 # Building a new python - ALREADY DONE for all architectures and uploaded to defaults
-  
+
 - Open a PR on python for the new python major release. Example: https://github.com/AnacondaRecipes/python-feedstock/pull/88
 - Update the recipe, build scripts...
 - Update conda_build_config.yaml
 - Configure a release channel in abs.yaml
 - Set bootstrap mode in meta.yaml
-- Build python 
+- Build python
 - Then, build in order: wincertstore, certifi, setuptools, wheel, pip.
   - https://github.com/AnacondaRecipes/wincertstore-feedstock/pull/2
   - https://github.com/AnacondaRecipes/certifi-feedstock/pull/8
@@ -34,7 +34,7 @@
     git submodule update --init --recursive
 
 ## Generate new python build scripts
-    
+
     Given a local aggregate checkout of branch py311-buildout at ../../../aggregate/
 
     cd percy/examples/py311/
@@ -45,14 +45,14 @@
 ## Start a docker instance
     cd ~ && docker run -ti --rm -v `pwd`:/work public.ecr.aws/y0o4y9o3/anaconda-pkg-build:latest /bin/bash
     [root@9ad2d267fbd4 /]# conda init bash
-    [root@9ad2d267fbd4 /]# bash 
+    [root@9ad2d267fbd4 /]# bash
     (base) [root@9ad2d267fbd4 /]# cd work/aggregate/
 
 ## Run the build
     (base) [root@9ad2d267fbd4 aggregate]# ./python_3.11_<arch>_build_all.sh
     (base) [root@9ad2d267fbd4 aggregate]# more failed.*
-    
-    
+
+
 ### Fix any occurring issues
 
 It may be that the package does not support 3.11. Either update to a new version if available, or add to the block list in config.py.
@@ -62,13 +62,13 @@ It may be that a package depends on an older version of another package. Add a s
 ## Test packages
 
   Execute the tests of each built package. If the test passes, move it to a separate fodler e.g.: /root/ci_py311_tested/.
-  
+
   This is done by running the test package script. Example:
-  
+
     (base) [root@9ad2d267fbd4 aggregate]# ./test_packages.sh ../ci_py311/<arch>/ ../ci_py311_tested/
 
 ## Show current progress
- 
+
     (base) [root@9ad2d267fbd4 aggregate]# ./tally.sh
 
 ## Test that packages are installable
@@ -81,7 +81,7 @@ It may be that a package depends on an older version of another package. Add a s
   Transmute tar.bz2 packages in ci_py311_tested/ to .conda
   (base) [root@9ad2d267fbd4 /]# cd work/ci_py311_tested/
   (base) [root@9ad2d267fbd4 ci_py311_tested]# cph -t .tar.bz2 .conda
-  
+
   Copy packages to zeus at /var/perserverance/py311/<arch>/.
 
 ## Upload packages

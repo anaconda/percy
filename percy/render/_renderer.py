@@ -1,32 +1,37 @@
+"""
+File:           _renderer.py
+Description:    Provides tools for rendering recipe files.
+"""
 from __future__ import annotations
 
 import contextlib
 import re
 from enum import Enum
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, Final, Optional
 
 import jinja2
 import yaml
 
 from percy.parser.recipe_parser import RecipeParser
+from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
 
+# TODO Future: re-evaluate. This project correctly identifies these dependencies as necessary. They should not need to
+# be optionally included.
 try:
     from ruamel.yaml import YAML
     from ruamel.yaml.parser import ParserError
 
     has_ruamel = True
-except Exception:
+except ModuleNotFoundError:
     has_ruamel = False
 try:
     from conda_build import api
     from conda_build.config import Config
 
     has_conda_build = True
-except Exception:
+except ModuleNotFoundError:
     has_conda_build = False
-
-from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
 
 
 class RendererType(Enum):
@@ -52,15 +57,16 @@ if has_ruamel:
 
 # Pyyaml configuration
 try:
-    loader = yaml.CLoader
-except Exception:
-    loader = yaml.Loader
+    loader = yaml.CLoader  # pylint: disable=invalid-name
+except Exception:  # pylint: disable=broad-exception-caught
+    loader = yaml.Loader  # pylint: disable=invalid-name
 
 
 @contextlib.contextmanager
-def _stringify_numbers():
-    # ensure that numbers are not interpreted as ints or floats.  That trips up versions
-    #     with trailing zeros.
+def _stringify_numbers() -> None:
+    """
+    Ensure that numbers are not interpreted as ints or floats.  That trips up versions with trailing zeros.
+    """
     implicit_resolver_backup = loader.yaml_implicit_resolvers.copy()
     for ch in list("0123456789"):
         if ch in loader.yaml_implicit_resolvers:
@@ -73,7 +79,7 @@ def _stringify_numbers():
 
 # Jinja configuration
 class _JinjaSilentUndefined(jinja2.Undefined):
-    def _fail_with_undefined_error(self, *args, **kwargs):
+    def _fail_with_undefined_error(self, *args, **kwargs):  # pylint: disable=unused-argument
         class EmptyString(str):
             def __call__(self, *args, **kwargs):
                 return ""
@@ -118,26 +124,28 @@ class _JinjaSilentUndefined(jinja2.Undefined):
 _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
 
 
-def _apply_selector(data: str, selector_dict: dict) -> List[str]:
+# TODO Future: nearly identical to variants.py::_apply_selector
+def apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
     """Apply selectors # [...]
 
     Args:
-        data (str): Raw meta yaml string
-        selector_dict (dict): Selector configuration.
+        data: Raw meta yaml string
+        selector_dict: Selector configuration.
 
     Returns:
-        list[str]: meta yaml filtered based on selectors, as a list of string.
+        meta yaml filtered based on selectors, as a list of string.
     """
     updated_data = []
     for line in data.splitlines():
         if (match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)) is not None:
             cond_str = match.group(3)
             try:
-                if not eval(cond_str, None, selector_dict):
+                # TODO Future: evaluate security risk
+                if not eval(cond_str, None, selector_dict):  # pylint: disable=eval-used
                     line = f"{match.group(1)}"
                 else:
                     line = line.replace(match.group(2), "")  # <-- comments sometimes causes trouble in jinja
-            except Exception:
+            except Exception:  # pylint: disable=broad-exception-caught
                 continue
         updated_data.append(line)
     return "\n".join(updated_data)
@@ -148,7 +156,7 @@ def _get_template(meta_yaml, selector_dict):
     # This function exists because the template cannot be pickled.
     # Storing it means the recipe cannot be pickled, which in turn
     # means we cannot pass it to ProcessExecutors.
-    meta_yaml_selectors_applied = _apply_selector(meta_yaml, selector_dict)
+    meta_yaml_selectors_applied = apply_selector(meta_yaml, selector_dict)
     return _jinja_silent_undef.from_string(meta_yaml_selectors_applied)
 
 
@@ -186,7 +194,7 @@ def render(
             else:
                 return f"{compiler}_{selector_dict.get('target_platform', 'win-64')}"
 
-        JINJA_VARS = {
+        jinja_vars: Final[dict[str, Any]] = {
             "unix": selector_dict.get("unix", False),
             "win": selector_dict.get("win", False),
             "PYTHON": selector_dict.get(
@@ -212,20 +220,20 @@ def render(
             "ppcle64": selector_dict.get("ppcle64", "0") == "1",
             "cran_mirror": "https://cloud.r-project.org",
             "compiler": expand_compiler,
-            "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x} x",  # noqa: E501
-            "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x} x",  # noqa: E501
+            "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x} x",
+            "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x} x",
             "cdt": lambda x: f"{x}-cos6-x86_64",
             "os.environ.get": lambda name, default="": "",
             "ccache": lambda name, method="": "ccache",
         }
-        render_dict = {**JINJA_VARS, **selector_dict}
+        render_dict = {**jinja_vars, **selector_dict}
         yaml_text = _get_template(meta_yaml, selector_dict).render(render_dict)
     except jinja2.exceptions.TemplateSyntaxError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=exc.message, line=exc.lineno)
+        raise JinjaRenderFailure(recipe_dir, message=exc.message, line=exc.lineno) from exc
     except jinja2.exceptions.TemplateError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=exc.message)
+        raise JinjaRenderFailure(recipe_dir, message=exc.message) from exc
     except TypeError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=str(exc))
+        raise JinjaRenderFailure(recipe_dir, message=str(exc)) from exc
 
     try:
         if renderer_type == RendererType.RUAMEL:
@@ -259,4 +267,4 @@ def render(
         else:
             raise YAMLRenderFailure(recipe_dir, message="Unknown renderer type.")
     except ParserError as exc:
-        raise YAMLRenderFailure(recipe_dir, line=exc.problem_mark.line)
+        raise YAMLRenderFailure(recipe_dir, line=exc.problem_mark.line) from exc
