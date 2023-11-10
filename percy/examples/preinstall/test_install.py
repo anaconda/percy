@@ -10,7 +10,7 @@ logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.DEBUG)
 
 
 def render(feedstock_path, aggregate_path, arch, python):
-    logging.debug(f"Render feedstock {feedstock_path} for { arch }")
+    logging.debug("Render feedstock %s for %s", feedstock_path, arch)
 
     recipe_path = feedstock_path / "recipe" / "meta.yaml"
     others = {"r_implementation": "r-base"}
@@ -35,7 +35,7 @@ def check_deps(
     if not extras:
         extras = []
 
-    logging.debug(f"Render feedstock {feedstock_path} for { arch }")
+    logging.debug("Render feedstock %s for %s", feedstock_path, arch)
 
     recipe_path = feedstock_path / "recipe" / "meta.yaml"
     others = {"r_implementation": "r-base"}
@@ -131,7 +131,7 @@ def pytest_generate_tests(metafunc):
         values = metafunc.config.option.arch
         metafunc.parametrize("arch", values)
     recipe_path = Path(metafunc.config.option.feedstock).expanduser().absolute() / "recipe" / "meta.yaml"
-    with open(recipe_path, "r") as stream:
+    with open(recipe_path, "r", encoding="utf-8") as stream:
         contents = stream.read()
         if "python" in contents:
             values = metafunc.config.option.python

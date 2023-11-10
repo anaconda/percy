@@ -1,10 +1,9 @@
-"""A representation of aggregate.
-
-May be used to get a rough build order of packages or gather health information.
 """
-
-# TODO: refactor long lines and remove the linter mute below.
-# ruff: noqa: E501
+File:           aggregate.py
+Description:    A representation of aggregate. May be used to get a rough build order of packages or gather health
+                information.
+"""
+from __future__ import annotations
 
 import configparser
 import logging
@@ -54,7 +53,7 @@ class PackageNode:
         else:
             self.weight = 0
         self.children = set()
-        logging.debug(f"New node {package_name}")
+        logging.debug("New node %s", package_name)
 
     @classmethod
     def init(cls, aggregate: "Aggregate"):
@@ -91,7 +90,9 @@ class PackageNode:
         package_name = package_name.strip()
         is_run = origin_section == "run"
 
-        def check_cycle(package_name, parent, ancestors=[]):
+        def check_cycle(package_name, parent, ancestors=None):
+            if ancestors is None:
+                ancestors = []
             if parent:
                 if package_name == parent.package_name:
                     return [parent.package_name] + ancestors
@@ -104,12 +105,12 @@ class PackageNode:
 
         package = PackageNode.aggregate.packages.get(package_name, None)
         if not package:
-            logging.warning(f"No information for {package_name}")
+            logging.warning("No information for %s", package_name)
         else:
             # check cycle
             cycle = check_cycle(package_name, parent)
             if cycle:
-                logging.warning(f"CYCLE: {'->'.join(cycle+[package_name])}")
+                logging.warning("CYCLE: %s", "->".join(cycle + [package_name]))
 
             if package_name in PackageNode.nodes:
                 # existing package - update edges
@@ -119,13 +120,13 @@ class PackageNode:
                 if is_run:
                     node.is_run = True
                 if parent:
-                    node._update_weight(parent.weight)
+                    node._update_weight(parent.weight)  # pylint: disable=protected-access
             else:
                 # new package
                 node = cls(parent, package_name, package, is_run)
                 PackageNode.nodes[package_name] = node
                 if walk_up_sections:
-                    node._walk_up_requirements(walk_up_sections)
+                    node._walk_up_requirements(walk_up_sections)  # pylint: disable=protected-access
 
             if parent:
                 # update parent edge
@@ -140,13 +141,13 @@ class PackageNode:
         if self.weight < (base_weight + 1):
             self.weight = base_weight + 1
             for child in self.children:
-                child._update_weight(self.weight)
+                child._update_weight(self.weight)  # pylint: disable=protected-access
 
     def __str__(self):
         return repr(self)
 
     def __repr__(self):
-        return "{}".format(self.package_name)
+        return self.package_name
 
     def __hash__(self):
         return hash((self.package_name))
@@ -175,8 +176,8 @@ class Feedstock:
 def _render(feedstock_repo, recipe_path, subdir, python, others, renderer):
     try:
         rendered_recipes = render(recipe_path, subdir, python, others, renderer=renderer)
-    except Exception as exc:
-        logging.error(f"Render issue {feedstock_repo.name} : {exc}")
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        logging.error("Render issue %s : %s", feedstock_repo.name, exc)
         rendered_recipes = []
     return feedstock_repo, rendered_recipes
 
@@ -187,9 +188,6 @@ FeedstockGitRepo = namedtuple("FeedstockGitRepo", ["name", "git_url", "branch", 
 class Aggregate:
     """An object to handle a repository of feedstocks.
 
-    Args:
-        aggregate_path (str): Aggregate local path.
-
     Attributes:
         local_path (Path): Aggregate path.
         git_url (str): Aggregate git url.
@@ -198,11 +196,12 @@ class Aggregate:
         feedstocks (dict[str,Feedstock]): Feedstocks. (Populated after calling load_local_feedstocks.)
     """
 
-    def __init__(self, aggregate_path: str, manifest_path: str = None):
+    def __init__(self, aggregate_path: str, manifest_path: Optional[str] = None):
         """Constructor
 
         Args:
-            aggregate_path (str): Aggregate local path.
+            aggregate_path: Aggregate local path.
+            manifest_path:  (Optional) Path to the manifest file
         """
 
         # get local aggregate info
@@ -213,6 +212,7 @@ class Aggregate:
             shell=True,
             encoding="utf-8",
             cwd=self.local_path,
+            check=False,  # Default behavior, fails silently
         )
         self.git_url = x.stdout.strip().replace("git@github.com:", "https://github.com/")
         x = subprocess.run(
@@ -221,6 +221,7 @@ class Aggregate:
             shell=True,
             encoding="utf-8",
             cwd=self.local_path,
+            check=False,  # Default behavior, fails silently
         )
         self.git_branch = x.stdout.strip()
 
@@ -238,20 +239,20 @@ class Aggregate:
                 self.submodules[name] = FeedstockGitRepo(name, git_url, git_branch, path)
         else:
             try:
-                with open(Path(manifest_path), "r") as file:
+                with open(Path(manifest_path), "r", encoding="utf-8") as file:
                     manifest = yaml.load(file, Loader=yaml.SafeLoader)
-            except FileNotFoundError:
-                raise FileNotFoundError(f"Manifest file not found at {manifest_path}")
-            except yaml.YAMLError:
-                raise ValueError(f"Error parsing YAML: {manifest_path}")
+            except FileNotFoundError as e:
+                raise FileNotFoundError(f"Manifest file not found at {manifest_path}") from e
+            except yaml.YAMLError as e:
+                raise ValueError(f"Error parsing YAML: {manifest_path}") from e
 
             for name, git_info in manifest["feedstocks"].items():
                 self.submodules[name] = FeedstockGitRepo(name, None, git_info["branch"], None)
 
         # packages, feedstocks and groups
-        self.packages: dict[str:Package] = {}
-        self.feedstocks: dict[str:Feedstock] = {}
-        self.groups: dict[str : list[Feedstock]] = {}
+        self.packages: dict[str, Package] = {}
+        self.feedstocks: dict[str, Feedstock] = {}
+        self.groups: dict[str, list[Feedstock]] = {}
 
     def _get_feedstock_git_repo(self, feedstock_path_rel: Path) -> Feedstock:
         """Get Feedsotck object from feedstock local path.
@@ -288,12 +289,13 @@ class Aggregate:
             This populates attributes packages and feedstocks.
 
         Args:
-            subdir (str, optional): The subdir for which to load the feedstocks. Defaults to "linux-64".
-            python (str, optional): The python version for which to load the feedstocks. Defaults to "3.10".
-            others (dict[str, Any], optional): A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
+            subdir:     The subdir for which to load the feedstocks. Defaults to "linux-64".
+            python:     The python version for which to load the feedstocks. Defaults to "3.10".
+            others:     A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
+            renderer:   Rendering engine to use to interpret YAML
 
         Returns:
-            dict[str, Package]: Rendered packages contained in aggregate (also available as aggregate packages attribute).
+            Rendered packages contained in aggregate (also available as aggregate packages attribute).
         """
 
         if others is None:
@@ -324,16 +326,20 @@ class Aggregate:
                 and not feedstock_name == f"python-{python}-feedstock"
             ):
                 logging.warning(
-                    f"Skipping feedstock {feedstock_name} pinned to branch {feedstock_repo.branch} ({feedstock_repo.git_url})"
+                    "Skipping feedstock %s pinned to branch %s (%s)",
+                    feedstock_name,
+                    feedstock_repo.branch,
+                    feedstock_repo.git_url,
                 )
                 continue
             if feedstock_name.startswith("ctng-compilers-"):
                 logging.warning(
-                    f"Skipping feedstock {feedstock_name} now replaced by binutils-feedstock and gcc_toolchain-toolchain"
+                    "Skipping feedstock %s now replaced by binutils-feedstock and gcc_toolchain-toolchain",
+                    feedstock_name,
                 )
                 continue
             if "_cos6_" in feedstock_name or "_cos7_" in feedstock_name or "_amzn2_" in feedstock_name:
-                logging.warning(f"Skipping cdt {feedstock_name}")
+                logging.warning("Skipping cdt %s", feedstock_name)
                 continue
 
             # add to render list
@@ -350,7 +356,10 @@ class Aggregate:
                             rendered_pkg.git_info = feedstock_repo
                             if name in self.packages:
                                 logging.debug(
-                                    f"Merging deps of other variant {recipe.variant_id} : {feedstock_repo.name} : {name}"
+                                    "Merging deps of other variant %s : %s : %s",
+                                    recipe.variant_id,
+                                    feedstock_repo.name,
+                                    name,
                                 )
                                 self.packages[name].merge_deps(rendered_pkg)
                             else:
@@ -376,7 +385,7 @@ class Aggregate:
                     rendered_pkg.git_info.git_url,
                     rendered_pkg.git_info.branch,
                     rendered_pkg.git_info.path,
-                    dict(),
+                    {},
                     0,
                 ),
             )
@@ -419,7 +428,7 @@ class Aggregate:
                     node.feedstock.git_url,
                     node.feedstock.branch,
                     node.feedstock.path,
-                    dict(),
+                    {},
                     0,
                 ),
             )
@@ -429,12 +438,12 @@ class Aggregate:
 
     def get_build_order(
         self,
-        target_groups: list[str] = [],
-        target_feedstocks: list[str] = [],
-        target_packages: list[str] = [],
+        target_groups: Optional[list[str]] = None,
+        target_feedstocks: Optional[list[str]] = None,
+        target_packages: Optional[list[str]] = None,
         drop_noarch: bool = False,
         no_upstream: bool = False,
-        walk_up_sections: tuple[str] = ("build", "host", "run")
+        walk_up_sections: tuple[str] = ("build", "host", "run"),
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on a list of leaf packages.
 
@@ -449,6 +458,13 @@ class Aggregate:
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
         """
+        if target_groups is None:
+            target_groups = []
+        if target_feedstocks is None:
+            target_feedstocks = []
+        if target_packages is None:
+            target_packages = []
+
         PackageNode.init(self)
 
         # expand target_packages with packages from target_feedstocks and target_groups
@@ -459,7 +475,7 @@ class Aggregate:
             if group in self.groups:
                 target_feedstocks.extend([f.name for f in self.groups[group]])
         for feedstock in target_feedstocks:
-            if feedstock in self.feedstocks.keys():
+            if feedstock in self.feedstocks:
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
 
         # build graph walking up from packages
@@ -479,13 +495,13 @@ class Aggregate:
 
     def get_depends_build_order(
         self,
-        target_groups: list[str] = [],
-        target_feedstocks: list[str] = [],
-        target_packages: list[str] = [],
-        package_allowlist: list[str] = [],
-        feedstock_blocklist: list[str] = [],
+        target_groups: Optional[list[str]] = None,
+        target_feedstocks: Optional[list[str]] = None,
+        target_packages: Optional[list[str]] = None,
+        package_allowlist: Optional[list[str]] = None,
+        feedstock_blocklist: Optional[list[str]] = None,
         drop_noarch: bool = False,
-        walk_up_sections: tuple[str] = ("build", "host", "run")
+        walk_up_sections: tuple[str] = ("build", "host", "run"),
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on packages having target as a dependency.
 
@@ -501,6 +517,16 @@ class Aggregate:
         Returns:
             dict[str, Feedstock]: An ordered dictionary of Feedstock.
         """
+        if target_groups is None:
+            target_groups = []
+        if target_feedstocks is None:
+            target_feedstocks = []
+        if target_packages is None:
+            target_packages = []
+        if package_allowlist is None:
+            package_allowlist = []
+        if feedstock_blocklist is None:
+            feedstock_blocklist = []
 
         PackageNode.init(self)
 
@@ -512,10 +538,13 @@ class Aggregate:
             if group in self.groups:
                 target_feedstocks.extend([f.name for f in self.groups[group]])
         for feedstock in target_feedstocks:
-            if feedstock in self.feedstocks.keys():
+            if feedstock in self.feedstocks:
                 target_packages.extend(self.feedstocks[feedstock].packages.keys())
         logging.info(
-            f"get_depends_build_order groups:{target_groups} feedstocks:{target_feedstocks} packages:{target_packages}"
+            "get_depends_build_order groups:%s feedstocks:%s packages:%s",
+            target_groups,
+            target_feedstocks,
+            target_packages,
         )
 
         # build graph with packages having package as a dependency
@@ -539,7 +568,7 @@ class Aggregate:
         PackageNode.nodes = {
             k: v
             for k, v in PackageNode.nodes.items()
-            if any([v.package.has_dep("run", target) for target in target_packages])
+            if any(v.package.has_dep("run", target) for target in target_packages)
         }
 
         # drop noarch graph nodes

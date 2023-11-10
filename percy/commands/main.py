@@ -1,3 +1,11 @@
+"""
+File:           main.py
+Description:    Primary execution point of the `click` command line interface
+"""
+from __future__ import annotations
+
+import os
+
 import click
 
 from percy.commands.aggregate import aggregate
@@ -24,7 +32,6 @@ def tabcompletion():
 
     Add to shell init (i.e. .bashrc, .zshrc) for persistent setup.
     """
-    import os
 
     shell = os.environ["SHELL"]
 

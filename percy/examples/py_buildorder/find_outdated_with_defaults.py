@@ -5,7 +5,7 @@ architecture-specific.
 
 It also takes into account exclude packages.
 
-output is outdated_{subdir}.json 
+output is outdated_{subdir}.json
 """
 
 import argparse
@@ -158,9 +158,9 @@ if __name__ == "__main__":
 
     block_list = []
     filename = f"{args.subdir}/python_3.11_{args.subdir}_package_list_missing.yaml"
-    with open(filename) as file:
+    with open(filename, encoding="utf-8") as file:
         block_list = yaml.safe_load(file)
 
     results = compare_repodata(args.subdir, "3.11", "3.12", block_list)
-    with open(f"./oudated_{args.subdir}.json", "w") as f:
+    with open(f"./oudated_{args.subdir}.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4)

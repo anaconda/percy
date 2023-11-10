@@ -17,6 +17,9 @@ ignore=third_party
 # Files or directories matching the regex patterns are skipped. The regex
 # matches against base names, not paths.
 ignore-patterns=
+# Anaconda Delta: This project ignores the `examples/` directory. These are just
+# example files and should not be imported by others.
+ignore-paths=percy/examples
 
 # Pickle collected data for later comparisons.
 persistent=no

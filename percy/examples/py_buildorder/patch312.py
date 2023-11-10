@@ -31,9 +31,9 @@ class Recipe:
 
     def load(self, recipe_path):
         self.path = recipe_path
-        with open(recipe_path) as text:
+        with open(recipe_path, encoding="utf-8") as text:
             self.meta_yaml = text.read().splitlines()
-        with open(recipe_path) as fp:
+        with open(recipe_path, encoding="utf-8") as fp:
             self.meta = yaml.load(fp)
             self.packages = {}
             if not self.meta.get("outputs", []):
@@ -193,7 +193,7 @@ class Recipe:
                 self._increment_build_number()
                 self.save()
                 self.render()
-            logging.info(f"Patch applied: {self.path}")
+            logging.info("Patch applied: %s", self.path)
             return True
         return False
 
@@ -238,7 +238,7 @@ class Recipe:
                 try:
                     (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
                 except KeyError:
-                    logging.warning(f"Path not found while applying op:{opop}")
+                    logging.warning("Path not found while applying op:%s", opop)
                 else:
                     # adding value to end of parent
                     # if value is a list, adding as a list to parent
@@ -283,7 +283,7 @@ class Recipe:
         try:
             (start_row, start_col, end_row, _) = self.get_raw_range(path)
         except KeyError:
-            logging.warning(f"Path not found while applying op:{opop}")
+            logging.warning("Path not found while applying op:%s", opop)
             return
         range = copy.deepcopy(self.meta_yaml[start_row:end_row])
 
@@ -402,4 +402,4 @@ if __name__ == "__main__":
             recipe = Recipe(str(recipe_path))
             recipe.patch(operations, False)
         except:
-            logging.error(f"Failed {recipe_path}")
+            logging.error("Failed %s", recipe_path)

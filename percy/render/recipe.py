@@ -1,6 +1,6 @@
-"""Recipe renderer.
-
-Not as accurate as conda-build render, but faster and architecture independent.
+"""
+File:           recipe.py
+Description:    Recipe renderer. Not as accurate as conda-build render, but faster and architecture independent.
 """
 from __future__ import annotations
 
@@ -12,15 +12,14 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, TextIO
+from typing import Any, Callable, Optional, TextIO
 from urllib.parse import urlparse
 
 import jsonschema
 
 import percy.render._dumper as dumper
-import percy.render._renderer as renderer
+import percy.render._renderer as renderer_utils
 from percy.parser.recipe_parser import JsonPatchType, RecipeParser
-from percy.render._renderer import RendererType
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
 from percy.render.variants import Variant, read_conda_build_config
 
@@ -44,23 +43,6 @@ class Recipe:
     Recipes undergo two manipulation rounds before parsed as YAML:
      1. Selecting lines using ``# [expression]``
      2. Rendering as Jinja2 template
-
-    Args:
-        recipe_file (Path): Path to meta.yaml
-        variant_id (str): configuration id
-        variant (Variant): Variant configuration
-        backend (RendererType, optional): Renderer backend.
-
-    Attributes:
-        recipe_file (Path): The recipe file
-        recipe_dir (Path): The recipe directory
-        variant_id (str): configuration id
-        selector_dict (Variant): Variant configuration
-        meta (Dict[str, Any]): Rendered recipe in as a dictionary
-        skip (bool): Whether this variant is skipped.
-        packages (Dict[str:Package]): Rendered Packages.
-        meta_yaml (List[str]): Lines of the raw recipe file
-        orig (Recipe): Original recipe before modifications
     """
 
     # patch schema
@@ -91,14 +73,25 @@ class Recipe:
         recipe_file: Path,
         variant_id: Optional[str] = None,
         variant: Optional[Variant] = None,
-        renderer: Optional[RendererType] = None,
+        renderer: Optional[renderer_utils.RendererType] = None,
     ):
         """Constructor
 
         Args:
-            recipe_file (Path): Path to meta.yaml
+            recipe_file: Path to meta.yaml
+            variant_id: configuration id
+            variant: Variant configuration
+            renderer: Rendering backend. Defaults to PYYAML.
+        Attributes:
+            recipe_file (Path): The recipe file
+            recipe_dir (Path): The recipe directory
             variant_id (str): configuration id
-            variant (Variant): Variant configuration
+            selector_dict (Variant): Variant configuration
+            meta (dict[str, Any]): Rendered recipe in as a dictionary
+            skip (bool): Whether this variant is skipped.
+            packages (dict[str:Package]): Rendered Packages.
+            meta_yaml (list[str]): Lines of the raw recipe file
+            orig (Recipe): Original recipe before modifications
         """
         #: recipe dir
         if recipe_file:
@@ -114,22 +107,22 @@ class Recipe:
         if not variant:
             variant = {}
         self.variant_id = variant_id
-        self.selector_dict: Dict[str, Any] = variant
+        self.selector_dict: dict[str, Any] = variant
 
         #: render configuration
         self.renderer = renderer
         if not self.renderer:
-            self.renderer = RendererType.PYYAML
+            self.renderer = renderer_utils.RendererType.PYYAML
 
         # Filled in by render()
         #: Parsed recipe YAML
-        self.meta: Dict[str, Any] = {}
+        self.meta: dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str:Package] = dict()
+        self.packages: dict[str:Package] = {}
 
         # These will be filled in by _load_from_string()
         #: Lines of the raw recipe file
-        self.meta_yaml: List[str] = []
+        self.meta_yaml: list[str] = []
         #: Original recipe before modifications (updated by _load_from_string)
         self.orig: Recipe = deepcopy(self)
 
@@ -171,19 +164,19 @@ class Recipe:
     def from_string(
         cls,
         recipe_text: str,
-        variant_id: str = None,
-        variant: Variant = None,
+        variant_id: Optional[str] = None,
+        variant: Optional[Variant] = None,
         return_exceptions: bool = False,
-        renderer: RendererType = None,
+        renderer: Optional[renderer_utils.RendererType] = None,
     ) -> "Recipe":
         """Create new `Recipe` object from string
 
         Args:
-            recipe_text (str): A raw recipe as a string.
-            variant_id (str): Variant id
-            variant (Variant): Variant configuration.
-            return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
-            renderer (RendererType, optional): Renderer backend. Defaults to PYYAML.
+            recipe_text: A raw recipe as a string.
+            variant_id: Variant id
+            variant: Variant configuration.
+            return_exceptions: Whether to return exceptions. Defaults to False.
+            renderer: Rendering backend. Defaults to PYYAML.
 
         Raises:
             MissingMetaYaml: Missing meta.yaml
@@ -206,19 +199,19 @@ class Recipe:
     def from_file(
         cls,
         recipe_fname: str,
-        variant_id: str = None,
-        variant: Variant = None,
+        variant_id: Optional[str] = None,
+        variant: Optional[Variant] = None,
         return_exceptions: bool = False,
-        renderer: RendererType = None,
+        renderer: Optional[renderer_utils.RendererType] = None,
     ) -> "Recipe":
         """Create new `Recipe` object from file
 
         Args:
-            recipe_fname (str): Path to recipe meta.yaml
-            variant_id (str): Variant id
-            variant (Variant): Variant configuration.
-            return_exceptions (bool, optional): Whether to return exceptions. Defaults to False.
-            renderer (RendererType, optional): Renderer backend. Defaults to PYYAML.
+            recipe_fname: Path to recipe meta.yaml
+            variant_id: Variant id
+            variant: Variant configuration.
+            return_exceptions: Whether to return exceptions. Defaults to False.
+            renderer: Rendering backend. Defaults to PYYAML.
 
         Raises:
             MissingMetaYaml: Missing meta.yaml
@@ -231,17 +224,17 @@ class Recipe:
         recipe = cls(recipe_fname, variant_id, variant, renderer)
         try:
             if recipe_fname.is_file():
-                with open(recipe_fname) as text:
+                with open(recipe_fname, encoding="utf-8") as text:
                     recipe._load_from_string(text.read())
-        except FileNotFoundError:
+        except FileNotFoundError as e:
             exc = MissingMetaYaml(recipe_fname)
             if return_exceptions:
                 return exc
-            raise exc
+            raise exc from e
         except Exception as exc:
             if return_exceptions:
                 return exc
-            raise exc
+            raise exc from exc
         recipe._set_original()
         return recipe
 
@@ -276,12 +269,12 @@ class Recipe:
         """
 
         # re-init
-        self.meta: Dict[str, Any] = {}
+        self.meta: dict[str, Any] = {}
         self.skip = False
-        self.packages: Dict[str:Package] = dict()
+        self.packages: dict[str:Package] = {}
 
         # render meta.yaml
-        self.meta = renderer.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
+        self.meta = renderer_utils.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
 
         # should this be skipped?
         bld = self.meta.get("build", {})
@@ -292,7 +285,11 @@ class Recipe:
         if not self.skip:
             self._render_packages()
 
-    def _render_packages(self):
+    def _render_packages(self) -> None:
+        """
+        Helper function that renders packages
+        """
+
         def get_group_from_dev_url(meta, default):
             if not meta:
                 return default
@@ -337,14 +334,14 @@ class Recipe:
             if isinstance(requirements, list):
                 pkg_reqs["run"].extend(requirements)
             else:
-                for s in pkg_reqs.keys():
+                for s in pkg_reqs:  # pylint: disable=consider-using-dict-items
                     reqs = requirements.get(s, [])
                     if reqs is not None:
                         if isinstance(reqs, list):
                             pkg_reqs[s].extend(reqs)
                         else:
                             pkg_reqs[s].extend([reqs])
-            for s in pkg_reqs.keys():
+            for s in pkg_reqs:
                 pkg_reqs[s] = [Dep(i, f"requirements/{s}") for i in pkg_reqs[s] if (i is not None and str(i).strip())]
         test = self.meta.get("test", {})
         test_reqs = []
@@ -408,14 +405,14 @@ class Recipe:
                     if isinstance(requirements, list):
                         output_pkg_reqs["run"].extend(requirements)
                     else:
-                        for s in pkg_reqs.keys():
+                        for s in pkg_reqs:
                             reqs = requirements.get(s, [])
                             if reqs is not None:
                                 if isinstance(reqs, list):
                                     output_pkg_reqs[s].extend(reqs)
                                 else:
                                     output_pkg_reqs[s].extend([reqs])
-                    for s in output_pkg_reqs.keys():
+                    for s in output_pkg_reqs:
                         output_pkg_reqs[s] = [
                             Dep(i, f"outputs/{n}/requirements/{s}")
                             for i in output_pkg_reqs[s]
@@ -454,9 +451,15 @@ class Recipe:
     def __getitem__(self, key):
         return self.meta[key]
 
-    def _walk(self, path, noraise=False):
+    def _walk(self, path: str, noraise: bool = False) -> tuple[list[dict[str, Any]], list[str]]:
+        """
+        Given a path, traverses the recipe data structure.
+        :param path:    Path to traverse
+        :param noraise: (Optional) If set to true, causes an exception if a key is not found.
+        :return: Tuple containing a list of nodes and a list of keys associated with those nodes.
+        """
         nodes = [self.meta]
-        keys = []
+        keys: list[str] = []
         for key in path.split("/"):
             last = nodes[-1]
             if key.isdigit():
@@ -475,7 +478,7 @@ class Recipe:
             keys.append(key)
         return nodes, keys
 
-    def get_raw_range(self, path):
+    def get_raw_range(self, path: str) -> tuple[int, int, int, int]:
         """Locate the position of a node in the YAML within the raw text
 
         See also `get_raw()` if you want to get the content of the unparsed
@@ -487,7 +490,7 @@ class Recipe:
         Returns:
           a tuple of first_row, first_column, last_row, last_column
         """
-        if not path or self.renderer != RendererType.RUAMEL:
+        if not path or self.renderer != renderer_utils.RendererType.RUAMEL:
             if self.meta_yaml:
                 return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
             else:
@@ -525,7 +528,7 @@ class Recipe:
         # now go backward
         return (start_row, start_col, end_row, end_col)
 
-    def get_raw(self, path):
+    def get_raw(self, path: str) -> str:
         """Extracts the unparsed text for a node in the meta.yaml
 
         This may contain separators and other characters from
@@ -576,7 +579,7 @@ class Recipe:
           KeyError if no default given and the path does not exist.
         """
         try:
-            nodes, keys = self._walk(path)
+            nodes, _ = self._walk(path)
         except (KeyError, TypeError):
             if default is not KeyError:
                 return default
@@ -693,10 +696,10 @@ class Recipe:
             return self.patch_with_parser(_patch_all)
 
         if self.skip:
-            logging.warning(f"Not patching skipped recipe {self.recipe_dir}")
+            logging.warning("Not patching skipped recipe %s", self.recipe_dir)
             return False
-        if self.renderer != RendererType.RUAMEL:
-            self.renderer = RendererType.RUAMEL
+        if self.renderer != renderer_utils.RendererType.RUAMEL:
+            self.renderer = renderer_utils.RendererType.RUAMEL
             self.render()
         jsonschema.validate(operations, self.schema)
         for op in operations:
@@ -718,16 +721,22 @@ class Recipe:
                 self._increment_build_number()
                 self.save()
                 self.render()
-            logging.info(f"Patch applied: {self.recipe_dir}")
+            logging.info("Patch applied: %s", self.recipe_dir)
             return True
         return False
 
-    def _patch(self, operation, evaluate_selectors):
+    def _patch(self, operation: JsonPatchType, evaluate_selectors: bool) -> None:
+        """
+        Helper function that performs a single patch operation
+        Args:
+            operation: operation to apply
+            evaluate_selectors: don't evaluate selectors when applying operations
+        """
         # read operation parameters
         op = operation["op"]
         path = operation["path"]
         match = operation.get("match", ".*")
-        expanded_match = re.compile(f"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?")
+        expanded_match = re.compile(rf"\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?")
         value = operation.get("value", [""])
         if value == []:
             value = [""]
@@ -752,7 +761,7 @@ class Recipe:
                         path = parent_path
                         value = [value]
                         expanded_match = re.compile(
-                            f"\s+{parent_name}:\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
+                            rf"\s+{parent_name}:\s+(?P<pattern>{match}[^#]*)(?P<selector>\s*#.*)?"
                         )
                 else:
                     in_list = True
@@ -766,11 +775,11 @@ class Recipe:
                 # Example: adding skip: True # [py<35]
                 if evaluate_selectors:
                     if isinstance(value, list):
-                        rval = renderer._apply_selector("\n".join(value), self.selector_dict)
+                        rval = renderer_utils.apply_selector("\n".join(value), self.selector_dict)
                     else:
-                        rval = renderer._apply_selector(value, self.selector_dict)
+                        rval = renderer_utils.apply_selector(value, self.selector_dict)
                     if rval.strip() == "":
-                        logging.warning(f"Skipping op due to selector:{opop}")
+                        logging.warning("Skipping op due to selector:%s", opop)
                         return
 
                 # finding range of direct parent
@@ -778,7 +787,7 @@ class Recipe:
                 try:
                     (start_row, start_col, end_row, _) = self.get_raw_range(parent_path)
                 except KeyError:
-                    logging.warning(f"Path not found while applying op:{opop}")
+                    logging.warning("Path not found while applying op:%s", opop)
                 else:
                     # adding value to end of parent
                     # if value is a list, adding as a list to parent
@@ -840,13 +849,13 @@ class Recipe:
         try:
             (start_row, start_col, end_row, _) = self.get_raw_range(path)
         except KeyError:
-            logging.warning(f"Path not found while applying op:{opop}")
+            logging.warning("Path not found while applying op:%s", opop)
             return
-        range = deepcopy(self.meta_yaml[start_row:end_row])
+        section_range = deepcopy(self.meta_yaml[start_row:end_row])
 
         # find matching elements
         match_lines = {}
-        for i, line in enumerate(range):
+        for i, line in enumerate(section_range):
             if not line.lstrip().startswith("#"):
                 m = expanded_match.search(line)
                 if m:
@@ -854,7 +863,7 @@ class Recipe:
         match_lines = dict(sorted(match_lines.items(), reverse=True))
 
         # remove elements and find insert position
-        new_range = deepcopy(range)
+        new_range = deepcopy(section_range)
         insert_index = 0
         index_set = False
         for i, m in match_lines.items():
@@ -866,9 +875,9 @@ class Recipe:
             index_set = True
             insert_index = add_insert_index
 
-        range = new_range
+        section_range = new_range
         if not index_set:
-            for i, e in reversed(list(enumerate(range))):
+            for i, e in reversed(list(enumerate(section_range))):
                 if e.strip():
                     insert_index = i + 1
                     break
@@ -883,31 +892,34 @@ class Recipe:
                 to_insert = set(value)
             for new_val in to_insert:
                 if in_list:
-                    range.insert(
+                    section_range.insert(
                         insert_index,
                         " " * start_col + f"- {new_val.strip(' -')}",
                     )
                 else:
-                    range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
+                    section_range.insert(insert_index, " " * start_col + f"{new_val.strip()}")
 
         # apply change
-        self.meta_yaml[start_row:end_row] = range
+        self.meta_yaml[start_row:end_row] = section_range
 
-    def _increment_build_number(self):
+    def _increment_build_number(self) -> None:
+        """
+        Helper function that auto-increments the build number
+        """
         try:
             build_number = int(self.orig.meta["build"]["number"]) + 1
         except (KeyError, TypeError):
-            logging.error(f"No build number found for {self.recipe_dir}")
+            logging.error("No build number found for %s", self.recipe_dir)
             return
         patterns = (
-            ("(?=\s*?)number:\s*([0-9]+)", "number: {}".format(build_number)),
+            (r"(?=\s*?)number:\s*([0-9]+)", f"number: {build_number}"),
             (
-                '(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
-                "{{% set build_number = {} %}}".format(build_number),
+                r'(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
+                f"{{% set build_number = {build_number} %}}",
             ),
             (
-                '(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
-                "{{% set build = {} %}}".format(build_number),
+                r'(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
+                f"{{% set build = {build_number} %}}",
             ),
         )
         text = "\n".join(self.meta_yaml)
@@ -917,17 +929,8 @@ class Recipe:
 
 
 class Dep:
-    """A dependency
-
-    Args:
-        raw_dep (str): A dependency string. E.g. "numpy <1.24"
-        path (str): Path in the recipe. E.g. outputs/1/requirements/run
-
-    Attributes:
-        raw_dep (str): A dependency string. E.g. "numpy <1.24"
-        pkg (str): The package part. E.g. "numpy"
-        variable (str): The constraint part. E.g. "<1.24"
-        path (str): Path in the recipe. E.g. outputs/1/requirements/run
+    """
+    A dependency
     """
 
     def __init__(self, raw_dep: str, path: str):
@@ -935,6 +938,13 @@ class Dep:
 
         Args:
             raw_dep (str): A dependency string. E.g. "numpy <1.24"
+            path (str): Path in the recipe. E.g. outputs/1/requirements/run
+
+        Attributes:
+            raw_dep (str): A dependency string. E.g. "numpy <1.24"
+            pkg (str): The package part. E.g. "numpy"
+            variable (str): The constraint part. E.g. "<1.24"
+            path (str): Path in the recipe. E.g. outputs/1/requirements/run
         """
         self.raw_dep = str(raw_dep)
         splits = re.split(r"[\s<=>]", self.raw_dep, 1)
@@ -960,13 +970,13 @@ class Package:
     version: str = None
     number: str = None
     group: str = None
-    build: Set[Dep] = field(default_factory=set)
-    host: Set[Dep] = field(default_factory=set)
-    run: Set[Dep] = field(default_factory=set)
-    run_constrained: Set[Dep] = field(default_factory=set)
-    run_exports: Set[str] = field(default_factory=set)
-    ignore_run_exports: Set[str] = field(default_factory=set)
-    test: Set[Dep] = field(default_factory=set)
+    build: set[Dep] = field(default_factory=set)
+    host: set[Dep] = field(default_factory=set)
+    run: set[Dep] = field(default_factory=set)
+    run_constrained: set[Dep] = field(default_factory=set)
+    run_exports: set[str] = field(default_factory=set)
+    ignore_run_exports: set[str] = field(default_factory=set)
+    test: set[Dep] = field(default_factory=set)
     is_noarch: bool = False
     path_prefix: str = ""
     git_info: object = None
@@ -1007,7 +1017,7 @@ class Package:
         Returns:
             bool: True if the package is present in the given section.
         """
-        return any([pkg_name.lower() == dep.pkg.lower() for dep in self[section]])
+        return any(pkg_name.lower() == dep.pkg.lower() for dep in self[section])
 
     def merge_deps(self, other: "Package"):
         """Merge dependency list of another Package object into this Package.
@@ -1026,30 +1036,30 @@ class Package:
 
 def render(
     recipe_path: Path,
-    subdir: List[str] = None,
-    python: List[str] = None,
-    others: Dict[str, Any] = None,
+    subdir: Optional[list[str]] = None,
+    python: Optional[list[str]] = None,
+    others: Optional[dict[str, Any]] = None,
     return_exceptions: bool = False,
-    renderer: RendererType = None,
-) -> List[Recipe]:
+    renderer: Optional[renderer_utils.RendererType] = None,
+) -> list[Recipe]:
     """Render a recipe
 
     Args:
-        recipe_path (Path): Path to a recipe.
-        subdir (List[str], optional): A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
-        python (List[str], optional): A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
-        others (Dict[str,Any], optional): Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
-        return_exceptions (bool, optional): Whether to handle errors as exceptions. Defaults to False.
-        renderer (RendererType, optional): Renderer backend. Defautls to PYYAML.
+        recipe_path: Path to a recipe.
+        subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+        python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+        others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+        return_exceptions: Whether to handle errors as exceptions. Defaults to False.
+        renderer: Rendering backend. Defaults to PYYAML.
 
     Returns:
-        List[Recipe]: A list of rendered Recipe, one per variant.
+        A list of rendered Recipe, one per variant.
     """
 
     # gather all possible variants
     if others is None:
         others = {"r_implementation": "r-base", "rust_compiler": "rust"}
-    if renderer != RendererType.CONDA:
+    if renderer != renderer_utils.RendererType.CONDA:
         variants = read_conda_build_config(recipe_path, subdir, python, others)
     else:
         variants = []
@@ -1073,11 +1083,11 @@ def render(
     return render_results
 
 
-def dump_render_results(render_results: List[Recipe], out: TextIO = sys.stdout) -> None:
+def dump_render_results(render_results: list[Recipe], out: TextIO = sys.stdout) -> None:
     """Dumps a list of rendered variants of a recipe.
 
     Args:
-        render_results (List[Recipe]): List of rendered variants.
+        render_results (list[Recipe]): list of rendered variants.
         out (TextIO, optional): Output stream. Defaults to sys.stdout.
 
     """

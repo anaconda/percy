@@ -1,8 +1,15 @@
+"""
+File:           aggregate.py
+Description:    CLI tool for performing operations against all of aggregate.
+"""
+from __future__ import annotations
+
 import functools
 import os
 import sys
 from itertools import groupby
 from pathlib import Path
+from typing import Any, Callable, Optional
 
 import click
 import yaml
@@ -12,10 +19,15 @@ import percy.render.recipe
 import percy.repodata.repodata
 
 
-def get_configured_aggregate(cmd_line=None):
+def get_configured_aggregate(cmd_line: Optional[str | Path] = None) -> Path:
+    """
+    Determines the path of the aggregate repoistory
+    :param cmd_line:    (Optional) If specified, this is the path to a recipe file to operate on. If not specified, the
+                        recipe file is determined by the current working directory.
+    """
     # command line has highest precedence
     if cmd_line:
-        return cmd_line
+        return Path(cmd_line)
     # environment variable
     path = os.getenv("ABS_AGGREGATE")
     if path:
@@ -33,7 +45,18 @@ def get_configured_aggregate(cmd_line=None):
     return cwd
 
 
-def load_aggregate(obj, subdir, python, others, renderer: percy.render.recipe.RendererType):
+def load_aggregate(
+    obj: Any, subdir: str, python: str, others: dict[str, str], renderer: percy.render.recipe.RendererType
+) -> percy.render.aggregate.Aggregate:
+    """
+    Reads aggregate from disk and constructs an object.
+    :param obj:         User object, provided by Click
+    :param subdir:      Target architecture
+    :param python:      Target Python version
+    :param others:      Additional key-value pairs to use
+    :param renderer:    Rendering engine to use for parsing YAML
+    :return: The aggregate repository, represented as a class instance
+    """
     print(f"Renderer in use: {renderer.name}")
     aggregate_path = obj["aggregate_directory"]
     aggregate_repo = percy.render.aggregate.Aggregate(aggregate_path)
@@ -46,14 +69,18 @@ def load_aggregate(obj, subdir, python, others, renderer: percy.render.recipe.Re
     return aggregate_repo
 
 
-def print_build_order(buildout):
+def print_build_order(buildout: dict[str, percy.render.aggregate.Feedstock]) -> None:
+    """
+    Prints the build order
+    :param buildout:    Dictionary representing the build ordering
+    """
     stages = [list(result) for key, result in groupby(buildout, key=lambda f: f.weight)]
     for i, stage in enumerate(stages):
         for feedstock in stage:
             print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
 
 
-def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererType:
+def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererType:  # pylint: disable=invalid-name
     """
     Takes the renderer type as a user provided string and converts it to the
     enum form.
@@ -64,7 +91,12 @@ def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererTy
     return percy.render.recipe.RendererType[value.upper()]
 
 
-def base_options(f):
+def base_options(f: Callable):
+    """
+    Base options/flags supported by this command
+    :param f:   Function callback
+    """
+
     @click.option(
         "--subdir",
         "-s",
@@ -107,7 +139,12 @@ def base_options(f):
     return wrapper_base_options
 
 
-def order_options(f):
+def order_options(f: Callable):
+    """
+    Ordering options/flags supported by this command
+    :param f:   Function callback
+    """
+
     @click.option(
         "--groups",
         "-g",
@@ -146,7 +183,7 @@ def order_options(f):
         type=str,
         multiple=True,
         default=["build", "host", "run"],
-        help="Sections to consider [default: [\"build\", \"host\", \"run\"]]",
+        help='Sections to consider [default: ["build", "host", "run"]]',
     )
     @functools.wraps(f)
     def wrapper_order_options(*args, **kwargs):
@@ -163,7 +200,7 @@ def order_options(f):
     help="Aggregate directory to operate on.",
 )
 @click.pass_context
-def aggregate(ctx, aggregate):
+def aggregate(ctx, aggregate):  # pylint: disable=redefined-outer-name
     """Commands that operate on aggregates.
 
     An aggregate is a collection of recipes.
@@ -176,8 +213,9 @@ def aggregate(ctx, aggregate):
     3. The current directory (or an ancestor of it)
     """
     ctx.ensure_object(dict)
-    print(Path(get_configured_aggregate(aggregate)))
-    ctx.obj["aggregate_directory"] = Path(get_configured_aggregate(aggregate))
+    aggregate_path = get_configured_aggregate(aggregate)
+    print(aggregate_path)
+    ctx.obj["aggregate_directory"] = aggregate_path
 
 
 @aggregate.command(short_help="Print downstream build order")
@@ -218,10 +256,12 @@ def downstream(
     aggregate_repo = load_aggregate(obj, subdir, python, others, renderer)
 
     # get feedstock build order
-    buildout = aggregate_repo.get_depends_build_order(groups, feedstocks, packages, allow_list, block_list, drop_noarch, sections)
+    buildout = aggregate_repo.get_depends_build_order(
+        groups, feedstocks, packages, allow_list, block_list, drop_noarch, sections
+    )
 
     # print build order
-    order = " ".join(
+    ordering = " ".join(
         [
             f"groups:{groups}",
             f"feedstocks:{feedstocks}",
@@ -232,7 +272,7 @@ def downstream(
             f"sections:{sections}",
         ]
     )
-    print(f"\n\nDownstream build order ({order}):")
+    print(f"\n\nDownstream build order ({ordering}):")
     print_build_order(buildout)
 
 
@@ -250,7 +290,7 @@ def upstream(
     feedstocks,
     packages,
     drop_noarch,
-    sections,
+    sections,  # pylint: disable=unused-argument
 ):
     """Prints build order of feedstock upstream dependencies"""
 
@@ -261,7 +301,7 @@ def upstream(
     buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, ())
 
     # print build order
-    order = " ".join(
+    ordering = " ".join(
         [
             f"groups:{groups}",
             f"feedstocks:{feedstocks}",
@@ -270,7 +310,7 @@ def upstream(
             f"sections:{()}",
         ]
     )
-    print(f"\n\nUpstream build order ({order}):")
+    print(f"\n\nUpstream build order ({ordering}):")
     print_build_order(buildout)
 
 
@@ -301,7 +341,7 @@ def order(
     buildout = aggregate_repo.get_build_order(groups, feedstocks, packages, drop_noarch, sections)
 
     # print build order
-    order = " ".join(
+    ordering = " ".join(
         [
             f"groups:{groups}",
             f"feedstocks:{feedstocks}",
@@ -310,7 +350,7 @@ def order(
             f"sections:{sections}",
         ]
     )
-    print(f"\n\nBuild order ({order})):")
+    print(f"\n\nBuild order ({ordering})):")
     print_build_order(buildout)
 
 
@@ -366,6 +406,7 @@ def outdated(obj, subdir, python, others, renderer, missing_local, missing_defau
     # find missing from defaults
     if missing_defaults:
         for name in aggregate_repo.packages.keys() - defaults_pkgs.keys():
+            package = aggregate_repo.packages[name]
             results[name] = {
                 "local_feedstock": package.git_info.name,
                 "local_version": package.version,
@@ -375,7 +416,7 @@ def outdated(obj, subdir, python, others, renderer, missing_local, missing_defau
             }
 
     # dump result
-    def noop(self, *args, **kw):
+    def noop(self, *args, **kw):  # pylint: disable=unused-argument
         pass
 
     yaml.emitter.Emitter.process_tag = noop

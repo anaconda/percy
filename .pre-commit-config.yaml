@@ -2,20 +2,9 @@
 #   pre-commit run --all-files
 # Update this file:
 #   pre-commit autoupdate
-# TODO remove when other files are updated to pass. NOTE: keep the first line
-# as-is.
 exclude: |
   (?x)^(
-    .*/versioneer\.py|.*/_version\.py|.*/.*\.svg|percy/tests/test_aux_files/.*|
-    percy/commands/.*|
-    percy/examples/.*|
-    percy/render/_dumper.py|
-    percy/render/_renderer.py|
-    percy/render/aggregate.py|
-    percy/render/exceptions.py|
-    percy/render/recipe.py|
-    percy/render/variants.py|
-    percy/repodata/.*
+    .*/versioneer\.py|.*/_version\.py|.*/.*\.svg|percy/tests/test_aux_files/.*|percy/examples/.*
   )$
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks

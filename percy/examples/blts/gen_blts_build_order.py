@@ -23,7 +23,7 @@ def gen_blts_build_order(aggregate_path, subdir, python_ref, packages):
         aggregate_repo.load_local_feedstocks(subdir, python_ref, others)
 
     # write package to feedstock mapping file - for reference
-    with open(f"./{subdir}/map_to_p.yaml", "w") as f:
+    with open(f"./{subdir}/map_to_p.yaml", "w", encoding="utf-8") as f:
         yaml.dump(aggregate_repo.package_to_feedstock_path(), f)
 
     # get feedstock build order
@@ -37,7 +37,7 @@ def gen_blts_build_order(aggregate_path, subdir, python_ref, packages):
         build_order["stages"][stage_id] = []
         for feedstock in stage:
             build_order["stages"][stage_id].append(feedstock.path)
-    with open(f"./{subdir}/blts_{subdir}_build_order.yaml", "w") as f:
+    with open(f"./{subdir}/blts_{subdir}_build_order.yaml", "w", encoding="utf-8") as f:
         yaml.dump(build_order, f)
 
 

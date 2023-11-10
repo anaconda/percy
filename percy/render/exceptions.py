@@ -1,13 +1,25 @@
+"""
+File:           exceptions.py
+Description:    Exceptions emitted by the rendering engine
+"""
+from __future__ import annotations
+
+from typing import Optional
+
+
 class RecipeError(Exception):
-    def __init__(self, item, message=None, line=None, column=None):
+    """
+    Base Recipe exception
+    """
+
+    def __init__(self, item, message: Optional[str] = None, line: Optional[int] = None, column: Optional[int] = None):
         self.line = line
         self.column = column
         if message is not None:
             if line is not None:
+                message += f" (at line {line})"
                 if column is not None:
-                    message += " (at line %i / column %i)" % (line, column)
-                else:
-                    message += " (at line %i)" % line
+                    message += f" / column {column})"
             super().__init__(item, message)
         else:
             super().__init__(item)

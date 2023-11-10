@@ -74,7 +74,7 @@ def filter_repodata(subdir, local_dir):
 
     # load local repodata
     local_repodata = local_dir / subdir / "repodata.json"
-    with open(local_repodata) as f:
+    with open(local_repodata, encoding="utf-8") as f:
         repodata_subdir_local = json.load(f)
         logger.info("verify local repodata.json against defaults")
         for k, v in repodata_subdir_local["packages"].items():

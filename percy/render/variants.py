@@ -1,10 +1,8 @@
-"""Reads cbc files and gives variants.
-
-Largely inspired from conda build.
 """
-
-# TODO: refactor long lines and remove the following linter mute
-# ruff: noqa: E501
+File:           variants.py
+Description:    Reads cbc files and gives variants. Largely inspired from conda build.
+"""
+from __future__ import annotations
 
 import copy
 import itertools
@@ -12,16 +10,16 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Dict, List, Sequence, Tuple
+from typing import Optional, Sequence
 
 import yaml
 
 try:
-    loader = yaml.CLoader
-except Exception:
-    loader = yaml.Loader
+    loader = yaml.CLoader  # pylint: disable=invalid-name
+except Exception:  # pylint: disable=broad-exception-caught
+    loader = yaml.Loader  # pylint: disable=invalid-name
 
-Variant = Dict[str, dict]
+Variant = dict[str, str]
 
 
 def _ensure_list(obj):
@@ -38,7 +36,9 @@ def _ensure_list(obj):
 
 
 # copied and adapted from conda-build
-def _find_config_files(metadata_or_path, variant_config_files, exclusive_config_files):
+def _find_config_files(
+    metadata_or_path: Path, variant_config_files: list[str], exclusive_config_files: list[str]
+) -> list[str]:
     """
     Find config files to load. Config files are stacked in the following order:
         1. exclusive config files (see config.exclusive_config_files)
@@ -51,12 +51,10 @@ def _find_config_files(metadata_or_path, variant_config_files, exclusive_config_
     .. note::
         Order determines clobbering with later files clobbering earlier ones.
 
-    :param metadata_or_path: the metadata or path within which to find recipe config files
-    :type metadata_or_path:
-    :param exclusive_config_files
-    :param variant_config_files
+    :param metadata_or_path:        The metadata or path within which to find recipe config files
+    :param variant_config_files:    List of config files containing variant info
+    :param exclusive_config_files:  List of config files containing exclusive info
     :return: List of config files
-    :rtype: `list` of paths (`str`)
     """
 
     def resolve(p):
@@ -99,21 +97,26 @@ def _find_config_files(metadata_or_path, variant_config_files, exclusive_config_
     return files
 
 
+# TODO Future: CBCRenderError and the base `RecipeError` exception use the same code.
 class CBCRenderError(Exception):
-    def __init__(self, message=None, line=None, column=None):
+    """
+    Exception representing a failure to render the CBC file.
+    """
+
+    def __init__(self, message: Optional[str] = None, line: Optional[int] = None, column: Optional[int] = None):
         self.line = line
         self.column = column
         if message is not None:
             if line is not None:
+                message += f" (at line {line})"
                 if column is not None:
-                    message += " (at line %i / column %i)" % (line, column)
-                else:
-                    message += " (at line %i)" % line
+                    message += f" / column {column})"
             super().__init__(message)
         else:
             super().__init__()
 
 
+# TODO Future: nearly identical to _renderer.py::apply_selector
 def _apply_selector(data, selector_dict):
     """Apply selectors # [...]"""
     updated_data = []
@@ -123,11 +126,12 @@ def _apply_selector(data, selector_dict):
         elif (match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)) is not None:
             cond_str = match.group(3)
             try:
-                if not eval(cond_str, None, selector_dict):
+                # TODO Future: evaluate security risk
+                if not eval(cond_str, None, selector_dict):  # pylint: disable=eval-used
                     line = f"{match.group(1)}"
                 else:
                     line = line.replace(match.group(2), "")  # <-- comments sometimes causes trouble in jinja
-            except Exception:
+            except Exception:  #  pylint: disable=broad-exception-caught
                 continue
         updated_data.append(line)
     return updated_data
@@ -135,28 +139,33 @@ def _apply_selector(data, selector_dict):
 
 def read_conda_build_config(
     recipe_path: Path,
-    subdir: List[str] = None,
-    python: List[str] = None,
-    others: Dict[str, str] = None,
-    variant_config_files: List[str] = [],
-    exclusive_config_files: List[str] = [],
-) -> List[Tuple[str, Variant]]:
+    subdir: list[str] = None,
+    python: list[str] = None,
+    others: dict[str, str] = None,
+    variant_config_files: Optional[list[str]] = None,
+    exclusive_config_files: Optional[list[str]] = None,
+) -> list[tuple[str, Variant]]:
     """Read conda build config into a list of variants.
 
     Args:
-        recipe_path (Path): Path to a recipe meta.yaml file.
-        subdir (List[str], optional): A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
-        python (List[str], optional): A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
-        others (Dict[str, ], optional): Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
-        variant_config_files (List[str], optional): Additional cbc files to use. Defaults to [].
-        exclusive_config_files (List[str], optional): If specified, only use these cbc files. Defaults to [].
+        recipe_path: Path to a recipe meta.yaml file.
+        subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+        python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+        others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+        variant_config_files: Additional cbc files to use. Defaults to [].
+        exclusive_config_files: If specified, only use these cbc files. Defaults to [].
 
     Raises:
         CBCRenderError: Failed to render cbc file.
 
     Returns:
-        list[tuple[str, dict[str,str]]]: A list of tuples, where the first value is a variant id and the second value a variant dictionary.
+        A list of tuples, where the first value is a variant id and the second value a variant dictionary.
     """
+    if variant_config_files is None:
+        variant_config_files = []
+    if exclusive_config_files is None:
+        exclusive_config_files = []
+
     recipe_dir = recipe_path.parent
     variants = []
 
@@ -222,11 +231,11 @@ def read_conda_build_config(
 
         # List conda_build_config files for linter render.
         conda_build_config_files = _find_config_files(recipe_dir, variant_config_files, exclusive_config_files)
-        logging.debug(f"cbc files: {conda_build_config_files}")
+        logging.debug("cbc files: %s", conda_build_config_files)
 
         # Update base selector dict
         for cbc in conda_build_config_files:
-            with open(cbc) as f_cbc:
+            with open(cbc, encoding="utf-8") as f_cbc:
                 try:
                     cbc_selectors_str = _apply_selector(f_cbc.read(), base_selector_dict)
                     cbc_selectors_yml = yaml.load("\n".join(cbc_selectors_str), Loader=loader)
@@ -236,9 +245,9 @@ def read_conda_build_config(
                                 base_selector_dict[k] = v
                 except yaml.error.YAMLError as exc:
                     if hasattr(exc, "problem_mark"):
-                        raise CBCRenderError(line=exc.problem_mark.line)
+                        raise CBCRenderError(line=exc.problem_mark.line) from exc
                     else:
-                        raise CBCRenderError()
+                        raise CBCRenderError() from exc
 
         # Gather variants
         zip_keys = []
@@ -273,7 +282,7 @@ def read_conda_build_config(
             group_permutations = filtered_group_permutations
         if others:
             for o_key, o_value in others.items():
-                if any([o_key in d for d in group_permutations]):
+                if any(o_key in d for d in group_permutations):
                     filtered_group_permutations = []
                     for group in group_permutations:
                         if o_key in group and str(group[o_key]) == o_value:

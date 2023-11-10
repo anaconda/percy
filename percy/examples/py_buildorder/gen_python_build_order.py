@@ -116,7 +116,7 @@ def gen_python_build_order(
         aggregate_repo.load_local_feedstocks(subdir, python_ref, others)
 
     # write package to feedstock mapping file - for reference
-    with open(f"./{subdir}/map_to_p.yaml", "w") as f:
+    with open(f"./{subdir}/map_to_p.yaml", "w", encoding="utf-8") as f:
         yaml.dump(aggregate_repo.package_to_feedstock_path(), f)
 
     # get feedstock build order
@@ -131,20 +131,17 @@ def gen_python_build_order(
         for pkg_name in feedstock.packages.keys():
             aggregate_package_list.append(pkg_name)
     aggregate_package_list = sorted(aggregate_package_list)
-    with open(f"./{subdir}/python_{python_target}_{subdir}_package_list.yaml", "w") as f:
+    with open(f"./{subdir}/python_{python_target}_{subdir}_package_list.yaml", "w", encoding="utf-8") as f:
         yaml.dump(aggregate_package_list, f)
     repodata_package_list = sorted(get_repodata_package_list(subdir, python_ref))
-    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list.yaml", "w") as f:
+    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list.yaml", "w", encoding="utf-8") as f:
         yaml.dump(repodata_package_list, f)
-    with open(
-        f"./{subdir}/python_{python_ref}_{subdir}_package_list_missing.yaml",
-        "w",
-    ) as f:
+    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list_missing.yaml", "w", encoding="utf-8") as f:
         yaml.dump(
             sorted(list(set(repodata_package_list) - set(aggregate_package_list))),
             f,
         )
-    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list_new.yaml", "w") as f:
+    with open(f"./{subdir}/python_{python_ref}_{subdir}_package_list_new.yaml", "w", encoding="utf-8") as f:
         yaml.dump(
             sorted(list(set(aggregate_package_list) - set(repodata_package_list))),
             f,
@@ -159,7 +156,7 @@ def gen_python_build_order(
         for pkg_name in feedstock.packages.keys():
             aggregate_package_list_with_noarch.append(pkg_name)
     aggregate_package_list_with_noarch = sorted(aggregate_package_list_with_noarch)
-    with open(f"./{subdir}/python_full_package_list.yaml", "w") as f:
+    with open(f"./{subdir}/python_full_package_list.yaml", "w", encoding="utf-8") as f:
         yaml.dump(
             dict(
                 map(
@@ -211,13 +208,13 @@ fi
 
 """
 
-        with open(_script("build_all.sh"), "w") as g:
+        with open(_script("build_all.sh"), "w", encoding="utf-8") as g:
             g.write("#!/bin/bash\n")
             g.write("set -x\n")
             for i, stage in enumerate(stages, 1):
                 fname = _script(f"stage_{i:02}_of_{n_stages:02}.sh")
                 g.write(f"{fname.replace(subdir+'/', '')}\n")
-                with open(fname, "w") as f:
+                with open(fname, "w", encoding="utf-8") as f:
                     f.write("#!/bin/bash\n")
                     f.write("CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\n")
                     for feedstock in stage:
@@ -272,12 +269,12 @@ fi
         quit = 'cmd /K "exit /b 0"'
         build_feedstock_template = f"\n{build} || {show_status} || {quit}\n"
 
-        with open(_script("build_all.bat"), "w") as g:
+        with open(_script("build_all.bat"), "w", encoding="utf-8") as g:
             for i, stage in enumerate(stages, 1):
                 script = _script(f"stage_{i:02}_of_{n_stages:02}.bat")
                 fname = script.rsplit("/", 1)[1]
                 g.write(f"call {fname}\n")
-                with open(script, "w") as f:
+                with open(script, "w", encoding="utf-8") as f:
                     f.write("set CONDA_ADD_PIP_AS_PYTHON_DEPENDENCY=0\r\n")
                     for feedstock in stage:
                         f.write(
