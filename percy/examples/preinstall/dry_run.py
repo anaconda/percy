@@ -13,7 +13,9 @@ def dry_run(
     override_channels=False,
     packages=[],
 ):
-    """Dry-run an environment and return it's json result."""
+    """
+    Dry-run an environment and return it's json result.
+    """
     cmd = f"conda create -n test_env --dry-run --json --solver={solver}"
     for channel in channels:
         cmd += f" -c {channel}"
@@ -40,7 +42,9 @@ def dry_run(
 
 
 def dry_run_assert(subdir, packages):
-    """Dry-run an environment and assert that it succeeds."""
+    """
+    Dry-run an environment and assert that it succeeds.
+    """
     json_result = dry_run(
         subdir=subdir,
         channels=["defaults"],
@@ -59,7 +63,9 @@ def dry_run_assert(subdir, packages):
 
 
 def create_parser() -> argparse.ArgumentParser:
-    """Create command line parser."""
+    """
+    Create command line parser.
+    """
     parser = argparse.ArgumentParser(
         prog="test_env",
         description="Dry-run an environment.",

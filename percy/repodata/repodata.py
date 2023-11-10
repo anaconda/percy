@@ -15,7 +15,8 @@ from percy.render.recipe import Package
 
 
 def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True) -> dict[str, dict]:
-    """Get latest packages on defaults
+    """
+    Get latest packages on defaults
 
     Args:
         subdir (str, optional): The subdirectory. Defaults to "linux-64".
@@ -95,7 +96,8 @@ def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True)
 
 
 def compare_package_with_defaults(package: Package, defaults_pkgs: dict[str, dict]) -> dict:
-    """Compare a local package with its latest version on defaults
+    """
+    Compare a local package with its latest version on defaults
 
     Args:
         package (Package): Local package

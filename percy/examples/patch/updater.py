@@ -1,4 +1,5 @@
-""" Update a recipe
+"""
+Update a recipe
 """
 
 import argparse

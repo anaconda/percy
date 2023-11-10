@@ -38,7 +38,8 @@ FIELDS: Final[list[str]] = [
 
 # TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
 def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) -> None:
-    """Dumps a list of rendered variants of a recipe.
+    """
+    Dumps a list of rendered variants of a recipe.
 
     Args:
         render_results: List of rendered variants.
@@ -58,7 +59,8 @@ def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) 
 
 # TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
 def _dump_render_results_yaml(render_results: list, out: TextIO = sys.stdout) -> None:
-    """Dumps a list of rendered variants of a recipe.
+    """
+    Dumps a list of rendered variants of a recipe.
 
     Args:
         render_results: List of rendered variants.

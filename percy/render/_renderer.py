@@ -152,7 +152,9 @@ def apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
 
 
 def _get_template(meta_yaml, selector_dict):
-    """Create a Jinja2 template from the current raw recipe"""
+    """
+    Create a Jinja2 template from the current raw recipe
+    """
     # This function exists because the template cannot be pickled.
     # Storing it means the recipe cannot be pickled, which in turn
     # means we cannot pass it to ProcessExecutors.
@@ -173,11 +175,11 @@ def render(
     - render template
     - parse yaml
     - normalize
-    :param recipe_dir:      Directory that contains the target `meta.yaml` file.
-    :param meta_yaml:       Raw YAML text string from the file.
-    :param selector_dict:   Dictionary of selector statements
-    :param renderer_type:   Rendering engine to target
-    :return: Parsed YAML, as a dictionary of keys and values.
+    :param recipe_dir: Directory that contains the target `meta.yaml` file.
+    :param meta_yaml: Raw YAML text string from the file.
+    :param selector_dict: Dictionary of selector statements
+    :param renderer_type: Rendering engine to target
+    :returns: Parsed YAML, as a dictionary of keys and values.
     """
 
     if not renderer_type:

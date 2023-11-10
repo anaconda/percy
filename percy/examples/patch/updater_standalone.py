@@ -1,4 +1,5 @@
-""" Patch a recipe
+"""
+Patch a recipe
 
 """
 
@@ -51,20 +52,27 @@ class Recipe:
         self.load(self.path)
 
     def dump(self):
-        """Dump recipe content"""
+        """
+        Dump recipe content
+        """
         return "\n".join(self.meta_yaml) + "\n"
 
     def save(self):
-        """Save recipe dump to file"""
+        """
+        Save recipe dump to file
+        """
         with open(self.path, "w", encoding="utf-8") as fdes:
             fdes.write(self.dump())
 
     def _set_original(self) -> None:
-        """Store the current state of the recipe as "original" version"""
+        """
+        Store the current state of the recipe as "original" version
+        """
         self.orig = copy.deepcopy(self)
 
     def is_modified(self) -> bool:
-        """Has recipe been modified.
+        """
+        Has recipe been modified.
 
         Returns:
             bool: True if recipe has been modified.
@@ -93,7 +101,8 @@ class Recipe:
         return nodes, keys
 
     def get_raw_range(self, path):
-        """Locate the position of a node in the YAML within the raw text
+        """
+        Locate the position of a node in the YAML within the raw text
 
         See also `get_raw()` if you want to get the content of the unparsed
         meta.yaml at a specific key.
@@ -143,7 +152,8 @@ class Recipe:
         return (start_row, start_col, end_row, end_col)
 
     def get(self, path: str, default: Any = KeyError) -> Any:
-        """Get a value or section from the recipe
+        """
+        Get a value or section from the recipe
 
         >>> recipe.get('requirements/build')
         ['setuptools]

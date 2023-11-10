@@ -34,7 +34,8 @@ class OpMode(Enum):
 
 
 class Recipe:
-    """Represents a recipe (meta.yaml) in editable form
+    """
+    Represents a recipe (meta.yaml) in editable form
 
     Using conda-build to render recipe is slow and a one-way
     process. We need to be able to load **and** save recipes, which is
@@ -128,12 +129,16 @@ class Recipe:
 
     @property
     def path(self):
-        """Full path to ``meta.yaml``"""
+        """
+        Full path to ``meta.yaml``
+        """
         return self.recipe_file
 
     @property
     def dir(self):
-        """Path to recipe folder"""
+        """
+        Path to recipe folder
+        """
         return self.recipe_dir
 
     def __str__(self) -> str:
@@ -143,7 +148,8 @@ class Recipe:
         return f'{self.__class__.__name__} "{self.recipe_dir}"'
 
     def _load_from_string(self, data: str) -> "Recipe":
-        """Load and `render` recipe contents from disk
+        """
+        Load and `render` recipe contents from disk
 
         Args:
             data (str): raw meta.yaml as string.
@@ -169,7 +175,8 @@ class Recipe:
         return_exceptions: bool = False,
         renderer: Optional[renderer_utils.RendererType] = None,
     ) -> "Recipe":
-        """Create new `Recipe` object from string
+        """
+        Create new `Recipe` object from string
 
         Args:
             recipe_text: A raw recipe as a string.
@@ -204,7 +211,8 @@ class Recipe:
         return_exceptions: bool = False,
         renderer: Optional[renderer_utils.RendererType] = None,
     ) -> "Recipe":
-        """Create new `Recipe` object from file
+        """
+        Create new `Recipe` object from file
 
         Args:
             recipe_fname: Path to recipe meta.yaml
@@ -239,16 +247,21 @@ class Recipe:
         return recipe
 
     def save(self):
-        """Save recipe dump to file"""
+        """
+        Save recipe dump to file
+        """
         with open(self.path, "w", encoding="utf-8") as fdes:
             fdes.write(self.dump())
 
     def _set_original(self) -> None:
-        """Store the current state of the recipe as "original" version"""
+        """
+        Store the current state of the recipe as "original" version
+        """
         self.orig = deepcopy(self)
 
     def is_modified(self) -> bool:
-        """Has recipe been modified.
+        """
+        Has recipe been modified.
 
         Returns:
             bool: True if recipe has been modified.
@@ -256,11 +269,14 @@ class Recipe:
         return self.meta_yaml != self.orig.meta_yaml
 
     def dump(self) -> str:
-        """Dump recipe content"""
+        """
+        Dump recipe content
+        """
         return "\n".join(self.meta_yaml) + "\n"
 
     def render(self) -> None:
-        """Convert recipe text into data structure
+        """
+        Convert recipe text into data structure
 
         - create jinja template from recipe content
         - render template
@@ -454,9 +470,9 @@ class Recipe:
     def _walk(self, path: str, noraise: bool = False) -> tuple[list[dict[str, Any]], list[str]]:
         """
         Given a path, traverses the recipe data structure.
-        :param path:    Path to traverse
+        :param path: Path to traverse
         :param noraise: (Optional) If set to true, causes an exception if a key is not found.
-        :return: Tuple containing a list of nodes and a list of keys associated with those nodes.
+        :returns: Tuple containing a list of nodes and a list of keys associated with those nodes.
         """
         nodes = [self.meta]
         keys: list[str] = []
@@ -479,7 +495,8 @@ class Recipe:
         return nodes, keys
 
     def get_raw_range(self, path: str) -> tuple[int, int, int, int]:
-        """Locate the position of a node in the YAML within the raw text
+        """
+        Locate the position of a node in the YAML within the raw text
 
         See also `get_raw()` if you want to get the content of the unparsed
         meta.yaml at a specific key.
@@ -529,7 +546,8 @@ class Recipe:
         return (start_row, start_col, end_row, end_col)
 
     def get_raw(self, path: str) -> str:
-        """Extracts the unparsed text for a node in the meta.yaml
+        """
+        Extracts the unparsed text for a node in the meta.yaml
 
         This may contain separators and other characters from
         the yaml!
@@ -557,7 +575,8 @@ class Recipe:
         return "\n".join(lines).strip()
 
     def get(self, path: str, default: Any = KeyError) -> Any:
-        """Get a value or section from the recipe
+        """
+        Get a value or section from the recipe
 
         >>> recipe.get('requirements/build')
         ['setuptools]
@@ -590,7 +609,8 @@ class Recipe:
         return res
 
     def contains(self, path: str, value: str, default: Any = KeyError) -> bool:
-        """Check if a value (string or list) contains a string
+        """
+        Check if a value (string or list) contains a string
         >>> recipe.contains('build/script', 'pip')
         True
         The **path** is a ``/`` separated list of dictionary keys to
@@ -633,10 +653,9 @@ class Recipe:
         provided to allow callers access to some of the newest features and
         capabilities.
 
-        :param callback:    Callback that provides a `RecipeParser` instance
-                            that can make modifications that will be reflected
-                            in the `Recipe` class.
-        :return: True if the recipe was modified. False otherwise.
+        :param callback: Callback that provides a `RecipeParser` instance that can make modifications that will be
+            reflected in the `Recipe` class.
+        :returns: True if the recipe was modified. False otherwise.
         """
         # Read in the file as a string. Remembering that `recipe` stores
         # data as a list.
@@ -663,7 +682,8 @@ class Recipe:
         evaluate_selectors: bool = True,
         op_mode: OpMode = OpMode.CLASSIC,
     ) -> bool:
-        """Patch the recipe given a set of operations.
+        """
+        Patch the recipe given a set of operations.
         Args:
             operations: operations to apply
             increment_build_number: automatically increment the build number of the operations result in changes
@@ -934,7 +954,8 @@ class Dep:
     """
 
     def __init__(self, raw_dep: str, path: str):
-        """A dependency
+        """
+        A dependency
 
         Args:
             raw_dep (str): A dependency string. E.g. "numpy <1.24"
@@ -963,7 +984,9 @@ class Dep:
 
 @dataclass
 class Package:
-    """A rendered package."""
+    """
+    A rendered package.
+    """
 
     recipe: Recipe = None
     name: str = None
@@ -982,7 +1005,8 @@ class Package:
     git_info: object = None
 
     def __getitem__(self, key: str) -> Any:
-        """Access this dataclass attributes through square brackets.
+        """
+        Access this dataclass attributes through square brackets.
 
         Args:
             key (str): An attribute name of this data class.
@@ -993,7 +1017,8 @@ class Package:
         return getattr(self, key)
 
     def get(self, key: str, default=None) -> Any:
-        """Access this dataclass attributes through a getter.
+        """
+        Access this dataclass attributes through a getter.
 
         Args:
             key (str): An attribute name of this data class.
@@ -1008,7 +1033,8 @@ class Package:
             return default
 
     def has_dep(self, section: str, pkg_name: str) -> bool:
-        """Returns true if the package is present in the given section.
+        """
+        Returns true if the package is present in the given section.
 
         Args:
             section (str): A section. E.g. "build", "host", "run", "run_constrained
@@ -1020,7 +1046,8 @@ class Package:
         return any(pkg_name.lower() == dep.pkg.lower() for dep in self[section])
 
     def merge_deps(self, other: "Package"):
-        """Merge dependency list of another Package object into this Package.
+        """
+        Merge dependency list of another Package object into this Package.
         This is especially useful to create an aggregate of multiple variants.
 
         Args:
@@ -1042,7 +1069,8 @@ def render(
     return_exceptions: bool = False,
     renderer: Optional[renderer_utils.RendererType] = None,
 ) -> list[Recipe]:
-    """Render a recipe
+    """
+    Render a recipe
 
     Args:
         recipe_path: Path to a recipe.
@@ -1084,7 +1112,8 @@ def render(
 
 
 def dump_render_results(render_results: list[Recipe], out: TextIO = sys.stdout) -> None:
-    """Dumps a list of rendered variants of a recipe.
+    """
+    Dumps a list of rendered variants of a recipe.
 
     Args:
         render_results (list[Recipe]): list of rendered variants.

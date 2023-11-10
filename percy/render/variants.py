@@ -48,13 +48,12 @@ def _find_config_files(
         4. recipe config files (see ${RECIPE_DIR}/conda_build_config.yaml)
         5. additional config files (see config.variant_config_files)
 
-    .. note::
-        Order determines clobbering with later files clobbering earlier ones.
+    .. note:: Order determines clobbering with later files clobbering earlier ones.
 
-    :param metadata_or_path:        The metadata or path within which to find recipe config files
-    :param variant_config_files:    List of config files containing variant info
-    :param exclusive_config_files:  List of config files containing exclusive info
-    :return: List of config files
+    :param metadata_or_path: The metadata or path within which to find recipe config files
+    :param variant_config_files: List of config files containing variant info
+    :param exclusive_config_files: List of config files containing exclusive info
+    :returns: List of config files
     """
 
     def resolve(p):
@@ -118,7 +117,9 @@ class CBCRenderError(Exception):
 
 # TODO Future: nearly identical to _renderer.py::apply_selector
 def _apply_selector(data, selector_dict):
-    """Apply selectors # [...]"""
+    """
+    Apply selectors # [...]
+    """
     updated_data = []
     for line in data.splitlines():
         if (match := re.search(r"^(\s*)#.*$", line)) is not None:
@@ -145,7 +146,8 @@ def read_conda_build_config(
     variant_config_files: Optional[list[str]] = None,
     exclusive_config_files: Optional[list[str]] = None,
 ) -> list[tuple[str, Variant]]:
-    """Read conda build config into a list of variants.
+    """
+    Read conda build config into a list of variants.
 
     Args:
         recipe_path: Path to a recipe meta.yaml file.

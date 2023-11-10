@@ -18,7 +18,7 @@ def str_to_stack_path(path: str) -> StrStack:
     For example:
         "/foo/bar/baz" -> ["baz", "bar", "foo", "/"]
     :param path: Path to deconstruct into a stack
-    :return: Path, described as a stack of strings.
+    :returns: Path, described as a stack of strings.
     """
     # TODO: validate the path starts with `/` (root)
 
@@ -41,8 +41,8 @@ def stack_path_to_str(path_stack: StrStack | StrStackImmutable) -> str:
     Takes a stack that represents a path and converts it into a string. String paths are used by callers, stacks are
     used internally.
 
-    :param path_stack:  Stack to construct back into a string.
-    :return: Path, described as a string.
+    :param path_stack: Stack to construct back into a string.
+    :returns: Path, described as a string.
     """
     # Normalize type if a tuple is given.
     if isinstance(path_stack, tuple):
@@ -61,8 +61,8 @@ def num_tab_spaces(s: str) -> int:
     """
     Counts the number of spaces at the start of the string. Used to indicate depth of a field in a YAML file (the YAML
     specification dictates only spaces can be used for indenting).
-    :param s:   Target string
-    :return: Number of preceding spaces in a string
+    :param s: Target string
+    :returns: Number of preceding spaces in a string
     """
     cntr: int = 0
     for c in s:
@@ -76,9 +76,9 @@ def num_tab_spaces(s: str) -> int:
 def substitute_markers(s: str, subs: list[str]) -> str:
     """
     Given a string, replace substitution markers with the original Jinja template from a list of options.
-    :param s:       String to replace substitution markers with
-    :param subs:    List of substitutions to make, in order of appearance
-    :return: New string, with substitutions removed
+    :param s: String to replace substitution markers with
+    :param subs: List of substitutions to make, in order of appearance
+    :returns: New string, with substitutions removed
     """
     while s.find(PERCY_SUB_MARKER) >= 0 and len(subs):
         s = s.replace(PERCY_SUB_MARKER, subs[0], 1)
@@ -90,9 +90,9 @@ def stringify_yaml(val: Primitives, multiline_flag: bool = False) -> Primitives:
     """
     Special function for handling edge cases when converting values back to YAML.
     :param val: Value to check
-    :param multiline_flag:  (Optional) If the value being processed is a multiline string, set this flag to True to
-                            prevent unintended quote-escaping.
-    :return: YAML version of a value, as a string.
+    :param multiline_flag: (Optional) If the value being processed is a multiline string, set this flag to True to
+        prevent unintended quote-escaping.
+    :returns: YAML version of a value, as a string.
     """
     # None -> null
     if val is None:

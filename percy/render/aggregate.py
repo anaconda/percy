@@ -20,7 +20,9 @@ from percy.render.recipe import Package, RendererType, render
 
 
 class PackageNode:
-    """A node representing a package"""
+    """
+    A node representing a package
+    """
 
     aggregate = None
     nodes = {}
@@ -57,7 +59,8 @@ class PackageNode:
 
     @classmethod
     def init(cls, aggregate: "Aggregate"):
-        """Initialize a dependency tree.
+        """
+        Initialize a dependency tree.
 
         Args:
             aggregate (Aggregate): The aggregate object.
@@ -74,7 +77,8 @@ class PackageNode:
         origin_section: str = "run",
         parent: "PackageNode" = None,
     ) -> "PackageNode":
-        """Make a node representing a package.
+        """
+        Make a node representing a package.
 
         Args:
             package_name (str): The name of the package.

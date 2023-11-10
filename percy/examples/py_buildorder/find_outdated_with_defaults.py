@@ -1,4 +1,5 @@
-"""Script to find local packages at lower version than on defaults.
+"""
+Script to find local packages at lower version than on defaults.
 
 The script considers packages from defaults that depend on python and are
 architecture-specific.
@@ -58,7 +59,9 @@ def depends_on_python(repo_package, python_ref):
 
 
 def _is_newer_than(package, version, build_number):
-    """Returns True when the package is newer than a version and build_number."""
+    """
+    Returns True when the package is newer than a version and build_number.
+    """
     if version > package["vo"]:
         return False
     if version < package["vo"]:

@@ -1,4 +1,5 @@
-""" Script to find issues in aggregate pinned feedstocks.
+"""
+Script to find issues in aggregate pinned feedstocks.
 """
 
 import argparse

@@ -26,13 +26,16 @@ class RecipeError(Exception):
 
 
 class EmptyRecipe(RecipeError):
-    """Raised if the recipe file is empty"""
+    """
+    Raised if the recipe file is empty
+    """
 
     template = "is empty"
 
 
 class MissingMetaYaml(RecipeError):
-    """Raised when FileNotFoundError is encountered
+    """
+    Raised when FileNotFoundError is encountered
 
     self.item is NOT a Recipe but a str here
     """
@@ -41,12 +44,16 @@ class MissingMetaYaml(RecipeError):
 
 
 class JinjaRenderFailure(RecipeError):
-    """Raised on Jinja rendering problems"""
+    """
+    Raised on Jinja rendering problems
+    """
 
     template = "failed to render in Jinja2. Error was: %s"
 
 
 class YAMLRenderFailure(RecipeError):
-    """Raised on YAML parsing problems"""
+    """
+    Raised on YAML parsing problems
+    """
 
     template = "failed to load YAML. Error was: %s"

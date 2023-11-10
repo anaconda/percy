@@ -8,7 +8,7 @@ CONDA_ACTIVATE = source $$(conda info --base)/etc/profile.d/conda.sh ; conda act
 # Ensure that we are using the python interpretter provided by the conda environment.
 PYTHON3 := "$(CONDA_PREFIX)/bin/python3"
 
-.PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-debug test-cov pre-commit lint format analyze
+.PHONY: clean clean-env clean-test clean-pyc clean-build clean-other help dev test test-debug test-cov pre-commit lint format format-docs analyze
 .DEFAULT_GOAL := help
 
 CONDA_ENV_NAME ?= percy
@@ -106,6 +106,9 @@ lint:			## runs the linter against the project
 format:			## runs the code auto-formatter
 	isort --profile black --line-length=120 percy
 	black --line-length=120 percy
+
+format-docs:	## runs the docstring auto-formatter. Note this requires manually installing `docconvert`
+	docconvert --in-place --config .docconvert.json percy
 
 analyze:		## runs static analyzer on the project
 	mypy --config-file=.mypy.ini $(LINTER_FILES)

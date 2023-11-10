@@ -1,5 +1,6 @@
-""" Find what to rebuild when updating a feedstock.
-    Create corresponding tickets in Jira.
+"""
+Find what to rebuild when updating a feedstock.
+   Create corresponding tickets in Jira.
 """
 
 import argparse

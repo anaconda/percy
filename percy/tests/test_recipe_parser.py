@@ -25,8 +25,8 @@ SIMPLE_DESCRIPTION: Final[
 def load_file(file: Path | str) -> str:
     """
     Loads a file into a single string
-    :param file:    Filename of the file to read
-    :return: Text from the file
+    :param file: Filename of the file to read
+    :returns: Text from the file
     """
     with open(Path(file), "r", encoding="utf-8") as f:
         return f.read()
@@ -35,8 +35,8 @@ def load_file(file: Path | str) -> str:
 def load_recipe(file_name: str) -> RecipeParser:
     """
     Convenience function that simplifies initializing a recipe parser.
-    :param file_name:   File name of the test recipe to load
-    :return: RecipeParser instance, based on the file
+    :param file_name: File name of the test recipe to load
+    :returns: RecipeParser instance, based on the file
     """
     recipe = load_file(f"{TEST_FILES_PATH}/{file_name}")
     return RecipeParser(recipe)

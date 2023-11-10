@@ -21,9 +21,9 @@ import percy.render.recipe
 def get_recipe(cmd_line: Optional[str | Path] = None) -> Path:
     """
     Determine the path to the target recipe file
-    :param cmd_line:    (Optional) If specified, this is the path to a recipe file to operate on. If not specified, the
-                        recipe file is determined by the current working directory.
-    :return: Path to the recipe file of interest
+    :param cmd_line: (Optional) If specified, this is the path to a recipe file to operate on. If not specified, the
+        recipe file is determined by the current working directory.
+    :returns: Path to the recipe file of interest
     """
     # command line has highest precedence
     if cmd_line:
@@ -42,7 +42,7 @@ def get_recipe(cmd_line: Optional[str | Path] = None) -> Path:
 def base_options(f: Callable):
     """
     Base options/flags supported by this command
-    :param f:   Function callback
+    :param f: Function callback
     """
 
     @click.option(
@@ -98,7 +98,9 @@ def base_options(f: Callable):
 @click.option("--recipe", "-r", metavar="FILE", help="Recipe meta.yaml to operate on.")
 @click.pass_context
 def recipe(ctx, recipe: str):  # pylint: disable=redefined-outer-name
-    """Commands that operate on a recipe."""
+    """
+    Commands that operate on a recipe.
+    """
     ctx.ensure_object(dict)
     ctx.obj["recipe_path"] = Path(get_recipe(recipe))
 
@@ -107,7 +109,9 @@ def recipe(ctx, recipe: str):  # pylint: disable=redefined-outer-name
 @click.pass_obj
 @base_options
 def render(obj, subdir, python, others, backend):
-    """Render a recipe."""
+    """
+    Render a recipe.
+    """
 
     # render recipe
     recipe_path = obj["recipe_path"]
@@ -128,7 +132,9 @@ def render(obj, subdir, python, others, backend):
 @click.pass_obj
 @base_options
 def outdated(obj, subdir, python, others, backend):
-    """Render a recipe."""
+    """
+    Render a recipe.
+    """
 
     # render recipe
     recipe_path = obj["recipe_path"]
@@ -179,7 +185,8 @@ def outdated(obj, subdir, python, others, backend):
 )
 @click.argument("patch_file", metavar="FILE")
 def patch(obj, subdir, python, others, backend, increment_build_number: bool, parse_tree: bool, patch_file):
-    """Patch a recipe. Takes a patch file as input, with content like:
+    """
+    Patch a recipe. Takes a patch file as input, with content like:
 
     \b
     [
