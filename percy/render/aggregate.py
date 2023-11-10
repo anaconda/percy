@@ -443,16 +443,14 @@ class Aggregate:
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on a list of leaf packages.
 
-        Args:
-            target_groups (list[str], optional): List of target groups.
-            target_feedstocks (list[str], optional): List of target feedstocks.
-            target_packages (list[str]): List of leaf package names.
-            drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
-            no_upstream (bool, optional): Whether to drop unspecified packages. Defaults to False.
-            walk_up_sections (tuple[str], optional): Walk up sections.
+        :param target_groups: List of target groups.
+        :param target_feedstocks: List of target feedstocks.
+        :param target_packages: List of leaf package names.
+        :param drop_noarch: Whether to drop noarch packages. Defaults to False.
+        :param no_upstream: Whether to drop unspecified packages. Defaults to False.
+        :param walk_up_sections: Walk up sections.
 
-        Returns:
-            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        :returns: An ordered dictionary of Feedstock.
         """
         if target_groups is None:
             target_groups = []
@@ -501,17 +499,15 @@ class Aggregate:
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on packages having target as a dependency.
 
-        Args:
-            target_groups (list[str], optional): List of target groups.
-            target_feedstocks (list[str], optional): List of target feedstocks.
-            target_packages (list[str], optional): List of target packages.
-            package_allowlist (list[str], optional): List of package names to consider. Defaults to [].
-            feedstock_blocklist (list[str], optional): List of feedstock names to exclude. Defaults to [].
-            drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
-            walk_up_sections (tuple[str], optional): Walk up sections
+        :param target_groups: List of target groups.
+        :param target_feedstocks: List of target feedstocks.
+        :param target_packages: List of target packages.
+        :param package_allowlist: List of package names to consider. Defaults to [].
+        :param feedstock_blocklist: List of feedstock names to exclude. Defaults to [].
+        :param drop_noarch: Whether to drop noarch packages. Defaults to False.
+        :param walk_up_sections: Walk up sections
 
-        Returns:
-            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        :returns: An ordered dictionary of Feedstock.
         """
         if target_groups is None:
             target_groups = []

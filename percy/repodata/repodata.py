@@ -18,15 +18,10 @@ def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True)
     """
     Get latest packages on defaults
 
-    Args:
-        subdir (str, optional): The subdirectory. Defaults to "linux-64".
-        merge_noarch (bool, optional): Include noarch versions. Defaults to True.
+    :param subdir: The subdirectory. Defaults to "linux-64".
+    :param merge_noarch: Include noarch versions. Defaults to True.
 
-    Raises:
-        requests.HTTPError: Failed to retrieve repodata
-
-    Returns:
-        dict[str,dict]: { pkg_name : { version, build_number, noarch } }
+    :returns: { pkg_name : { version, build_number, noarch } }
     """
 
     session = requests.Session()
@@ -99,12 +94,10 @@ def compare_package_with_defaults(package: Package, defaults_pkgs: dict[str, dic
     """
     Compare a local package with its latest version on defaults
 
-    Args:
-        package (Package): Local package
-        defaults_pkgs (dict[str,dict]): defaults data
+    :param package: Local package
+    :param defaults_pkgs: defaults data
 
-    Returns:
-        dict: comparison result
+    :returns: Comparison result
     """
     result = None
     try:

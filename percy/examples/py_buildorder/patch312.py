@@ -164,9 +164,8 @@ class Recipe:
         not the source section is a list.
 
         :param path: Path through YAML
-        :param default: If not KeyError, this value will be returned
-                        if the path does not exist in the recipe
-        :raises: KeyError if no default given and the path does not exist.
+        :param default: If not KeyError, this value will be returned if the path does not exist in the recipe
+        :raises KeyError: if no default given and the path does not exist.
         """
         try:
             nodes, keys = self._walk(path)

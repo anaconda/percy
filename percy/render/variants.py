@@ -149,19 +149,14 @@ def read_conda_build_config(
     """
     Read conda build config into a list of variants.
 
-    Args:
-        recipe_path: Path to a recipe meta.yaml file.
-        subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
-        python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
-        others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
-        variant_config_files: Additional cbc files to use. Defaults to [].
-        exclusive_config_files: If specified, only use these cbc files. Defaults to [].
+    :param recipe_path: Path to a recipe meta.yaml file.
+    :param subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+    :param python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+    :param others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+    :param variant_config_files: Additional cbc files to use. Defaults to [].
+    :param exclusive_config_files: If specified, only use these cbc files. Defaults to [].
 
-    Raises:
-        CBCRenderError: Failed to render cbc file.
-
-    Returns:
-        A list of tuples, where the first value is a variant id and the second value a variant dictionary.
+    :returns: A list of tuples, where the first value is a variant id and the second value a variant dictionary.
     """
     if variant_config_files is None:
         variant_config_files = []
