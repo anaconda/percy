@@ -127,7 +127,7 @@ def base_options(f: Callable):
         "-r",
         callback=sanitize_renderer_enum,
         type=click.Choice(
-            [e.name for e in percy.render.recipe.renderer.RendererType],
+            [e.name for e in RendererType],
             case_sensitive=False,
         ),
         default="PYYAML",
