@@ -1,5 +1,5 @@
 """
-File:           test_py
+File:           test_recipe_parser.py
 Description:    Unit tests for the recipe parser class and tools
 """
 from __future__ import annotations

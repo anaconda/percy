@@ -36,7 +36,7 @@ export PRINT_HELP_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
 # For now, most tools only run on new files, not the entire project.
-LINTER_FILES := percy/parser/*.py scripts/*.py
+MYPY_FILES := percy/commands/*.py percy/parser/*.py percy/render/*.py percy/repodata/*.py scripts/*.py
 
 clean: clean-cov clean-build clean-env clean-pyc clean-test clean-other ## remove all build, test, coverage and Python artifacts
 
@@ -98,7 +98,7 @@ test-debug:		## runs test cases with debugging info enabled
 	$(PYTHON3) -m pytest -n auto -vv --capture=no percy/tests/
 
 test-cov:		## checks test coverage requirements
-	$(PYTHON3) -m pytest -n auto --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=20 --cov-report term-missing
+	$(PYTHON3) -m pytest -n auto --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=45 --cov-report term-missing
 
 lint:			## runs the linter against the project
 	pylint --rcfile=.pylintrc percy
@@ -111,4 +111,4 @@ format-docs:	## runs the docstring auto-formatter. Note this requires manually i
 	docconvert --in-place --config .docconvert.json percy
 
 analyze:		## runs static analyzer on the project
-	mypy --config-file=.mypy.ini --cache-dir=/dev/null $(LINTER_FILES)
+	mypy --config-file=.mypy.ini --cache-dir=/dev/null $(MYPY_FILES)
