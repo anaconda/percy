@@ -111,4 +111,4 @@ format-docs:	## runs the docstring auto-formatter. Note this requires manually i
 	docconvert --in-place --config .docconvert.json percy
 
 analyze:		## runs static analyzer on the project
-	mypy --config-file=.mypy.ini $(LINTER_FILES)
+	mypy --config-file=.mypy.ini --cache-dir=/dev/null $(LINTER_FILES)
