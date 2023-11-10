@@ -38,12 +38,11 @@ FIELDS: Final[list[str]] = [
 
 # TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
 def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) -> None:
-    """Dumps a list of rendered variants of a recipe.
+    """
+    Dumps a list of rendered variants of a recipe.
 
-    Args:
-        render_results: List of rendered variants.
-        out: Output stream. Defaults to sys.stdout.
-
+    :param render_results: List of rendered variants.
+    :param out: Output stream. Defaults to sys.stdout.
     """
     data_to_dump = []
     for render_result in render_results:
@@ -58,12 +57,11 @@ def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) 
 
 # TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
 def _dump_render_results_yaml(render_results: list, out: TextIO = sys.stdout) -> None:
-    """Dumps a list of rendered variants of a recipe.
+    """
+    Dumps a list of rendered variants of a recipe.
 
-    Args:
-        render_results: List of rendered variants.
-        out: Output stream. Defaults to sys.stdout.
-
+    :param render_results: List of rendered variants.
+    :param out: Output stream. Defaults to sys.stdout.
     """
 
     class _MetaYaml(dict):

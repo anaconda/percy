@@ -16,11 +16,14 @@ from typing import Any, Optional
 
 import yaml
 
-from percy.render.recipe import Package, RendererType, render
+from percy.render._renderer import RendererType
+from percy.render.recipe import Package, render
 
 
 class PackageNode:
-    """A node representing a package"""
+    """
+    A node representing a package
+    """
 
     aggregate = None
     nodes = {}
@@ -35,11 +38,10 @@ class PackageNode:
     ):
         """PackageNode constructor
 
-        Args:
-            parent (PackageNode): The parent node.
-            package_name (str): The package name.
-            package (Package): The corresponding rendered package.
-            is_run (bool): If this is coming from a run dependency.
+        :param parent: The parent node.
+        :param package_name: The package name.
+        :param package: The corresponding rendered package.
+        :param is_run: If this is coming from a run dependency.
         """
         self.parents = set([parent])
         self.package_name = package_name
@@ -57,10 +59,10 @@ class PackageNode:
 
     @classmethod
     def init(cls, aggregate: "Aggregate"):
-        """Initialize a dependency tree.
+        """
+        Initialize a dependency tree.
 
-        Args:
-            aggregate (Aggregate): The aggregate object.
+        :param aggregate: The aggregate object.
         """
         PackageNode.aggregate = aggregate
         PackageNode.nodes = {}
@@ -74,16 +76,15 @@ class PackageNode:
         origin_section: str = "run",
         parent: "PackageNode" = None,
     ) -> "PackageNode":
-        """Make a node representing a package.
+        """
+        Make a node representing a package.
 
-        Args:
-            package_name (str): The name of the package.
-            walk_up_sections (tuple): Call make_node on dependencies from these sections.
-            origin_section (str, optional): If the package was used in a run section or other. Defaults to "run".
-            parent (PackageNode, optional): Parent node. Defaults to None.
+        :param package_name: The name of the package.
+        :param walk_up_sections: Call make_node on dependencies from these sections.
+        :param origin_section: If the package was used in a run section or other. Defaults to "run".
+        :param parent: Parent node. Defaults to None.
 
-        Returns:
-            PackageNode: The package node.
+        :returns: PackageNode: The package node.
         """
 
         node = None
@@ -188,20 +189,18 @@ FeedstockGitRepo = namedtuple("FeedstockGitRepo", ["name", "git_url", "branch", 
 class Aggregate:
     """An object to handle a repository of feedstocks.
 
-    Attributes:
-        local_path (Path): Aggregate path.
-        git_url (str): Aggregate git url.
-        git_branch (str): Aggregate git branch.
-        packages (dict[str,Package]): Rendered packages. (Populated after calling load_local_feedstocks.)
-        feedstocks (dict[str,Feedstock]): Feedstocks. (Populated after calling load_local_feedstocks.)
+    :ivar local_path: Aggregate path.
+    :ivar git_url: Aggregate git url.
+    :ivar git_branch: Aggregate git branch.
+    :ivar packages: Rendered packages. (Populated after calling load_local_feedstocks.)
+    :ivar feedstocks: Feedstocks. (Populated after calling load_local_feedstocks.)
     """
 
     def __init__(self, aggregate_path: str, manifest_path: Optional[str] = None):
         """Constructor
 
-        Args:
-            aggregate_path: Aggregate local path.
-            manifest_path:  (Optional) Path to the manifest file
+        :param aggregate_path: Aggregate local path.
+        :param manifest_path:  (Optional) Path to the manifest file
         """
 
         # get local aggregate info
@@ -257,11 +256,9 @@ class Aggregate:
     def _get_feedstock_git_repo(self, feedstock_path_rel: Path) -> Feedstock:
         """Get Feedsotck object from feedstock local path.
 
-        Args:
-            feedstock_path_rel (Path): Feedsotck local path.
+        :param feedstock_path_rel: Feedsotck local path.
 
-        Returns:
-            Feedstock: Feedstock representation.
+        :returns Feedstock: Feedstock representation.
         """
         feedstock = self.submodules.get(feedstock_path_rel.name, None)
         if feedstock:
@@ -288,14 +285,12 @@ class Aggregate:
 
             This populates attributes packages and feedstocks.
 
-        Args:
-            subdir:     The subdir for which to load the feedstocks. Defaults to "linux-64".
-            python:     The python version for which to load the feedstocks. Defaults to "3.10".
-            others:     A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
-            renderer:   Rendering engine to use to interpret YAML
+        :param subdir:     The subdir for which to load the feedstocks. Defaults to "linux-64".
+        :param python:     The python version for which to load the feedstocks. Defaults to "3.10".
+        :param others:     A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
+        :param renderer:   Rendering engine to use to interpret YAML
 
-        Returns:
-            Rendered packages contained in aggregate (also available as aggregate packages attribute).
+        :returns:    Rendered packages contained in aggregate (also available as aggregate packages attribute).
         """
 
         if others is None:
@@ -401,8 +396,7 @@ class Aggregate:
     def package_to_feedstock_path(self) -> dict[str, str]:
         """Returns a mapping of package name to feedstock path.
 
-        Returns:
-            dict[str, str]: mapping of package name to feedstock path.
+        :returns: Mapping of package name to feedstock path.
         """
         package_to_feedstock = {}
         for name, package in self.packages.items():
@@ -412,8 +406,7 @@ class Aggregate:
     def _build_order(self) -> dict[str, Feedstock]:
         """Computes a feedstock build order.
 
-        Returns:
-            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        :returns: An ordered dictionary of Feedstock.
         """
         # feedstock build order
         feedstocks = {}
@@ -447,16 +440,14 @@ class Aggregate:
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on a list of leaf packages.
 
-        Args:
-            target_groups (list[str], optional): List of target groups.
-            target_feedstocks (list[str], optional): List of target feedstocks.
-            target_packages (list[str]): List of leaf package names.
-            drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
-            no_upstream (bool, optional): Whether to drop unspecified packages. Defaults to False.
-            walk_up_sections (tuple[str], optional): Walk up sections.
+        :param target_groups: List of target groups.
+        :param target_feedstocks: List of target feedstocks.
+        :param target_packages: List of leaf package names.
+        :param drop_noarch: Whether to drop noarch packages. Defaults to False.
+        :param no_upstream: Whether to drop unspecified packages. Defaults to False.
+        :param walk_up_sections: Walk up sections.
 
-        Returns:
-            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        :returns: An ordered dictionary of Feedstock.
         """
         if target_groups is None:
             target_groups = []
@@ -505,17 +496,15 @@ class Aggregate:
     ) -> dict[str, Feedstock]:
         """Creates a Feedstock builder order based on packages having target as a dependency.
 
-        Args:
-            target_groups (list[str], optional): List of target groups.
-            target_feedstocks (list[str], optional): List of target feedstocks.
-            target_packages (list[str], optional): List of target packages.
-            package_allowlist (list[str], optional): List of package names to consider. Defaults to [].
-            feedstock_blocklist (list[str], optional): List of feedstock names to exclude. Defaults to [].
-            drop_noarch (bool, optional): Whether to drop noarch packages. Defaults to False.
-            walk_up_sections (tuple[str], optional): Walk up sections
+        :param target_groups: List of target groups.
+        :param target_feedstocks: List of target feedstocks.
+        :param target_packages: List of target packages.
+        :param package_allowlist: List of package names to consider. Defaults to [].
+        :param feedstock_blocklist: List of feedstock names to exclude. Defaults to [].
+        :param drop_noarch: Whether to drop noarch packages. Defaults to False.
+        :param walk_up_sections: Walk up sections
 
-        Returns:
-            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        :returns: An ordered dictionary of Feedstock.
         """
         if target_groups is None:
             target_groups = []

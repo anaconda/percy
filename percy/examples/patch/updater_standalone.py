@@ -1,4 +1,5 @@
-""" Patch a recipe
+"""
+Patch a recipe
 
 """
 
@@ -51,23 +52,29 @@ class Recipe:
         self.load(self.path)
 
     def dump(self):
-        """Dump recipe content"""
+        """
+        Dump recipe content
+        """
         return "\n".join(self.meta_yaml) + "\n"
 
     def save(self):
-        """Save recipe dump to file"""
+        """
+        Save recipe dump to file
+        """
         with open(self.path, "w", encoding="utf-8") as fdes:
             fdes.write(self.dump())
 
     def _set_original(self) -> None:
-        """Store the current state of the recipe as "original" version"""
+        """
+        Store the current state of the recipe as "original" version
+        """
         self.orig = copy.deepcopy(self)
 
     def is_modified(self) -> bool:
-        """Has recipe been modified.
+        """
+        Has recipe been modified.
 
-        Returns:
-            bool: True if recipe has been modified.
+        :returns: True if recipe has been modified.
         """
         return self.meta_yaml != self.orig.meta_yaml
 
@@ -93,16 +100,15 @@ class Recipe:
         return nodes, keys
 
     def get_raw_range(self, path):
-        """Locate the position of a node in the YAML within the raw text
+        """
+        Locate the position of a node in the YAML within the raw text
 
         See also `get_raw()` if you want to get the content of the unparsed
         meta.yaml at a specific key.
 
-        Args:
-          path: The "path" to the node. Use numbers for lists ('source/1/url')
+        :param path: The "path" to the node. Use numbers for lists ('source/1/url')
 
-        Returns:
-          a tuple of first_row, first_column, last_row, last_column
+        :returns: A tuple of first_row, first_column, last_row, last_column
         """
         if not path:
             if self.meta_yaml:
@@ -143,7 +149,8 @@ class Recipe:
         return (start_row, start_col, end_row, end_col)
 
     def get(self, path: str, default: Any = KeyError) -> Any:
-        """Get a value or section from the recipe
+        """
+        Get a value or section from the recipe
 
         >>> recipe.get('requirements/build')
         ['setuptools]
@@ -157,12 +164,9 @@ class Recipe:
         I.e., `source/0/url` will always get the first url, whether or
         not the source section is a list.
 
-        Args:
-          path: Path through YAML
-          default: If not KeyError, this value will be returned
-                   if the path does not exist in the recipe
-        Raises:
-          KeyError if no default given and the path does not exist.
+        :param path: Path through YAML
+        :param default: If not KeyError, this value will be returned if the path does not exist in the recipe
+        :raises KeyError: if no default given and the path does not exist.
         """
         try:
             nodes, keys = self._walk(path)

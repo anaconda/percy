@@ -34,7 +34,8 @@ class OpMode(Enum):
 
 
 class Recipe:
-    """Represents a recipe (meta.yaml) in editable form
+    """
+    Represents a recipe (meta.yaml) in editable form
 
     Using conda-build to render recipe is slow and a one-way
     process. We need to be able to load **and** save recipes, which is
@@ -77,21 +78,19 @@ class Recipe:
     ):
         """Constructor
 
-        Args:
-            recipe_file: Path to meta.yaml
-            variant_id: configuration id
-            variant: Variant configuration
-            renderer: Rendering backend. Defaults to PYYAML.
-        Attributes:
-            recipe_file (Path): The recipe file
-            recipe_dir (Path): The recipe directory
-            variant_id (str): configuration id
-            selector_dict (Variant): Variant configuration
-            meta (dict[str, Any]): Rendered recipe in as a dictionary
-            skip (bool): Whether this variant is skipped.
-            packages (dict[str:Package]): Rendered Packages.
-            meta_yaml (list[str]): Lines of the raw recipe file
-            orig (Recipe): Original recipe before modifications
+        :param recipe_file: Path to meta.yaml
+        :param variant_id: configuration id
+        :param variant: Variant configuration
+        :param renderer: Rendering backend. Defaults to PYYAML.
+        :ivar recipe_file: The recipe file
+        :ivar recipe_dir: The recipe directory
+        :ivar variant_id: configuration id
+        :ivar selector_dict: Variant configuration
+        :ivar meta: Rendered recipe in as a dictionary
+        :ivar skip: Whether this variant is skipped.
+        :ivar packages: Rendered Packages.
+        :ivar meta_yaml: Lines of the raw recipe file
+        :ivar orig: Original recipe before modifications
         """
         #: recipe dir
         if recipe_file:
@@ -128,12 +127,16 @@ class Recipe:
 
     @property
     def path(self):
-        """Full path to ``meta.yaml``"""
+        """
+        Full path to ``meta.yaml``
+        """
         return self.recipe_file
 
     @property
     def dir(self):
-        """Path to recipe folder"""
+        """
+        Path to recipe folder
+        """
         return self.recipe_dir
 
     def __str__(self) -> str:
@@ -143,16 +146,14 @@ class Recipe:
         return f'{self.__class__.__name__} "{self.recipe_dir}"'
 
     def _load_from_string(self, data: str) -> "Recipe":
-        """Load and `render` recipe contents from disk
+        """
+        Load and `render` recipe contents from disk
 
-        Args:
-            data (str): raw meta.yaml as string.
+        :param data: raw meta.yaml as string.
 
-        Raises:
-            EmptyRecipe: The recipe is empty
+        :raises EmptyRecipe: The recipe is empty
 
-        Returns:
-            Recipe: This recipe object.
+        :returns: This recipe object.
         """
         self.meta_yaml = data.splitlines()
         if not self.meta_yaml:
@@ -169,21 +170,19 @@ class Recipe:
         return_exceptions: bool = False,
         renderer: Optional[renderer_utils.RendererType] = None,
     ) -> "Recipe":
-        """Create new `Recipe` object from string
+        """
+        Create new `Recipe` object from string
 
-        Args:
-            recipe_text: A raw recipe as a string.
-            variant_id: Variant id
-            variant: Variant configuration.
-            return_exceptions: Whether to return exceptions. Defaults to False.
-            renderer: Rendering backend. Defaults to PYYAML.
+        :param recipe_text: A raw recipe as a string.
+        :param variant_id: Variant id
+        :param variant: Variant configuration.
+        :param return_exceptions: Whether to return exceptions. Defaults to False.
+        :param renderer: Rendering backend. Defaults to PYYAML.
 
-        Raises:
-            MissingMetaYaml: Missing meta.yaml
-            Exception: An exception
+        :raises MissingMetaYaml: Missing meta.yaml
+        :raises Exception: An exception
 
-        Returns:
-            Recipe: A Recipe object.
+        :returns: A Recipe object.
         """
         try:
             recipe = cls("", variant_id, variant, renderer)
@@ -198,27 +197,25 @@ class Recipe:
     @classmethod
     def from_file(
         cls,
-        recipe_fname: str,
+        recipe_fname: str | Path,
         variant_id: Optional[str] = None,
         variant: Optional[Variant] = None,
         return_exceptions: bool = False,
         renderer: Optional[renderer_utils.RendererType] = None,
     ) -> "Recipe":
-        """Create new `Recipe` object from file
+        """
+        Create new `Recipe` object from file
 
-        Args:
-            recipe_fname: Path to recipe meta.yaml
-            variant_id: Variant id
-            variant: Variant configuration.
-            return_exceptions: Whether to return exceptions. Defaults to False.
-            renderer: Rendering backend. Defaults to PYYAML.
+        :param recipe_fname: Path to recipe meta.yaml
+        :param variant_id: Variant id
+        :param variant: Variant configuration.
+        :param return_exceptions: Whether to return exceptions. Defaults to False.
+        :param renderer: Rendering backend. Defaults to PYYAML.
 
-        Raises:
-            MissingMetaYaml: Missing meta.yaml
-            Exception: An exception
+        :raises MissingMetaYaml: Missing meta.yaml
+        :raises Exception: An exception
 
-        Returns:
-            Recipe: A Recipe object.
+        :returns: A Recipe object.
         """
         recipe_fname = Path(recipe_fname)
         recipe = cls(recipe_fname, variant_id, variant, renderer)
@@ -239,28 +236,35 @@ class Recipe:
         return recipe
 
     def save(self):
-        """Save recipe dump to file"""
+        """
+        Save recipe dump to file
+        """
         with open(self.path, "w", encoding="utf-8") as fdes:
             fdes.write(self.dump())
 
     def _set_original(self) -> None:
-        """Store the current state of the recipe as "original" version"""
+        """
+        Store the current state of the recipe as "original" version
+        """
         self.orig = deepcopy(self)
 
     def is_modified(self) -> bool:
-        """Has recipe been modified.
+        """
+        Has recipe been modified.
 
-        Returns:
-            bool: True if recipe has been modified.
+        :returns: True if recipe has been modified.
         """
         return self.meta_yaml != self.orig.meta_yaml
 
     def dump(self) -> str:
-        """Dump recipe content"""
+        """
+        Dump recipe content
+        """
         return "\n".join(self.meta_yaml) + "\n"
 
     def render(self) -> None:
-        """Convert recipe text into data structure
+        """
+        Convert recipe text into data structure
 
         - create jinja template from recipe content
         - render template
@@ -454,9 +458,9 @@ class Recipe:
     def _walk(self, path: str, noraise: bool = False) -> tuple[list[dict[str, Any]], list[str]]:
         """
         Given a path, traverses the recipe data structure.
-        :param path:    Path to traverse
+        :param path: Path to traverse
         :param noraise: (Optional) If set to true, causes an exception if a key is not found.
-        :return: Tuple containing a list of nodes and a list of keys associated with those nodes.
+        :returns: Tuple containing a list of nodes and a list of keys associated with those nodes.
         """
         nodes = [self.meta]
         keys: list[str] = []
@@ -479,16 +483,15 @@ class Recipe:
         return nodes, keys
 
     def get_raw_range(self, path: str) -> tuple[int, int, int, int]:
-        """Locate the position of a node in the YAML within the raw text
+        """
+        Locate the position of a node in the YAML within the raw text
 
         See also `get_raw()` if you want to get the content of the unparsed
         meta.yaml at a specific key.
 
-        Args:
-          path: The "path" to the node. Use numbers for lists ('source/1/url')
+        :param path: The "path" to the node. Use numbers for lists ('source/1/url')
 
-        Returns:
-          a tuple of first_row, first_column, last_row, last_column
+        :returns: A tuple of first_row, first_column, last_row, last_column
         """
         if not path or self.renderer != renderer_utils.RendererType.RUAMEL:
             if self.meta_yaml:
@@ -529,19 +532,16 @@ class Recipe:
         return (start_row, start_col, end_row, end_col)
 
     def get_raw(self, path: str) -> str:
-        """Extracts the unparsed text for a node in the meta.yaml
+        """
+        Extracts the unparsed text for a node in the meta.yaml
 
         This may contain separators and other characters from
         the yaml!
 
-        Args:
-          path: Slash-separated path to the node. Numbers can be used
-                to access indices in lists. A number '0' is ignored if
-                the node is a dict (so 'source/0/url' will work even if
-                there is only one url).
+        :param path: Slash-separated path to the node. Numbers can be used to access indices in lists. A number '0' is
+            ignored if the node is a dict (so 'source/0/url' will work even if there is only one url).
 
-        Returns:
-          Extracted raw text
+        :returns: Extracted raw text
         """
         start_row, start_col, end_row, end_col = self.get_raw_range(path)
         if start_row == end_row:
@@ -557,7 +557,8 @@ class Recipe:
         return "\n".join(lines).strip()
 
     def get(self, path: str, default: Any = KeyError) -> Any:
-        """Get a value or section from the recipe
+        """
+        Get a value or section from the recipe
 
         >>> recipe.get('requirements/build')
         ['setuptools]
@@ -571,12 +572,9 @@ class Recipe:
         I.e., `source/0/url` will always get the first url, whether or
         not the source section is a list.
 
-        Args:
-          path: Path through YAML
-          default: If not KeyError, this value will be returned
-                   if the path does not exist in the recipe
-        Raises:
-          KeyError if no default given and the path does not exist.
+        :param path: Path through YAML
+        :param default: If not KeyError, this value will be returned if the path does not exist in the recipe
+        :raises KeyError: If no default given and the path does not exist.
         """
         try:
             nodes, _ = self._walk(path)
@@ -590,7 +588,8 @@ class Recipe:
         return res
 
     def contains(self, path: str, value: str, default: Any = KeyError) -> bool:
-        """Check if a value (string or list) contains a string
+        """
+        Check if a value (string or list) contains a string
         >>> recipe.contains('build/script', 'pip')
         True
         The **path** is a ``/`` separated list of dictionary keys to
@@ -599,15 +598,11 @@ class Recipe:
         element in a list or the contents directly if there is no list.
         I.e., `source/0/url` will always get the first url, whether or
         not the source section is a list.
-        Args:
-            path: Path through YAML
-            value: The string to match
-            default: If not KeyError, this value will be returned
-                    if the path does not exist in the recipe
-        Returns:
-            Value match (bool).
-        Raises:
-            KeyError if no default given and the path does not exist.
+        :param path: Path through YAML
+        :param value: The string to match
+        :param default: If not KeyError, this value will be returned if the path does not exist in the recipe
+        :raises KeyError: If no default given and the path does not exist.
+        :returns: True if the value matches. False otherwise.
         """
         res = self.get(path, default)
         if isinstance(res, str):
@@ -633,10 +628,9 @@ class Recipe:
         provided to allow callers access to some of the newest features and
         capabilities.
 
-        :param callback:    Callback that provides a `RecipeParser` instance
-                            that can make modifications that will be reflected
-                            in the `Recipe` class.
-        :return: True if the recipe was modified. False otherwise.
+        :param callback: Callback that provides a `RecipeParser` instance that can make modifications that will be
+            reflected in the `Recipe` class.
+        :returns: True if the recipe was modified. False otherwise.
         """
         # Read in the file as a string. Remembering that `recipe` stores
         # data as a list.
@@ -663,14 +657,13 @@ class Recipe:
         evaluate_selectors: bool = True,
         op_mode: OpMode = OpMode.CLASSIC,
     ) -> bool:
-        """Patch the recipe given a set of operations.
-        Args:
-            operations: operations to apply
-            increment_build_number: automatically increment the build number of the operations result in changes
-            evaluate_selectors: don't evaluate selectors when applying operations
-            op_mode: selects which operational mode to perform patches with
-        Returns:
-            True if recipe was patched. (bool).
+        """
+        Patch the recipe given a set of operations.
+        :param operations: operations to apply
+        :param increment_build_number: automatically increment the build number of the operations result in changes
+        :param evaluate_selectors: don't evaluate selectors when applying operations
+        :param op_mode: selects which operational mode to perform patches with
+        :returns: True if recipe was patched.
         """
         # Early-escape the parse-tree operational mode. Allows us to A/B test
         # and use the newer parse tree work.
@@ -728,9 +721,8 @@ class Recipe:
     def _patch(self, operation: JsonPatchType, evaluate_selectors: bool) -> None:
         """
         Helper function that performs a single patch operation
-        Args:
-            operation: operation to apply
-            evaluate_selectors: don't evaluate selectors when applying operations
+        :param operation: operation to apply
+        :param evaluate_selectors: don't evaluate selectors when applying operations
         """
         # read operation parameters
         op = operation["op"]
@@ -934,17 +926,16 @@ class Dep:
     """
 
     def __init__(self, raw_dep: str, path: str):
-        """A dependency
+        """
+        A dependency
 
-        Args:
-            raw_dep (str): A dependency string. E.g. "numpy <1.24"
-            path (str): Path in the recipe. E.g. outputs/1/requirements/run
+        :param raw_dep: A dependency string. E.g. "numpy <1.24"
+        :param path: Path in the recipe. E.g. outputs/1/requirements/run
 
-        Attributes:
-            raw_dep (str): A dependency string. E.g. "numpy <1.24"
-            pkg (str): The package part. E.g. "numpy"
-            variable (str): The constraint part. E.g. "<1.24"
-            path (str): Path in the recipe. E.g. outputs/1/requirements/run
+        :var raw_dep: A dependency string. E.g. "numpy <1.24"
+        :var pkg: The package part. E.g. "numpy"
+        :var variable: The constraint part. E.g. "<1.24"
+        :var path: Path in the recipe. E.g. outputs/1/requirements/run
         """
         self.raw_dep = str(raw_dep)
         splits = re.split(r"[\s<=>]", self.raw_dep, 1)
@@ -963,7 +954,9 @@ class Dep:
 
 @dataclass
 class Package:
-    """A rendered package."""
+    """
+    A rendered package.
+    """
 
     recipe: Recipe = None
     name: str = None
@@ -982,25 +975,23 @@ class Package:
     git_info: object = None
 
     def __getitem__(self, key: str) -> Any:
-        """Access this dataclass attributes through square brackets.
+        """
+        Access this dataclass attributes through square brackets.
 
-        Args:
-            key (str): An attribute name of this data class.
+        :param key: An attribute name of this data class.
 
-        Returns:
-            Any: The value of the attribute.
+        :returns: The value of the attribute.
         """
         return getattr(self, key)
 
-    def get(self, key: str, default=None) -> Any:
-        """Access this dataclass attributes through a getter.
+    def get(self, key: str, default: Optional[Any] = None) -> Any:
+        """
+        Access this dataclass attributes through a getter.
 
-        Args:
-            key (str): An attribute name of this data class.
-            default (_type_, optional): Default value. Defaults to None.
+        :param key: An attribute name of this data class.
+        :param default: Default value. Defaults to None.
 
-        Returns:
-            Any: The value of the attribute.
+        :returns: The value of the attribute.
         """
         try:
             return getattr(self, key, default)
@@ -1008,23 +999,22 @@ class Package:
             return default
 
     def has_dep(self, section: str, pkg_name: str) -> bool:
-        """Returns true if the package is present in the given section.
+        """
+        Returns true if the package is present in the given section.
 
-        Args:
-            section (str): A section. E.g. "build", "host", "run", "run_constrained
-            pkg_name (str): A package name.
+        :param section: A section. E.g. "build", "host", "run", "run_constrained
+        :param pkg_name: A package name.
 
-        Returns:
-            bool: True if the package is present in the given section.
+        :returns: True if the package is present in the given section.
         """
         return any(pkg_name.lower() == dep.pkg.lower() for dep in self[section])
 
     def merge_deps(self, other: "Package"):
-        """Merge dependency list of another Package object into this Package.
+        """
+        Merge dependency list of another Package object into this Package.
         This is especially useful to create an aggregate of multiple variants.
 
-        Args:
-            other (Package): The other Package.
+        :param other: The other Package.
         """
         self.build.update(other.build)
         self.host.update(other.host)
@@ -1042,18 +1032,17 @@ def render(
     return_exceptions: bool = False,
     renderer: Optional[renderer_utils.RendererType] = None,
 ) -> list[Recipe]:
-    """Render a recipe
+    """
+    Render a recipe
 
-    Args:
-        recipe_path: Path to a recipe.
-        subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
-        python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
-        others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
-        return_exceptions: Whether to handle errors as exceptions. Defaults to False.
-        renderer: Rendering backend. Defaults to PYYAML.
+    :param recipe_path: Path to a recipe.
+    :param subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+    :param python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+    :param others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+    :param return_exceptions: Whether to handle errors as exceptions. Defaults to False.
+    :param renderer: Rendering backend. Defaults to PYYAML.
 
-    Returns:
-        A list of rendered Recipe, one per variant.
+    :returns: A list of rendered Recipe, one per variant.
     """
 
     # gather all possible variants
@@ -1084,11 +1073,10 @@ def render(
 
 
 def dump_render_results(render_results: list[Recipe], out: TextIO = sys.stdout) -> None:
-    """Dumps a list of rendered variants of a recipe.
+    """
+    Dumps a list of rendered variants of a recipe.
 
-    Args:
-        render_results (list[Recipe]): list of rendered variants.
-        out (TextIO, optional): Output stream. Defaults to sys.stdout.
-
+    :param render_results: list of rendered variants.
+    :param out: Output stream. Defaults to sys.stdout.
     """
     dumper.dump_render_results(render_results, out)

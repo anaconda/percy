@@ -1,4 +1,5 @@
-""" Generate build scripts to build all packages depending on python.
+"""
+Generate build scripts to build all packages depending on python.
 """
 
 import argparse

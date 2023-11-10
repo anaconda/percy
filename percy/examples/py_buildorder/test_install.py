@@ -1,4 +1,5 @@
-"""Test installation of all packages listed in python_full_package_list.yaml
+"""
+Test installation of all packages listed in python_full_package_list.yaml
 
 Usage:
     pytest -n auto \
@@ -21,7 +22,9 @@ def dry_run(
     override_channels=False,
     packages=[],
 ):
-    """Dry-run an environment and return it's json result."""
+    """
+    Dry-run an environment and return it's json result.
+    """
     cmd = f"conda create -n test_env --dry-run --json --solver={solver}"
     for channel in channels:
         cmd += f" -c {channel}"
@@ -50,7 +53,9 @@ def dry_run(
 
 
 def dry_run_assert(solver, packages, channels):
-    """Dry-run an environment and assert that it succeeds."""
+    """
+    Dry-run an environment and assert that it succeeds.
+    """
     json_result = dry_run(
         solver=solver,
         channels=channels,

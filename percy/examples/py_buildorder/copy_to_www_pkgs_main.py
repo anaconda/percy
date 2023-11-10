@@ -1,4 +1,5 @@
-""" Copy 311 packages to /www/pkgs/main
+"""
+Copy 311 packages to /www/pkgs/main
 """
 
 import argparse
@@ -21,7 +22,9 @@ DEFAULT_PERMISSIONS = 0o664
 
 # A custom formatter for our logging purposes.
 class CustomFormatter(logging.Formatter):
-    """Custom logging format that adds color to different log levels."""
+    """
+    Custom logging format that adds color to different log levels.
+    """
 
     blue = "\033[0;34m"
     yellow = "\x1b[33;20m"

@@ -25,7 +25,8 @@ cli.add_command(aggregate)
 
 @cli.command()
 def tabcompletion():
-    """Print out shell commands for setting up shell completion.
+    """
+    Print out shell commands for setting up shell completion.
 
     For local shell use:
         eval "`percy tabcompletion`"

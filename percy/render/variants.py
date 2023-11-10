@@ -48,13 +48,12 @@ def _find_config_files(
         4. recipe config files (see ${RECIPE_DIR}/conda_build_config.yaml)
         5. additional config files (see config.variant_config_files)
 
-    .. note::
-        Order determines clobbering with later files clobbering earlier ones.
+    .. note:: Order determines clobbering with later files clobbering earlier ones.
 
-    :param metadata_or_path:        The metadata or path within which to find recipe config files
-    :param variant_config_files:    List of config files containing variant info
-    :param exclusive_config_files:  List of config files containing exclusive info
-    :return: List of config files
+    :param metadata_or_path: The metadata or path within which to find recipe config files
+    :param variant_config_files: List of config files containing variant info
+    :param exclusive_config_files: List of config files containing exclusive info
+    :returns: List of config files
     """
 
     def resolve(p):
@@ -118,7 +117,9 @@ class CBCRenderError(Exception):
 
 # TODO Future: nearly identical to _renderer.py::apply_selector
 def _apply_selector(data, selector_dict):
-    """Apply selectors # [...]"""
+    """
+    Apply selectors # [...]
+    """
     updated_data = []
     for line in data.splitlines():
         if (match := re.search(r"^(\s*)#.*$", line)) is not None:
@@ -145,21 +146,17 @@ def read_conda_build_config(
     variant_config_files: Optional[list[str]] = None,
     exclusive_config_files: Optional[list[str]] = None,
 ) -> list[tuple[str, Variant]]:
-    """Read conda build config into a list of variants.
+    """
+    Read conda build config into a list of variants.
 
-    Args:
-        recipe_path: Path to a recipe meta.yaml file.
-        subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
-        python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
-        others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
-        variant_config_files: Additional cbc files to use. Defaults to [].
-        exclusive_config_files: If specified, only use these cbc files. Defaults to [].
+    :param recipe_path: Path to a recipe meta.yaml file.
+    :param subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+    :param python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+    :param others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+    :param variant_config_files: Additional cbc files to use. Defaults to [].
+    :param exclusive_config_files: If specified, only use these cbc files. Defaults to [].
 
-    Raises:
-        CBCRenderError: Failed to render cbc file.
-
-    Returns:
-        A list of tuples, where the first value is a variant id and the second value a variant dictionary.
+    :returns: A list of tuples, where the first value is a variant id and the second value a variant dictionary.
     """
     if variant_config_files is None:
         variant_config_files = []

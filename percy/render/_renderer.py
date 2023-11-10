@@ -128,12 +128,10 @@ _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
 def apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
     """Apply selectors # [...]
 
-    Args:
-        data: Raw meta yaml string
-        selector_dict: Selector configuration.
+    :param data: Raw meta yaml string
+    :param selector_dict: Selector configuration.
 
-    Returns:
-        meta yaml filtered based on selectors, as a list of string.
+    :returns:    Meta yaml filtered based on selectors, as a list of string.
     """
     updated_data = []
     for line in data.splitlines():
@@ -152,7 +150,9 @@ def apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
 
 
 def _get_template(meta_yaml, selector_dict):
-    """Create a Jinja2 template from the current raw recipe"""
+    """
+    Create a Jinja2 template from the current raw recipe
+    """
     # This function exists because the template cannot be pickled.
     # Storing it means the recipe cannot be pickled, which in turn
     # means we cannot pass it to ProcessExecutors.
@@ -173,11 +173,11 @@ def render(
     - render template
     - parse yaml
     - normalize
-    :param recipe_dir:      Directory that contains the target `meta.yaml` file.
-    :param meta_yaml:       Raw YAML text string from the file.
-    :param selector_dict:   Dictionary of selector statements
-    :param renderer_type:   Rendering engine to target
-    :return: Parsed YAML, as a dictionary of keys and values.
+    :param recipe_dir: Directory that contains the target `meta.yaml` file.
+    :param meta_yaml: Raw YAML text string from the file.
+    :param selector_dict: Dictionary of selector statements
+    :param renderer_type: Rendering engine to target
+    :returns: Parsed YAML, as a dictionary of keys and values.
     """
 
     if not renderer_type:

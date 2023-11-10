@@ -76,12 +76,11 @@ class RecipeParser:
     def _parse_yaml(s: str, parser: Optional[RecipeParser] = None) -> JsonType:
         """
         Parse a line (or multiple) of YAML into a Pythonic data structure
-        :param s:       String to parse
-        :param parser:  (Optional) If provided, this will substitute Jinja variables with values specified in in the
-                        recipe file. Since `_parse_yaml()` is critical to constructing recipe files, this function must
-                        remain static. Also, during construction, we shouldn't be using a variables until the entire
-                        recipe is read/parsed.
-        :return: Pythonic data corresponding to the line of YAML
+        :param s: String to parse
+        :param parser: (Optional) If provided, this will substitute Jinja variables with values specified in in the
+            recipe file. Since `_parse_yaml()` is critical to constructing recipe files, this function must remain
+            static. Also, during construction, we shouldn't be using a variables until the entire recipe is read/parsed.
+        :returns: Pythonic data corresponding to the line of YAML
         """
 
         # Recursive helper function used when we need to perform variable substitutions
@@ -124,8 +123,8 @@ class RecipeParser:
 
         Latest YAML spec can be found here: https://yaml.org/spec/1.2.2/
 
-        :param s:   Pre-stripped (no leading/trailing spaces), non-Jinja line of a recipe file
-        :return: A Node representing a line of the conda-formatted YAML.
+        :param s: Pre-stripped (no leading/trailing spaces), non-Jinja line of a recipe file
+        :returns: A Node representing a line of the conda-formatted YAML.
         """
         # Use PyYaml to safely/easily/correctly parse single lines of YAML.
         output = RecipeParser._parse_yaml(s)
@@ -214,9 +213,9 @@ class RecipeParser:
     def _render_jinja_vars(self, s: str) -> JsonType:
         """
         Helper function that replaces Jinja substitutions with their actual set values.
-        :param s:    String to be re-rendered
-        :return: The original value, augmented with Jinja substitutions. If substitutions have taken place, the type is
-                 re-evaluated.
+        :param s: String to be re-rendered
+        :returns: The original value, augmented with Jinja substitutions. If substitutions have taken place, the type is
+            re-evaluated.
         """
         replacement = False
         # Search the string, replacing all substitutions we can recognize
@@ -267,8 +266,7 @@ class RecipeParser:
     def __init__(self, content: str):
         """
         Constructs a RecipeParser instance.
-        :param content: conda-build formatted recipe file, as a single text
-                        string.
+        :param content: conda-build formatted recipe file, as a single text string.
         """
         # The initial, raw, text is preserved for diffing and debugging purposes
         self._init_content: Final[str] = content
@@ -360,9 +358,9 @@ class RecipeParser:
     def _str_tree_recurse(node: Node, depth: int, lines: list[str]) -> str:
         """
         Helper function that renders a parse tree as a text-based dependency tree. Useful for debugging.
-        :param node:    Node of interest
-        :param depth:   Current depth of the node
-        :param lines:   Accumulated list of lines to text to render
+        :param node: Node of interest
+        :param depth: Current depth of the node
+        :param lines: Accumulated list of lines to text to render
         """
         spaces = TAB_AS_SPACES * depth
         branch = "" if depth == 0 else "|- "
@@ -373,7 +371,7 @@ class RecipeParser:
     def __str__(self) -> str:
         """
         Casts the parser into a string. Useful for debugging.
-        :return: String representation of the recipe file
+        :returns: String representation of the recipe file
         """
         s = "--------------------\n"
         tree_lines: list[str] = []
@@ -395,8 +393,8 @@ class RecipeParser:
     def __eq__(self, other: object) -> bool:
         """
         Checks if two recipe representations match entirely
-        :param other:   Other recipe parser instance to check against.
-        :return: True if both recipes contain the same current state. False otherwise.
+        :param other: Other recipe parser instance to check against.
+        :returns: True if both recipes contain the same current state. False otherwise.
         """
         if not isinstance(other, RecipeParser):
             raise TypeError
@@ -405,14 +403,14 @@ class RecipeParser:
     def is_modified(self) -> bool:
         """
         Indicates if the recipe has been changed since construction.
-        :return: True if the recipe has changed. False otherwise.
+        :returns: True if the recipe has changed. False otherwise.
         """
         return self._is_modified
 
     def has_unsupported_statements(self) -> bool:
         """
         Runs a series of checks against the original recipe file.
-        :return: True if the recipe has statements we do not currently support. False otherwise.
+        :returns: True if the recipe has statements we do not currently support. False otherwise.
         """
         # TODO complete
         raise NotImplementedError
@@ -421,10 +419,10 @@ class RecipeParser:
     def _render_tree(node: Node, depth: int, lines: list[str], parent: Optional[Node] = None) -> None:
         """
         Recursive helper function that traverses the parse tree to generate a file.
-        :param node:    Current node in the tree
-        :param depth:   Current depth of the recursion
-        :param lines:   Accumulated list of lines in the recipe file
-        :param parent:  (Optional) Parent node to the current node. Set by recursive calls only.
+        :param node: Current node in the tree
+        :param depth: Current depth of the recursion
+        :param lines: Accumulated list of lines in the recipe file
+        :param parent: (Optional) Parent node to the current node. Set by recursive calls only.
         """
         spaces = TAB_AS_SPACES * depth
 
@@ -502,7 +500,7 @@ class RecipeParser:
     def render(self) -> str:
         """
         Takes the current state of the parse tree and returns the recipe file as a string.
-        :return: String representation of the recipe file
+        :returns: String representation of the recipe file
         """
         lines = []
 
@@ -525,9 +523,9 @@ class RecipeParser:
     def _render_object_tree(self, node: Node, replace_variables: bool, data: JsonType) -> None:
         """
         Recursive helper function that traverses the parse tree to generate a Pythonic data object.
-        :param node:                Current node in the tree
-        :param replace_variables:   If set to True, this replaces all variable substitutions with their set values.
-        :param data:                Accumulated data structure
+        :param node: Current node in the tree
+        :param replace_variables: If set to True, this replaces all variable substitutions with their set values.
+        :param data: Accumulated data structure
         """
         # Ignore comment-only lines
         if node.is_comment():
@@ -580,9 +578,9 @@ class RecipeParser:
         """
         Takes the underlying state of the parse tree and produces a Pythonic object/dictionary representation. Analogous
         to `json.load()`.
-        :param replace_variables:   (Optional) If set to True, this replaces all variable substitutions with their set
-                                    values.
-        :return: Pythonic data object representation of the recipe.
+        :param replace_variables: (Optional) If set to True, this replaces all variable substitutions with their set
+            values.
+        :returns: Pythonic data object representation of the recipe.
         """
         data: JsonType = {}
 
@@ -600,7 +598,7 @@ class RecipeParser:
     def list_value_paths(self) -> list[str]:
         """
         Provides a list of all known terminal paths. This can be used by the caller to perform search operations.
-        :return: List of all terminal paths in the parse tree.
+        :returns: List of all terminal paths in the parse tree.
         """
         lst: list[str] = []
 
@@ -615,8 +613,8 @@ class RecipeParser:
         """
         Determines if a value (via a path) is contained in this recipe. This also allows the caller to determine if a
         path exists.
-        :param path:    JSON patch (RFC 6902)-style path to a value.
-        :return: True if the path exists. False otherwise.
+        :param path: JSON patch (RFC 6902)-style path to a value.
+        :returns: True if the path exists. False otherwise.
         """
         path_stack = str_to_stack_path(path)
         return traverse(self._root, path_stack) is not None
@@ -624,12 +622,12 @@ class RecipeParser:
     def get_value(self, path: str, default: JsonType = _sentinel, sub_vars: bool = False) -> JsonType:
         """
         Retrieves a value at a given path. If the value is not found, return a specified default value or throw.
-        :param path:        JSON patch (RFC 6902)-style path to a value.
-        :param default:     (Optional) If the value is not found, return this value instead.
-        :param sub_vars:    (Optional) If set to True and the value contains a Jinja template variable, the Jinja value
-                            will be "rendered".
+        :param path: JSON patch (RFC 6902)-style path to a value.
+        :param default: (Optional) If the value is not found, return this value instead.
+        :param sub_vars: (Optional) If set to True and the value contains a Jinja template variable, the Jinja value
+            will be "rendered".
         :raises KeyError: If the value is not found AND no default is specified
-        :return: If found, the value in the recipe at that path. Otherwise, the caller-specified default value.
+        :returns: If found, the value in the recipe at that path. Otherwise, the caller-specified default value.
         """
         path_stack = str_to_stack_path(path)
         node = traverse(self._root, path_stack)
@@ -674,9 +672,9 @@ class RecipeParser:
 
         NOTE: This only supports searching for "primitive" values, i.e. you cannot search for collections.
 
-        :param value:   Value to find in the recipe.
+        :param value: Value to find in the recipe.
         :raises ValueError: If the value provided is not a primitive type.
-        :return: List of paths where the value can be found.
+        :returns: List of paths where the value can be found.
         """
         if not isinstance(value, PRIMITIVES_TUPLE):
             raise ValueError(f"A non-primitive value was provided: {value}")
@@ -697,7 +695,7 @@ class RecipeParser:
     def list_variables(self) -> list[str]:
         """
         Returns variables found in the recipe, sorted by first appearance.
-        :return: List of variables found in the recipe.
+        :returns: List of variables found in the recipe.
         """
         return list(self._vars_tbl.keys())
 
@@ -705,7 +703,7 @@ class RecipeParser:
         """
         Determines if a variable is set in this recipe.
         :param var: Variable to check for.
-        :return: True if a variable name is found in this recipe. False otherwise.
+        :returns: True if a variable name is found in this recipe. False otherwise.
         """
         return var in self._vars_tbl
 
@@ -713,10 +711,10 @@ class RecipeParser:
         """
         Returns the value of a variable set in the recipe. If specified, a default value will be returned if the
         variable name is not found.
-        :param var:     Variable of interest check for.
+        :param var: Variable of interest check for.
         :param default: (Optional) If the value is not found, return this value instead.
-        :raises KeyError:   If the value is not found AND no default is specified
-        :return: The value (or specified default value if not found) of the variable name provided.
+        :raises KeyError: If the value is not found AND no default is specified
+        :returns: The value (or specified default value if not found) of the variable name provided.
         """
         if var not in self._vars_tbl:
             if default == RecipeParser._sentinel:
@@ -727,8 +725,8 @@ class RecipeParser:
     def set_variable(self, var: str, value: Primitives) -> None:
         """
         Adds or changes an existing Jinja variable.
-        :param var:     Variable to modify
-        :param value:   Value to set
+        :param var: Variable to modify
+        :param value: Value to set
         """
         self._vars_tbl[var] = value
         self._is_modified = True
@@ -747,7 +745,7 @@ class RecipeParser:
         """
         Returns a list of paths that use particular variables.
         :param var: Variable of interest
-        :return: List of paths that use a variable, sorted by first appearance.
+        :returns: List of paths that use a variable, sorted by first appearance.
         """
         if var not in self._vars_tbl:
             return []
@@ -771,15 +769,15 @@ class RecipeParser:
     def list_selectors(self) -> list[str]:
         """
         Returns selectors found in the recipe, sorted by first appearance.
-        :return: List of selectors found in the recipe.
+        :returns: List of selectors found in the recipe.
         """
         return list(self._selector_tbl.keys())
 
     def contains_selector(self, selector: str) -> bool:
         """
         Determines if a selector expression is present in this recipe.
-        :param selector:    Selector to check for.
-        :return: True if a selector is found in this recipe. False otherwise.
+        :param selector: Selector to check for.
+        :returns: True if a selector is found in this recipe. False otherwise.
         """
         return selector in self._selector_tbl
 
@@ -790,8 +788,8 @@ class RecipeParser:
 
         Selector paths will be ordered by the line they appear on in the file.
 
-        :param selector:    Selector of interest.
-        :return: A list of all known paths that use a particular selector
+        :param selector: Selector of interest.
+        :returns: A list of all known paths that use a particular selector
         """
         # We return a tuple so that caller doesn't accidentally modify a private member variable.
         if not self.contains_selector(selector):
@@ -810,10 +808,10 @@ class RecipeParser:
     def add_selector(self, path: str, selector: str, mode: SelectorConflictMode = SelectorConflictMode.REPLACE) -> None:
         """
         Given a path, add a selector (include the surrounding brackets) to the line denoted by path.
-        :param path:        Path to add a selector to
-        :param selector:    Selector statement to add
-        :param mode:        (Optional) Indicates how to handle a conflict if a selector already exists at this path.
-        :raises KeyError:   If the path provided is not found
+        :param path: Path to add a selector to
+        :param selector: Selector statement to add
+        :param mode: (Optional) Indicates how to handle a conflict if a selector already exists at this path.
+        :raises KeyError: If the path provided is not found
         :raises ValueError: If the selector provided is malformed
         """
         path_stack = str_to_stack_path(path)
@@ -857,9 +855,9 @@ class RecipeParser:
         Given a path, remove a selector to the line denoted by path.
         - If a selector does not exist, nothing happens.
         - If a comment exists after the selector, keep it, discard the selector.
-        :param path:        Path to add a selector to
-        :raises KeyError:   If the path provided is not found
-        :return: If found, the selector removed (includes surrounding brackets). Otherwise, returns None
+        :param path: Path to add a selector to
+        :raises KeyError: If the path provided is not found
+        :returns: If found, the selector removed (includes surrounding brackets). Otherwise, returns None
         """
         path_stack = str_to_stack_path(path)
         node = traverse(self._root, path_stack)
@@ -896,10 +894,10 @@ class RecipeParser:
         """
         Indicates if the target node to perform a patch operation against is a valid node. This is based on the RFC spec
         for JSON patching paths.
-        :param node:        Target node to validate
-        :param node_idx:    If the caller is evaluating that a list member, exists, this is the index into that list.
-                            Otherwise this value should be less than 0.
-        :return: True if the node can be patched. False otherwise.
+        :param node: Target node to validate
+        :param node_idx: If the caller is evaluating that a list member, exists, this is the index into that list.
+            Otherwise this value should be less than 0.
+        :returns: True if the node can be patched. False otherwise.
         """
         # Path not found
         if node is None:
@@ -926,12 +924,10 @@ class RecipeParser:
         Finds the target node of an `add()` operation, along with some supporting information.
 
         This function does not modify the parse tree.
-        :param path_stack:  Path that describes a location in the tree, as a list, treated like a stack.
-        :return: A tuple containing:
-                   - The target node, if found (or the parent node if the target is a list member)
-                   - The index of a node if the target is a list member
-                   - An additional path that needs to be created, if applicable
-                   - A flag indicating if the new data will be appended to a list
+        :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
+        :returns: A tuple containing: - The target node, if found (or the parent node if the target is a list member) -
+            The index of a node if the target is a list member - An additional path that needs to be created, if
+            applicable - A flag indicating if the new data will be appended to a list
         """
         if len(path_stack) == 0:
             return None, -1, "", False
@@ -957,8 +953,8 @@ class RecipeParser:
     def _patch_add(self, _: str, path_stack: StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `add` operation.
-        :param path_stack:  Path that describes a location in the tree, as a list, treated like a stack.
-        :param value:       Value to add.
+        :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
+        :param value: Value to add.
         """
         # NOTE from the RFC:
         #   Because this operation is designed to add to existing objects and arrays, its target location will often
@@ -998,7 +994,7 @@ class RecipeParser:
     ) -> bool:
         """
         Performs a JSON patch `remove` operation.
-        :param path_stack:  Path that describes a location in the tree, as a list, treated like a stack.
+        :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
         """
         if len(path_stack) == 0:
             return False
@@ -1031,8 +1027,8 @@ class RecipeParser:
     def _patch_replace(self, _: str, path_stack: StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `replace` operation.
-        :param path_stack:  Path that describes a location in the tree, as a list, treated like a stack.
-        :param value:       Value to update with.
+        :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
+        :param value: Value to update with.
         """
         node, node_idx = traverse_with_index(self._root, path_stack)
         if not RecipeParser._is_valid_patch_node(node, node_idx):
@@ -1057,9 +1053,9 @@ class RecipeParser:
     def _patch_move(self, path: str, path_stack: StrStack, value_from: JsonType) -> bool:
         """
         Performs a JSON patch `add` operation.
-        :param path:        Path as a string.
-        :param path_stack:  Path that describes a location in the tree, as a list, treated like a stack.
-        :param value_from:  The "from" value in the JSON payload, i.e. the path the value originates from.
+        :param path: Path as a string.
+        :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
+        :param value_from: The "from" value in the JSON payload, i.e. the path the value originates from.
         """
         # NOTE from the RFC:
         #   This operation is functionally identical to a "remove" operation on the "from" location, followed
@@ -1083,11 +1079,9 @@ class RecipeParser:
     def _patch_copy(self, path: str, path_stack: StrStack, value_from: JsonType) -> bool:
         """
         Performs a JSON patch `add` operation.
-        :param path:        Path as a string.
-        :param path_stack:  Path that describes a location in the tree, as a
-                            list, treated like a stack.
-        :param value_from:  The "from" value in the JSON payload, i.e. the
-                            path the value originates from.
+        :param path: Path as a string.
+        :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
+        :param value_from: The "from" value in the JSON payload, i.e. the path the value originates from.
         """
         # NOTE from the RFC:
         #   This operation is functionally identical to an "add" operation at the target location using the value
@@ -1104,8 +1098,8 @@ class RecipeParser:
     def _patch_test(self, path: str, _: StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `test` operation.
-        :param path:    Path as a string. Useful for invoking public class members.
-        :param value:   Value to evaluate against.
+        :param path: Path as a string. Useful for invoking public class members.
+        :param value: Value to evaluate against.
         """
         try:
             return self.get_value(path) == value
@@ -1144,10 +1138,10 @@ class RecipeParser:
           - copy
           - test
 
-        :param patch:                           JSON-patch payload to operate with.
-        :raises JsonPatchValidationException:   If the JSON-patch payload does not conform to our schema/spec.
-        :return: If the calling code attempts to perform the `test` operation, this indicates the return value of the
-                 `test` request. In other words, if `value` matches the target variable, return True. False otherwise.
+        :param patch: JSON-patch payload to operate with.
+        :raises JsonPatchValidationException: If the JSON-patch payload does not conform to our schema/spec.
+        :returns: If the calling code attempts to perform the `test` operation, this indicates the return value of the
+            `test` request. In other words, if `value` matches the target variable, return True. False otherwise.
         """
         # Validate the patch schema
         try:
@@ -1191,10 +1185,10 @@ class RecipeParser:
         NOTE: This function only searches against primitive values. All variables and selectors can be fully provided by
               using their respective `list_*()` functions.
 
-        :param regex:           Regular expression to match with
+        :param regex: Regular expression to match with
         :param include_comment: (Optional) If set to `True`, this function will execute the regular expression on values
-                                WITH their comments provided. For example: `42  # This is a comment`
-        :return: Returns a list of paths where the matched value was found.
+            WITH their comments provided. For example: `42  # This is a comment`
+        :returns: Returns a list of paths where the matched value was found.
         """
         re_obj = re.compile(regex)
         paths: list[str] = []
@@ -1213,12 +1207,12 @@ class RecipeParser:
     def search_and_patch(self, regex: str, patch: JsonPatchType, include_comment: bool = False) -> bool:
         """
         Given a regex string and a JSON patch, apply the patch to any values that match the search expression.
-        :param regex:           Regular expression to match with
-        :param patch:           JSON patch to perform. NOTE: The `path` field will be replaced with the path(s) found,
-                                so it does not need to be provided.
+        :param regex: Regular expression to match with
+        :param patch: JSON patch to perform. NOTE: The `path` field will be replaced with the path(s) found, so it does
+            not need to be provided.
         :param include_comment: (Optional) If set to `True`, this function will execute the regular expression on values
-                                WITH their comments provided. For example: `42  # This is a comment`
-        :return: Returns a list of paths where the matched value was found.
+            WITH their comments provided. For example: `42  # This is a comment`
+        :returns: Returns a list of paths where the matched value was found.
         """
         paths = self.search(regex, include_comment)
         summation: bool = True
@@ -1231,7 +1225,7 @@ class RecipeParser:
         """
         Returns a git-like-styled diff of the current recipe state with original state of the recipe. Useful for
         debugging and providing users with some feedback.
-        :return: User-friendly displayable string that represents notifications made to the recipe.
+        :returns: User-friendly displayable string that represents notifications made to the recipe.
         """
         if not self.is_modified():
             return ""

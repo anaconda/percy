@@ -22,9 +22,9 @@ def remap_child_indices_virt_to_phys(children: list[Node]) -> list[int]:
     rely on our implementation details and should be able to access a member of a list as expected. In other words,
     users will not consider comments in a list as indexable list members.
 
-    :param children:    Child node list to process.
-    :return: A list of indices. Indexing this list with the "virtual" (user-provided) index will return the "physical"
-             list position.
+    :param children: Child node list to process.
+    :returns: A list of indices. Indexing this list with the "virtual" (user-provided) index will return the "physical"
+        list position.
     """
     mapping: list[int] = []
     cntr = 0
@@ -42,9 +42,9 @@ def remap_child_indices_phys_to_virt(children: list[Node]) -> list[int]:
     """
     Produces the "inverted" table created by `remap_child_indices_virt_to_phys()`.
     See `remap_child_indices_virt_to_phys()` for more details.
-    :param children:    Child node list to process.
-    :return: A list of indices. Indexing this list with the "physical" (class-provided) index will return the "virtual"
-             list position.
+    :param children: Child node list to process.
+    :returns: A list of indices. Indexing this list with the "physical" (class-provided) index will return the "virtual"
+        list position.
     """
     mapping: list[int] = remap_child_indices_virt_to_phys(children)
     new_mapping: list[int] = [0] * len(children)
@@ -56,9 +56,9 @@ def remap_child_indices_phys_to_virt(children: list[Node]) -> list[int]:
 def _traverse_recurse(node: Node, path: StrStack) -> Optional[Node]:
     """
     Recursive helper function for traversing a tree.
-    :param node:    Current node on the tree.
-    :param path:    Path, as a stack, that describes a location in the tree.
-    :return: `Node` object if a node is found in the parse tree at that path. Otherwise returns `None`.
+    :param node: Current node on the tree.
+    :param path: Path, as a stack, that describes a location in the tree.
+    :returns: `Node` object if a node is found in the parse tree at that path. Otherwise returns `None`.
     """
     if len(path) == 0:
         return node
@@ -97,9 +97,9 @@ def traverse(node: Optional[Node], path: StrStack) -> Optional[Node]:
     Given a path in the recipe tree, traverse the tree and return the node at that path.
 
     If no Node is found at that path, return `None`.
-    :param node:    Starting node of the tree/branch to traverse.
-    :param path:    Path, as a stack, that describes a location in the tree.
-    :return: `Node` object if a node is found in the parse tree at that path. Otherwise returns `None`.
+    :param node: Starting node of the tree/branch to traverse.
+    :param path: Path, as a stack, that describes a location in the tree.
+    :returns: `Node` object if a node is found in the parse tree at that path. Otherwise returns `None`.
     """
     # Bootstrap recursive edge cases
     if node is None:
@@ -118,12 +118,12 @@ def traverse(node: Optional[Node], path: StrStack) -> Optional[Node]:
 def traverse_with_index(root: Node, path: StrStack) -> tuple[Optional[Node], int]:
     """
     Given a path, return the node of interest OR the parent node with indexing information, if the node is in a list.
-    :param root:    Starting node of the tree/branch to traverse.
-    :param path:    Path, as a stack, that describes a location in the tree.
-    :return: A tuple containing two items:
-                - `Node` object if a node is found in the parse tree at that path. Otherwise returns `None`. If the
-                    path terminates in an index, the parent is returned with the index location.
-                - If the node is a member of a list, the index returned will be >= 0.
+    :param root: Starting node of the tree/branch to traverse.
+    :param path: Path, as a stack, that describes a location in the tree.
+    :returns: A tuple containing two items: - `Node` object if a node is found in the parse tree at that path. Otherwise
+        returns `None`. If the
+            path terminates in an index, the parent is returned with the index location.
+        - If the node is a member of a list, the index returned will be >= 0.
     """
     if len(path) == 0:
         return None
@@ -153,11 +153,11 @@ def traverse_all(
     NOTE: The paths provided will return virtual indices, not physical indices. In other words, comments in a list do
           not count towards the index position of a list member.
 
-    :param node:    Node to start with
-    :param func:    Function to apply against all traversed nodes.
-    :param path:    CALLERS: DO NOT SET. This value tracks the current path of a node. This should only be specified in
-                    recursive calls to this function. Tuples are used for their immutability, so paths change based on
-                    the current stack frame.
+    :param node: Node to start with
+    :param func: Function to apply against all traversed nodes.
+    :param path: CALLERS: DO NOT SET. This value tracks the current path of a node. This should only be specified in
+        recursive calls to this function. Tuples are used for their immutability, so paths change based on the current
+        stack frame.
     :param idx_num: CALLERS: DO NOT SET. Used in recursive calls to track the index position of a list-member node.
     """
     if node is None:
