@@ -78,21 +78,19 @@ class Recipe:
     ):
         """Constructor
 
-        Args:
-            recipe_file: Path to meta.yaml
-            variant_id: configuration id
-            variant: Variant configuration
-            renderer: Rendering backend. Defaults to PYYAML.
-        Attributes:
-            recipe_file (Path): The recipe file
-            recipe_dir (Path): The recipe directory
-            variant_id (str): configuration id
-            selector_dict (Variant): Variant configuration
-            meta (dict[str, Any]): Rendered recipe in as a dictionary
-            skip (bool): Whether this variant is skipped.
-            packages (dict[str:Package]): Rendered Packages.
-            meta_yaml (list[str]): Lines of the raw recipe file
-            orig (Recipe): Original recipe before modifications
+        :param recipe_file: Path to meta.yaml
+        :param variant_id: configuration id
+        :param variant: Variant configuration
+        :param renderer: Rendering backend. Defaults to PYYAML.
+        :ivar recipe_file: The recipe file
+        :ivar recipe_dir: The recipe directory
+        :ivar variant_id: configuration id
+        :ivar selector_dict: Variant configuration
+        :ivar meta: Rendered recipe in as a dictionary
+        :ivar skip: Whether this variant is skipped.
+        :ivar packages: Rendered Packages.
+        :ivar meta_yaml: Lines of the raw recipe file
+        :ivar orig: Original recipe before modifications
         """
         #: recipe dir
         if recipe_file:
@@ -151,14 +149,11 @@ class Recipe:
         """
         Load and `render` recipe contents from disk
 
-        Args:
-            data (str): raw meta.yaml as string.
+        :param data: raw meta.yaml as string.
 
-        Raises:
-            EmptyRecipe: The recipe is empty
+        :raises EmptyRecipe: The recipe is empty
 
-        Returns:
-            Recipe: This recipe object.
+        :returns: This recipe object.
         """
         self.meta_yaml = data.splitlines()
         if not self.meta_yaml:
@@ -178,19 +173,16 @@ class Recipe:
         """
         Create new `Recipe` object from string
 
-        Args:
-            recipe_text: A raw recipe as a string.
-            variant_id: Variant id
-            variant: Variant configuration.
-            return_exceptions: Whether to return exceptions. Defaults to False.
-            renderer: Rendering backend. Defaults to PYYAML.
+        :param recipe_text: A raw recipe as a string.
+        :param variant_id: Variant id
+        :param variant: Variant configuration.
+        :param return_exceptions: Whether to return exceptions. Defaults to False.
+        :param renderer: Rendering backend. Defaults to PYYAML.
 
-        Raises:
-            MissingMetaYaml: Missing meta.yaml
-            Exception: An exception
+        :raises MissingMetaYaml: Missing meta.yaml
+        :raises Exception: An exception
 
-        Returns:
-            Recipe: A Recipe object.
+        :returns: A Recipe object.
         """
         try:
             recipe = cls("", variant_id, variant, renderer)
@@ -214,19 +206,16 @@ class Recipe:
         """
         Create new `Recipe` object from file
 
-        Args:
-            recipe_fname: Path to recipe meta.yaml
-            variant_id: Variant id
-            variant: Variant configuration.
-            return_exceptions: Whether to return exceptions. Defaults to False.
-            renderer: Rendering backend. Defaults to PYYAML.
+        :param recipe_fname: Path to recipe meta.yaml
+        :param variant_id: Variant id
+        :param variant: Variant configuration.
+        :param return_exceptions: Whether to return exceptions. Defaults to False.
+        :param renderer: Rendering backend. Defaults to PYYAML.
 
-        Raises:
-            MissingMetaYaml: Missing meta.yaml
-            Exception: An exception
+        :raises MissingMetaYaml: Missing meta.yaml
+        :raises Exception: An exception
 
-        Returns:
-            Recipe: A Recipe object.
+        :returns: A Recipe object.
         """
         recipe_fname = Path(recipe_fname)
         recipe = cls(recipe_fname, variant_id, variant, renderer)
@@ -263,8 +252,7 @@ class Recipe:
         """
         Has recipe been modified.
 
-        Returns:
-            bool: True if recipe has been modified.
+        :returns: True if recipe has been modified.
         """
         return self.meta_yaml != self.orig.meta_yaml
 
@@ -501,11 +489,9 @@ class Recipe:
         See also `get_raw()` if you want to get the content of the unparsed
         meta.yaml at a specific key.
 
-        Args:
-          path: The "path" to the node. Use numbers for lists ('source/1/url')
+        :param path: The "path" to the node. Use numbers for lists ('source/1/url')
 
-        Returns:
-          a tuple of first_row, first_column, last_row, last_column
+        :returns: A tuple of first_row, first_column, last_row, last_column
         """
         if not path or self.renderer != renderer_utils.RendererType.RUAMEL:
             if self.meta_yaml:
@@ -552,14 +538,10 @@ class Recipe:
         This may contain separators and other characters from
         the yaml!
 
-        Args:
-          path: Slash-separated path to the node. Numbers can be used
-                to access indices in lists. A number '0' is ignored if
-                the node is a dict (so 'source/0/url' will work even if
-                there is only one url).
+        :param path: Slash-separated path to the node. Numbers can be used to access indices in lists. A number '0' is
+            ignored if the node is a dict (so 'source/0/url' will work even if there is only one url).
 
-        Returns:
-          Extracted raw text
+        :returns: Extracted raw text
         """
         start_row, start_col, end_row, end_col = self.get_raw_range(path)
         if start_row == end_row:
@@ -590,12 +572,9 @@ class Recipe:
         I.e., `source/0/url` will always get the first url, whether or
         not the source section is a list.
 
-        Args:
-          path: Path through YAML
-          default: If not KeyError, this value will be returned
-                   if the path does not exist in the recipe
-        Raises:
-          KeyError if no default given and the path does not exist.
+        :param path: Path through YAML
+        :param default: If not KeyError, this value will be returned if the path does not exist in the recipe
+        :raises KeyError: If no default given and the path does not exist.
         """
         try:
             nodes, _ = self._walk(path)
@@ -619,15 +598,11 @@ class Recipe:
         element in a list or the contents directly if there is no list.
         I.e., `source/0/url` will always get the first url, whether or
         not the source section is a list.
-        Args:
-            path: Path through YAML
-            value: The string to match
-            default: If not KeyError, this value will be returned
-                    if the path does not exist in the recipe
-        Returns:
-            Value match (bool).
-        Raises:
-            KeyError if no default given and the path does not exist.
+        :param path: Path through YAML
+        :param value: The string to match
+        :param default: If not KeyError, this value will be returned if the path does not exist in the recipe
+        :raises KeyError: If no default given and the path does not exist.
+        :returns: True if the value matches. False otherwise.
         """
         res = self.get(path, default)
         if isinstance(res, str):
@@ -684,13 +659,11 @@ class Recipe:
     ) -> bool:
         """
         Patch the recipe given a set of operations.
-        Args:
-            operations: operations to apply
-            increment_build_number: automatically increment the build number of the operations result in changes
-            evaluate_selectors: don't evaluate selectors when applying operations
-            op_mode: selects which operational mode to perform patches with
-        Returns:
-            True if recipe was patched. (bool).
+        :param operations: operations to apply
+        :param increment_build_number: automatically increment the build number of the operations result in changes
+        :param evaluate_selectors: don't evaluate selectors when applying operations
+        :param op_mode: selects which operational mode to perform patches with
+        :returns: True if recipe was patched.
         """
         # Early-escape the parse-tree operational mode. Allows us to A/B test
         # and use the newer parse tree work.
@@ -748,9 +721,8 @@ class Recipe:
     def _patch(self, operation: JsonPatchType, evaluate_selectors: bool) -> None:
         """
         Helper function that performs a single patch operation
-        Args:
-            operation: operation to apply
-            evaluate_selectors: don't evaluate selectors when applying operations
+        :param operation: operation to apply
+        :param evaluate_selectors: don't evaluate selectors when applying operations
         """
         # read operation parameters
         op = operation["op"]
@@ -957,15 +929,13 @@ class Dep:
         """
         A dependency
 
-        Args:
-            raw_dep (str): A dependency string. E.g. "numpy <1.24"
-            path (str): Path in the recipe. E.g. outputs/1/requirements/run
+        :param raw_dep: A dependency string. E.g. "numpy <1.24"
+        :param path: Path in the recipe. E.g. outputs/1/requirements/run
 
-        Attributes:
-            raw_dep (str): A dependency string. E.g. "numpy <1.24"
-            pkg (str): The package part. E.g. "numpy"
-            variable (str): The constraint part. E.g. "<1.24"
-            path (str): Path in the recipe. E.g. outputs/1/requirements/run
+        :var raw_dep: A dependency string. E.g. "numpy <1.24"
+        :var pkg: The package part. E.g. "numpy"
+        :var variable: The constraint part. E.g. "<1.24"
+        :var path: Path in the recipe. E.g. outputs/1/requirements/run
         """
         self.raw_dep = str(raw_dep)
         splits = re.split(r"[\s<=>]", self.raw_dep, 1)
@@ -1008,24 +978,20 @@ class Package:
         """
         Access this dataclass attributes through square brackets.
 
-        Args:
-            key (str): An attribute name of this data class.
+        :param key: An attribute name of this data class.
 
-        Returns:
-            Any: The value of the attribute.
+        :returns: The value of the attribute.
         """
         return getattr(self, key)
 
-    def get(self, key: str, default=None) -> Any:
+    def get(self, key: str, default: Optional[Any] = None) -> Any:
         """
         Access this dataclass attributes through a getter.
 
-        Args:
-            key (str): An attribute name of this data class.
-            default (_type_, optional): Default value. Defaults to None.
+        :param key: An attribute name of this data class.
+        :param default: Default value. Defaults to None.
 
-        Returns:
-            Any: The value of the attribute.
+        :returns: The value of the attribute.
         """
         try:
             return getattr(self, key, default)
@@ -1036,12 +1002,10 @@ class Package:
         """
         Returns true if the package is present in the given section.
 
-        Args:
-            section (str): A section. E.g. "build", "host", "run", "run_constrained
-            pkg_name (str): A package name.
+        :param section: A section. E.g. "build", "host", "run", "run_constrained
+        :param pkg_name: A package name.
 
-        Returns:
-            bool: True if the package is present in the given section.
+        :returns: True if the package is present in the given section.
         """
         return any(pkg_name.lower() == dep.pkg.lower() for dep in self[section])
 
@@ -1050,8 +1014,7 @@ class Package:
         Merge dependency list of another Package object into this Package.
         This is especially useful to create an aggregate of multiple variants.
 
-        Args:
-            other (Package): The other Package.
+        :param other: The other Package.
         """
         self.build.update(other.build)
         self.host.update(other.host)
@@ -1072,16 +1035,14 @@ def render(
     """
     Render a recipe
 
-    Args:
-        recipe_path: Path to a recipe.
-        subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
-        python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
-        others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
-        return_exceptions: Whether to handle errors as exceptions. Defaults to False.
-        renderer: Rendering backend. Defaults to PYYAML.
+    :param recipe_path: Path to a recipe.
+    :param subdir: A list of subdir to render for. E.g. ["linux-64", "win-64"]. Defaults to None to render all subdirs.
+    :param python: A list of python version to render for. E.g. ["3.10", "3.11"]. Defaults to None to render all python.
+    :param others: Additional variants configuration. E.g. {"blas_impl" : "openblas"} Defaults to None.
+    :param return_exceptions: Whether to handle errors as exceptions. Defaults to False.
+    :param renderer: Rendering backend. Defaults to PYYAML.
 
-    Returns:
-        A list of rendered Recipe, one per variant.
+    :returns: A list of rendered Recipe, one per variant.
     """
 
     # gather all possible variants
@@ -1115,9 +1076,7 @@ def dump_render_results(render_results: list[Recipe], out: TextIO = sys.stdout) 
     """
     Dumps a list of rendered variants of a recipe.
 
-    Args:
-        render_results (list[Recipe]): list of rendered variants.
-        out (TextIO, optional): Output stream. Defaults to sys.stdout.
-
+    :param render_results: list of rendered variants.
+    :param out: Output stream. Defaults to sys.stdout.
     """
     dumper.dump_render_results(render_results, out)

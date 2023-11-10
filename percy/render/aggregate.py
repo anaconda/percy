@@ -189,12 +189,11 @@ FeedstockGitRepo = namedtuple("FeedstockGitRepo", ["name", "git_url", "branch", 
 class Aggregate:
     """An object to handle a repository of feedstocks.
 
-    Attributes:
-        local_path (Path): Aggregate path.
-        git_url (str): Aggregate git url.
-        git_branch (str): Aggregate git branch.
-        packages (dict[str,Package]): Rendered packages. (Populated after calling load_local_feedstocks.)
-        feedstocks (dict[str,Feedstock]): Feedstocks. (Populated after calling load_local_feedstocks.)
+    :ivar local_path: Aggregate path.
+    :ivar git_url: Aggregate git url.
+    :ivar git_branch: Aggregate git branch.
+    :ivar packages: Rendered packages. (Populated after calling load_local_feedstocks.)
+    :ivar feedstocks: Feedstocks. (Populated after calling load_local_feedstocks.)
     """
 
     def __init__(self, aggregate_path: str, manifest_path: Optional[str] = None):
@@ -397,8 +396,7 @@ class Aggregate:
     def package_to_feedstock_path(self) -> dict[str, str]:
         """Returns a mapping of package name to feedstock path.
 
-        Returns:
-            dict[str, str]: mapping of package name to feedstock path.
+        :returns: Mapping of package name to feedstock path.
         """
         package_to_feedstock = {}
         for name, package in self.packages.items():
@@ -408,8 +406,7 @@ class Aggregate:
     def _build_order(self) -> dict[str, Feedstock]:
         """Computes a feedstock build order.
 
-        Returns:
-            dict[str, Feedstock]: An ordered dictionary of Feedstock.
+        :returns: An ordered dictionary of Feedstock.
         """
         # feedstock build order
         feedstocks = {}

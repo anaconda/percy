@@ -72,8 +72,7 @@ class Recipe:
         """
         Has recipe been modified.
 
-        Returns:
-            bool: True if recipe has been modified.
+        :returns: True if recipe has been modified.
         """
         return self.meta_yaml != self.orig.meta_yaml
 
