@@ -197,7 +197,7 @@ class Recipe:
     @classmethod
     def from_file(
         cls,
-        recipe_fname: str,
+        recipe_fname: str | Path,
         variant_id: Optional[str] = None,
         variant: Optional[Variant] = None,
         return_exceptions: bool = False,
