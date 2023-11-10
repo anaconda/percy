@@ -124,6 +124,6 @@ def compare_package_with_defaults(package: Package, defaults_pkgs: dict[str, dic
                     "defaults_version": defaults_version,
                     "defaults_build_number": defaults_build_number,
                 }
-    except (ValueError, InvalidVersionSpec) as exc:
-        logging.error("Exception: %s %s", local_name, exc)
+    except (ValueError, InvalidVersionSpec):
+        logging.exception(local_name)
     return result
