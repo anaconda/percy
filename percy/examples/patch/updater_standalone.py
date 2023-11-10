@@ -107,11 +107,9 @@ class Recipe:
         See also `get_raw()` if you want to get the content of the unparsed
         meta.yaml at a specific key.
 
-        Args:
-          path: The "path" to the node. Use numbers for lists ('source/1/url')
+        :param path: The "path" to the node. Use numbers for lists ('source/1/url')
 
-        Returns:
-          a tuple of first_row, first_column, last_row, last_column
+        :returns: A tuple of first_row, first_column, last_row, last_column
         """
         if not path:
             if self.meta_yaml:
@@ -167,12 +165,10 @@ class Recipe:
         I.e., `source/0/url` will always get the first url, whether or
         not the source section is a list.
 
-        Args:
-          path: Path through YAML
-          default: If not KeyError, this value will be returned
-                   if the path does not exist in the recipe
-        Raises:
-          KeyError if no default given and the path does not exist.
+        :param path: Path through YAML
+        :param default: If not KeyError, this value will be returned
+                        if the path does not exist in the recipe
+        :raises: KeyError if no default given and the path does not exist.
         """
         try:
             nodes, keys = self._walk(path)

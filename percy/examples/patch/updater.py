@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 
 import percy.render.recipe as recipe
+from percy.render._renderer import RendererType
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -46,7 +47,7 @@ def load_recipe(recipe_path):
         ["3.10"],
         others,
         False,
-        recipe.RendererType.RUAMEL,
+        RendererType.RUAMEL,
     )
     rendered_recipe = next(iter(rendered_recipes))
     return rendered_recipe

@@ -16,7 +16,8 @@ from typing import Any, Optional
 
 import yaml
 
-from percy.render.recipe import Package, RendererType, render
+from percy.render._renderer import RendererType
+from percy.render.recipe import Package, render
 
 
 class PackageNode:
@@ -37,11 +38,10 @@ class PackageNode:
     ):
         """PackageNode constructor
 
-        Args:
-            parent (PackageNode): The parent node.
-            package_name (str): The package name.
-            package (Package): The corresponding rendered package.
-            is_run (bool): If this is coming from a run dependency.
+        :param parent: The parent node.
+        :param package_name: The package name.
+        :param package: The corresponding rendered package.
+        :param is_run: If this is coming from a run dependency.
         """
         self.parents = set([parent])
         self.package_name = package_name
@@ -62,8 +62,7 @@ class PackageNode:
         """
         Initialize a dependency tree.
 
-        Args:
-            aggregate (Aggregate): The aggregate object.
+        :param aggregate: The aggregate object.
         """
         PackageNode.aggregate = aggregate
         PackageNode.nodes = {}
@@ -80,14 +79,12 @@ class PackageNode:
         """
         Make a node representing a package.
 
-        Args:
-            package_name (str): The name of the package.
-            walk_up_sections (tuple): Call make_node on dependencies from these sections.
-            origin_section (str, optional): If the package was used in a run section or other. Defaults to "run".
-            parent (PackageNode, optional): Parent node. Defaults to None.
+        :param package_name: The name of the package.
+        :param walk_up_sections: Call make_node on dependencies from these sections.
+        :param origin_section: If the package was used in a run section or other. Defaults to "run".
+        :param parent: Parent node. Defaults to None.
 
-        Returns:
-            PackageNode: The package node.
+        :returns: PackageNode: The package node.
         """
 
         node = None
@@ -203,9 +200,8 @@ class Aggregate:
     def __init__(self, aggregate_path: str, manifest_path: Optional[str] = None):
         """Constructor
 
-        Args:
-            aggregate_path: Aggregate local path.
-            manifest_path:  (Optional) Path to the manifest file
+        :param aggregate_path: Aggregate local path.
+        :param manifest_path:  (Optional) Path to the manifest file
         """
 
         # get local aggregate info
@@ -261,11 +257,9 @@ class Aggregate:
     def _get_feedstock_git_repo(self, feedstock_path_rel: Path) -> Feedstock:
         """Get Feedsotck object from feedstock local path.
 
-        Args:
-            feedstock_path_rel (Path): Feedsotck local path.
+        :param feedstock_path_rel: Feedsotck local path.
 
-        Returns:
-            Feedstock: Feedstock representation.
+        :returns Feedstock: Feedstock representation.
         """
         feedstock = self.submodules.get(feedstock_path_rel.name, None)
         if feedstock:
@@ -292,14 +286,12 @@ class Aggregate:
 
             This populates attributes packages and feedstocks.
 
-        Args:
-            subdir:     The subdir for which to load the feedstocks. Defaults to "linux-64".
-            python:     The python version for which to load the feedstocks. Defaults to "3.10".
-            others:     A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
-            renderer:   Rendering engine to use to interpret YAML
+        :param subdir:     The subdir for which to load the feedstocks. Defaults to "linux-64".
+        :param python:     The python version for which to load the feedstocks. Defaults to "3.10".
+        :param others:     A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
+        :param renderer:   Rendering engine to use to interpret YAML
 
-        Returns:
-            Rendered packages contained in aggregate (also available as aggregate packages attribute).
+        :returns:    Rendered packages contained in aggregate (also available as aggregate packages attribute).
         """
 
         if others is None:

@@ -14,6 +14,7 @@ import click
 
 import percy.commands.aggregate
 import percy.render.recipe
+from percy.render._renderer import RendererType
 
 # pylint: disable=line-too-long
 
@@ -50,7 +51,7 @@ def base_options(f: Callable):
         "-b",
         callback=percy.commands.aggregate.sanitize_renderer_enum,
         type=click.Choice(
-            [e.name for e in percy.render.recipe.renderer.RendererType],
+            [e.name for e in RendererType],
             case_sensitive=False,
         ),
         default="PYYAML",
@@ -211,7 +212,7 @@ def patch(obj, subdir, python, others, backend, increment_build_number: bool, pa
     recipe: percy.render.recipe.Recipe  # pylint: disable=redefined-outer-name
     # Enables parse-tree mode
     if parse_tree:
-        backend = percy.render.recipe.RendererType.PERCY
+        backend = RendererType.PERCY
         op_mode = percy.render.recipe.OpMode.PARSE_TREE
         recipe = percy.render.recipe.Recipe.from_file(
             recipe_path,

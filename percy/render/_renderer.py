@@ -128,12 +128,10 @@ _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
 def apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
     """Apply selectors # [...]
 
-    Args:
-        data: Raw meta yaml string
-        selector_dict: Selector configuration.
+    :param data: Raw meta yaml string
+    :param selector_dict: Selector configuration.
 
-    Returns:
-        meta yaml filtered based on selectors, as a list of string.
+    :returns:    Meta yaml filtered based on selectors, as a list of string.
     """
     updated_data = []
     for line in data.splitlines():

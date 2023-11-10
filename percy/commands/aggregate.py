@@ -17,6 +17,7 @@ import yaml
 import percy.render.aggregate
 import percy.render.recipe
 import percy.repodata.repodata
+from percy.render._renderer import RendererType
 
 
 def get_configured_aggregate(cmd_line: Optional[str | Path] = None) -> Path:
@@ -46,7 +47,7 @@ def get_configured_aggregate(cmd_line: Optional[str | Path] = None) -> Path:
 
 
 def load_aggregate(
-    obj: Any, subdir: str, python: str, others: dict[str, str], renderer: percy.render.recipe.RendererType
+    obj: Any, subdir: str, python: str, others: dict[str, str], renderer: RendererType
 ) -> percy.render.aggregate.Aggregate:
     """
     Reads aggregate from disk and constructs an object.
@@ -80,7 +81,7 @@ def print_build_order(buildout: dict[str, percy.render.aggregate.Feedstock]) -> 
             print(f"{i:03} {feedstock.name:30} {list(feedstock.packages.keys())}")
 
 
-def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererType:  # pylint: disable=invalid-name
+def sanitize_renderer_enum(_0, _1, value: str) -> RendererType:  # pylint: disable=invalid-name
     """
     Takes the renderer type as a user provided string and converts it to the
     enum form.
@@ -88,7 +89,7 @@ def sanitize_renderer_enum(_0, _1, value: str) -> percy.render.recipe.RendererTy
     :returns: Enumerated version o the parser
     """
     # Access should be safe as `click` handles the input limitations for us.
-    return percy.render.recipe.RendererType[value.upper()]
+    return RendererType[value.upper()]
 
 
 def base_options(f: Callable):

@@ -41,9 +41,8 @@ def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) 
     """
     Dumps a list of rendered variants of a recipe.
 
-    Args:
-        render_results: List of rendered variants.
-        out: Output stream. Defaults to sys.stdout.
+    :param render_results: List of rendered variants.
+    :param out: Output stream. Defaults to sys.stdout.
 
     """
     data_to_dump = []
@@ -62,9 +61,8 @@ def _dump_render_results_yaml(render_results: list, out: TextIO = sys.stdout) ->
     """
     Dumps a list of rendered variants of a recipe.
 
-    Args:
-        render_results: List of rendered variants.
-        out: Output stream. Defaults to sys.stdout.
+    :param render_results: List of rendered variants.
+    :param out: Output stream. Defaults to sys.stdout.
 
     """
 
