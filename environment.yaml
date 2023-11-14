@@ -17,8 +17,11 @@ dependencies:
   - conda
   - jinja2
   - pyyaml
+  - types-pyyaml
   - requests
+  - types-requests
   - ruamel.yaml
   - conda-build
   - jsonschema
+  - types-jsonschema
   - pre-commit

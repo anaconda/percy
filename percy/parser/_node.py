@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Optional
 
 from percy.parser._types import ROOT_NODE_VALUE
-from percy.parser.types import Primitives
+from percy.parser.types import NodeValue, SentinelType
 
 
 class Node:
@@ -26,11 +26,11 @@ class Node:
 
     # Sentinel used to discern a `null` in the YAML file and a defaulted, unset value. For example, comment-only lines
     # should always be set to the `_sentinel` object.
-    _sentinel = object()
+    _sentinel = SentinelType()
 
     def __init__(
         self,
-        value: Primitives = _sentinel,
+        value: NodeValue | SentinelType = _sentinel,
         comment: str = "",
         children: Optional[list["Node"]] = None,
         list_member_flag: bool = False,
@@ -98,7 +98,7 @@ class Node:
             return f"<Comment: {self.comment}>"
         if self.is_collection_element():
             return "<Collection Node>"
-        return self.value
+        return str(self.value)
 
     def is_leaf(self) -> bool:
         """
@@ -119,7 +119,7 @@ class Node:
         Indicates if a line contains only a comment. When rendered, this will be a comment only-line.
         :returns: True if the node represents only a comment. False otherwise.
         """
-        return self.value == Node._sentinel and self.comment and not self.children
+        return self.value == Node._sentinel and bool(self.comment) and not self.children
 
     def is_empty_key(self) -> bool:
         """
@@ -153,4 +153,4 @@ class Node:
         value itself BUT it contains children that do.
         :returns: True if the noe represents an element that is a collection. False otherwise.
         """
-        return self.value == Node._sentinel and self.list_member_flag and len(self.children)
+        return self.value == Node._sentinel and self.list_member_flag and bool(self.children)
