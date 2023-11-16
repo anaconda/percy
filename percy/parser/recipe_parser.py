@@ -18,7 +18,7 @@ import ast
 import difflib
 import json
 import re
-from typing import Callable, Final, Optional
+from typing import Callable, Final, Optional, TypeGuard, cast, no_type_check
 
 import yaml
 from jsonschema import validate as schema_validate
@@ -26,16 +26,15 @@ from jsonschema import validate as schema_validate
 from percy.parser._node import Node
 from percy.parser._selector_info import SelectorInfo
 from percy.parser._traverse import remap_child_indices_virt_to_phys, traverse, traverse_all, traverse_with_index
-from percy.parser._types import (
-    PERCY_SUB_MARKER,
-    ROOT_NODE_VALUE,
-    ForceIndentDumper,
-    OpsTable,
-    Regex,
-    StrStack,
-    StrStackImmutable,
+from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, ForceIndentDumper, Regex, StrStack
+from percy.parser._utils import (
+    dedupe_and_preserve_order,
+    num_tab_spaces,
+    stack_path_to_str,
+    str_to_stack_path,
+    stringify_yaml,
+    substitute_markers,
 )
-from percy.parser._utils import num_tab_spaces, stack_path_to_str, str_to_stack_path, stringify_yaml, substitute_markers
 from percy.parser.enums import SelectorConflictMode
 from percy.parser.exceptions import JsonPatchValidationException
 from percy.parser.types import (
@@ -46,6 +45,7 @@ from percy.parser.types import (
     JsonPatchType,
     JsonType,
     Primitives,
+    SentinelType,
 )
 
 
@@ -66,11 +66,11 @@ class RecipeParser:
     rule.
     """
 
-    # Static set of patch operations that require `value`. The others require `from`.
-    _patch_ops_requiring_value = set(["add", "remove", "replace", "test"])
+    # Static set of patch operations that require `from`. The others require `value` or nothing.
+    _patch_ops_requiring_from = set(["copy", "move"])
     # Sentinel object used for detecting defaulting behavior.
     # See here for a good explanation: https://peps.python.org/pep-0661/
-    _sentinel = object()
+    _sentinel = SentinelType()
 
     @staticmethod
     def _parse_yaml(s: str, parser: Optional[RecipeParser] = None) -> JsonType:
@@ -84,29 +84,31 @@ class RecipeParser:
         """
 
         # Recursive helper function used when we need to perform variable substitutions
-        def _parse_yaml_recursive_sub(data: JsonType, modifier: Callable[[JsonType], JsonType]) -> JsonType:
+        def _parse_yaml_recursive_sub(data: JsonType, modifier: Callable[[str], JsonType]) -> JsonType:
             # Add the substitutions back in
             if isinstance(data, str):
                 data = modifier(data)
             if isinstance(data, dict):
                 for key in data.keys():
-                    data[key] = _parse_yaml_recursive_sub(data[key], modifier)
+                    data[key] = _parse_yaml_recursive_sub(cast(str, data[key]), modifier)
             elif isinstance(data, list):
                 for i in range(len(data)):
-                    data[i] = _parse_yaml_recursive_sub(data[i], modifier)
+                    data[i] = _parse_yaml_recursive_sub(cast(str, data[i]), modifier)
             return data
 
         output: JsonType = None
         try:
-            output = yaml.safe_load(s)
+            output = cast(JsonType, yaml.safe_load(s))
         except Exception:  # pylint: disable=broad-exception-caught
             # If a construction exception is thrown, attempt to re-parse by replacing Jinja macros (substrings in
             # `{{}}`) with friendly string substitution markers, then re-inject the substitutions back in. We classify
             # all Jinja substitutions as string values, so we don't have to worry about the type of the actual
             # substitution.
-            sub_list = Regex.JINJA_SUB.findall(s)
+            sub_list: list[str] = Regex.JINJA_SUB.findall(s)
             s = Regex.JINJA_SUB.sub(PERCY_SUB_MARKER, s)
-            output = _parse_yaml_recursive_sub(yaml.safe_load(s), lambda d: substitute_markers(d, sub_list))
+            output = _parse_yaml_recursive_sub(
+                cast(JsonType, yaml.safe_load(s)), lambda d: substitute_markers(d, sub_list)
+            )
             # Because we leverage PyYaml to parse the data structures, we need to perform a second pass to perform
             # variable substitutions.
             if parser is not None:
@@ -154,7 +156,7 @@ class RecipeParser:
             # If the value returned is None, there is no leaf node to set
             if output[key] is not None:
                 # As the line is shared by both parent and child, the comment gets tagged to both.
-                children.append(Node(output[key], comment))
+                children.append(Node(cast(Primitives, output[key]), comment))
             return Node(key, comment, children, key_flag=True)
         # If a list is returned, then this line is a listed member of the parent Node
         if isinstance(output, list):
@@ -174,13 +176,13 @@ class RecipeParser:
                 key_children: list[Node] = []
                 key = list(output[0].keys())[0]
                 if output[0][key] is not None:
-                    key_children.append(Node(output[0][key], comment))
+                    key_children.append(Node(cast(Primitives, output[0][key]), comment))
                 key_node = Node(key, comment, key_children, key_flag=True)
 
                 elem_node = Node(comment=comment, list_member_flag=True)
                 elem_node.children.append(key_node)
                 return elem_node
-            return Node(output[0], comment, list_member_flag=True)
+            return Node(cast(Primitives, output[0]), comment, list_member_flag=True)
         # Other types are just leaf nodes. This is scenario should likely not be triggered given our recipe files don't
         # have single valid lines of YAML, but we cover this case for the sake of correctness.
         return Node(output, comment)
@@ -204,7 +206,7 @@ class RecipeParser:
         if not isinstance(value, PRIMITIVES_TUPLE):
             # Although not technically required by YAML, we add the optional spacing for human readability.
             return RecipeParser(  # pylint: disable=protected-access
-                yaml.dump(value, Dumper=ForceIndentDumper)
+                yaml.dump(value, Dumper=ForceIndentDumper)  # type: ignore[misc]
             )._root.children
 
         # Primitives can be safely stringified to generate a parse tree.
@@ -219,7 +221,7 @@ class RecipeParser:
         """
         replacement = False
         # Search the string, replacing all substitutions we can recognize
-        for match in Regex.JINJA_SUB.findall(s):
+        for match in cast(list[str], Regex.JINJA_SUB.findall(s)):
             lower_case = False
             # The regex guarantees the string starts and ends with double braces
             key = match[2:-2].strip()
@@ -238,7 +240,7 @@ class RecipeParser:
                 s = s.replace(match, value)
                 replacement = True
         if replacement:
-            return yaml.safe_load(s)
+            return cast(JsonType, yaml.safe_load(s))
         return s
 
     def _rebuild_selectors(self) -> None:
@@ -248,14 +250,14 @@ class RecipeParser:
         """
         self._selector_tbl: dict[str, list[SelectorInfo]] = {}
 
-        def _collect_selectors(node: Node, path: StrStackImmutable) -> None:
+        def _collect_selectors(node: Node, path: StrStack) -> None:
             # Ignore empty comments
             if not node.comment:
                 return
             match = Regex.SELECTOR.search(node.comment)
             if match:
                 selector = match.group(0)
-                selector_info = SelectorInfo(node, path)
+                selector_info = SelectorInfo(node, list(path))
                 if selector not in self._selector_tbl:
                     self._selector_tbl[selector] = [selector_info]
                 else:
@@ -276,11 +278,11 @@ class RecipeParser:
         # Tracks Jinja variables set by the file
         self._vars_tbl: dict[str, JsonType] = {}
         # Find all the set statements and record the values
-        for line in Regex.JINJA_SET_LINE.findall(self._init_content):
+        for line in cast(list[str], Regex.JINJA_SET_LINE.findall(self._init_content)):
             key = line[line.find("set") + len("set") : line.find("=")].strip()
             value = line[line.find("=") + len("=") : line.find("%}")].strip()
             try:
-                self._vars_tbl[key] = ast.literal_eval(value)
+                self._vars_tbl[key] = ast.literal_eval(value)  # type: ignore[misc]
             except Exception:  # pylint: disable=broad-exception-caught
                 self._vars_tbl[key] = value
 
@@ -317,6 +319,8 @@ class RecipeParser:
                 # Per YAML spec, multiline statements can't be commented. In other words, the `#` symbol is seen as a
                 # string character in multiline values.
                 multiline_node = Node([], multiline_flag=True)
+                # Type narrow that we assigned `value` as a `list`
+                assert isinstance(multiline_node.value, list)
                 multiline = lines[line_idx]
                 multiline_indent = num_tab_spaces(multiline)
                 # Add the line to the list once it is verified to be the next line to capture in this node. This means
@@ -355,7 +359,7 @@ class RecipeParser:
         self._rebuild_selectors()
 
     @staticmethod
-    def _str_tree_recurse(node: Node, depth: int, lines: list[str]) -> str:
+    def _str_tree_recurse(node: Node, depth: int, lines: list[str]) -> None:
         """
         Helper function that renders a parse tree as a text-based dependency tree. Useful for debugging.
         :param node: Node of interest
@@ -454,7 +458,7 @@ class RecipeParser:
             # By the language spec, # symbols do not indicate comments on multiline strings.
             if node.children[0].multiline_flag:
                 lines.append(f"{spaces}{node.value}: |  {node.comment}".rstrip())
-                for val_line in node.children[0].value:
+                for val_line in cast(list[str], node.children[0].value):
                     lines.append(f"{spaces}{TAB_AS_SPACES}" f"{stringify_yaml(val_line, True)}".rstrip())
                 return
             lines.append(
@@ -502,7 +506,7 @@ class RecipeParser:
         Takes the current state of the parse tree and returns the recipe file as a string.
         :returns: String representation of the recipe file
         """
-        lines = []
+        lines: list[str] = []
 
         # Render variable set section
         for key, val in self._vars_tbl.items():
@@ -520,6 +524,7 @@ class RecipeParser:
 
         return "\n".join(lines)
 
+    @no_type_check
     def _render_object_tree(self, node: Node, replace_variables: bool, data: JsonType) -> None:
         """
         Recursive helper function that traverses the parse tree to generate a Pythonic data object.
@@ -531,7 +536,7 @@ class RecipeParser:
         if node.is_comment():
             return
 
-        key = node.value
+        key = cast(str, node.value)
         for child in node.children:
             # Ignore comment-only lines
             if child.is_comment():
@@ -583,12 +588,14 @@ class RecipeParser:
         :returns: Pythonic data object representation of the recipe.
         """
         data: JsonType = {}
+        # Type narrow after assignment
+        assert isinstance(data, dict)
 
         # Bootstrap/flatten the root-level
         for child in self._root.children:
             if child.is_comment():
                 continue
-            data.setdefault(child.value, {})
+            data.setdefault(cast(str, child.value), {})
             self._render_object_tree(child, replace_variables, data)
 
         return data
@@ -619,7 +626,7 @@ class RecipeParser:
         path_stack = str_to_stack_path(path)
         return traverse(self._root, path_stack) is not None
 
-    def get_value(self, path: str, default: JsonType = _sentinel, sub_vars: bool = False) -> JsonType:
+    def get_value(self, path: str, default: JsonType | SentinelType = _sentinel, sub_vars: bool = False) -> JsonType:
         """
         Retrieves a value at a given path. If the value is not found, return a specified default value or throw.
         :param path: JSON patch (RFC 6902)-style path to a value.
@@ -634,7 +641,7 @@ class RecipeParser:
 
         # Handle if the path was not found
         if node is None:
-            if default == RecipeParser._sentinel:
+            if default == RecipeParser._sentinel or isinstance(default, SentinelType):
                 raise KeyError(f"No value/key found at path {path!r}")
             return default
 
@@ -645,23 +652,24 @@ class RecipeParser:
             if node.children[0].multiline_flag:
                 # PyYaml will not preserve newlines passed into strings, so we can directly check for variable
                 # substitutions on a multiline string
-                multiline_str = "\n".join(node.children[0].value)
+                multiline_str = "\n".join(cast(str, node.children[0].value))
                 if sub_vars:
                     return self._render_jinja_vars(multiline_str)
                 return multiline_str
-            return_value = node.children[0].value
+            return_value = cast(Primitives, node.children[0].value)
         # Leaf nodes can return their value directly
         elif node.is_leaf():
-            return_value = node.value
+            return_value = cast(Primitives, node.value)
         else:
             # NOTE: Traversing the tree and generating our own data structures will be more efficient than rendering and
             # leveraging the YAML parser, BUT this method re-uses code and is easier to maintain.
-            lst = []
+            lst: list[str] = []
             RecipeParser._render_tree(node, -1, lst)
             return_value = "\n".join(lst)
 
-        # Collection types may contain strings that need to be re-rendered
-        if isinstance(return_value, (list, dict, str)):
+        # Collection types are transformed into strings above and will need to be transformed into a proper data type.
+        # `_parse_yaml()` will also render JINJA variables for us, if requested.
+        if isinstance(return_value, str):
             parser = self if sub_vars else None
             return RecipeParser._parse_yaml(return_value, parser)
         return return_value
@@ -707,7 +715,7 @@ class RecipeParser:
         """
         return var in self._vars_tbl
 
-    def get_variable(self, var: str, default: Primitives = _sentinel) -> Primitives:
+    def get_variable(self, var: str, default: JsonType | SentinelType = _sentinel) -> JsonType:
         """
         Returns the value of a variable set in the recipe. If specified, a default value will be returned if the
         variable name is not found.
@@ -717,12 +725,12 @@ class RecipeParser:
         :returns: The value (or specified default value if not found) of the variable name provided.
         """
         if var not in self._vars_tbl:
-            if default == RecipeParser._sentinel:
+            if default == RecipeParser._sentinel or isinstance(default, SentinelType):
                 raise KeyError
             return default
         return self._vars_tbl[var]
 
-    def set_variable(self, var: str, value: Primitives) -> None:
+    def set_variable(self, var: str, value: JsonType) -> None:
         """
         Adds or changes an existing Jinja variable.
         :param var: Variable to modify
@@ -755,14 +763,13 @@ class RecipeParser:
         # match the very common `{{ name | lower }}` expression, or similar piping functions.
         var_re = re.compile(r"{{.*" + var + r".*}}")
 
-        def _collect_var_refs(node: Node, path: StrStackImmutable) -> None:
+        def _collect_var_refs(node: Node, path: StrStack) -> None:
             # Variables can only be found inside string values.
             if isinstance(node.value, str) and var_re.search(node.value):
                 path_list.append(stack_path_to_str(path))
 
         traverse_all(self._root, _collect_var_refs)
-        # The list should be de-duped and maintain order.
-        return list(dict.fromkeys(path_list))
+        return dedupe_and_preserve_order(path_list)
 
     ## Selector Functions ##
 
@@ -803,7 +810,7 @@ class RecipeParser:
         # For example:
         #   skip: True  # [unix]
         # The nodes for both `skip` and `True` contain the comment `[unix]`
-        return list(dict.fromkeys(path_list))
+        return dedupe_and_preserve_order(path_list)
 
     def add_selector(self, path: str, selector: str, mode: SelectorConflictMode = SelectorConflictMode.REPLACE) -> None:
         """
@@ -890,7 +897,7 @@ class RecipeParser:
     ## YAML Patching Functions ##
 
     @staticmethod
-    def _is_valid_patch_node(node: Node, node_idx: int) -> bool:
+    def _is_valid_patch_node(node: Optional[Node], node_idx: int) -> TypeGuard[Node]:
         """
         Indicates if the target node to perform a patch operation against is a valid node. This is based on the RFC spec
         for JSON patching paths.
@@ -950,11 +957,12 @@ class RecipeParser:
 
         return node, node_idx, path_to_create, append_to_list
 
-    def _patch_add(self, _: str, path_stack: StrStack, value: JsonType) -> bool:
+    def _patch_add(self, path_stack: StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `add` operation.
         :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
         :param value: Value to add.
+        :returns: True if the operation was successful. False otherwise.
         """
         # NOTE from the RFC:
         #   Because this operation is designed to add to existing objects and arrays, its target location will often
@@ -989,12 +997,11 @@ class RecipeParser:
 
         return True
 
-    def _patch_remove(
-        self, _0: str, path_stack: StrStack, _1: Optional[JsonType]  # pylint: disable=invalid-name
-    ) -> bool:
+    def _patch_remove(self, path_stack: StrStack) -> bool:
         """
         Performs a JSON patch `remove` operation.
         :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
+        :returns: True if the operation was successful. False otherwise.
         """
         if len(path_stack) == 0:
             return False
@@ -1004,12 +1011,12 @@ class RecipeParser:
         # `traverse()` is destructive to the stack, so make a copy for the second traversal call.
         path_stack_copy = path_stack.copy()
         node_to_rm = traverse(self._root, path_stack)
+        if not RecipeParser._is_valid_patch_node(node_to_rm, -1):
+            return False
+
         path_stack_copy.pop(0)
         node = traverse(self._root, path_stack_copy)
-
-        if not RecipeParser._is_valid_patch_node(node_to_rm, -1) or not RecipeParser._is_valid_patch_node(
-            node, node_idx
-        ):
+        if not RecipeParser._is_valid_patch_node(node, node_idx):
             return False
 
         if node_idx >= 0:
@@ -1024,11 +1031,12 @@ class RecipeParser:
                 return True
         return False
 
-    def _patch_replace(self, _: str, path_stack: StrStack, value: JsonType) -> bool:
+    def _patch_replace(self, path_stack: StrStack, value: JsonType) -> bool:
         """
         Performs a JSON patch `replace` operation.
         :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
         :param value: Value to update with.
+        :returns: True if the operation was successful. False otherwise.
         """
         node, node_idx = traverse_with_index(self._root, path_stack)
         if not RecipeParser._is_valid_patch_node(node, node_idx):
@@ -1050,12 +1058,12 @@ class RecipeParser:
         node.children = new_children
         return True
 
-    def _patch_move(self, path: str, path_stack: StrStack, value_from: JsonType) -> bool:
+    def _patch_move(self, path_stack: StrStack, value_from: str) -> bool:
         """
         Performs a JSON patch `add` operation.
-        :param path: Path as a string.
         :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
         :param value_from: The "from" value in the JSON payload, i.e. the path the value originates from.
+        :returns: True if the operation was successful. False otherwise.
         """
         # NOTE from the RFC:
         #   This operation is functionally identical to a "remove" operation on the "from" location, followed
@@ -1072,16 +1080,14 @@ class RecipeParser:
         if not RecipeParser._is_valid_patch_node(node, node_idx):
             return False
 
-        return self._patch_remove(value_from, str_to_stack_path(value_from), None) and self._patch_add(
-            path, path_stack, original_value
-        )
+        return self._patch_remove(str_to_stack_path(value_from)) and self._patch_add(path_stack, original_value)
 
-    def _patch_copy(self, path: str, path_stack: StrStack, value_from: JsonType) -> bool:
+    def _patch_copy(self, path_stack: StrStack, value_from: str) -> bool:
         """
         Performs a JSON patch `add` operation.
-        :param path: Path as a string.
         :param path_stack: Path that describes a location in the tree, as a list, treated like a stack.
         :param value_from: The "from" value in the JSON payload, i.e. the path the value originates from.
+        :returns: True if the operation was successful. False otherwise.
         """
         # NOTE from the RFC:
         #   This operation is functionally identical to an "add" operation at the target location using the value
@@ -1093,13 +1099,14 @@ class RecipeParser:
         except KeyError:
             return False
 
-        return self._patch_add(path, path_stack, original_value)
+        return self._patch_add(path_stack, original_value)
 
-    def _patch_test(self, path: str, _: StrStack, value: JsonType) -> bool:
+    def _patch_test(self, path: str, value: JsonType) -> bool:
         """
         Performs a JSON patch `test` operation.
         :param path: Path as a string. Useful for invoking public class members.
         :param value: Value to evaluate against.
+        :returns: True if the target value is equal to the provided value. False otherwise.
         """
         try:
             return self.get_value(path) == value
@@ -1107,19 +1114,36 @@ class RecipeParser:
             # Path not found
             return False
 
-    def _get_supported_patch_ops(self) -> OpsTable:
+    def _call_patch_op(self, op: str, path: str, patch: JsonPatchType) -> bool:
         """
-        Generates a look-up table of currently supported JSON patch operation functions, on this instance. This makes it
-        easier to determine which operations are currently available AND simplifies "switch"-like logic.
+        Switching function that calls the appropriate JSON patch operation.
+        :param op: Patch operation, pre-sanitized.
+        :param path: Path as a string.
+        :param patch: The original JSON patch. This is passed to conditionally provide extra arguments, per op.
+        :returns: True if the patch was successful. False otherwise.
         """
-        return {
-            "add": self._patch_add,
-            "remove": self._patch_remove,
-            "replace": self._patch_replace,
-            "move": self._patch_move,
-            "copy": self._patch_copy,
-            "test": self._patch_test,
-        }
+        path_stack: Final[StrStack] = str_to_stack_path(path)
+        # NOTE: The `remove` op has no `value` or `from` field to pass in, so it is executed first.
+        if op == "remove":
+            return self._patch_remove(path_stack)
+
+        # The supplemental field name is determined by the operation type.
+        value_from: Final[str] = "from" if op in RecipeParser._patch_ops_requiring_from else "value"
+        patch_data: Final[JsonType | str] = patch[value_from]
+
+        if op == "add":
+            return self._patch_add(path_stack, patch_data)
+        if op == "replace":
+            return self._patch_replace(path_stack, patch_data)
+        if op == "move":
+            return self._patch_move(path_stack, cast(str, patch_data))
+        if op == "copy":
+            return self._patch_copy(path_stack, cast(str, patch_data))
+        if op == "test":
+            return self._patch_test(path, patch_data)
+
+        # This should be unreachable but is kept for completeness.
+        return False
 
     def patch(self, patch: JsonPatchType) -> bool:
         """
@@ -1141,7 +1165,8 @@ class RecipeParser:
         :param patch: JSON-patch payload to operate with.
         :raises JsonPatchValidationException: If the JSON-patch payload does not conform to our schema/spec.
         :returns: If the calling code attempts to perform the `test` operation, this indicates the return value of the
-            `test` request. In other words, if `value` matches the target variable, return True. False otherwise.
+            `test` request. In other words, if `value` matches the target variable, return True. False otherwise. For
+            all other operations, this indicates if the operation was successful.
         """
         # Validate the patch schema
         try:
@@ -1149,26 +1174,20 @@ class RecipeParser:
         except Exception as e:
             raise JsonPatchValidationException(patch) from e
 
-        path: Final[str] = patch["path"]
-        path_stack: Final[StrStack] = str_to_stack_path(path)
+        path: Final[str] = cast(str, patch["path"])
 
         # All RFC ops are supported, so the JSON schema validation checks will prevent us from getting this far, if
         # there is an issue.
-        op: Final[str] = patch["op"]
-        supported_patch_ops: Final[OpsTable] = self._get_supported_patch_ops()
-
-        # The supplemental field name is determined by the operation type.
-        value_from: Final[str] = "value" if op in RecipeParser._patch_ops_requiring_value else "from"
+        op: Final[str] = cast(str, patch["op"])
 
         # A no-op move is silly, but we might as well make it efficient AND ensure a no-op move doesn't corrupt our
         # modification flag.
-        if op == "move" and path == patch[value_from]:
+        if op == "move" and path == patch["from"]:
             return True
 
         # Both versions of the path are sent over so that the op can easily use both private and public functions
-        # (without incurring even more conversions between path types). NOTE: The `remove` op has no `value` or `from`
-        # field to pass in.
-        is_successful = supported_patch_ops[op](path, path_stack, None if op == "remove" else patch[value_from])
+        # (without incurring even more conversions between path types).
+        is_successful = self._call_patch_op(op, path, patch)
 
         # Update the selector table and modified flag, if the operation succeeded.
         if is_successful and op != "test":

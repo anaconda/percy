@@ -5,9 +5,10 @@ Description:    Provides private utility functions only used by the parser.
 from __future__ import annotations
 
 import json
+from typing import cast
 
 from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, Regex, StrStack, StrStackImmutable
-from percy.parser.types import Primitives
+from percy.parser.types import H, NodeValue, SentinelType
 
 
 def str_to_stack_path(path: str) -> StrStack:
@@ -86,7 +87,7 @@ def substitute_markers(s: str, subs: list[str]) -> str:
     return s
 
 
-def stringify_yaml(val: Primitives, multiline_flag: bool = False) -> Primitives:
+def stringify_yaml(val: NodeValue | SentinelType, multiline_flag: bool = False) -> NodeValue:
     """
     Special function for handling edge cases when converting values back to YAML.
     :param val: Value to check
@@ -94,6 +95,10 @@ def stringify_yaml(val: Primitives, multiline_flag: bool = False) -> Primitives:
         prevent unintended quote-escaping.
     :returns: YAML version of a value, as a string.
     """
+    # Handled for type-completeness of `Node.value`. A `Node` with a sentinel as its value indicates a special Node
+    # type that is not directly render-able.
+    if isinstance(val, SentinelType):
+        return ""
     # None -> null
     if val is None:
         return "null"
@@ -110,3 +115,13 @@ def stringify_yaml(val: Primitives, multiline_flag: bool = False) -> Primitives:
             # The PyYaml equivalent function injects newlines, hence why we abuse the JSON library to write our YAML
             return json.dumps(val)
     return val
+
+
+def dedupe_and_preserve_order(l: list[H]) -> list[H]:
+    """
+    Takes a list of strings
+    See this StackOverflow post:
+      https://stackoverflow.com/questions/480214/how-do-i-remove-duplicates-from-a-list-while-preserving-order
+
+    """
+    return list(cast(dict[H, None], dict.fromkeys(l)))

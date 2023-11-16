@@ -5,20 +5,16 @@ Description:    Provides private types, type aliases, constants, and small class
 from __future__ import annotations
 
 import re
-from typing import Callable, Final, Optional
+from typing import Final
 
 import yaml
-
-from percy.parser.types import JsonType
 
 #### Private Types (Not to be used external to the `parser` module) ####
 
 # Type alias for a list of strings treated as a Pythonic stack
 StrStack = list[str]
 # Type alias for a `StrStack` that must be immutable. Useful for some recursive operations.
-StrStackImmutable = tuple[str]
-# Type alias for a table that maps operations to functions.
-OpsTable = dict[str, Callable[[str, StrStack, Optional[JsonType]], bool]]
+StrStackImmutable = tuple[str, ...]
 
 #### Private Constants (Not to be used external to the `parser` module) ####
 
@@ -39,7 +35,7 @@ class ForceIndentDumper(yaml.Dumper):
     Adapted from: https://stackoverflow.com/questions/25108581/python-yaml-dump-bad-indentation
     """
 
-    def increase_indent(self, flow=False, indentless=False):  # pylint: disable=unused-argument
+    def increase_indent(self, flow: bool = False, indentless: bool = False) -> None:  # pylint: disable=unused-argument
         return super().increase_indent(flow, False)
 
 

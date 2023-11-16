@@ -126,9 +126,9 @@ def traverse_with_index(root: Node, path: StrStack) -> tuple[Optional[Node], int
         - If the node is a member of a list, the index returned will be >= 0.
     """
     if len(path) == 0:
-        return None
+        return None, -1
 
-    node: Node
+    node: Optional[Node]
     node_idx: int = -1
     # Pre-determine if the path is targeting a list position. Patching only applies on the last index provided.
     if path[0].isdigit():
@@ -142,7 +142,7 @@ def traverse_with_index(root: Node, path: StrStack) -> tuple[Optional[Node], int
 
 def traverse_all(
     node: Optional[Node],
-    func: Callable[[Node, list[str]], None],
+    func: Callable[[Node, StrStack], None],
     path: Optional[StrStackImmutable] = None,
     idx_num: int = 0,
 ) -> None:
@@ -169,7 +169,7 @@ def traverse_all(
         path = (str(idx_num),) + path
     # Leafs do not contain their values in the path, unless the leaf is an empty key (as the key is part of the path).
     elif node.is_empty_key() or not node.is_leaf():
-        path = (node.value,) + path
+        path = (str(node.value),) + path
     func(node, list(path))
     # Used for paths that contain lists of items
     mapping = remap_child_indices_phys_to_virt(node.children)
