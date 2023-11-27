@@ -21,6 +21,7 @@ import percy.render._dumper as dumper
 import percy.render._renderer as renderer_utils
 from percy.parser.recipe_parser import JsonPatchType, RecipeParser
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+from percy.render.types import SelectorDict
 from percy.render.variants import Variant, read_conda_build_config
 
 
@@ -106,7 +107,7 @@ class Recipe:
         if not variant:
             variant = {}
         self.variant_id = variant_id
-        self.selector_dict: dict[str, Any] = variant
+        self.selector_dict: SelectorDict = variant
 
         #: render configuration
         self.renderer = renderer

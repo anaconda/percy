@@ -15,6 +15,7 @@ import yaml
 
 from percy.parser.recipe_parser import RecipeParser
 from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
+from percy.render.types import SelectorDict
 
 # TODO Future: re-evaluate. This project correctly identifies these dependencies as necessary. They should not need to
 # be optionally included.
@@ -126,7 +127,7 @@ _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
 
 
 # TODO Future: nearly identical to variants.py::_apply_selector
-def apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
+def apply_selector(data: str, selector_dict: SelectorDict) -> list[str]:
     """Apply selectors # [...]
 
     :param data: Raw meta yaml string
@@ -164,9 +165,9 @@ def _get_template(meta_yaml, selector_dict):
 def render(
     recipe_dir: Path | str,
     meta_yaml: str,
-    selector_dict: dict[str, Any],
+    selector_dict: SelectorDict,
     renderer_type: Optional[RendererType] = None,
-) -> dict[str, Any]:
+) -> SelectorDict:
     """
     Convert recipe text into data structure
 

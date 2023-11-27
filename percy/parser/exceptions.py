@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 
-from percy.parser.types import JsonPatchType
+from percy.types import JsonPatchType
 
 
 class JsonPatchValidationException(Exception):

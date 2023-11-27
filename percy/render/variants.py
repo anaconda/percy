@@ -10,9 +10,11 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Any, Optional, Sequence, cast
+from typing import Optional, Sequence, cast
 
 import yaml
+
+from percy.render.types import SelectorDict
 
 loader: type[yaml.CLoader] | type[yaml.Loader]
 try:
@@ -122,7 +124,7 @@ class CBCRenderError(Exception):
 
 
 # TODO Future: nearly identical to _renderer.py::apply_selector
-def _apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
+def _apply_selector(data: str, selector_dict: SelectorDict) -> list[str]:
     """
     Apply selectors # [...]
     """
