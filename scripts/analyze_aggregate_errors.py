@@ -14,7 +14,7 @@ import re
 import sys
 
 
-def main():
+def main() -> None:
     """
     Primary execution point of the script.
     """
@@ -23,8 +23,8 @@ def main():
         sys.exit(1)
 
     error_re = re.compile(r"^(ERROR:root:Render issue )(.*-feedstock)( : )(.*)$")
-    feedstocks = {}
-    hist = {}
+    feedstocks: dict[str, list[str]] = {}
+    hist: dict[str, int] = {}
     error_cntr = 0
 
     with open(sys.argv[1], encoding="utf-8") as file:
@@ -32,8 +32,8 @@ def main():
             match = error_re.match(line)
             if match is not None:
                 error_cntr += 1
-                error = match.group(4)
-                feedstock = match.group(2)
+                error: str = match.group(4)
+                feedstock: str = match.group(2)
                 if error not in hist:
                     hist[error] = 1
                     feedstocks[error] = [feedstock]
