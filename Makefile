@@ -35,8 +35,8 @@ export PRINT_HELP_PYSCRIPT
 
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
-# Include everything EXCEPT the `examples` directory.
-MYPY_FILES := percy/commands/*.py percy/parser/*.py percy/render/*.py percy/repodata/*.py scripts/*.py
+# Include everything EXCEPT the `examples` and `commands` directories.
+MYPY_FILES := percy/parser/*.py percy/render/*.py percy/repodata/*.py scripts/*.py
 
 clean: clean-cov clean-build clean-env clean-pyc clean-test clean-other ## remove all build, test, coverage and Python artifacts
 

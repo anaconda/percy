@@ -14,7 +14,7 @@ from percy.commands.recipe import recipe
 
 # root click group
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
@@ -24,7 +24,7 @@ cli.add_command(aggregate)
 
 
 @cli.command()
-def tabcompletion():
+def tabcompletion() -> None:
     """
     Print out shell commands for setting up shell completion.
 

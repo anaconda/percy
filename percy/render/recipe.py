@@ -157,7 +157,7 @@ class Recipe:
         """
         self.meta_yaml = data.splitlines()
         if not self.meta_yaml:
-            raise EmptyRecipe(self)
+            raise EmptyRecipe(self.recipe_file)
         self.render()
         return self
 

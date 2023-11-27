@@ -98,7 +98,7 @@ def base_options(f: Callable):
 @click.group(short_help="Commands for operating on a recipe.")
 @click.option("--recipe", "-r", metavar="FILE", help="Recipe meta.yaml to operate on.")
 @click.pass_context
-def recipe(ctx, recipe: str):  # pylint: disable=redefined-outer-name
+def recipe(ctx, recipe: str) -> None:  # pylint: disable=redefined-outer-name
     """
     Commands that operate on a recipe.
     """
@@ -109,7 +109,7 @@ def recipe(ctx, recipe: str):  # pylint: disable=redefined-outer-name
 @recipe.command(short_help="Render a recipe")
 @click.pass_obj
 @base_options
-def render(obj, subdir, python, others, backend):
+def render(obj, subdir: str, python: str, others, backend: RendererType):
     """
     Render a recipe.
     """
@@ -132,7 +132,7 @@ def render(obj, subdir, python, others, backend):
 @recipe.command(short_help="Check if a recipe is outdated compare to main.")
 @click.pass_obj
 @base_options
-def outdated(obj, subdir, python, others, backend):
+def outdated(obj, subdir: str, python: str, others: dict[str, str], backend: RendererType) -> None:
     """
     Render a recipe.
     """
@@ -185,7 +185,16 @@ def outdated(obj, subdir, python, others, backend):
     help="Uses the parse tree patching system over the original implementation.",
 )
 @click.argument("patch_file", metavar="FILE")
-def patch(obj, subdir, python, others, backend, increment_build_number: bool, parse_tree: bool, patch_file):
+def patch(
+    obj,
+    subdir: str,
+    python: str,
+    others: dict[str, str],
+    backend: RendererType,
+    increment_build_number: bool,
+    parse_tree: bool,
+    patch_file: str,
+) -> None:
     """
     Patch a recipe. Takes a patch file as input, with content like:
 

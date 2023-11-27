@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Final, Optional, cast
 
 import requests
 from conda.exceptions import InvalidVersionSpec
@@ -13,8 +14,11 @@ from conda.models.version import VersionOrder
 
 from percy.render.recipe import Package
 
+PackageData = dict[str, str | int | bool]
+DefaultPackages = dict[str, PackageData]
 
-def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True) -> dict[str, dict]:
+
+def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True) -> PackageData:
     """
     Get latest packages on defaults
 
@@ -90,7 +94,7 @@ def get_latest_package_list(subdir: str = "linux-64", merge_noarch: bool = True)
     return pkgs_defaults
 
 
-def compare_package_with_defaults(package: Package, defaults_pkgs: dict[str, dict]) -> dict:
+def compare_package_with_defaults(package: Package, defaults_pkgs: DefaultPackages) -> Optional[PackageData]:
     """
     Compare a local package with its latest version on defaults
 
@@ -101,17 +105,16 @@ def compare_package_with_defaults(package: Package, defaults_pkgs: dict[str, dic
     """
     result = None
     try:
-        local_feedstock = package.git_info.name
+        local_feedstock = cast(str, package.git_info.name)
         local_name = package.name
         local_version = package.version
         local_build_number = int(package.number)
         if local_name in defaults_pkgs:
             defaults_version = defaults_pkgs[local_name]["version"]
             defaults_build_number = int(defaults_pkgs[local_name]["build_number"])
-            if (VersionOrder(local_version) < VersionOrder(defaults_version)) or (
-                VersionOrder(local_version) == VersionOrder(defaults_version)
-                and local_build_number < defaults_build_number
-            ):
+            local_vo: Final[VersionOrder] = VersionOrder(local_version)  # type: ignore[misc]
+            defaults_vo: Final[VersionOrder] = VersionOrder(defaults_version)  # type: ignore[misc]
+            if (local_vo < defaults_vo) or (local_vo == defaults_vo and local_build_number < defaults_build_number):
                 result = {
                     "local_feedstock": local_feedstock,
                     "local_version": local_version,
