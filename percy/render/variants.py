@@ -10,10 +10,11 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence, cast
 
 import yaml
 
+loader: type[yaml.CLoader] | type[yaml.Loader]
 try:
     loader = yaml.CLoader  # pylint: disable=invalid-name
 except Exception:  # pylint: disable=broad-exception-caught
@@ -22,7 +23,7 @@ except Exception:  # pylint: disable=broad-exception-caught
 Variant = dict[str, str]
 
 
-def _ensure_list(obj):
+def _ensure_list(obj: Sequence[str] | str) -> Sequence[str]:
     """Wraps **obj** in a list if necessary
 
     >>> _ensure_list("one")
@@ -56,47 +57,52 @@ def _find_config_files(
     :returns: List of config files
     """
 
-    def resolve(p):
+    def resolve_path(p: str) -> str:
+        """
+        Resolves a path to an absolute path
+        :param p: Path to resolve
+        :return: Absolute path from the original path
+        """
         return os.path.abspath(os.path.expanduser(os.path.expandvars(p)))
 
     # exclusive configs
-    files = [resolve(f) for f in _ensure_list(exclusive_config_files)]
+    files = [resolve_path(f) for f in _ensure_list(exclusive_config_files)]
 
     if not files:
         # if not files and not config.ignore_system_variants:
         # user config
         # if cc_conda_build.get('config_file'):
-        #     cfg = resolve(cc_conda_build['config_file'])
+        #     cfg = resolve_path(cc_conda_build['config_file'])
         # else:
-        #     cfg = resolve(os.path.join('~', "conda_build_config.yaml"))
-        cfg = resolve(os.path.join("~", "conda_build_config.yaml"))
+        #     cfg = resolve_path(os.path.join('~', "conda_build_config.yaml"))
+        cfg = resolve_path(os.path.join("~", "conda_build_config.yaml"))
         if os.path.isfile(cfg):
             files.append(cfg)
 
-        cfg = resolve("conda_build_config.yaml")
+        cfg = resolve_path("conda_build_config.yaml")
         if os.path.isfile(cfg):
             files.append(cfg)
         else:
-            path = getattr(metadata_or_path, "path", metadata_or_path)
-            cfg = resolve(os.path.join(path, "..", "..", "conda_build_config.yaml"))
+            path = cast(str, getattr(metadata_or_path, "path", metadata_or_path))
+            cfg = resolve_path(os.path.join(path, "..", "..", "conda_build_config.yaml"))
             if os.path.isfile(cfg):
                 files.append(cfg)
             else:
-                cfg = resolve(os.path.join(path, "..", "conda_build_config.yaml"))
+                cfg = resolve_path(os.path.join(path, "..", "conda_build_config.yaml"))
                 if os.path.isfile(cfg):
                     files.append(cfg)
 
-    path = getattr(metadata_or_path, "path", metadata_or_path)
-    cfg = resolve(os.path.join(path, "conda_build_config.yaml"))
+    path = cast(str, getattr(metadata_or_path, "path", metadata_or_path))
+    cfg = resolve_path(os.path.join(path, "conda_build_config.yaml"))
     if os.path.isfile(cfg):
         files.append(cfg)
 
-    files.extend([resolve(f) for f in _ensure_list(variant_config_files)])
+    files.extend([resolve_path(f) for f in _ensure_list(variant_config_files)])
 
     return files
 
 
-# TODO Future: CBCRenderError and the base `RecipeError` exception use the same code.
+# TODO Future: CBCRenderError and the base `RecipeError` exception use most of the same code.
 class CBCRenderError(Exception):
     """
     Exception representing a failure to render the CBC file.
@@ -116,22 +122,22 @@ class CBCRenderError(Exception):
 
 
 # TODO Future: nearly identical to _renderer.py::apply_selector
-def _apply_selector(data, selector_dict):
+def _apply_selector(data: str, selector_dict: dict[str, Any]) -> list[str]:
     """
     Apply selectors # [...]
     """
-    updated_data = []
+    updated_data: list[str] = []
     for line in data.splitlines():
         if (match := re.search(r"^(\s*)#.*$", line)) is not None:
-            line = f"{match.group(1)}# comment "  # <-- this is to ignore potential bad jinja in comments
+            line = f"{cast(str, match.group(1))}# comment "  # <-- this is to ignore potential bad jinja in comments
         elif (match := re.search(r"(\s*)[^#].*(#\s*\[([^\]]*)\].*)", line)) is not None:
-            cond_str = match.group(3)
+            cond_str = cast(str, match.group(3))
             try:
                 # TODO Future: evaluate security risk
                 if not eval(cond_str, None, selector_dict):  # pylint: disable=eval-used
-                    line = f"{match.group(1)}"
+                    line = cast(str, match.group(1))
                 else:
-                    line = line.replace(match.group(2), "")  # <-- comments sometimes causes trouble in jinja
+                    line = line.replace(cast(str, match.group(2)), "")  # <-- comments sometimes causes trouble in jinja
             except Exception:  #  pylint: disable=broad-exception-caught
                 continue
         updated_data.append(line)
@@ -140,9 +146,9 @@ def _apply_selector(data, selector_dict):
 
 def read_conda_build_config(
     recipe_path: Path,
-    subdir: list[str] = None,
-    python: list[str] = None,
-    others: dict[str, str] = None,
+    subdir: Optional[list[str]] = None,
+    python: Optional[list[str]] = None,
+    others: Optional[dict[str, str]] = None,
     variant_config_files: Optional[list[str]] = None,
     exclusive_config_files: Optional[list[str]] = None,
 ) -> list[tuple[str, Variant]]:

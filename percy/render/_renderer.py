@@ -56,6 +56,7 @@ if has_ruamel:
             del ruamel.resolver.versioned_resolver[digit]
 
 # Pyyaml configuration
+loader: type[yaml.CLoader] | type[yaml.Loader]
 try:
     loader = yaml.CLoader  # pylint: disable=invalid-name
 except Exception:  # pylint: disable=broad-exception-caught
