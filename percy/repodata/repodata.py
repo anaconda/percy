@@ -113,9 +113,9 @@ def compare_package_with_defaults(package: Package, defaults_pkgs: PackageDataDi
             local_feedstock = "Unknown"
             logging.error("Failed to find feedstock for %s", local_name)
         else:
-            local_feedstock = cast(str, package.git_info.name)
+            local_feedstock = package.git_info.name
         local_version = package.version
-        local_build_number = int(package.number)
+        local_build_number = package.get_build_number_as_int()
         if local_name in defaults_pkgs:
             defaults_version = defaults_pkgs[local_name]["version"]
             defaults_build_number = int(defaults_pkgs[local_name]["build_number"])

@@ -428,7 +428,7 @@ def outdated(
             results[name] = {
                 "local_feedstock": package.git_info.name,
                 "local_version": package.version,
-                "local_build_number": int(package.number),
+                "local_build_number": package.get_build_number_as_int(),
                 "defaults_version": None,
                 "defaults_build_number": None,
             }

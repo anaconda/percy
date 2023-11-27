@@ -1032,6 +1032,16 @@ class Package:
         self.run_exports.update(other.run_exports)
         self.ignore_run_exports.update(other.ignore_run_exports)
 
+    def get_build_number_as_int(self) -> int:
+        """
+        Returns the build number as an integer
+        :return: The build number, as an integer. If no build number has been set, this is a negative value.
+        """
+        if self.number is None:
+            logging.warning("Package `%s` does not have a build number", self.name)
+            return -1
+        return int(self.number)
+
 
 def render(
     recipe_path: Path,
