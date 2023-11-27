@@ -1,5 +1,5 @@
 """
-File:           _dumper.py
+File:           dumper.py
 Description:    Provides utilities to dump rendering results
 """
 from __future__ import annotations
@@ -11,6 +11,7 @@ import yaml
 from ruamel.yaml import YAML
 
 from percy.render._renderer import RendererType
+from percy.render.recipe import Recipe
 
 # Ruamel configuration
 ruamel = YAML(typ="rt")
@@ -36,8 +37,7 @@ FIELDS: Final[list[str]] = [
 ]
 
 
-# TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
-def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) -> None:
+def _dump_render_results_ruamel(render_results: list[Recipe], out: TextIO = sys.stdout) -> None:
     """
     Dumps a list of rendered variants of a recipe.
 
@@ -55,8 +55,7 @@ def _dump_render_results_ruamel(render_results: list, out: TextIO = sys.stdout) 
     ruamel.dump(data_to_dump, out)
 
 
-# TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
-def _dump_render_results_yaml(render_results: list, out: TextIO = sys.stdout) -> None:
+def _dump_render_results_yaml(render_results: list[Recipe], out: TextIO = sys.stdout) -> None:
     """
     Dumps a list of rendered variants of a recipe.
 
@@ -99,8 +98,13 @@ def _dump_render_results_yaml(render_results: list, out: TextIO = sys.stdout) ->
     )
 
 
-# TODO Fix: `list` type is unspecified to prevent circular dependency. Should be `list[Recipe]`.
 def dump_render_results(render_results: list, out: TextIO = sys.stdout) -> None:
+    """
+    Dumps a list of rendered variants of a recipe.
+
+    :param render_results: list of rendered variants.
+    :param out: Output stream. Defaults to sys.stdout.
+    """
     if render_results and render_results[0].renderer == RendererType.RUAMEL:
         _dump_render_results_ruamel(render_results, out)
     else:

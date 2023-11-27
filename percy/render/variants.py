@@ -193,7 +193,7 @@ def read_conda_build_config(
 
     for arch in subdir:
         # Set base configuration
-        base_selector_dict = {
+        base_selector_dict: SelectorDict = {
             "ccache_method": None,
             "unix": False,
             "linux": False,
@@ -243,7 +243,7 @@ def read_conda_build_config(
             with open(cbc, encoding="utf-8") as f_cbc:
                 try:
                     cbc_selectors_str = _apply_selector(f_cbc.read(), base_selector_dict)
-                    cbc_selectors_yml = yaml.load("\n".join(cbc_selectors_str), Loader=loader)
+                    cbc_selectors_yml = cast(SelectorDict, yaml.load("\n".join(cbc_selectors_str), Loader=loader))
                     if cbc_selectors_yml:
                         for k, v in cbc_selectors_yml.items():
                             if isinstance(v, list):
@@ -255,9 +255,9 @@ def read_conda_build_config(
                         raise CBCRenderError() from exc
 
         # Gather variants
-        zip_keys = []
-        groups = {}
-        zip_key_groups = base_selector_dict.get("zip_keys", [])
+        zip_keys: list[str] = []
+        groups: SelectorDict = {}
+        zip_key_groups = cast(list[str], base_selector_dict.get("zip_keys", []))
         zip_key_groups = [zip_key_groups] if zip_key_groups and isinstance(zip_key_groups[0], str) else zip_key_groups
         for key_group in zip_key_groups:
             zip_keys.extend(key_group)

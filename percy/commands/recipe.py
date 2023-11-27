@@ -13,6 +13,7 @@ from typing import Callable, Optional
 import click
 
 import percy.commands.aggregate
+import percy.render.dumper
 import percy.render.recipe
 from percy.render._renderer import RendererType
 
@@ -126,7 +127,7 @@ def render(obj, subdir: str, python: str, others, backend: RendererType):
     )
 
     # dump recipe
-    percy.render.recipe.dump_render_results(render_results)
+    percy.render.dumper.dump_render_results(render_results)
 
 
 @recipe.command(short_help="Check if a recipe is outdated compare to main.")
