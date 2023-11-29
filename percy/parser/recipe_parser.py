@@ -37,16 +37,8 @@ from percy.parser._utils import (
 )
 from percy.parser.enums import SelectorConflictMode
 from percy.parser.exceptions import JsonPatchValidationException
-from percy.parser.types import (
-    JSON_PATCH_SCHEMA,
-    PRIMITIVES_TUPLE,
-    TAB_AS_SPACES,
-    TAB_SPACE_COUNT,
-    JsonPatchType,
-    JsonType,
-    Primitives,
-    SentinelType,
-)
+from percy.parser.types import JSON_PATCH_SCHEMA, TAB_AS_SPACES, TAB_SPACE_COUNT
+from percy.types import PRIMITIVES_TUPLE, JsonPatchType, JsonType, Primitives, SentinelType
 
 
 class RecipeParser:

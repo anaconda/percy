@@ -7,21 +7,30 @@ from __future__ import annotations
 import itertools
 import logging
 import re
-import sys
 from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Optional, TextIO
+from typing import Any, Callable, Optional
 from urllib.parse import urlparse
 
 import jsonschema
 
-import percy.render._dumper as dumper
 import percy.render._renderer as renderer_utils
 from percy.parser.recipe_parser import JsonPatchType, RecipeParser
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
+from percy.render.types import SelectorDict
 from percy.render.variants import Variant, read_conda_build_config
+
+
+@dataclass
+class Feedstock:
+    name: str
+    git_url: str
+    branch: str
+    path: str
+    packages: dict[str, Package]
+    weight: int
 
 
 class OpMode(Enum):
@@ -106,7 +115,7 @@ class Recipe:
         if not variant:
             variant = {}
         self.variant_id = variant_id
-        self.selector_dict: dict[str, Any] = variant
+        self.selector_dict: SelectorDict = variant
 
         #: render configuration
         self.renderer = renderer
@@ -157,7 +166,7 @@ class Recipe:
         """
         self.meta_yaml = data.splitlines()
         if not self.meta_yaml:
-            raise EmptyRecipe(self)
+            raise EmptyRecipe(self.recipe_file)
         self.render()
         return self
 
@@ -275,7 +284,7 @@ class Recipe:
         # re-init
         self.meta: dict[str, Any] = {}
         self.skip = False
-        self.packages: dict[str:Package] = {}
+        self.packages: dict[str, Package] = {}
 
         # render meta.yaml
         self.meta = renderer_utils.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
@@ -958,11 +967,11 @@ class Package:
     A rendered package.
     """
 
-    recipe: Recipe = None
-    name: str = None
-    version: str = None
-    number: str = None
-    group: str = None
+    recipe: Optional[Recipe] = None
+    name: Optional[str] = None
+    version: Optional[str] = None
+    number: Optional[str] = None
+    group: Optional[str] = None
     build: set[Dep] = field(default_factory=set)
     host: set[Dep] = field(default_factory=set)
     run: set[Dep] = field(default_factory=set)
@@ -972,7 +981,7 @@ class Package:
     test: set[Dep] = field(default_factory=set)
     is_noarch: bool = False
     path_prefix: str = ""
-    git_info: object = None
+    git_info: Optional[Feedstock] = None
 
     def __getitem__(self, key: str) -> Any:
         """
@@ -1023,6 +1032,16 @@ class Package:
         self.run_exports.update(other.run_exports)
         self.ignore_run_exports.update(other.ignore_run_exports)
 
+    def get_build_number_as_int(self) -> int:
+        """
+        Returns the build number as an integer
+        :return: The build number, as an integer. If no build number has been set, this is a negative value.
+        """
+        if self.number is None:
+            logging.warning("Package `%s` does not have a build number", self.name)
+            return -1
+        return int(self.number)
+
 
 def render(
     recipe_path: Path,
@@ -1070,13 +1089,3 @@ def render(
         else:
             render_results.append(r)
     return render_results
-
-
-def dump_render_results(render_results: list[Recipe], out: TextIO = sys.stdout) -> None:
-    """
-    Dumps a list of rendered variants of a recipe.
-
-    :param render_results: list of rendered variants.
-    :param out: Output stream. Defaults to sys.stdout.
-    """
-    dumper.dump_render_results(render_results, out)

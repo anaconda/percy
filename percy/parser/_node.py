@@ -7,7 +7,8 @@ from __future__ import annotations
 from typing import Optional
 
 from percy.parser._types import ROOT_NODE_VALUE
-from percy.parser.types import NodeValue, SentinelType
+from percy.parser.types import NodeValue
+from percy.types import SentinelType
 
 
 class Node:

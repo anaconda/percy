@@ -9,7 +9,6 @@ import configparser
 import logging
 import subprocess
 from collections import namedtuple
-from dataclasses import dataclass
 from multiprocessing import Pool
 from pathlib import Path
 from typing import Any, Optional
@@ -17,7 +16,7 @@ from typing import Any, Optional
 import yaml
 
 from percy.render._renderer import RendererType
-from percy.render.recipe import Package, render
+from percy.render.recipe import Feedstock, Package, Recipe, render
 
 
 class PackageNode:
@@ -164,17 +163,9 @@ class PackageNode:
                 PackageNode.make_node(dep.pkg, walk_up_sections, section, self)
 
 
-@dataclass
-class Feedstock:
-    name: str
-    git_url: str
-    branch: str
-    path: str
-    packages: dict[str, Package]
-    weight: int
-
-
-def _render(feedstock_repo, recipe_path, subdir, python, others, renderer):
+def _render(
+    feedstock_repo: Feedstock, recipe_path: Path, subdir, python, others, renderer
+) -> tuple[Feedstock, list[Recipe]]:
     try:
         rendered_recipes = render(recipe_path, subdir, python, others, renderer=renderer)
     except Exception as exc:  # pylint: disable=broad-exception-caught
@@ -301,7 +292,7 @@ class Aggregate:
                 others["blas_impl"] = "openblas"
 
         aggregate_path = self.local_path
-        to_render = []
+        to_render: list[tuple[Feedstock, Path, str, str, dict[str, Any], RendererType | None]] = []
         for recipe_path in aggregate_path.glob("**/meta.yaml"):
             # base feedstock info
             feedstock_path_rel = recipe_path.relative_to(aggregate_path).parent

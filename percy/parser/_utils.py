@@ -8,7 +8,8 @@ import json
 from typing import cast
 
 from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, Regex, StrStack, StrStackImmutable
-from percy.parser.types import H, NodeValue, SentinelType
+from percy.parser.types import NodeValue
+from percy.types import H, SentinelType
 
 
 def str_to_stack_path(path: str) -> StrStack:

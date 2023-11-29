@@ -22,17 +22,17 @@ from percy.render._renderer import RendererType
 
 def get_configured_aggregate(cmd_line: Optional[str | Path] = None) -> Path:
     """
-    Determines the path of the aggregate repoistory
+    Determines the path of the aggregate repository
     :param cmd_line: (Optional) If specified, this is the path to a recipe file to operate on. If not specified, the
         recipe file is determined by the current working directory.
     """
     # command line has highest precedence
-    if cmd_line:
+    if cmd_line is None:
         return Path(cmd_line)
     # environment variable
     path = os.getenv("ABS_AGGREGATE")
     if path:
-        return path
+        return Path(path)
     # look through ancestor directories
     cwd = Path(os.getcwd())
     path = cwd
@@ -201,7 +201,7 @@ def order_options(f: Callable):
     help="Aggregate directory to operate on.",
 )
 @click.pass_context
-def aggregate(ctx, aggregate):  # pylint: disable=redefined-outer-name
+def aggregate(ctx, aggregate: str) -> None:  # pylint: disable=redefined-outer-name
     """
     Commands that operate on aggregates.
 
@@ -240,18 +240,18 @@ def aggregate(ctx, aggregate):  # pylint: disable=redefined-outer-name
 )
 def downstream(
     obj,
-    subdir,
-    python,
-    others,
-    renderer,
-    groups,
-    feedstocks,
-    packages,
-    allow_list,
-    block_list,
-    drop_noarch,
-    sections,
-):
+    subdir: str,
+    python: str,
+    others: dict[str, str],
+    renderer: RendererType,
+    groups: list[str],
+    feedstocks: list[str],
+    packages: list[str],
+    allow_list: list[str],
+    block_list: list[str],
+    drop_noarch: bool,
+    sections: list[str],
+) -> None:
     """
     Prints build order of feedstock downstream dependencies
     """
@@ -286,16 +286,16 @@ def downstream(
 @order_options
 def upstream(
     obj,
-    subdir,
-    python,
-    others,
-    renderer,
-    groups,
-    feedstocks,
-    packages,
-    drop_noarch,
-    sections,  # pylint: disable=unused-argument
-):
+    subdir: str,
+    python: str,
+    others: dict[str, str],
+    renderer: RendererType,
+    groups: list[str],
+    feedstocks: list[str],
+    packages: list[str],
+    drop_noarch: bool,
+    sections: list[str],  # pylint: disable=unused-argument
+) -> None:
     """
     Prints build order of feedstock upstream dependencies
     """
@@ -326,16 +326,16 @@ def upstream(
 @order_options
 def order(
     obj,
-    subdir,
-    python,
-    others,
-    renderer,
-    groups,
-    feedstocks,
-    packages,
-    drop_noarch,
-    sections,
-):
+    subdir: str,
+    python: str,
+    others: dict[str, str],
+    renderer: RendererType,
+    groups: list[str],
+    feedstocks: list[str],
+    packages: list[str],
+    drop_noarch: bool,
+    sections: list[str],
+) -> None:
     """
     Prints build order of specified feedstocks
     """
@@ -383,7 +383,15 @@ def order(
     multiple=False,
     help="Identify packages from aggregate not on defaults",
 )
-def outdated(obj, subdir, python, others, renderer, missing_local, missing_defaults):
+def outdated(
+    obj,
+    subdir: str,
+    python: str,
+    others: dict[str, str],
+    renderer: RendererType,
+    missing_local: bool,
+    missing_defaults: bool,
+) -> None:
     """
     Prints outdated with defaults
     """
@@ -420,7 +428,7 @@ def outdated(obj, subdir, python, others, renderer, missing_local, missing_defau
             results[name] = {
                 "local_feedstock": package.git_info.name,
                 "local_version": package.version,
-                "local_build_number": int(package.number),
+                "local_build_number": package.get_build_number_as_int(),
                 "defaults_version": None,
                 "defaults_build_number": None,
             }
