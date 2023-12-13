@@ -1,0 +1,63 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+name: Test
+
+jobs:
+  # NOTE: Tests run via `pre-commit`
+  pre-commit:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        - uses: ./.github/actions/setup-env
+          with:
+            python-version: "3.11"
+        # Executes `pre-commit` with the `make` directive to ensure all dependencies are found
+        - run: |
+            source $CONDA/bin/activate
+            conda activate percy
+            make pre-commit
+  test:
+      runs-on: ubuntu-latest
+      name: Test on ${{ matrix.python-version }}
+      strategy:
+        matrix:
+          python-version: ["3.12"]
+      steps:
+        - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        - uses: ./.github/actions/setup-env
+          with:
+            python-version: ${{ matrix.python-version }}
+        - run: |
+            source $CONDA/bin/activate
+            conda activate percy
+            make test
+  build-recipe:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+          with:
+            repository: AnacondaRecipes/percy-feedstock
+            path: ./feedstock
+        - name: Cache conda env
+          id: cache-conda
+          uses: actions/cache@704facf57e6136b1bc63b828d79edcd491f0ee84 # v3.3.2
+          env:
+            cache-name: conda-env-cache
+          with:
+            path: '/usr/share/miniconda/envs'
+            key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/environment.yml') }}
+            restore-keys: |
+              ${{ runner.os }}-build-${{ env.cache-name }}-
+              ${{ runner.os }}-build-
+              ${{ runner.os }}-
+        - name: Build package
+          run: |
+            cp -r ./feedstock/abs.yaml ./feedstock/recipe .
+            source $CONDA/bin/activate
+            conda install conda-build
+            conda-build -c distro-tooling .
