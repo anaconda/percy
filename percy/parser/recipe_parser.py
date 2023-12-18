@@ -710,7 +710,7 @@ class RecipeParser:
         :returns: A list of all paths in a recipe file that point to dependencies.
         """
         paths: list[str] = []
-        req_sections: Final[list[str]] = ["build", "host", "run", "run_constrained", "run_exports"]
+        req_sections: Final[list[str]] = ["build", "host", "run", "run_constrained"]
 
         # Convenience function that reduces repeated logic between regular and multi-output recipes
         def _scan_requirements(path_prefix: str = "") -> None:
