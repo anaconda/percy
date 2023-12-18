@@ -851,14 +851,37 @@ class RecipeParser:
         """
         Given a path, determine if a selector exists on that line.
         :param path: Target path
+        :returns: True if the selector exists at that path. False otherwise.
         """
-        pass
+        path_stack = str_to_stack_path(path)
+        node = traverse(self._root, path_stack)
+        if node is None:
+            return False
+        return bool(Regex.SELECTOR.search(node.comment))
 
-    def get_selector_at_path(self, path: str) -> str:
+    def get_selector_at_path(self, path: str, default: str | SentinelType = _sentinel) -> str:
         """
-        Given a path, return the selector that exists on that line. If no selector exists, TODO
+        Given a path, return the selector that exists on that line.
+        :param path: Target path
+        :param default: (Optional) Default value to use if no selector is found.
+        :raises KeyError: If a selector is not found on the provided path AND no default has been specified.
+        :raises ValueError: If the default selector provided is malformed
+        :returns: Selector on the path provided
         """
-        pass
+        path_stack = str_to_stack_path(path)
+        node = traverse(self._root, path_stack)
+        if node is None:
+            raise KeyError(f"Path not found: {path}")
+
+        search_results = Regex.SELECTOR.search(node.comment)
+        if not search_results:
+            # Use `default` case
+            if default != RecipeParser._sentinel and not isinstance(default, SentinelType):
+                if not Regex.SELECTOR.match(default):
+                    raise ValueError(f"Invalid selector provided: {default}")
+                return default
+            raise KeyError(f"Selector not found at path: {path}")
+        return search_results.group(0)
 
     def add_selector(self, path: str, selector: str, mode: SelectorConflictMode = SelectorConflictMode.REPLACE) -> None:
         """

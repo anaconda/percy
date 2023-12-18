@@ -622,6 +622,67 @@ def test_get_selector_paths() -> None:
     assert not parser.is_modified()
 
 
+@pytest.mark.parametrize(
+    "file,path,expected",
+    [
+        ("simple-recipe.yaml", "/build/skip", True),
+        ("simple-recipe.yaml", "/requirements/host/0", True),
+        ("simple-recipe.yaml", "/requirements/host/1", True),
+        ("simple-recipe.yaml", "/requirements/empty_field2", True),
+        ("simple-recipe.yaml", "/requirements/run/0", False),
+        ("simple-recipe.yaml", "/requirements/run", False),
+        ("simple-recipe.yaml", "/fake/path", False),
+    ],
+)
+def test_contains_selector_at_path(file: str, path: str, expected: bool) -> None:
+    """
+    Tests checking if a selector exists on a given path
+    :param file: File to run against
+    :param path: Path to check
+    :param expected: Expected value
+    """
+    assert load_recipe(file).contains_selector_at_path(path) == expected
+
+
+@pytest.mark.parametrize(
+    "file,path,expected",
+    [
+        ("simple-recipe.yaml", "/build/skip", "[py<37]"),
+        ("simple-recipe.yaml", "/requirements/host/0", "[unix]"),
+        ("simple-recipe.yaml", "/requirements/host/1", "[unix]"),
+        ("simple-recipe.yaml", "/requirements/empty_field2", "[unix and win]"),
+    ],
+)
+def test_get_selector_at_path_exists(file: str, path: str, expected: bool) -> None:
+    """
+    Tests cases where a selector exists on a path
+    :param file: File to run against
+    :param path: Path to check
+    :param expected: Expected value
+    """
+    assert load_recipe(file).get_selector_at_path(path) == expected
+
+
+def test_get_selector_at_path_dne() -> None:
+    """
+    Tests edge cases where `get_selector_at_path()` should fail correctly OR
+    handles non-existent selectors gracefully
+    """
+    parser = load_recipe("simple-recipe.yaml")
+    # Path does not exist
+    with pytest.raises(KeyError):
+        parser.get_selector_at_path("/fake/path")
+    # No default was provided
+    with pytest.raises(KeyError):
+        parser.get_selector_at_path("/requirements/run/0")
+    # Invalid default was provided
+    with pytest.raises(ValueError):
+        parser.get_selector_at_path("/requirements/run/0", "not a selector")
+
+    # Valid default was provided
+    assert parser.get_selector_at_path("/requirements/run/0", "[unix]") == "[unix]"
+
+
 def test_add_selector() -> None:
     """
     Tests adding a selector to a recipe
