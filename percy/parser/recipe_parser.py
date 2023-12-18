@@ -715,7 +715,7 @@ class RecipeParser:
         # Convenience function that reduces repeated logic between regular and multi-output recipes
         def _scan_requirements(path_prefix: str = "") -> None:
             for section in req_sections:
-                section_path: Final[str] = f"{path_prefix}/requirements/{section}"
+                section_path = f"{path_prefix}/requirements/{section}"
                 # Relying on `get_value()` ensures that we will only examine literal values and ignore comments
                 # in-between dependencies.
                 dependencies = cast(list[str], self.get_value(section_path, []))
