@@ -663,7 +663,12 @@ class RecipeParser:
         # `_parse_yaml()` will also render JINJA variables for us, if requested.
         if isinstance(return_value, str):
             parser = self if sub_vars else None
-            return RecipeParser._parse_yaml(return_value, parser)
+            parsed_value = RecipeParser._parse_yaml(return_value, parser)
+            # Lists containing 1 value will drop the surrounding list by the YAML parser. To ensure greater consistency
+            # and provide better type-safety, we will re-wrap such values.
+            if len(node.children) == 1 and node.children[0].list_member_flag:
+                return [parsed_value]
+            return parsed_value
         return return_value
 
     def find_value(self, value: Primitives) -> list[str]:
@@ -687,6 +692,44 @@ class RecipeParser:
                 paths.append(stack_path_to_str(path_stack))
 
         traverse_all(self._root, _find_value_paths)
+
+        return paths
+
+    ## Dependency Functions ##
+
+    def is_multi_output(self) -> bool:
+        """
+        Indicates if a recipe is a "multiple output" recipe.
+        :returns: True if the recipe produces multiple outputs. False otherwise.
+        """
+        return self.contains_value("/outputs")
+
+    def get_dependency_paths(self) -> list[str]:
+        """
+        Convenience function that returns a list of all dependency lines in a recipe.
+        :returns: A list of all paths in a recipe file that point to dependencies.
+        """
+        paths: list[str] = []
+        req_sections: Final[list[str]] = ["build", "host", "run", "run_constrained", "run_exports"]
+
+        # Convenience function that reduces repeated logic between regular and multi-output recipes
+        def _scan_requirements(path_prefix: str = "") -> None:
+            for section in req_sections:
+                section_path: Final[str] = f"{path_prefix}/requirements/{section}"
+                # Relying on `get_value()` ensures that we will only examine literal values and ignore comments
+                # in-between dependencies.
+                dependencies = cast(list[str], self.get_value(section_path, []))
+                for i in range(len(dependencies)):
+                    paths.append(f"{section_path}/{i}")
+
+        # Scan for both multi-output and non-multi-output recipes. We won't scan empty defaulted lists, making scanning
+        # for both about as computationally complex as running `is_multi_output()` while also covering a theoretical
+        # recipe format that has both sections, even if it shouldn't exist.
+        outputs = cast(list[JsonType], self.get_value("/outputs", []))
+        for i in range(len(outputs)):
+            _scan_requirements(f"/outputs/{i}")
+
+        _scan_requirements()
 
         return paths
 
@@ -803,6 +846,19 @@ class RecipeParser:
         #   skip: True  # [unix]
         # The nodes for both `skip` and `True` contain the comment `[unix]`
         return dedupe_and_preserve_order(path_list)
+
+    def contains_selector_at_path(self, path: str) -> bool:
+        """
+        Given a path, determine if a selector exists on that line.
+        :param path: Target path
+        """
+        pass
+
+    def get_selector_at_path(self, path: str) -> str:
+        """
+        Given a path, return the selector that exists on that line. If no selector exists, TODO
+        """
+        pass
 
     def add_selector(self, path: str, selector: str, mode: SelectorConflictMode = SelectorConflictMode.REPLACE) -> None:
         """
@@ -1143,16 +1199,7 @@ class RecipeParser:
 
         Modifications from RFC 6902
           - We're using a Jinja-formatted YAML file, not JSON
-          - To modify variables, specify the variable name using `variable` not `path`. `path` implies lines in the file
           - To modify comments, specify the `path` AND `comment`
-
-        Operations not currently supported:
-          - add
-          - remove
-          - replace
-          - move
-          - copy
-          - test
 
         :param patch: JSON-patch payload to operate with.
         :raises JsonPatchValidationException: If the JSON-patch payload does not conform to our schema/spec.

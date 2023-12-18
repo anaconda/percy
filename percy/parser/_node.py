@@ -152,6 +152,6 @@ class Node:
         """
         Indicates if the node is a list member that contains other collection types. In other words, this node has no
         value itself BUT it contains children that do.
-        :returns: True if the noe represents an element that is a collection. False otherwise.
+        :returns: True if the node represents an element that is a collection. False otherwise.
         """
         return self.value == Node._sentinel and self.list_member_flag and bool(self.children)

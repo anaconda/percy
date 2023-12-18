@@ -334,6 +334,9 @@ def test_get_value() -> None:
     assert parser.get_value("/requirements/host/") == ["setuptools", "fakereq"]
     assert parser.get_value("/requirements/host/0") == "setuptools"
     assert parser.get_value("/requirements/host/1") == "fakereq"
+    # Regression: A list containing 1 value may be interpreted as the base type by YAML parsers. This can wreak havoc on
+    # type safety.
+    assert parser.get_value("/requirements/run") == ["python"]
     # Return a multiline string
     assert parser.get_value("/about/description") == SIMPLE_DESCRIPTION
     assert parser.get_value("/about/description/") == SIMPLE_DESCRIPTION
@@ -421,6 +424,69 @@ def test_find_value() -> None:
         parser.find_value({"foo": "bar"})
     # Find does not modify the parser
     assert not parser.is_modified()
+
+
+## Dependencies ##
+
+
+@pytest.mark.parametrize("file,expected", [("multi-output.yaml", True), ("simple-recipe.yaml", False)])
+def test_is_multi_output(file: str, expected: bool) -> None:
+    """
+    Validates if a recipe is in the multi-output format
+    :param file: File to test against
+    :param expected: Expected output
+    """
+    assert load_recipe(file).is_multi_output() == expected
+
+
+@pytest.mark.parametrize(
+    "file,expected",
+    [
+        (
+            "multi-output.yaml",
+            [
+                "/outputs/1/requirements/build/0",
+                "/outputs/1/requirements/build/1",
+                "/outputs/1/requirements/build/2",
+                "/outputs/1/requirements/build/3",
+                "/outputs/1/requirements/run/0",
+            ],
+        ),
+        ("simple-recipe.yaml", ["/requirements/host/0", "/requirements/host/1", "/requirements/run/0"]),
+        (
+            "simple-recipe_comment_in_requirements.yaml",
+            ["/requirements/host/0", "/requirements/host/1", "/requirements/run/0"],
+        ),
+        (
+            "huggingface_hub.yaml",
+            [
+                "/requirements/host/0",
+                "/requirements/host/1",
+                "/requirements/host/2",
+                "/requirements/host/3",
+                "/requirements/run/0",
+                "/requirements/run/1",
+                "/requirements/run/2",
+                "/requirements/run/3",
+                "/requirements/run/4",
+                "/requirements/run/5",
+                "/requirements/run/6",
+                "/requirements/run/7",
+                "/requirements/run/8",
+                "/requirements/run_constrained/0",
+                "/requirements/run_constrained/1",
+                "/requirements/run_constrained/2",
+            ],
+        ),
+    ],
+)
+def test_get_dependency_paths(file: str, expected: list[str]) -> None:
+    """
+    Validates fetching paths containing recipe dependencies
+    :param file: File to test against
+    :param expected: Expected output
+    """
+    assert load_recipe(file).get_dependency_paths() == expected
 
 
 ## Variables ##
