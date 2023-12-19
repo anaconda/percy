@@ -624,18 +624,14 @@ class Recipe:
 
     def patch_with_parser(self, callback: Callable[[RecipeParser], None]) -> bool:
         """
-        By providing a callback, this function allows calling code to utilize
-        the new parse-tree/percy recipe parser in a way that is backwards
-        compatible with the `Recipe` class.
+        By providing a callback, this function allows calling code to utilize the new parse-tree/percy recipe parser
+        in a way that is backwards compatible with the `Recipe` class.
 
-        NOTE: Expect this function to be eventually deprecated. It is provided
-              as a stop-gap as we experiment and potentially transition to
-              primarily use the `RecipeParser`/parse tree implementation.
+        NOTE: Expect this function to be eventually deprecated. It is provided as a stop-gap as we experiment and
+              potentially transition to primarily use the `RecipeParser`/parse tree implementation.
 
-        In general, prefer using the `patch()` function in the `PARSE_TREE`
-        operating mode for most recipe-patching needs. This mechanism is
-        provided to allow callers access to some of the newest features and
-        capabilities.
+        In general, prefer using the `patch()` function in the `PARSE_TREE` operating mode for most recipe-patching
+        needs. This mechanism is provided to allow callers access to some of the newest features and capabilities.
 
         :param callback: Callback that provides a `RecipeParser` instance that can make modifications that will be
             reflected in the `Recipe` class.
@@ -658,6 +654,25 @@ class Recipe:
         # https://yaml.readthedocs.io/en/latest/detail.html
         self.render()
         return parser.is_modified()
+
+    def get_read_only_parser(self) -> RecipeParser:
+        """
+        This function returns a read-only parser that is incapable of committing changes to the original recipe file.
+
+        To put another way, any writes to this parser will only cause changes in memory AND NOT to the underlying recipe
+        file.
+
+        It is incredibly important to understand the implications of calling this function from a security and thread
+        safety perspective. This function exists so that we can use the the `RecipeParser` class in the `check_*()`
+        functions in `anaconda-linter`
+
+        NOTE: Expect this function to be eventually deprecated. It is provided as a stop-gap as we experiment and
+              potentially transition to primarily use the `RecipeParser`/parse tree implementation.
+        :returns: An instance of the `RecipeParser` class containing the state of the recipe file at time of call.
+        """
+        # TODO Future: Consider constructing this with an optional flag that disables writes further or throws when
+        # a write is attempted(?)
+        return RecipeParser("\n".join(self.meta_yaml))
 
     def patch(
         self,
