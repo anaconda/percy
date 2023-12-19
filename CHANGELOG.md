@@ -1,6 +1,13 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.1.4
+- Adds 4 new functions to the `percy` parser
+  - 2 of these make it easier to work with dependencies
+  - 2 of these make it easier to manipulate selectors
+- Fixes bug with `get_value()` and related functions that caused a list of 1 primitive value to return as a primitive
+  value. This provides better type safety, even if it is likely against the YAML spec.
+
 ## 0.1.3
 - Limiting the project to Python >=3.11 for easier maintenance
 - Fixes and improves our GitHub Actions workflows to our latest standards
