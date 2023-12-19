@@ -722,9 +722,8 @@ class RecipeParser:
                 for i in range(len(dependencies)):
                     paths.append(f"{section_path}/{i}")
 
-        # Scan for both multi-output and non-multi-output recipes. We won't scan empty defaulted lists, making scanning
-        # for both about as computationally complex as running `is_multi_output()` while also covering a theoretical
-        # recipe format that has both sections, even if it shouldn't exist.
+        # Scan for both multi-output and non-multi-output recipes. Here is an example of a recipe that has both:
+        #   https://github.com/AnacondaRecipes/curl-feedstock/blob/master/recipe/meta.yaml
         outputs = cast(list[JsonType], self.get_value("/outputs", []))
         for i in range(len(outputs)):
             _scan_requirements(f"/outputs/{i}")

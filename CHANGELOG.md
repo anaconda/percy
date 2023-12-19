@@ -1,6 +1,10 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.1.5
+- Adds `get_read_only_parser()` function.
+- Fixes some comments.
+
 ## 0.1.4
 - Adds 4 new functions to the `percy` parser
   - 2 of these make it easier to work with dependencies
