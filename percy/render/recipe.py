@@ -655,7 +655,7 @@ class Recipe:
         self.render()
         return parser.is_modified()
 
-    def get_read_only_parser(self) -> bool:
+    def get_read_only_parser(self) -> RecipeParser:
         """
         This function returns a read-only parser that is incapable of committing changes to the original recipe file.
 
