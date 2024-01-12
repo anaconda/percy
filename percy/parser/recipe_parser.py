@@ -695,7 +695,7 @@ class RecipeParser:
 
         return paths
 
-    ## Dependency Functions ##
+    ## General Convenience Functions ##
 
     def is_multi_output(self) -> bool:
         """
@@ -703,6 +703,24 @@ class RecipeParser:
         :returns: True if the recipe produces multiple outputs. False otherwise.
         """
         return self.contains_value("/outputs")
+
+    def get_package_paths(self) -> list[str]:
+        """
+        Convenience function that returns the locations of all "outputs" in the `/outputs` directory AND the root/
+        top-level of the recipe file. Combined with a call to `get_value()` with a default value and a for loop, this
+        should easily allow the calling code to handle editing/examining configurations found in:
+          - "Simple" (non-multi-output) recipe files
+          - Multi-output recipe files
+          - Recipes that have both top-level and multi-output sections. An example can be found here:
+              https://github.com/AnacondaRecipes/curl-feedstock/blob/master/recipe/meta.yaml
+        """
+        paths: list[str] = ["/"]
+
+        outputs: Final[list[str]] = cast(list[JsonType], self.get_value("/outputs", []))
+        for i in range(len(outputs)):
+            paths.append(f"/outputs/{i}")
+
+        return paths
 
     def get_dependency_paths(self) -> list[str]:
         """
@@ -724,11 +742,11 @@ class RecipeParser:
 
         # Scan for both multi-output and non-multi-output recipes. Here is an example of a recipe that has both:
         #   https://github.com/AnacondaRecipes/curl-feedstock/blob/master/recipe/meta.yaml
+        _scan_requirements()
+
         outputs = cast(list[JsonType], self.get_value("/outputs", []))
         for i in range(len(outputs)):
             _scan_requirements(f"/outputs/{i}")
-
-        _scan_requirements()
 
         return paths
 
