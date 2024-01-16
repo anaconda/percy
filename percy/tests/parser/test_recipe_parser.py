@@ -442,6 +442,24 @@ def test_is_multi_output(file: str, expected: bool) -> None:
 @pytest.mark.parametrize(
     "file,expected",
     [
+        ("multi-output.yaml", ["/", "/outputs/0", "/outputs/1"]),
+        ("simple-recipe.yaml", ["/"]),
+        ("simple-recipe_comment_in_requirements.yaml", ["/"]),
+        ("huggingface_hub.yaml", ["/"]),
+    ],
+)
+def test_get_package_paths(file: str, expected: list[str]) -> None:
+    """
+    Validates fetching paths containing recipe dependencies
+    :param file: File to test against
+    :param expected: Expected output
+    """
+    assert load_recipe(file).get_package_paths() == expected
+
+
+@pytest.mark.parametrize(
+    "file,expected",
+    [
         (
             "multi-output.yaml",
             [
