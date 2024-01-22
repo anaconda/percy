@@ -15,6 +15,7 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe f
 from __future__ import annotations
 
 import ast
+import copy
 import difflib
 import json
 import re
@@ -591,6 +592,31 @@ class RecipeParser:
             self._render_object_tree(child, replace_variables, data)
 
         return data
+
+    def render_to_new_recipe_format(self) -> str:
+        """
+        Takes the current recipe representation and renders it to the new format WITHOUT modifying the current recipe
+        state.
+
+        The "new" format is defined in the following CEPs:
+          - https://github.com/conda-incubator/ceps/blob/main/cep-13.md
+          - https://github.com/conda-incubator/ceps/blob/main/cep-14.md
+
+        (As of writing there is no official name other than "the new recipe format")
+        """
+        # Approach: In the event that we want to expand support later, this function should be implemented in terms
+        # of a `RecipeParser` tree. This will make it easier to build an upgrade-path, if we so choose to pursue one.
+        new_recipe: RecipeParser = copy.deepcopy(self)
+
+        # TODO convert the JINJA variable table to a `context` section
+
+        # TODO swap all JINJA to use the new `${{ }}` format
+
+        # TODO convert selectors into ternary statements or `if` blocks
+
+        # TODO handle changes made to the license path(s)
+
+        return new_recipe.render()
 
     ## YAML Access Functions ##
 
