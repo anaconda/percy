@@ -15,7 +15,6 @@ Description:    Provides a class that takes text from a Jinja-formatted recipe f
 from __future__ import annotations
 
 import ast
-import copy
 import difflib
 import json
 import re
@@ -607,7 +606,11 @@ class RecipeParser:
         """
         # Approach: In the event that we want to expand support later, this function should be implemented in terms
         # of a `RecipeParser` tree. This will make it easier to build an upgrade-path, if we so choose to pursue one.
-        new_recipe: RecipeParser = copy.deepcopy(self)
+
+        # `copy.deepcopy()` produced some bizarre artifacts, namely single-line comments were being incorrectly rendered
+        # as list members. Although inefficient, we have tests that validate round-tripping the parser and there
+        # is no development cost in utilizing tools we already must maintain.
+        new_recipe: RecipeParser = RecipeParser(self.render())
 
         # Convert the JINJA variable table to a `context` section
         new_recipe.patch({"op": "add", "path": "/context", "value": new_recipe._vars_tbl})
@@ -617,14 +620,22 @@ class RecipeParser:
         # TODO: make more robust and don't assume `context` will be at the end of the list
         new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
 
-        # Hack: Wipe the existing table so the JINJA syntax doesn't render the final form
-        new_recipe._vars_tbl = {}
-
-        # TODO swap all JINJA to use the new `${{ }}` format
+        # Swap all JINJA to use the new `${{ }}` format.
+        jinja_sub_locations: Final[list[str]] = new_recipe.search(Regex.JINJA_SUB)
+        for path in jinja_sub_locations:
+            value = new_recipe.get_value(path)
+            # Values that match the regex should only be strings. This prevents crashes that should not occur.
+            if not isinstance(value, str):
+                continue
+            value = value.replace("{{", "${{")
+            new_recipe.patch({"op": "replace", "path": path, "value": value})
 
         # TODO convert selectors into ternary statements or `if` blocks
 
         # TODO handle changes made to the license path(s)
+
+        # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
+        new_recipe._vars_tbl = {}
 
         return new_recipe.render()
 
@@ -1313,7 +1324,7 @@ class RecipeParser:
 
         return is_successful
 
-    def search(self, regex: str, include_comment: bool = False) -> list[str]:
+    def search(self, regex: str | re.Pattern[str], include_comment: bool = False) -> list[str]:
         """
         Given a regex string, return the list of paths that match the regex.
         NOTE: This function only searches against primitive values. All variables and selectors can be fully provided by
@@ -1338,7 +1349,9 @@ class RecipeParser:
 
         return paths
 
-    def search_and_patch(self, regex: str, patch: JsonPatchType, include_comment: bool = False) -> bool:
+    def search_and_patch(
+        self, regex: str | re.Pattern[str], patch: JsonPatchType, include_comment: bool = False
+    ) -> bool:
         """
         Given a regex string and a JSON patch, apply the patch to any values that match the search expression.
         :param regex: Regular expression to match with
