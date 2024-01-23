@@ -252,11 +252,14 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
-def test_render_to_new_recipe_format() -> None:
+@pytest.mark.parametrize("file_base", ["simple-recipe.yaml"])
+def test_render_to_new_recipe_format(file_base: str) -> None:
     # TODO formalize test, this is a prototype/smoke-test
-    parser = load_recipe("simple-recipe.yaml")
-    print("")
-    print(parser.render_to_new_recipe_format())
+    parser = load_recipe(file_base)
+    assert parser.render_to_new_recipe_format() == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
+    # Ensure that the original file was untouched
+    assert not parser.is_modified()
+    assert parser.diff() == ""
 
 
 ## Values ##

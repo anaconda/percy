@@ -630,7 +630,43 @@ class RecipeParser:
             value = value.replace("{{", "${{")
             new_recipe.patch({"op": "replace", "path": path, "value": value})
 
-        # TODO convert selectors into ternary statements or `if` blocks
+        # Convert selectors into ternary statements or `if` blocks
+        for selector, instances in new_recipe._selector_tbl.items():
+            for info in instances:
+                # Selectors can be applied to the parent node if they appear on the same line. We'll ignore these when
+                # building replacements.
+                if not info.node.is_leaf():
+                    continue
+
+                # Strip the []'s around the selector
+                bool_expression: Final[str] = selector[1:-1]
+                # Convert to a public-facing path representation
+                selector_path: Final[str] = stack_path_to_str(info.path)
+
+                # For now, if a selector lands on a boolean value, use a ternary statement. Otherwise use the
+                # conditional logic.
+                # TODO `skip` is special and now can be a list of boolean expressions.
+                patch: JsonPatchType = {
+                    "op": "replace",
+                    "path": selector_path,
+                    "value": "${{ true if " + bool_expression + " }}",
+                }
+                if not isinstance(info.node.value, bool):
+                    # CEP-13 states that ONLY list members may use the `if/then/else` blocks
+                    # TODO figure out how best to handle this edge case.
+                    if not info.node.list_member_flag:
+                        continue
+                    bool_object: Final[dict[str, Primitives]] = {"if": bool_expression, "then": info.node.value}
+                    patch = {
+                        "op": "replace",
+                        "path": selector_path,
+                        # Hack: Surround the patched value in a list to render as a list member.
+                        # TODO: Figure out if this is a bug in the patch code.
+                        "value": [bool_object],
+                    }
+                # Apply the patch
+                new_recipe.patch(patch)
+                new_recipe.remove_selector(selector_path)
 
         # TODO handle changes made to the license path(s)
 
