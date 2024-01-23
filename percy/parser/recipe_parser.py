@@ -594,6 +594,7 @@ class RecipeParser:
         return data
 
     def render_to_new_recipe_format(self) -> str:
+        # pylint: disable=protected-access
         """
         Takes the current recipe representation and renders it to the new format WITHOUT modifying the current recipe
         state.
@@ -608,7 +609,16 @@ class RecipeParser:
         # of a `RecipeParser` tree. This will make it easier to build an upgrade-path, if we so choose to pursue one.
         new_recipe: RecipeParser = copy.deepcopy(self)
 
-        # TODO convert the JINJA variable table to a `context` section
+        # Convert the JINJA variable table to a `context` section
+        new_recipe.patch({"op": "add", "path": "/context", "value": new_recipe._vars_tbl})
+
+        # Hack: `add` has no concept of ordering and new fields are appended to the end. Logically, `context` should be
+        # at the top of the file, so we'll force it to the front of root's child list.
+        # TODO: make more robust and don't assume `context` will be at the end of the list
+        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
+
+        # Hack: Wipe the existing table so the JINJA syntax doesn't render the final form
+        new_recipe._vars_tbl = {}
 
         # TODO swap all JINJA to use the new `${{ }}` format
 

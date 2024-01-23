@@ -252,6 +252,13 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
+def test_render_to_new_recipe_format() -> None:
+    # TODO formalize test, this is a prototype/smoke-test
+    parser = load_recipe("simple-recipe.yaml")
+    print("")
+    print(parser.render_to_new_recipe_format())
+
+
 ## Values ##
 
 
