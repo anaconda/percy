@@ -1,0 +1,29 @@
+context:
+
+outputs:
+  - name: libdb
+    build:
+      run_exports:
+        # OK for minor
+        # https://abi-laboratory.pro/?view=timeline&l=libdb
+        - bar
+    test:
+      commands:
+        - if: unix
+          then: test -f ${PREFIX}/lib/libdb${SHLIB_EXT}
+        - if: win
+          then: if not exist %LIBRARY_BIN%\libdb%SHLIB_EXT%
+  # metapackage for old anaconda name (only available on linux/mac)
+  - name: db
+    requirements:
+      build:
+        # compilers are to ensure that variants are captured
+        - foo3
+        - foo2
+        - ${{ compiler('c') }}
+        - ${{ compiler('cxx') }}
+      run:
+        - foo
+    test:
+      commands:
+        - db_archive -m hello

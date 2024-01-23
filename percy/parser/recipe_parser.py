@@ -612,8 +612,11 @@ class RecipeParser:
         # is no development cost in utilizing tools we already must maintain.
         new_recipe: RecipeParser = RecipeParser(self.render())
 
-        # Convert the JINJA variable table to a `context` section
-        new_recipe.patch({"op": "add", "path": "/context", "value": new_recipe._vars_tbl})
+        # Convert the JINJA variable table to a `context` section. Empty tables still add the `context` section for
+        # future developers' convenience.
+        new_recipe.patch(
+            {"op": "add", "path": "/context", "value": new_recipe._vars_tbl if new_recipe._vars_tbl else None}
+        )
 
         # Hack: `add` has no concept of ordering and new fields are appended to the end. Logically, `context` should be
         # at the top of the file, so we'll force it to the front of root's child list.
@@ -628,6 +631,7 @@ class RecipeParser:
             if not isinstance(value, str):
                 continue
             value = value.replace("{{", "${{")
+            # TODO Fix: Inclusion of 's in `value` breaks `patch()`, breaking the `multi-output.yaml` test
             new_recipe.patch({"op": "replace", "path": path, "value": value})
 
         # Convert selectors into ternary statements or `if` blocks

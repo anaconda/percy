@@ -254,7 +254,10 @@ def test_render_to_object_multi_output() -> None:
 
 @pytest.mark.parametrize("file_base", ["simple-recipe.yaml"])
 def test_render_to_new_recipe_format(file_base: str) -> None:
-    # TODO formalize test, this is a prototype/smoke-test
+    """
+    Validates rendering a recipe in the new format.
+    TODO: re-enable the "multi-output.yaml" test when the single-quoted strings bug is resolved.
+    """
     parser = load_recipe(file_base)
     assert parser.render_to_new_recipe_format() == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
     # Ensure that the original file was untouched
