@@ -37,7 +37,7 @@ from percy.parser._utils import (
 )
 from percy.parser.enums import SelectorConflictMode
 from percy.parser.exceptions import JsonPatchValidationException
-from percy.parser.types import JSON_PATCH_SCHEMA, TAB_AS_SPACES, TAB_SPACE_COUNT
+from percy.parser.types import JSON_PATCH_SCHEMA, TAB_AS_SPACES, TAB_SPACE_COUNT, MessageCategory, MessageTable
 from percy.types import PRIMITIVES_TUPLE, JsonPatchType, JsonType, Primitives, SentinelType
 
 
@@ -592,7 +592,7 @@ class RecipeParser:
 
         return data
 
-    def render_to_new_recipe_format(self) -> str:
+    def render_to_new_recipe_format(self) -> tuple[str, MessageTable]:
         # pylint: disable=protected-access
         """
         Takes the current recipe representation and renders it to the new format WITHOUT modifying the current recipe
@@ -607,6 +607,8 @@ class RecipeParser:
         # Approach: In the event that we want to expand support later, this function should be implemented in terms
         # of a `RecipeParser` tree. This will make it easier to build an upgrade-path, if we so choose to pursue one.
 
+        msg_tbl = MessageTable()
+
         # `copy.deepcopy()` produced some bizarre artifacts, namely single-line comments were being incorrectly rendered
         # as list members. Although inefficient, we have tests that validate round-tripping the parser and there
         # is no development cost in utilizing tools we already must maintain.
@@ -614,9 +616,13 @@ class RecipeParser:
 
         # Convert the JINJA variable table to a `context` section. Empty tables still add the `context` section for
         # future developers' convenience.
-        new_recipe.patch(
-            {"op": "add", "path": "/context", "value": new_recipe._vars_tbl if new_recipe._vars_tbl else None}
-        )
+        new_recipe.patch({"op": "add", "path": "/context", "value": None})
+        # Filter-out any value not covered in the new format
+        for name, value in new_recipe._vars_tbl.items():
+            if not isinstance(value, (str, int, float, bool)):
+                msg_tbl.add_message(MessageCategory.WARNING, f"The variable `{name}` is an unsupported type.")
+                continue
+            new_recipe.patch({"op": "add", "path": f"/context/{name}", "value": value})
 
         # Hack: `add` has no concept of ordering and new fields are appended to the end. Logically, `context` should be
         # at the top of the file, so we'll force it to the front of root's child list.
@@ -633,6 +639,9 @@ class RecipeParser:
             value = new_recipe.get_value(path)
             # Values that match the regex should only be strings. This prevents crashes that should not occur.
             if not isinstance(value, str):
+                msg_tbl.add_message(
+                    MessageCategory.WARNING, f"A non-string value was found as a JINJA substitution: {value}"
+                )
                 continue
             value = value.replace("{{", "${{")
             # TODO Fix: Inclusion of 's in `value` breaks `patch()`, breaking the `multi-output.yaml` test
@@ -681,7 +690,7 @@ class RecipeParser:
         # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
         new_recipe._vars_tbl = {}
 
-        return new_recipe.render()
+        return new_recipe.render(), msg_tbl
 
     ## YAML Access Functions ##
 

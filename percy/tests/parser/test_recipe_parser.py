@@ -259,7 +259,9 @@ def test_render_to_new_recipe_format(file_base: str) -> None:
     TODO: re-enable the "multi-output.yaml" test when the single-quoted strings bug is resolved.
     """
     parser = load_recipe(file_base)
-    assert parser.render_to_new_recipe_format() == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
+    # TODO: validate messages returned
+    result, _ = parser.render_to_new_recipe_format()
+    assert result == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
     # Ensure that the original file was untouched
     assert not parser.is_modified()
     assert parser.diff() == ""
