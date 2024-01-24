@@ -623,6 +623,10 @@ class RecipeParser:
         # TODO: make more robust and don't assume `context` will be at the end of the list
         new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
 
+        # Similarly, patch-in the new `schema_version` value to the top of the file
+        new_recipe.patch({"op": "add", "path": "/schema_version", "value": 1})
+        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
+
         # Swap all JINJA to use the new `${{ }}` format.
         jinja_sub_locations: Final[list[str]] = new_recipe.search(Regex.JINJA_SUB)
         for path in jinja_sub_locations:
