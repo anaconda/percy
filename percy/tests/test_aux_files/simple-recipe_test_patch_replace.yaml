@@ -34,9 +34,9 @@ about:
 
 multi_level:
   list_1:
-    - foo
+    - ken
     # Ensure a comment in a list is supported
-    - bar
+    - barbie
   list_2:
     - cat
     - build:
@@ -46,7 +46,7 @@ multi_level:
   list_3:
     - ls
     - sl
-    - cowsay
+    - {{ compiler('c') }}
 
 test_var_usage:
   foo: {{ version }}

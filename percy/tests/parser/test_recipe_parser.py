@@ -252,7 +252,7 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
-@pytest.mark.parametrize("file_base", ["simple-recipe.yaml"])
+@pytest.mark.parametrize("file_base", ["simple-recipe.yaml", "multi-output.yaml"])
 def test_render_to_new_recipe_format(file_base: str) -> None:
     """
     Validates rendering a recipe in the new format.
@@ -1344,6 +1344,10 @@ def test_patch_add() -> None:
     # Edge case: adding a value to an existing key (non-list) actually replaces the value at that key, as per the RFC.
     assert parser.patch({"op": "add", "path": "/about/summary", "value": 62})
 
+    # Add a value in a list with a comment
+    assert parser.patch({"op": "add", "path": "/multi_level/list_1/1", "value": "ken"})
+    assert parser.patch({"op": "add", "path": "/multi_level/list_1/3", "value": "barbie"})
+
     # Sanity check: validate all modifications
     assert parser.is_modified()
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_add.yaml")
@@ -1477,6 +1481,31 @@ def test_patch_replace() -> None:
             "op": "replace",
             "path": "/multi_level/list_2/1",
             "value": {"build": {"number": 42, "skip": True}},
+        }
+    )
+
+    # Patch-in strings with quotes
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/multi_level/list_3/2",
+            "value": "{{ compiler('c') }}",
+        }
+    )
+
+    # Patch lists with comments
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/multi_level/list_1/0",
+            "value": "ken",
+        }
+    )
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/multi_level/list_1/1",
+            "value": "barbie",
         }
     )
 

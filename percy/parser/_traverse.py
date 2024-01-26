@@ -115,29 +115,34 @@ def traverse(node: Optional[Node], path: StrStack) -> Optional[Node]:
     return _traverse_recurse(node, path)
 
 
-def traverse_with_index(root: Node, path: StrStack) -> tuple[Optional[Node], int]:
+def traverse_with_index(root: Node, path: StrStack) -> tuple[Optional[Node], int, int]:
     """
     Given a path, return the node of interest OR the parent node with indexing information, if the node is in a list.
+
     :param root: Starting node of the tree/branch to traverse.
     :param path: Path, as a stack, that describes a location in the tree.
-    :returns: A tuple containing two items: - `Node` object if a node is found in the parse tree at that path. Otherwise
-        returns `None`. If the
-            path terminates in an index, the parent is returned with the index location.
-        - If the node is a member of a list, the index returned will be >= 0.
+    :returns: A tuple containing:
+        - `Node` object if a node is found in the parse tree at that path. Otherwise
+          returns `None`. If the path terminates in an index, the parent is returned with the index location.
+        - If the node is a member of a list, the VIRTUAL index returned will be >= 0
+        - If the node is a member of a list, the PHYSICAL index returned will be >= 0
     """
     if len(path) == 0:
         return None, -1
 
     node: Optional[Node]
-    node_idx: int = -1
+    virt_idx: int = -1
+    phys_idx: int = -1
     # Pre-determine if the path is targeting a list position. Patching only applies on the last index provided.
     if path[0].isdigit():
         # Find the index position of the target on the parent's list
-        node_idx = int(path.pop(0))
+        virt_idx = int(path.pop(0))
 
     node = traverse(root, path)
+    if node is not None and virt_idx >= 0:
+        phys_idx = remap_child_indices_virt_to_phys(node.children)[virt_idx]
 
-    return node, node_idx
+    return node, virt_idx, phys_idx
 
 
 def traverse_all(
