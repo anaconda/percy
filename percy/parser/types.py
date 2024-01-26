@@ -110,7 +110,7 @@ class MessageTable:
     handle the logging of these messages.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Constructs an empty message table
         """

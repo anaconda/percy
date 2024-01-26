@@ -25,7 +25,13 @@ from jsonschema import validate as schema_validate
 
 from percy.parser._node import Node
 from percy.parser._selector_info import SelectorInfo
-from percy.parser._traverse import remap_child_indices_virt_to_phys, traverse, traverse_all, traverse_with_index
+from percy.parser._traverse import (
+    INVALID_IDX,
+    remap_child_indices_virt_to_phys,
+    traverse,
+    traverse_all,
+    traverse_with_index,
+)
 from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, ForceIndentDumper, Regex, StrStack
 from percy.parser._utils import (
     dedupe_and_preserve_order,
@@ -666,9 +672,9 @@ class RecipeParser:
                     continue
 
                 # Strip the []'s around the selector
-                bool_expression: Final[str] = selector[1:-1]
+                bool_expression = selector[1:-1]
                 # Convert to a public-facing path representation
-                selector_path: Final[str] = stack_path_to_str(info.path)
+                selector_path = stack_path_to_str(info.path)
 
                 # For now, if a selector lands on a boolean value, use a ternary statement. Otherwise use the
                 # conditional logic.
@@ -682,14 +688,20 @@ class RecipeParser:
                     # CEP-13 states that ONLY list members may use the `if/then/else` blocks
                     # TODO figure out how best to handle this edge case.
                     if not info.node.list_member_flag:
+                        msg_tbl.add_message(
+                            MessageCategory.WARNING, f"A non-list item had a selector at: {selector_path}"
+                        )
                         continue
-                    bool_object: Final[dict[str, Primitives]] = {"if": bool_expression, "then": info.node.value}
+                    bool_object = {
+                        "if": bool_expression,
+                        "then": None if isinstance(info.node.value, SentinelType) else info.node.value,
+                    }
                     patch = {
                         "op": "replace",
                         "path": selector_path,
                         # Hack: Surround the patched value in a list to render as a list member.
                         # TODO: Figure out if this is a bug in the patch code.
-                        "value": [bool_object],
+                        "value": cast(JsonType, [bool_object]),
                     }
                 # Apply the patch
                 _patch_and_log(patch)
@@ -826,7 +838,7 @@ class RecipeParser:
         """
         paths: list[str] = ["/"]
 
-        outputs: Final[list[str]] = cast(list[JsonType], self.get_value("/outputs", []))
+        outputs: Final[list[str]] = cast(list[str], self.get_value("/outputs", []))
         for i in range(len(outputs)):
             paths.append(f"/outputs/{i}")
 
@@ -1135,7 +1147,7 @@ class RecipeParser:
             applicable - A flag indicating if the new data will be appended to a list
         """
         if len(path_stack) == 0:
-            return None, -1, "", False
+            return None, INVALID_IDX, INVALID_IDX, "", False
 
         # Special case that only applies to `add`. The `-` character indicates the new element can be added to the end
         # of the list.

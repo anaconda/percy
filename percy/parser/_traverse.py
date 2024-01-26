@@ -4,10 +4,13 @@ Description:    Provides tree traversal functions only used by the parser.
 """
 from __future__ import annotations
 
-from typing import Callable, Optional
+from typing import Callable, Final, Optional
 
 from percy.parser._node import Node
 from percy.parser._types import ROOT_NODE_VALUE, StrStack, StrStackImmutable
+
+# Indicates an array index that is not valid
+INVALID_IDX: Final[int] = -1
 
 
 def remap_child_indices_virt_to_phys(children: list[Node]) -> list[int]:
@@ -128,11 +131,11 @@ def traverse_with_index(root: Node, path: StrStack) -> tuple[Optional[Node], int
         - If the node is a member of a list, the PHYSICAL index returned will be >= 0
     """
     if len(path) == 0:
-        return None, -1
+        return None, INVALID_IDX, INVALID_IDX
 
     node: Optional[Node]
-    virt_idx: int = -1
-    phys_idx: int = -1
+    virt_idx: int = INVALID_IDX
+    phys_idx: int = INVALID_IDX
     # Pre-determine if the path is targeting a list position. Patching only applies on the last index provided.
     if path[0].isdigit():
         # Find the index position of the target on the parent's list
