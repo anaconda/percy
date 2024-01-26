@@ -110,9 +110,10 @@ def stringify_yaml(val: NodeValue | SentinelType, multiline_flag: bool = False) 
         return "false"
     # Ensure string quote escaping if quote marks are present. Otherwise this has the unintended consequence of
     # quoting all YAML strings. Although not wrong, it does not follow our common practices. Quote escaping is not
-    # required for multiline strings. We do not escape quotes for Jinja value statements.
+    # required for multiline strings. We do not escape quotes for Jinja value statements. We make an exception for
+    # strings containing the NEW recipe format syntax, ${{ }}, which is valid YAML.
     if not multiline_flag and isinstance(val, str) and not Regex.JINJA_SUB.match(val):
-        if "'" in val or '"' in val:
+        if "${{" not in val and ("'" in val or '"' in val):
             # The PyYaml equivalent function injects newlines, hence why we abuse the JSON library to write our YAML
             return json.dumps(val)
     return val

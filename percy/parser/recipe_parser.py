@@ -655,7 +655,6 @@ class RecipeParser:
                 )
                 continue
             value = value.replace("{{", "${{")
-            # TODO Fix: Inclusion of 's in `value` breaks `patch()`, breaking the `multi-output.yaml` test
             _patch_and_log({"op": "replace", "path": path, "value": value})
 
         # Convert selectors into ternary statements or `if` blocks

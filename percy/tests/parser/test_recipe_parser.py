@@ -256,7 +256,6 @@ def test_render_to_object_multi_output() -> None:
 def test_render_to_new_recipe_format(file_base: str) -> None:
     """
     Validates rendering a recipe in the new format.
-    TODO: re-enable the "multi-output.yaml" test when the single-quoted strings bug is resolved.
     """
     parser = load_recipe(file_base)
     # TODO: validate messages returned
