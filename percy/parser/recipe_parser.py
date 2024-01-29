@@ -844,6 +844,26 @@ class RecipeParser:
 
         return paths
 
+    @staticmethod
+    def append_to_path(base_path: str, ext_path: str) -> str:
+        """
+        Convenience function meant to be paired with `get_package_paths()` to generate extended paths. This handles
+        issues that arise when concatenating paths that do or do not include a trailing/leading `/` character. Most
+        notably, the root path `/` inherently contains a trailing `/`.
+        :param base_path: Base path, provided by `get_package_paths()`
+        :param ext_path: Path to append to the end of the `base_path`
+        :returns: A normalized path constructed by the two provided paths.
+        """
+        # Ensure the base path always ends in a `/`
+        if not base_path:
+            base_path = "/"
+        if base_path[-1] != "/":
+            base_path += "/"
+        # Ensure the extended path never starts with a `/`
+        if ext_path and ext_path[0] == "/":
+            ext_path = ext_path[1:]
+        return f"{base_path}{ext_path}"
+
     def get_dependency_paths(self) -> list[str]:
         """
         Convenience function that returns a list of all dependency lines in a recipe.

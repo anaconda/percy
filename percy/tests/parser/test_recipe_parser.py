@@ -472,6 +472,25 @@ def test_get_package_paths(file: str, expected: list[str]) -> None:
 
 
 @pytest.mark.parametrize(
+    "base,ext,expected",
+    [
+        ("", "", "/"),
+        ("/", "/foo/bar", "/foo/bar"),
+        ("/", "foo/bar", "/foo/bar"),
+        ("/foo/bar", "baz", "/foo/bar/baz"),
+        ("/foo/bar", "/baz", "/foo/bar/baz"),
+    ],
+)
+def test_append_to_path(base: str, ext: str, expected) -> None:
+    """
+    :param base: Base string path
+    :param ext: Path to extend the base path with
+    :param expected: Expected output
+    """
+    assert RecipeParser.append_to_path(base, ext) == expected
+
+
+@pytest.mark.parametrize(
     "file,expected",
     [
         (
