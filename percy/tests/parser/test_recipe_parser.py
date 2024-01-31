@@ -12,6 +12,7 @@ import pytest
 from percy.parser.enums import SelectorConflictMode
 from percy.parser.exceptions import JsonPatchValidationException
 from percy.parser.recipe_parser import RecipeParser
+from percy.types import JsonType
 
 # Path to supplementary files used in test cases
 TEST_FILES_PATH: Final[str] = "percy/tests/test_aux_files"
@@ -339,57 +340,88 @@ def test_contains_value(file: str, path: str, expected: bool) -> None:
     assert not parser.is_modified()
 
 
-def test_get_value() -> None:
+@pytest.mark.parametrize(
+    "file,path,sub_vars,expected",
+    [
+        ## simple-recipe.yaml ##
+        # Return a single value
+        ("simple-recipe.yaml", "/build/number", False, 0),
+        ("simple-recipe.yaml", "/build/number/", False, 0),
+        # Return a compound value
+        (
+            "simple-recipe.yaml",
+            "/build",
+            False,
+            {
+                "number": 0,
+                "skip": True,
+                "is_true": True,
+            },
+        ),
+        (
+            "simple-recipe.yaml",
+            "/build/",
+            False,
+            {
+                "number": 0,
+                "skip": True,
+                "is_true": True,
+            },
+        ),
+        # Return a Jinja value (substitution flag not in use)
+        ("simple-recipe.yaml", "/package/name", False, "{{ name|lower }}"),
+        # Return a value in a list
+        ("simple-recipe.yaml", "/requirements/host", False, ["setuptools", "fakereq"]),
+        ("simple-recipe.yaml", "/requirements/host/", False, ["setuptools", "fakereq"]),
+        ("simple-recipe.yaml", "/requirements/host/0", False, "setuptools"),
+        ("simple-recipe.yaml", "/requirements/host/1", False, "fakereq"),
+        # Regression: A list containing 1 value may be interpreted as the base type by YAML parsers. This can wreak
+        # havoc on type safety.
+        ("simple-recipe.yaml", "/requirements/run", False, ["python"]),
+        # Return a multiline string
+        ("simple-recipe.yaml", "/about/description", False, SIMPLE_DESCRIPTION),
+        ("simple-recipe.yaml", "/about/description/", False, SIMPLE_DESCRIPTION),
+        # Comments in lists could throw-off array indexing
+        ("simple-recipe.yaml", "/multi_level/list_1/1", False, "bar"),
+        # Render a recursive, complex type.
+        (
+            "simple-recipe.yaml",
+            "/test_var_usage",
+            True,
+            {
+                "foo": "0.10.8.6",
+                "bar": [
+                    "baz",
+                    42,
+                    "blah",
+                    "This types-toml is silly",
+                    "last",
+                ],
+            },
+        ),
+        ## multi-output.yaml ##
+    ],
+)
+def test_get_value(file: str, path: str, sub_vars: bool, expected: JsonType) -> None:
     """
     Tests retrieval of a value from a parsed YAML example.
     """
+    parser = load_recipe(file)
+    assert parser.get_value(path, sub_vars=sub_vars) == expected
+    assert not parser.is_modified()
+
+
+def test_get_value_not_found() -> None:
+    """
+    Tests failure to retrieve a value from a parsed YAML example.
+    """
     parser = load_recipe("simple-recipe.yaml")
-    # Return a single value
-    assert parser.get_value("/build/number") == 0
-    assert parser.get_value("/build/number/") == 0
-    # Return a compound value
-    assert parser.get_value("/build") == {
-        "number": 0,
-        "skip": True,
-        "is_true": True,
-    }
-    assert parser.get_value("/build/") == {
-        "number": 0,
-        "skip": True,
-        "is_true": True,
-    }
-    # Return a Jinja value (substitution flag not in use)
-    assert parser.get_value("/package/name") == "{{ name|lower }}"
-    # Return a value in a list
-    assert parser.get_value("/requirements/host") == ["setuptools", "fakereq"]
-    assert parser.get_value("/requirements/host/") == ["setuptools", "fakereq"]
-    assert parser.get_value("/requirements/host/0") == "setuptools"
-    assert parser.get_value("/requirements/host/1") == "fakereq"
-    # Regression: A list containing 1 value may be interpreted as the base type by YAML parsers. This can wreak havoc on
-    # type safety.
-    assert parser.get_value("/requirements/run") == ["python"]
-    # Return a multiline string
-    assert parser.get_value("/about/description") == SIMPLE_DESCRIPTION
-    assert parser.get_value("/about/description/") == SIMPLE_DESCRIPTION
     # Path not found cases
     with pytest.raises(KeyError):
         parser.get_value("/invalid/fake/path")
     assert parser.get_value("/invalid/fake/path", 42) == 42
     # Tests that a user can pass `None` without throwing
     assert parser.get_value("/invalid/fake/path", None) is None
-    # Comments in lists could throw-off array indexing
-    assert parser.get_value("/multi_level/list_1/1") == "bar"
-    # Render a recursive, complex type.
-    assert parser.get_value("/test_var_usage", sub_vars=True) == {
-        "foo": "0.10.8.6",
-        "bar": [
-            "baz",
-            42,
-            "blah",
-            "This types-toml is silly",
-            "last",
-        ],
-    }
     assert not parser.is_modified()
 
 
