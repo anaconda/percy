@@ -145,6 +145,11 @@ def traverse_with_index(root: Node, path: StrStack) -> tuple[Optional[Node], int
     if node is not None and virt_idx >= 0:
         phys_idx = remap_child_indices_virt_to_phys(node.children)[virt_idx]
 
+        # If the node in a list is a "Collection Element", we want return that node and not the parent that contains
+        # the list. Collection Nodes are abstract containers that will contain the rest of
+        if node.children[phys_idx].is_collection_element():
+            return node.children[phys_idx], INVALID_IDX, INVALID_IDX
+
     return node, virt_idx, phys_idx
 
 

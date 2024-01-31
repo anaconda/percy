@@ -644,6 +644,7 @@ class RecipeParser:
         # Hack: `add` has no concept of ordering and new fields are appended to the end. Logically, `context` should be
         # at the top of the file, so we'll force it to the front of root's child list.
         # TODO: make more robust and don't assume `context` will be at the end of the list
+        # TODO: manage some human-friendly ordering of all top-level sections
         new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
 
         # Similarly, patch-in the new `schema_version` value to the top of the file
@@ -707,7 +708,31 @@ class RecipeParser:
                 _patch_and_log(patch)
                 new_recipe.remove_selector(selector_path)
 
-        # TODO handle changes made to the license path(s)
+        # Move `run_exports` and `ignore_run_exports` from `build` to `requirements`
+        # TODO Fix: comments are not preserved with patch operations (add a flag to `patch()`?)
+        for base_path in new_recipe.get_package_paths():
+            # `run_exports`
+            old_re_path = RecipeParser.append_to_path(base_path, "/build/run_exports")
+            if new_recipe.contains_value(old_re_path):
+                requirements_path = RecipeParser.append_to_path(base_path, "/requirements")
+                new_re_path = RecipeParser.append_to_path(base_path, "/requirements/run_exports")
+                if not new_recipe.contains_value(requirements_path):
+                    _patch_and_log({"op": "add", "path": requirements_path, "value": None})
+                _patch_and_log({"op": "move", "from": old_re_path, "path": new_re_path})
+
+            # `ignore_run_exports`
+            old_ire_path = RecipeParser.append_to_path(base_path, "/build/ignore_run_exports")
+            if new_recipe.contains_value(old_re_path):
+                requirements_path = RecipeParser.append_to_path(base_path, "/requirements")
+                new_ire_path = RecipeParser.append_to_path(base_path, "/requirements/ignore_run_exports")
+                if not new_recipe.contains_value(requirements_path):
+                    _patch_and_log({"op": "add", "path": requirements_path, "value": None})
+                _patch_and_log({"op": "move", "from": old_ire_path, "path": new_ire_path})
+
+        # TODO Complete: handle changes to the recipe structure and fields
+        # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes
+        #                to `contains_value()`
+        # TODO Complete: ensure some common "canonical" ordering to the top-level fields
 
         # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
         new_recipe._vars_tbl = {}

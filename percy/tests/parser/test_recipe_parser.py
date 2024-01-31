@@ -12,6 +12,7 @@ import pytest
 from percy.parser.enums import SelectorConflictMode
 from percy.parser.exceptions import JsonPatchValidationException
 from percy.parser.recipe_parser import RecipeParser
+from percy.parser.types import MessageCategory
 from percy.types import JsonType
 
 # Path to supplementary files used in test cases
@@ -259,9 +260,9 @@ def test_render_to_new_recipe_format(file_base: str) -> None:
     Validates rendering a recipe in the new format.
     """
     parser = load_recipe(file_base)
-    # TODO: validate messages returned
-    result, _ = parser.render_to_new_recipe_format()
+    result, tbl = parser.render_to_new_recipe_format()
     assert result == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
+    assert tbl.get_messages(MessageCategory.ERROR) == []
     # Ensure that the original file was untouched
     assert not parser.is_modified()
     assert parser.diff() == ""
