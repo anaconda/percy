@@ -305,20 +305,37 @@ def test_list_value_paths() -> None:
     ]
 
 
-def test_contains_value() -> None:
+@pytest.mark.parametrize(
+    "file,path,expected",
+    [
+        ## simple-recipe.yaml ##
+        ("simple-recipe.yaml", "/build/number", True),
+        ("simple-recipe.yaml", "/build/number/", True),
+        ("simple-recipe.yaml", "/build", True),
+        ("simple-recipe.yaml", "/requirements/host/0", True),
+        ("simple-recipe.yaml", "/requirements/host/1", True),
+        ("simple-recipe.yaml", "/multi_level/list_1/1", True),  # Comments in lists could throw-off array indexing
+        ("simple-recipe.yaml", "/invalid/fake/path", False),
+        ## multi-output.yaml ##
+        ("multi-output.yaml", "/outputs/0/build/run_exports", True),
+        ("multi-output.yaml", "/outputs/1/build/run_exports", False),
+        ("multi-output.yaml", "/outputs/1/requirements/0", False),  # Should fail as this is an object, not a list
+        ("multi-output.yaml", "/outputs/1/requirements/build/0", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/1", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/2", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/3", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/4", False),
+    ],
+)
+def test_contains_value(file: str, path: str, expected: bool) -> None:
     """
-    Tests retrieval of a value from a parsed YAML example.
+    Tests if a path exists in a parsed recipe file.
+    :param file: File to work against
+    :param path: Target input path
+    :param expected: Expected result of the test
     """
-    parser = load_recipe("simple-recipe.yaml")
-    assert parser.contains_value("/build/number")
-    assert parser.contains_value("/build/number/")
-    assert parser.contains_value("/build")
-    assert parser.contains_value("/requirements/host/0")
-    assert parser.contains_value("/requirements/host/1")
-    # Comments in lists could throw-off array indexing
-    assert parser.contains_value("/multi_level/list_1/1")
-    # Path not found cases
-    assert not parser.contains_value("/invalid/fake/path")
+    parser = load_recipe(file)
+    assert parser.contains_value(path) == expected
     assert not parser.is_modified()
 
 
