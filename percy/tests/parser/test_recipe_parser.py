@@ -400,6 +400,23 @@ def test_contains_value(file: str, path: str, expected: bool) -> None:
             },
         ),
         ## multi-output.yaml ##
+        ("multi-output.yaml", "/outputs/0/build/run_exports/0", False, "bar"),
+        ("multi-output.yaml", "/outputs/0/build/run_exports", False, ["bar"]),
+        ("multi-output.yaml", "/outputs/0/build", False, {"run_exports": ["bar"]}),
+        # TODO FIX: This case
+        # (
+        #    "multi-output.yaml",
+        #    "/outputs/1",
+        #    False,
+        #    {
+        #        "name": "db",
+        #        "requirements": {
+        #            "build": ["foo3", "foo2", "{{ compiler('c') }}", "{{ compiler('cxx') }}"],
+        #            "run": ["foo"],
+        #        },
+        #        "test": {"commands": ["db_archive -m hello"]},
+        #    },
+        # ),
     ],
 )
 def test_get_value(file: str, path: str, sub_vars: bool, expected: JsonType) -> None:
