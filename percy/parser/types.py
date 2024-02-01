@@ -136,6 +136,16 @@ class MessageTable:
             return []
         return self._tbl[category]
 
+    def get_message_count(self, category: MessageCategory) -> int:
+        """
+        Returns how many messages are stored in a given category
+        :param category: Category to target
+        :returns: A list containing all the messages stored in a category.
+        """
+        if category not in self._tbl:
+            return 0
+        return len(self._tbl[category])
+
     def get_totals_message(self) -> str:
         """
         Convenience function that returns a displayable count of the number of warnings and errors contained in the
