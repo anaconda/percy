@@ -34,8 +34,10 @@ about:
 multi_level:
   list_1:
     - "There's just one place to go for all your spatula needs!"
+    - ken
     - foo
     # Ensure a comment in a list is supported
+    - barbie
     - bar
     - Spatula City!
   list_2:

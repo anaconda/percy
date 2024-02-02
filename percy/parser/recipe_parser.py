@@ -25,7 +25,13 @@ from jsonschema import validate as schema_validate
 
 from percy.parser._node import Node
 from percy.parser._selector_info import SelectorInfo
-from percy.parser._traverse import remap_child_indices_virt_to_phys, traverse, traverse_all, traverse_with_index
+from percy.parser._traverse import (
+    INVALID_IDX,
+    remap_child_indices_virt_to_phys,
+    traverse,
+    traverse_all,
+    traverse_with_index,
+)
 from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, ForceIndentDumper, Regex, StrStack
 from percy.parser._utils import (
     dedupe_and_preserve_order,
@@ -37,7 +43,14 @@ from percy.parser._utils import (
 )
 from percy.parser.enums import SelectorConflictMode
 from percy.parser.exceptions import JsonPatchValidationException
-from percy.parser.types import JSON_PATCH_SCHEMA, TAB_AS_SPACES, TAB_SPACE_COUNT
+from percy.parser.types import (
+    CURRENT_RECIPE_SCHEMA_FORMAT,
+    JSON_PATCH_SCHEMA,
+    TAB_AS_SPACES,
+    TAB_SPACE_COUNT,
+    MessageCategory,
+    MessageTable,
+)
 from percy.types import PRIMITIVES_TUPLE, JsonPatchType, JsonType, Primitives, SentinelType
 
 
@@ -107,7 +120,6 @@ class RecipeParser:
                 output = _parse_yaml_recursive_sub(
                     output, parser._render_jinja_vars  # pylint: disable=protected-access
                 )
-
         return output
 
     @staticmethod
@@ -434,7 +446,7 @@ class RecipeParser:
                 )
                 return
 
-            # Edge case: The first element of dictionary in a list has a list `- ` prefix. ubsequent keys in the
+            # Edge case: The first element of dictionary in a list has a list `- ` prefix. Subsequent keys in the
             # dictionary just have a tab.
             if parent is not None and parent.is_collection_element() and node == parent.children[0]:
                 lines.append(
@@ -592,6 +604,141 @@ class RecipeParser:
 
         return data
 
+    def render_to_new_recipe_format(self) -> tuple[str, MessageTable]:
+        # pylint: disable=protected-access
+        """
+        Takes the current recipe representation and renders it to the new format WITHOUT modifying the current recipe
+        state.
+
+        The "new" format is defined in the following CEPs:
+          - https://github.com/conda-incubator/ceps/blob/main/cep-13.md
+          - https://github.com/conda-incubator/ceps/blob/main/cep-14.md
+
+        (As of writing there is no official name other than "the new recipe format")
+        """
+        # Approach: In the event that we want to expand support later, this function should be implemented in terms
+        # of a `RecipeParser` tree. This will make it easier to build an upgrade-path, if we so choose to pursue one.
+
+        msg_tbl = MessageTable()
+
+        # `copy.deepcopy()` produced some bizarre artifacts, namely single-line comments were being incorrectly rendered
+        # as list members. Although inefficient, we have tests that validate round-tripping the parser and there
+        # is no development cost in utilizing tools we already must maintain.
+        new_recipe: RecipeParser = RecipeParser(self.render())
+
+        # Convenience wrapper that logs failed patches to the message table
+        def _patch_and_log(patch: JsonPatchType) -> None:
+            if not new_recipe.patch(patch):
+                msg_tbl.add_message(MessageCategory.ERROR, f"Failed to patch: {patch}")
+
+        # Convert the JINJA variable table to a `context` section. Empty tables still add the `context` section for
+        # future developers' convenience.
+        _patch_and_log({"op": "add", "path": "/context", "value": None})
+        # Filter-out any value not covered in the new format
+        for name, value in new_recipe._vars_tbl.items():
+            if not isinstance(value, (str, int, float, bool)):
+                msg_tbl.add_message(MessageCategory.WARNING, f"The variable `{name}` is an unsupported type.")
+                continue
+            _patch_and_log({"op": "add", "path": f"/context/{name}", "value": value})
+
+        # Hack: `add` has no concept of ordering and new fields are appended to the end. Logically, `context` should be
+        # at the top of the file, so we'll force it to the front of root's child list.
+        # TODO: make more robust and don't assume `context` will be at the end of the list
+        # TODO: manage some human-friendly ordering of all top-level sections
+        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
+
+        # Similarly, patch-in the new `schema_version` value to the top of the file
+        _patch_and_log({"op": "add", "path": "/schema_version", "value": CURRENT_RECIPE_SCHEMA_FORMAT})
+        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
+
+        # Swap all JINJA to use the new `${{ }}` format.
+        jinja_sub_locations: Final[list[str]] = new_recipe.search(Regex.JINJA_SUB)
+        for path in jinja_sub_locations:
+            value = new_recipe.get_value(path)
+            # Values that match the regex should only be strings. This prevents crashes that should not occur.
+            if not isinstance(value, str):
+                msg_tbl.add_message(
+                    MessageCategory.WARNING, f"A non-string value was found as a JINJA substitution: {value}"
+                )
+                continue
+            value = value.replace("{{", "${{")
+            _patch_and_log({"op": "replace", "path": path, "value": value})
+
+        # Convert selectors into ternary statements or `if` blocks
+        for selector, instances in new_recipe._selector_tbl.items():
+            for info in instances:
+                # Selectors can be applied to the parent node if they appear on the same line. We'll ignore these when
+                # building replacements.
+                if not info.node.is_leaf():
+                    continue
+
+                # Strip the []'s around the selector
+                bool_expression = selector[1:-1]
+                # Convert to a public-facing path representation
+                selector_path = stack_path_to_str(info.path)
+
+                # For now, if a selector lands on a boolean value, use a ternary statement. Otherwise use the
+                # conditional logic.
+                # TODO `skip` is special and now can be a list of boolean expressions.
+                patch: JsonPatchType = {
+                    "op": "replace",
+                    "path": selector_path,
+                    "value": "${{ true if " + bool_expression + " }}",
+                }
+                if not isinstance(info.node.value, bool):
+                    # CEP-13 states that ONLY list members may use the `if/then/else` blocks
+                    # TODO figure out how best to handle this edge case.
+                    if not info.node.list_member_flag:
+                        msg_tbl.add_message(
+                            MessageCategory.WARNING, f"A non-list item had a selector at: {selector_path}"
+                        )
+                        continue
+                    bool_object = {
+                        "if": bool_expression,
+                        "then": None if isinstance(info.node.value, SentinelType) else info.node.value,
+                    }
+                    patch = {
+                        "op": "replace",
+                        "path": selector_path,
+                        # Hack: Surround the patched value in a list to render as a list member.
+                        # TODO: Figure out if this is a bug in the patch code.
+                        "value": cast(JsonType, [bool_object]),
+                    }
+                # Apply the patch
+                _patch_and_log(patch)
+                new_recipe.remove_selector(selector_path)
+
+        # Move `run_exports` and `ignore_run_exports` from `build` to `requirements`
+        # TODO Fix: comments are not preserved with patch operations (add a flag to `patch()`?)
+        for base_path in new_recipe.get_package_paths():
+            # `run_exports`
+            old_re_path = RecipeParser.append_to_path(base_path, "/build/run_exports")
+            if new_recipe.contains_value(old_re_path):
+                requirements_path = RecipeParser.append_to_path(base_path, "/requirements")
+                new_re_path = RecipeParser.append_to_path(base_path, "/requirements/run_exports")
+                if not new_recipe.contains_value(requirements_path):
+                    _patch_and_log({"op": "add", "path": requirements_path, "value": None})
+                _patch_and_log({"op": "move", "from": old_re_path, "path": new_re_path})
+
+            # `ignore_run_exports`
+            old_ire_path = RecipeParser.append_to_path(base_path, "/build/ignore_run_exports")
+            if new_recipe.contains_value(old_re_path):
+                requirements_path = RecipeParser.append_to_path(base_path, "/requirements")
+                new_ire_path = RecipeParser.append_to_path(base_path, "/requirements/ignore_run_exports")
+                if not new_recipe.contains_value(requirements_path):
+                    _patch_and_log({"op": "add", "path": requirements_path, "value": None})
+                _patch_and_log({"op": "move", "from": old_ire_path, "path": new_ire_path})
+
+        # TODO Complete: handle changes to the recipe structure and fields
+        # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes
+        #                to `contains_value()`
+        # TODO Complete: ensure some common "canonical" ordering to the top-level fields
+
+        # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
+        new_recipe._vars_tbl = {}
+
+        return new_recipe.render(), msg_tbl
+
     ## YAML Access Functions ##
 
     def list_value_paths(self) -> list[str]:
@@ -716,11 +863,31 @@ class RecipeParser:
         """
         paths: list[str] = ["/"]
 
-        outputs: Final[list[str]] = cast(list[JsonType], self.get_value("/outputs", []))
+        outputs: Final[list[str]] = cast(list[str], self.get_value("/outputs", []))
         for i in range(len(outputs)):
             paths.append(f"/outputs/{i}")
 
         return paths
+
+    @staticmethod
+    def append_to_path(base_path: str, ext_path: str) -> str:
+        """
+        Convenience function meant to be paired with `get_package_paths()` to generate extended paths. This handles
+        issues that arise when concatenating paths that do or do not include a trailing/leading `/` character. Most
+        notably, the root path `/` inherently contains a trailing `/`.
+        :param base_path: Base path, provided by `get_package_paths()`
+        :param ext_path: Path to append to the end of the `base_path`
+        :returns: A normalized path constructed by the two provided paths.
+        """
+        # Ensure the base path always ends in a `/`
+        if not base_path:
+            base_path = "/"
+        if base_path[-1] != "/":
+            base_path += "/"
+        # Ensure the extended path never starts with a `/`
+        if ext_path and ext_path[0] == "/":
+            ext_path = ext_path[1:]
+        return f"{base_path}{ext_path}"
 
     def get_dependency_paths(self) -> list[str]:
         """
@@ -990,8 +1157,8 @@ class RecipeParser:
         Indicates if the target node to perform a patch operation against is a valid node. This is based on the RFC spec
         for JSON patching paths.
         :param node: Target node to validate
-        :param node_idx: If the caller is evaluating that a list member, exists, this is the index into that list.
-            Otherwise this value should be less than 0.
+        :param node_idx: If the caller is evaluating that a list member, exists, this is the VIRTUAL index into that
+            list. Otherwise this value should be less than 0.
         :returns: True if the node can be patched. False otherwise.
         """
         # Path not found
@@ -1004,17 +1171,17 @@ class RecipeParser:
             return False
 
         if node_idx >= 0:
-            # You cannot use the list access feature to access non-lists
-            if len(node.children) and not node.children[0].list_member_flag:
-                return False
             # Check the bounds if the target requires the use of an index, remembering to use the virtual look-up table.
             idx_map = remap_child_indices_virt_to_phys(node.children)
-            if node_idx > (len(idx_map) - 1):
+            if node_idx < 0 or node_idx > (len(idx_map) - 1):
+                return False
+            # You cannot use the list access feature to access non-lists
+            if len(node.children) and not node.children[idx_map[node_idx]].list_member_flag:
                 return False
 
         return True
 
-    def _patch_add_find_target(self, path_stack: StrStack) -> tuple[Optional[Node], int, str, bool]:
+    def _patch_add_find_target(self, path_stack: StrStack) -> tuple[Optional[Node], int, int, str, bool]:
         """
         Finds the target node of an `add()` operation, along with some supporting information.
 
@@ -1025,7 +1192,7 @@ class RecipeParser:
             applicable - A flag indicating if the new data will be appended to a list
         """
         if len(path_stack) == 0:
-            return None, -1, "", False
+            return None, INVALID_IDX, INVALID_IDX, "", False
 
         # Special case that only applies to `add`. The `-` character indicates the new element can be added to the end
         # of the list.
@@ -1035,15 +1202,15 @@ class RecipeParser:
             append_to_list = True
 
         path_stack_copy = path_stack.copy()
-        node, node_idx = traverse_with_index(self._root, path_stack)
+        node, virt_idx, phys_idx = traverse_with_index(self._root, path_stack)
         # Attempt to run a second time, if no node is found. As per the RFC, the containing object/list must exist. That
         # allows us to create only 1 level in the path.
         path_to_create = ""
         if node is None:
             path_to_create = path_stack_copy.pop(0)
-            node, node_idx = traverse_with_index(self._root, path_stack_copy)
+            node, virt_idx, phys_idx = traverse_with_index(self._root, path_stack_copy)
 
-        return node, node_idx, path_to_create, append_to_list
+        return node, virt_idx, phys_idx, path_to_create, append_to_list
 
     def _patch_add(self, path_stack: StrStack, value: JsonType) -> bool:
         """
@@ -1057,9 +1224,9 @@ class RecipeParser:
         #   not exist...However, the object itself or an array containing it does need to exist
         # In other words, the patch op will, at most, create 1 new path level. In addition, that also implies that
         # trying to append to an existing list only applies if the append operator is at the end of the list.
-        node, node_idx, path_to_create, append_to_list = self._patch_add_find_target(path_stack)
+        node, virt_idx, phys_idx, path_to_create, append_to_list = self._patch_add_find_target(path_stack)
 
-        if not RecipeParser._is_valid_patch_node(node, node_idx):
+        if not RecipeParser._is_valid_patch_node(node, virt_idx):
             return False
 
         # If we couldn't find 1 level in the path, ensure that we re-insert that as the "root" of the sub-tree we are
@@ -1069,13 +1236,13 @@ class RecipeParser:
 
         new_children: Final[list[Node]] = RecipeParser._generate_subtree(value)
         # Mark children as list members if they are list members
-        if append_to_list or node_idx >= 0:
+        if append_to_list or phys_idx >= 0:
             for child in new_children:
                 child.list_member_flag = True
 
         # Insert members if an index is specified. Otherwise, extend the list of child nodes from the existing list.
-        if node_idx >= 0:
-            node.children[node_idx:node_idx] = new_children
+        if phys_idx >= 0:
+            node.children[phys_idx:phys_idx] = new_children
         # Extend the list of children if we're appending or adding a new key.
         elif append_to_list or path_to_create:
             node.children.extend(new_children)
@@ -1126,19 +1293,19 @@ class RecipeParser:
         :param value: Value to update with.
         :returns: True if the operation was successful. False otherwise.
         """
-        node, node_idx = traverse_with_index(self._root, path_stack)
-        if not RecipeParser._is_valid_patch_node(node, node_idx):
+        node, virt_idx, phys_idx = traverse_with_index(self._root, path_stack)
+        if not RecipeParser._is_valid_patch_node(node, virt_idx):
             return False
 
         new_children: Final[list[Node]] = RecipeParser._generate_subtree(value)
         # Lists inject all children at the target position.
-        if node_idx >= 0:
+        if phys_idx >= 0:
             # Ensure all children are marked as list members
             for child in new_children:
                 child.list_member_flag = True
-            node.children[node_idx:node_idx] = new_children
+            node.children[phys_idx:phys_idx] = new_children
             # Evict the old child, which is now behind the new children
-            node.children.pop(node_idx + len(new_children))
+            node.children.pop(phys_idx + len(new_children))
             return True
 
         # Leafs that represent values/paths of values can evict all children, and be replaced with new children, derived
@@ -1164,8 +1331,8 @@ class RecipeParser:
             return False
 
         # Validate that `add`` will succeed before we `remove` anything
-        node, node_idx, _, _ = self._patch_add_find_target(path_stack.copy())
-        if not RecipeParser._is_valid_patch_node(node, node_idx):
+        node, virt_idx, _, _, _ = self._patch_add_find_target(path_stack.copy())
+        if not RecipeParser._is_valid_patch_node(node, virt_idx):
             return False
 
         return self._patch_remove(str_to_stack_path(value_from)) and self._patch_add(path_stack, original_value)
@@ -1277,7 +1444,7 @@ class RecipeParser:
 
         return is_successful
 
-    def search(self, regex: str, include_comment: bool = False) -> list[str]:
+    def search(self, regex: str | re.Pattern[str], include_comment: bool = False) -> list[str]:
         """
         Given a regex string, return the list of paths that match the regex.
         NOTE: This function only searches against primitive values. All variables and selectors can be fully provided by
@@ -1302,7 +1469,9 @@ class RecipeParser:
 
         return paths
 
-    def search_and_patch(self, regex: str, patch: JsonPatchType, include_comment: bool = False) -> bool:
+    def search_and_patch(
+        self, regex: str | re.Pattern[str], patch: JsonPatchType, include_comment: bool = False
+    ) -> bool:
         """
         Given a regex string and a JSON patch, apply the patch to any values that match the search expression.
         :param regex: Regular expression to match with

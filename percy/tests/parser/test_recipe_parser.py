@@ -12,6 +12,8 @@ import pytest
 from percy.parser.enums import SelectorConflictMode
 from percy.parser.exceptions import JsonPatchValidationException
 from percy.parser.recipe_parser import RecipeParser
+from percy.parser.types import MessageCategory
+from percy.types import JsonType
 
 # Path to supplementary files used in test cases
 TEST_FILES_PATH: Final[str] = "percy/tests/test_aux_files"
@@ -252,6 +254,20 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
+@pytest.mark.parametrize("file_base", ["simple-recipe.yaml", "multi-output.yaml"])
+def test_render_to_new_recipe_format(file_base: str) -> None:
+    """
+    Validates rendering a recipe in the new format.
+    """
+    parser = load_recipe(file_base)
+    result, tbl = parser.render_to_new_recipe_format()
+    assert result == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
+    assert tbl.get_messages(MessageCategory.ERROR) == []
+    # Ensure that the original file was untouched
+    assert not parser.is_modified()
+    assert parser.diff() == ""
+
+
 ## Values ##
 
 
@@ -291,74 +307,139 @@ def test_list_value_paths() -> None:
     ]
 
 
-def test_contains_value() -> None:
+@pytest.mark.parametrize(
+    "file,path,expected",
+    [
+        ## simple-recipe.yaml ##
+        ("simple-recipe.yaml", "/build/number", True),
+        ("simple-recipe.yaml", "/build/number/", True),
+        ("simple-recipe.yaml", "/build", True),
+        ("simple-recipe.yaml", "/requirements/host/0", True),
+        ("simple-recipe.yaml", "/requirements/host/1", True),
+        ("simple-recipe.yaml", "/multi_level/list_1/1", True),  # Comments in lists could throw-off array indexing
+        ("simple-recipe.yaml", "/invalid/fake/path", False),
+        ## multi-output.yaml ##
+        ("multi-output.yaml", "/outputs/0/build/run_exports", True),
+        ("multi-output.yaml", "/outputs/1/build/run_exports", False),
+        ("multi-output.yaml", "/outputs/1/requirements/0", False),  # Should fail as this is an object, not a list
+        ("multi-output.yaml", "/outputs/1/requirements/build/0", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/1", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/2", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/3", True),
+        ("multi-output.yaml", "/outputs/1/requirements/build/4", False),
+    ],
+)
+def test_contains_value(file: str, path: str, expected: bool) -> None:
     """
-    Tests retrieval of a value from a parsed YAML example.
+    Tests if a path exists in a parsed recipe file.
+    :param file: File to work against
+    :param path: Target input path
+    :param expected: Expected result of the test
     """
-    parser = load_recipe("simple-recipe.yaml")
-    assert parser.contains_value("/build/number")
-    assert parser.contains_value("/build/number/")
-    assert parser.contains_value("/build")
-    assert parser.contains_value("/requirements/host/0")
-    assert parser.contains_value("/requirements/host/1")
-    # Comments in lists could throw-off array indexing
-    assert parser.contains_value("/multi_level/list_1/1")
-    # Path not found cases
-    assert not parser.contains_value("/invalid/fake/path")
+    parser = load_recipe(file)
+    assert parser.contains_value(path) == expected
     assert not parser.is_modified()
 
 
-def test_get_value() -> None:
+@pytest.mark.parametrize(
+    "file,path,sub_vars,expected",
+    [
+        ## simple-recipe.yaml ##
+        # Return a single value
+        ("simple-recipe.yaml", "/build/number", False, 0),
+        ("simple-recipe.yaml", "/build/number/", False, 0),
+        # Return a compound value
+        (
+            "simple-recipe.yaml",
+            "/build",
+            False,
+            {
+                "number": 0,
+                "skip": True,
+                "is_true": True,
+            },
+        ),
+        (
+            "simple-recipe.yaml",
+            "/build/",
+            False,
+            {
+                "number": 0,
+                "skip": True,
+                "is_true": True,
+            },
+        ),
+        # Return a Jinja value (substitution flag not in use)
+        ("simple-recipe.yaml", "/package/name", False, "{{ name|lower }}"),
+        # Return a value in a list
+        ("simple-recipe.yaml", "/requirements/host", False, ["setuptools", "fakereq"]),
+        ("simple-recipe.yaml", "/requirements/host/", False, ["setuptools", "fakereq"]),
+        ("simple-recipe.yaml", "/requirements/host/0", False, "setuptools"),
+        ("simple-recipe.yaml", "/requirements/host/1", False, "fakereq"),
+        # Regression: A list containing 1 value may be interpreted as the base type by YAML parsers. This can wreak
+        # havoc on type safety.
+        ("simple-recipe.yaml", "/requirements/run", False, ["python"]),
+        # Return a multiline string
+        ("simple-recipe.yaml", "/about/description", False, SIMPLE_DESCRIPTION),
+        ("simple-recipe.yaml", "/about/description/", False, SIMPLE_DESCRIPTION),
+        # Comments in lists could throw-off array indexing
+        ("simple-recipe.yaml", "/multi_level/list_1/1", False, "bar"),
+        # Render a recursive, complex type.
+        (
+            "simple-recipe.yaml",
+            "/test_var_usage",
+            True,
+            {
+                "foo": "0.10.8.6",
+                "bar": [
+                    "baz",
+                    42,
+                    "blah",
+                    "This types-toml is silly",
+                    "last",
+                ],
+            },
+        ),
+        ## multi-output.yaml ##
+        ("multi-output.yaml", "/outputs/0/build/run_exports/0", False, "bar"),
+        ("multi-output.yaml", "/outputs/0/build/run_exports", False, ["bar"]),
+        ("multi-output.yaml", "/outputs/0/build", False, {"run_exports": ["bar"]}),
+        # TODO FIX: This case
+        # (
+        #    "multi-output.yaml",
+        #    "/outputs/1",
+        #    False,
+        #    {
+        #        "name": "db",
+        #        "requirements": {
+        #            "build": ["foo3", "foo2", "{{ compiler('c') }}", "{{ compiler('cxx') }}"],
+        #            "run": ["foo"],
+        #        },
+        #        "test": {"commands": ["db_archive -m hello"]},
+        #    },
+        # ),
+    ],
+)
+def test_get_value(file: str, path: str, sub_vars: bool, expected: JsonType) -> None:
     """
     Tests retrieval of a value from a parsed YAML example.
     """
+    parser = load_recipe(file)
+    assert parser.get_value(path, sub_vars=sub_vars) == expected
+    assert not parser.is_modified()
+
+
+def test_get_value_not_found() -> None:
+    """
+    Tests failure to retrieve a value from a parsed YAML example.
+    """
     parser = load_recipe("simple-recipe.yaml")
-    # Return a single value
-    assert parser.get_value("/build/number") == 0
-    assert parser.get_value("/build/number/") == 0
-    # Return a compound value
-    assert parser.get_value("/build") == {
-        "number": 0,
-        "skip": True,
-        "is_true": True,
-    }
-    assert parser.get_value("/build/") == {
-        "number": 0,
-        "skip": True,
-        "is_true": True,
-    }
-    # Return a Jinja value (substitution flag not in use)
-    assert parser.get_value("/package/name") == "{{ name|lower }}"
-    # Return a value in a list
-    assert parser.get_value("/requirements/host") == ["setuptools", "fakereq"]
-    assert parser.get_value("/requirements/host/") == ["setuptools", "fakereq"]
-    assert parser.get_value("/requirements/host/0") == "setuptools"
-    assert parser.get_value("/requirements/host/1") == "fakereq"
-    # Regression: A list containing 1 value may be interpreted as the base type by YAML parsers. This can wreak havoc on
-    # type safety.
-    assert parser.get_value("/requirements/run") == ["python"]
-    # Return a multiline string
-    assert parser.get_value("/about/description") == SIMPLE_DESCRIPTION
-    assert parser.get_value("/about/description/") == SIMPLE_DESCRIPTION
     # Path not found cases
     with pytest.raises(KeyError):
         parser.get_value("/invalid/fake/path")
     assert parser.get_value("/invalid/fake/path", 42) == 42
     # Tests that a user can pass `None` without throwing
     assert parser.get_value("/invalid/fake/path", None) is None
-    # Comments in lists could throw-off array indexing
-    assert parser.get_value("/multi_level/list_1/1") == "bar"
-    # Render a recursive, complex type.
-    assert parser.get_value("/test_var_usage", sub_vars=True) == {
-        "foo": "0.10.8.6",
-        "bar": [
-            "baz",
-            42,
-            "blah",
-            "This types-toml is silly",
-            "last",
-        ],
-    }
     assert not parser.is_modified()
 
 
@@ -455,6 +536,25 @@ def test_get_package_paths(file: str, expected: list[str]) -> None:
     :param expected: Expected output
     """
     assert load_recipe(file).get_package_paths() == expected
+
+
+@pytest.mark.parametrize(
+    "base,ext,expected",
+    [
+        ("", "", "/"),
+        ("/", "/foo/bar", "/foo/bar"),
+        ("/", "foo/bar", "/foo/bar"),
+        ("/foo/bar", "baz", "/foo/bar/baz"),
+        ("/foo/bar", "/baz", "/foo/bar/baz"),
+    ],
+)
+def test_append_to_path(base: str, ext: str, expected) -> None:
+    """
+    :param base: Base string path
+    :param ext: Path to extend the base path with
+    :param expected: Expected output
+    """
+    assert RecipeParser.append_to_path(base, ext) == expected
 
 
 @pytest.mark.parametrize(
@@ -1329,6 +1429,10 @@ def test_patch_add() -> None:
     # Edge case: adding a value to an existing key (non-list) actually replaces the value at that key, as per the RFC.
     assert parser.patch({"op": "add", "path": "/about/summary", "value": 62})
 
+    # Add a value in a list with a comment
+    assert parser.patch({"op": "add", "path": "/multi_level/list_1/1", "value": "ken"})
+    assert parser.patch({"op": "add", "path": "/multi_level/list_1/3", "value": "barbie"})
+
     # Sanity check: validate all modifications
     assert parser.is_modified()
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_patch_add.yaml")
@@ -1462,6 +1566,31 @@ def test_patch_replace() -> None:
             "op": "replace",
             "path": "/multi_level/list_2/1",
             "value": {"build": {"number": 42, "skip": True}},
+        }
+    )
+
+    # Patch-in strings with quotes
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/multi_level/list_3/2",
+            "value": "{{ compiler('c') }}",
+        }
+    )
+
+    # Patch lists with comments
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/multi_level/list_1/0",
+            "value": "ken",
+        }
+    )
+    assert parser.patch(
+        {
+            "op": "replace",
+            "path": "/multi_level/list_1/1",
+            "value": "barbie",
         }
     )
 
