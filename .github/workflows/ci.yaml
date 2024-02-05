@@ -61,3 +61,4 @@ jobs:
             source $CONDA/bin/activate
             conda install conda-build
             conda-build -c distro-tooling .
+            echo "TODO rm: get explicit error code: $?"
