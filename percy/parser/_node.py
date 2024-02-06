@@ -7,7 +7,7 @@ from __future__ import annotations
 from typing import Optional
 
 from percy.parser._types import ROOT_NODE_VALUE
-from percy.parser.types import NodeValue
+from percy.parser.types import MultilineVariant, NodeValue
 from percy.types import SentinelType
 
 
@@ -35,7 +35,7 @@ class Node:
         comment: str = "",
         children: Optional[list["Node"]] = None,
         list_member_flag: bool = False,
-        multiline_flag: bool = False,
+        multiline_variant: MultilineVariant = MultilineVariant.NONE,
         key_flag: bool = False,
     ):
         """
@@ -44,14 +44,14 @@ class Node:
         :param comment:             Comment on the line this node was found on
         :param children:            List of children nodes, descendants of this node
         :param list_member_flag:    Indicates if this node is part of a list
-        :param multiline_flag:      Indicates if the node represents a multiline value
+        :param multiline_variant:   Indicates if the node represents a multiline value AND which syntax variant is used
         :param key_flag:            Indicates if the node represents a key that points to zero or more subsequent values
         """
         self.value = value
         self.comment = comment
         self.children: list[Node] = children if children else []
         self.list_member_flag = list_member_flag
-        self.multiline_flag = multiline_flag
+        self.multiline_variant = multiline_variant
         self.key_flag = key_flag
 
     def __eq__(self, other: object) -> bool:
@@ -66,7 +66,7 @@ class Node:
             self.value == other.value
             and self.comment == other.comment
             and self.list_member_flag == other.list_member_flag
-            and self.multiline_flag == other.multiline_flag
+            and self.multiline_variant == other.multiline_variant
             # Save recursive (most expensive) check for last
             and self.children == other.children
         )
@@ -86,7 +86,7 @@ class Node:
             f"  - Comment:      {self.comment!r}\n"
             f"  - Child count:  {len(self.children)}\n"
             f"  - List?:        {self.list_member_flag}\n"
-            f"  - Multiline?:   {self.multiline_flag}\n"
+            f"  - Multiline?:   {self.multiline_variant}\n"
             f"  - Key?:         {self.key_flag}\n"
         )
 

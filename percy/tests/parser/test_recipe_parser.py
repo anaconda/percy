@@ -90,29 +90,7 @@ def test_eq() -> None:
     assert not parser2.is_modified()
 
 
-def test_dog_food_easy() -> None:
-    """
-    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
-
-    This is the "easy" recipe test, to ensure compatibility with "basic" recipe structures with no gotchas.
-    """
-    types_toml = load_file(f"{TEST_FILES_PATH}/types-toml.yaml")
-    parser = RecipeParser(types_toml)
-    assert parser.render() == types_toml
-
-
-def test_dog_food_medium() -> None:
-    """
-    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
-
-    This is the "medium" recipe test, to ensure compatibility with some more contrived examples
-    """
-    simple = load_file(f"{TEST_FILES_PATH}/simple-recipe.yaml")
-    parser = RecipeParser(simple)
-    assert parser.render() == simple
-
-
-@pytest.mark.skip(reason="To be re-enable when PKG-2964 is fixed")
+@pytest.mark.skip(reason="To be re-enable when PAT-46 is fixed")
 def test_loading_obj_in_list() -> None:
     """
     Regression test: at one point, the parser would crash loading this file, containing an object in a list.
@@ -122,26 +100,24 @@ def test_loading_obj_in_list() -> None:
     assert parser.render() == replace
 
 
-def test_dog_food_multi_output() -> None:
+@pytest.mark.parametrize(
+    "file",
+    [
+        "types-toml.yaml",  # "Easy-difficulty" recipe, representative of common/simple recipes.
+        "simple-recipe.yaml",  # "Medium-difficulty" recipe, containing several contrived examples
+        "multi-output.yaml",  # Contains a multi-output recipe
+        "huggingface_hub.yaml",  # Contains a blank lines in a multiline string
+        "simple-recipe_multiline_strings.yaml",  # Contains multiple multiline strings, using various operators
+    ],
+)
+def test_round_trip(file: str) -> None:
     """
-    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
-
-    This tests multi-output recipes, to ensure compatibility with some more complex recipe examples.
+    Test "eating our own dog food"/round-tripping the parser: Take a recipe, construct a parser, re-render and
+    ensure the output matches the input.
     """
-    multi = load_file(f"{TEST_FILES_PATH}/multi-output.yaml")
-    parser = RecipeParser(multi)
-    assert parser.render() == multi
-
-
-def test_dog_food_blank_lines_in_multiline() -> None:
-    """
-    Test "eating our own dog food": Take a recipe, construct a parser, re-render and ensure the output matches the input
-
-    This tests recipes that contain extra blank lines in their multiline strings.
-    """
-    blank_lines = load_file(f"{TEST_FILES_PATH}/huggingface_hub.yaml")
-    parser = RecipeParser(blank_lines)
-    assert parser.render() == blank_lines
+    expected: Final[str] = load_file(f"{TEST_FILES_PATH}/{file}")
+    parser = RecipeParser(expected)
+    assert parser.render() == expected
 
 
 def test_render_to_object() -> None:

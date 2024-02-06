@@ -50,6 +50,7 @@ from percy.parser.types import (
     TAB_SPACE_COUNT,
     MessageCategory,
     MessageTable,
+    MultilineVariant,
 )
 from percy.types import PRIMITIVES_TUPLE, JsonPatchType, JsonType, Primitives, SentinelType
 
@@ -202,7 +203,9 @@ class RecipeParser:
             return [
                 Node(
                     value=value.splitlines(),
-                    multiline_flag=True,
+                    # The conversion from JSON-to-YAML is lossy here. Default to the closest equivalent, which preserves
+                    # newlines.
+                    multiline_variant=MultilineVariant.PIPE,
                 )
             ]
 
@@ -319,10 +322,19 @@ class RecipeParser:
             new_node = RecipeParser._parse_line_node(clean_line)
             # If the last node ended (pre-comments) with a |, reset the value to be a list of the following,
             # extra-indented strings
-            if Regex.MULTILINE.match(line):
+            multiline_re_match = Regex.MULTILINE.match(line)
+            if multiline_re_match:
+                # Calculate which multiline symbol is used. The first character must be matched, the second is optional.
+                variant_capture = cast(str, multiline_re_match.group(Regex.MULTILINE_VARIANT_CAPTURE_GROUP_CHAR))
+                variant_sign = cast(str | None, multiline_re_match.group(Regex.MULTILINE_VARIANT_CAPTURE_GROUP_SUFFIX))
+                if variant_sign is not None:
+                    variant_capture += variant_sign
                 # Per YAML spec, multiline statements can't be commented. In other words, the `#` symbol is seen as a
                 # string character in multiline values.
-                multiline_node = Node([], multiline_flag=True)
+                multiline_node = Node(
+                    [],
+                    multiline_variant=MultilineVariant(variant_capture),
+                )
                 # Type narrow that we assigned `value` as a `list`
                 assert isinstance(multiline_node.value, list)
                 multiline = lines[line_idx]
@@ -441,7 +453,7 @@ class RecipeParser:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
                 lines.append(
                     f"{spaces}{TAB_AS_SPACES}- "
-                    f"{stringify_yaml(node.children[0].value, True)}  "
+                    f"{stringify_yaml(node.children[0].value, multiline_variant=node.children[0].multiline_variant)}  "
                     f"{node.children[0].comment}".rstrip()
                 )
                 return
@@ -460,10 +472,14 @@ class RecipeParser:
             # for other types.
             #
             # By the language spec, # symbols do not indicate comments on multiline strings.
-            if node.children[0].multiline_flag:
-                lines.append(f"{spaces}{node.value}: |  {node.comment}".rstrip())
+            if node.children[0].multiline_variant != MultilineVariant.NONE:
+                multi_variant: Final[MultilineVariant] = node.children[0].multiline_variant
+                lines.append(f"{spaces}{node.value}: {multi_variant}  {node.comment}".rstrip())
                 for val_line in cast(list[str], node.children[0].value):
-                    lines.append(f"{spaces}{TAB_AS_SPACES}" f"{stringify_yaml(val_line, True)}".rstrip())
+                    lines.append(
+                        f"{spaces}{TAB_AS_SPACES}"
+                        f"{stringify_yaml(val_line, multiline_variant=multi_variant)}".rstrip()
+                    )
                 return
             lines.append(
                 f"{spaces}{node.value}: "
@@ -547,7 +563,7 @@ class RecipeParser:
                 continue
 
             # Handle multiline strings
-            value = child.value if not child.multiline_flag else "\n".join(child.value)
+            value = child.value if child.multiline_variant == MultilineVariant.NONE else "\n".join(child.value)
             if replace_variables and isinstance(value, str):
                 value = self._render_jinja_vars(value)
 
@@ -788,7 +804,7 @@ class RecipeParser:
         # Handle unpacking of the last key-value set of nodes.
         if node.is_single_key() and not node.is_root():
             # As of writing, Jinja substitutions are not used
-            if node.children[0].multiline_flag:
+            if node.children[0].multiline_variant != MultilineVariant.NONE:
                 # PyYaml will not preserve newlines passed into strings, so we can directly check for variable
                 # substitutions on a multiline string
                 multiline_str = "\n".join(cast(str, node.children[0].value))

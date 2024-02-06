@@ -8,7 +8,7 @@ import json
 from typing import cast
 
 from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, Regex, StrStack, StrStackImmutable
-from percy.parser.types import NodeValue
+from percy.parser.types import MultilineVariant, NodeValue
 from percy.types import H, SentinelType
 
 
@@ -88,12 +88,14 @@ def substitute_markers(s: str, subs: list[str]) -> str:
     return s
 
 
-def stringify_yaml(val: NodeValue | SentinelType, multiline_flag: bool = False) -> NodeValue:
+def stringify_yaml(
+    val: NodeValue | SentinelType, multiline_variant: MultilineVariant = MultilineVariant.NONE
+) -> NodeValue:
     """
     Special function for handling edge cases when converting values back to YAML.
     :param val: Value to check
-    :param multiline_flag: (Optional) If the value being processed is a multiline string, set this flag to True to
-        prevent unintended quote-escaping.
+    :param multiline_variant: (Optional) If the value being processed is a multiline string, indicate which YAML
+        descriptor is in use.
     :returns: YAML version of a value, as a string.
     """
     # Handled for type-completeness of `Node.value`. A `Node` with a sentinel as its value indicates a special Node
@@ -112,7 +114,7 @@ def stringify_yaml(val: NodeValue | SentinelType, multiline_flag: bool = False) 
     # quoting all YAML strings. Although not wrong, it does not follow our common practices. Quote escaping is not
     # required for multiline strings. We do not escape quotes for Jinja value statements. We make an exception for
     # strings containing the NEW recipe format syntax, ${{ }}, which is valid YAML.
-    if not multiline_flag and isinstance(val, str) and not Regex.JINJA_SUB.match(val):
+    if multiline_variant == MultilineVariant.NONE and isinstance(val, str) and not Regex.JINJA_SUB.match(val):
         if "${{" not in val and ("'" in val or '"' in val):
             # The PyYaml equivalent function injects newlines, hence why we abuse the JSON library to write our YAML
             return json.dumps(val)

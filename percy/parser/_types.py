@@ -54,5 +54,10 @@ class Regex:
     JINJA_SET_LINE: Final[re.Pattern[str]] = re.compile(r"{%\s*set\s*" + _JINJA_VAR_FUNCTION_PATTERN + r"\s*=.*%}\s*\n")
 
     SELECTOR: Final[re.Pattern[str]] = re.compile(r"\[.*\]")
-    MULTILINE: Final[re.Pattern[str]] = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
+    # Detects the 6 common variants (3 |'s, 3 >'s). See this guide for more info:
+    #   https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-in-yaml-over-multiple-lines/21699210
+    MULTILINE: Final[re.Pattern[str]] = re.compile(r"^\s*.*:\s+(\||>)(\+|\-)?(\s*|\s+#.*)")
+    # Group where the "variant" string is identified
+    MULTILINE_VARIANT_CAPTURE_GROUP_CHAR: Final[int] = 1
+    MULTILINE_VARIANT_CAPTURE_GROUP_SUFFIX: Final[int] = 2
     DETECT_TRAILING_COMMENT: Final[re.Pattern[str]] = re.compile(r"(\s)+(#)")
