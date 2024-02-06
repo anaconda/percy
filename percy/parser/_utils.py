@@ -8,7 +8,7 @@ import json
 from typing import cast
 
 from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, Regex, StrStack, StrStackImmutable
-from percy.parser.types import MultilineVariant, NodeValue
+from percy.parser.types import TAB_AS_SPACES, MultilineVariant, NodeValue
 from percy.types import H, SentinelType
 
 
@@ -119,6 +119,24 @@ def stringify_yaml(
             # The PyYaml equivalent function injects newlines, hence why we abuse the JSON library to write our YAML
             return json.dumps(val)
     return val
+
+
+def normalize_multiline_strings(val: NodeValue, variant: MultilineVariant) -> NodeValue:
+    """
+    Utility function that takes in a Node's value and "normalizes" multiline strings so that they can be accurately
+    interpreted by PyYaml. We use PyYaml to handle the various ways in which a multiline string can be interpreted.
+    :param val: Value to normalize
+    :param variant: Multiline variant rules to follow
+    :returns: If the value is a multiline string, this returns the "normalized" string to be re-evaluated by PyYaml.
+        Otherwise, returns the original value.
+    """
+    if variant == MultilineVariant.NONE:
+        return val
+
+    # Prepend the multiline marker to the string to have PyYaml interpret how the whitespace should be handled. JINJA
+    # substitutions in multi-line strings do not break the PyYaml parser.
+    multiline_str = f"\n{TAB_AS_SPACES}".join(cast(list[str], val))
+    return f"{variant}\n{TAB_AS_SPACES}{multiline_str}"
 
 
 def dedupe_and_preserve_order(l: list[H]) -> list[H]:

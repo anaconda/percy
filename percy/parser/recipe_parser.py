@@ -35,6 +35,7 @@ from percy.parser._traverse import (
 from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, ForceIndentDumper, Regex, StrStack
 from percy.parser._utils import (
     dedupe_and_preserve_order,
+    normalize_multiline_strings,
     num_tab_spaces,
     stack_path_to_str,
     str_to_stack_path,
@@ -223,10 +224,9 @@ class RecipeParser:
         """
         Helper function that replaces Jinja substitutions with their actual set values.
         :param s: String to be re-rendered
-        :returns: The original value, augmented with Jinja substitutions. If substitutions have taken place, the type is
-            re-evaluated.
+        :returns: The original value, augmented with Jinja substitutions. Types are re-rendered to account for multiline
+            strings that may have been "normalized" prior to this call.
         """
-        replacement = False
         # Search the string, replacing all substitutions we can recognize
         for match in cast(list[str], Regex.JINJA_SUB.findall(s)):
             lower_case = False
@@ -245,10 +245,7 @@ class RecipeParser:
                 if lower_case:
                     value = value.lower()
                 s = s.replace(match, value)
-                replacement = True
-        if replacement:
-            return cast(JsonType, yaml.safe_load(s))
-        return s
+        return cast(JsonType, yaml.safe_load(s))
 
     def _rebuild_selectors(self) -> None:
         """
@@ -562,10 +559,13 @@ class RecipeParser:
             if child.is_comment():
                 continue
 
-            # Handle multiline strings
-            value = child.value if child.multiline_variant == MultilineVariant.NONE else "\n".join(child.value)
-            if replace_variables and isinstance(value, str):
-                value = self._render_jinja_vars(value)
+            # Handle multiline strings and variable replacement
+            value = normalize_multiline_strings(child.value, child.multiline_variant)
+            if isinstance(value, str):
+                if replace_variables:
+                    value = self._render_jinja_vars(value)
+                elif child.multiline_variant != MultilineVariant.NONE:
+                    value = cast(str, yaml.safe_load(value))
 
             # Empty keys are interpreted to point to `None`
             if child.is_empty_key():
@@ -805,12 +805,15 @@ class RecipeParser:
         if node.is_single_key() and not node.is_root():
             # As of writing, Jinja substitutions are not used
             if node.children[0].multiline_variant != MultilineVariant.NONE:
-                # PyYaml will not preserve newlines passed into strings, so we can directly check for variable
-                # substitutions on a multiline string
-                multiline_str = "\n".join(cast(str, node.children[0].value))
+                multiline_str = cast(
+                    str,
+                    normalize_multiline_strings(
+                        cast(list[str], node.children[0].value), node.children[0].multiline_variant
+                    ),
+                )
                 if sub_vars:
                     return self._render_jinja_vars(multiline_str)
-                return multiline_str
+                return cast(JsonType, yaml.safe_load(multiline_str))
             return_value = cast(Primitives, node.children[0].value)
         # Leaf nodes can return their value directly
         elif node.is_leaf():

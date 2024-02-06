@@ -23,6 +23,21 @@ SIMPLE_DESCRIPTION: Final[
     str
 ] = "This is a PEP '561 type stub package for the toml package.\nIt can be used by type-checking tools like mypy, pyright,\npytype, PyCharm, etc. to check code that uses toml."  # pylint: disable=line-too-long
 
+# Multiline string used to validate interpretation of the various multiline variations YAML allows
+QUICK_FOX_PIPE: Final[str] = "The quick brown\n{{fox}}\n\njumped over the lazy dog\n"
+QUICK_FOX_PIPE_PLUS: Final[str] = "The quick brown\n{{fox}}\n\njumped over the lazy dog\n"
+QUICK_FOX_PIPE_MINUS: Final[str] = "The quick brown\n{{fox}}\n\njumped over the lazy dog"
+QUICK_FOX_CARROT: Final[str] = "The quick brown {{fox}}\njumped over the lazy dog\n"
+QUICK_FOX_CARROT_PLUS: Final[str] = "The quick brown {{fox}}\njumped over the lazy dog\n"
+QUICK_FOX_CARROT_MINUS: Final[str] = "The quick brown {{fox}}\njumped over the lazy dog"
+# Substitution variants of the multiline string
+QUICK_FOX_SUB_PIPE: Final[str] = "The quick brown\ntiger\n\njumped over the lazy dog\n"
+QUICK_FOX_SUB_PIPE_PLUS: Final[str] = "The quick brown\ntiger\n\njumped over the lazy dog\n"
+QUICK_FOX_SUB_PIPE_MINUS: Final[str] = "The quick brown\ntiger\n\njumped over the lazy dog"
+QUICK_FOX_SUB_CARROT: Final[str] = "The quick brown tiger\njumped over the lazy dog\n"
+QUICK_FOX_SUB_CARROT_PLUS: Final[str] = "The quick brown tiger\njumped over the lazy dog\n"
+QUICK_FOX_SUB_CARROT_MINUS: Final[str] = "The quick brown tiger\njumped over the lazy dog"
+
 
 def load_file(file: Path | str) -> str:
     """
@@ -120,74 +135,146 @@ def test_round_trip(file: str) -> None:
     assert parser.render() == expected
 
 
-def test_render_to_object() -> None:
+@pytest.mark.parametrize(
+    "file,substitute,expected",
+    [
+        (
+            "simple-recipe.yaml",
+            False,
+            {
+                "about": {
+                    "description": SIMPLE_DESCRIPTION,
+                    "license": "Apache-2.0 AND MIT",
+                    "summary": "This is a small recipe for testing",
+                },
+                "test_var_usage": {
+                    "foo": "{{ version }}",
+                    "bar": [
+                        "baz",
+                        "{{ zz_non_alpha_first }}",
+                        "blah",
+                        "This {{ name }} is silly",
+                        "last",
+                    ],
+                },
+                "build": {"is_true": True, "skip": True, "number": 0},
+                "package": {"name": "{{ name|lower }}"},
+                "requirements": {
+                    "empty_field1": None,
+                    "host": ["setuptools", "fakereq"],
+                    "empty_field2": None,
+                    "run": ["python"],
+                    "empty_field3": None,
+                },
+                "multi_level": {
+                    "list_3": ["ls", "sl", "cowsay"],
+                    "list_2": ["cat", "bat", "mat"],
+                    "list_1": ["foo", "bar"],
+                },
+            },
+        ),
+        (
+            "simple-recipe.yaml",
+            True,
+            {
+                "about": {
+                    "description": SIMPLE_DESCRIPTION,
+                    "license": "Apache-2.0 AND MIT",
+                    "summary": "This is a small recipe for testing",
+                },
+                "test_var_usage": {
+                    "foo": "0.10.8.6",
+                    "bar": [
+                        "baz",
+                        42,
+                        "blah",
+                        "This types-toml is silly",
+                        "last",
+                    ],
+                },
+                "build": {"is_true": True, "skip": True, "number": 0},
+                "package": {"name": "types-toml"},
+                "requirements": {
+                    "empty_field1": None,
+                    "host": ["setuptools", "fakereq"],
+                    "empty_field2": None,
+                    "run": ["python"],
+                    "empty_field3": None,
+                },
+                "multi_level": {
+                    "list_3": ["ls", "sl", "cowsay"],
+                    "list_2": ["cat", "bat", "mat"],
+                    "list_1": ["foo", "bar"],
+                },
+            },
+        ),
+        (
+            "simple-recipe_multiline_strings.yaml",
+            False,
+            {
+                "about": {
+                    "description0": QUICK_FOX_PIPE,
+                    "description1": QUICK_FOX_PIPE_PLUS,
+                    "description2": QUICK_FOX_PIPE_MINUS,
+                    "description3": QUICK_FOX_CARROT,
+                    "description4": QUICK_FOX_CARROT_PLUS,
+                    "description5": QUICK_FOX_CARROT_MINUS,
+                    "license": "Apache-2.0 AND MIT",
+                    "summary": "This is a small recipe for testing",
+                },
+                "test_var_usage": {
+                    "foo": "{{ version }}",
+                    "bar": [
+                        "baz",
+                        "{{ zz_non_alpha_first }}",
+                        "blah",
+                        "This {{ name }} is silly",
+                        "last",
+                    ],
+                },
+                "build": {"is_true": True, "skip": True, "number": 0},
+                "package": {"name": "{{ name|lower }}"},
+            },
+        ),
+        (
+            "simple-recipe_multiline_strings.yaml",
+            True,
+            {
+                "about": {
+                    "description0": QUICK_FOX_SUB_PIPE,
+                    "description1": QUICK_FOX_SUB_PIPE_PLUS,
+                    "description2": QUICK_FOX_SUB_PIPE_MINUS,
+                    "description3": QUICK_FOX_SUB_CARROT,
+                    "description4": QUICK_FOX_SUB_CARROT_PLUS,
+                    "description5": QUICK_FOX_SUB_CARROT_MINUS,
+                    "license": "Apache-2.0 AND MIT",
+                    "summary": "This is a small recipe for testing",
+                },
+                "test_var_usage": {
+                    "foo": "0.10.8.6",
+                    "bar": [
+                        "baz",
+                        42,
+                        "blah",
+                        "This types-toml is silly",
+                        "last",
+                    ],
+                },
+                "build": {"is_true": True, "skip": True, "number": 0},
+                "package": {"name": "types-toml"},
+            },
+        ),
+    ],
+)
+def test_render_to_object(file: str, substitute: bool, expected: JsonType) -> None:
     """
     Tests rendering a recipe to an object format.
+    :param file: File to load and test against
+    :param substitute: True to run the function with JINJA substitutions on, False for off
+    :param expected: Expected value to return
     """
-    parser = load_recipe("simple-recipe.yaml")
-    assert parser.render_to_object() == {
-        "about": {
-            "description": SIMPLE_DESCRIPTION,
-            "license": "Apache-2.0 AND MIT",
-            "summary": "This is a small recipe for testing",
-        },
-        "test_var_usage": {
-            "foo": "{{ version }}",
-            "bar": [
-                "baz",
-                "{{ zz_non_alpha_first }}",
-                "blah",
-                "This {{ name }} is silly",
-                "last",
-            ],
-        },
-        "build": {"is_true": True, "skip": True, "number": 0},
-        "package": {"name": "{{ name|lower }}"},
-        "requirements": {
-            "empty_field1": None,
-            "host": ["setuptools", "fakereq"],
-            "empty_field2": None,
-            "run": ["python"],
-            "empty_field3": None,
-        },
-        "multi_level": {
-            "list_3": ["ls", "sl", "cowsay"],
-            "list_2": ["cat", "bat", "mat"],
-            "list_1": ["foo", "bar"],
-        },
-    }
-    # Tests variable substitution mode
-    assert parser.render_to_object(True) == {
-        "about": {
-            "description": SIMPLE_DESCRIPTION,
-            "license": "Apache-2.0 AND MIT",
-            "summary": "This is a small recipe for testing",
-        },
-        "test_var_usage": {
-            "foo": "0.10.8.6",
-            "bar": [
-                "baz",
-                42,
-                "blah",
-                "This types-toml is silly",
-                "last",
-            ],
-        },
-        "build": {"is_true": True, "skip": True, "number": 0},
-        "package": {"name": "types-toml"},
-        "requirements": {
-            "empty_field1": None,
-            "host": ["setuptools", "fakereq"],
-            "empty_field2": None,
-            "run": ["python"],
-            "empty_field3": None,
-        },
-        "multi_level": {
-            "list_3": ["ls", "sl", "cowsay"],
-            "list_2": ["cat", "bat", "mat"],
-            "list_1": ["foo", "bar"],
-        },
-    }
+    parser = load_recipe(file)
+    assert parser.render_to_object(substitute) == expected
 
 
 def test_render_to_object_multi_output() -> None:
@@ -358,6 +445,20 @@ def test_contains_value(file: str, path: str, expected: bool) -> None:
         # Return a multiline string
         ("simple-recipe.yaml", "/about/description", False, SIMPLE_DESCRIPTION),
         ("simple-recipe.yaml", "/about/description/", False, SIMPLE_DESCRIPTION),
+        # Return multiline string variants
+        ("simple-recipe_multiline_strings.yaml", "/about/description0", False, QUICK_FOX_PIPE),
+        ("simple-recipe_multiline_strings.yaml", "/about/description1", False, QUICK_FOX_PIPE_PLUS),
+        ("simple-recipe_multiline_strings.yaml", "/about/description2", False, QUICK_FOX_PIPE_MINUS),
+        ("simple-recipe_multiline_strings.yaml", "/about/description3", False, QUICK_FOX_CARROT),
+        ("simple-recipe_multiline_strings.yaml", "/about/description4", False, QUICK_FOX_CARROT_PLUS),
+        ("simple-recipe_multiline_strings.yaml", "/about/description5", False, QUICK_FOX_CARROT_MINUS),
+        # Return multiline string variants, with substitution
+        ("simple-recipe_multiline_strings.yaml", "/about/description0", True, QUICK_FOX_SUB_PIPE),
+        ("simple-recipe_multiline_strings.yaml", "/about/description1", True, QUICK_FOX_SUB_PIPE_PLUS),
+        ("simple-recipe_multiline_strings.yaml", "/about/description2", True, QUICK_FOX_SUB_PIPE_MINUS),
+        ("simple-recipe_multiline_strings.yaml", "/about/description3", True, QUICK_FOX_SUB_CARROT),
+        ("simple-recipe_multiline_strings.yaml", "/about/description4", True, QUICK_FOX_SUB_CARROT_PLUS),
+        ("simple-recipe_multiline_strings.yaml", "/about/description5", True, QUICK_FOX_SUB_CARROT_MINUS),
         # Comments in lists could throw-off array indexing
         ("simple-recipe.yaml", "/multi_level/list_1/1", False, "bar"),
         # Render a recursive, complex type.
