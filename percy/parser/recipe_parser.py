@@ -18,6 +18,7 @@ import ast
 import difflib
 import json
 import re
+import sys
 from typing import Callable, Final, Optional, TypeGuard, cast, no_type_check
 
 import yaml
@@ -32,7 +33,14 @@ from percy.parser._traverse import (
     traverse_all,
     traverse_with_index,
 )
-from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, ForceIndentDumper, Regex, StrStack
+from percy.parser._types import (
+    PERCY_SUB_MARKER,
+    ROOT_NODE_VALUE,
+    TOP_LEVEL_KEY_SORT_ORDER,
+    ForceIndentDumper,
+    Regex,
+    StrStack,
+)
 from percy.parser._utils import (
     dedupe_and_preserve_order,
     normalize_multiline_strings,
@@ -371,6 +379,29 @@ class RecipeParser:
         # This table will have to be re-built or modified when the tree is modified with `patch()`.
         self._rebuild_selectors()
 
+    def _sort_top_level_keys(self) -> None:
+        """
+        Sorts the top-level keys to a "canonical" order (a human-centric order in which most recipes are currently
+        written). This should work on both old and new recipe formats.
+
+        TODO: Handle JINJA statements
+
+        The modification flag is not changed even though the underlying tree is. As far as YAML and our key-pathing
+        structure is concerned, order does not matter.
+        """
+
+        def _comparison(n: Node) -> int:
+            # For now, put all comments at the top of the file. Arguably this is better than having them "randomly tag"
+            # to another top-level key.
+            if n.is_comment():
+                return -sys.maxsize
+            # Unidentified keys go to the bottom of the file.
+            if not isinstance(n.value, str) or n.value not in TOP_LEVEL_KEY_SORT_ORDER:
+                return sys.maxsize
+            return TOP_LEVEL_KEY_SORT_ORDER[n.value]
+
+        self._root.children.sort(key=_comparison)
+
     @staticmethod
     def _str_tree_recurse(node: Node, depth: int, lines: list[str]) -> None:
         """
@@ -657,15 +688,8 @@ class RecipeParser:
                 continue
             _patch_and_log({"op": "add", "path": f"/context/{name}", "value": value})
 
-        # Hack: `add` has no concept of ordering and new fields are appended to the end. Logically, `context` should be
-        # at the top of the file, so we'll force it to the front of root's child list.
-        # TODO: make more robust and don't assume `context` will be at the end of the list
-        # TODO: manage some human-friendly ordering of all top-level sections
-        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
-
         # Similarly, patch-in the new `schema_version` value to the top of the file
         _patch_and_log({"op": "add", "path": "/schema_version", "value": CURRENT_RECIPE_SCHEMA_FORMAT})
-        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
 
         # Swap all JINJA to use the new `${{ }}` format.
         jinja_sub_locations: Final[list[str]] = new_recipe.search(Regex.JINJA_SUB)
@@ -748,10 +772,13 @@ class RecipeParser:
         # TODO Complete: handle changes to the recipe structure and fields
         # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes
         #                to `contains_value()`
-        # TODO Complete: ensure some common "canonical" ordering to the top-level fields
 
         # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
         new_recipe._vars_tbl = {}
+
+        # Sort the top-level keys to a "canonical" ordering. This should make previous patch operations look more
+        # "sensible" to a human reader.
+        new_recipe._sort_top_level_keys()
 
         return new_recipe.render(), msg_tbl
 
