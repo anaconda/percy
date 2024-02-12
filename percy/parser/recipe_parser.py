@@ -18,6 +18,7 @@ import ast
 import difflib
 import json
 import re
+import sys
 from typing import Callable, Final, Optional, TypeGuard, cast, no_type_check
 
 import yaml
@@ -32,9 +33,17 @@ from percy.parser._traverse import (
     traverse_all,
     traverse_with_index,
 )
-from percy.parser._types import PERCY_SUB_MARKER, ROOT_NODE_VALUE, ForceIndentDumper, Regex, StrStack
+from percy.parser._types import (
+    PERCY_SUB_MARKER,
+    ROOT_NODE_VALUE,
+    TOP_LEVEL_KEY_SORT_ORDER,
+    ForceIndentDumper,
+    Regex,
+    StrStack,
+)
 from percy.parser._utils import (
     dedupe_and_preserve_order,
+    normalize_multiline_strings,
     num_tab_spaces,
     stack_path_to_str,
     str_to_stack_path,
@@ -50,6 +59,7 @@ from percy.parser.types import (
     TAB_SPACE_COUNT,
     MessageCategory,
     MessageTable,
+    MultilineVariant,
 )
 from percy.types import PRIMITIVES_TUPLE, JsonPatchType, JsonType, Primitives, SentinelType
 
@@ -202,7 +212,9 @@ class RecipeParser:
             return [
                 Node(
                     value=value.splitlines(),
-                    multiline_flag=True,
+                    # The conversion from JSON-to-YAML is lossy here. Default to the closest equivalent, which preserves
+                    # newlines.
+                    multiline_variant=MultilineVariant.PIPE,
                 )
             ]
 
@@ -220,10 +232,9 @@ class RecipeParser:
         """
         Helper function that replaces Jinja substitutions with their actual set values.
         :param s: String to be re-rendered
-        :returns: The original value, augmented with Jinja substitutions. If substitutions have taken place, the type is
-            re-evaluated.
+        :returns: The original value, augmented with Jinja substitutions. Types are re-rendered to account for multiline
+            strings that may have been "normalized" prior to this call.
         """
-        replacement = False
         # Search the string, replacing all substitutions we can recognize
         for match in cast(list[str], Regex.JINJA_SUB.findall(s)):
             lower_case = False
@@ -242,10 +253,7 @@ class RecipeParser:
                 if lower_case:
                     value = value.lower()
                 s = s.replace(match, value)
-                replacement = True
-        if replacement:
-            return cast(JsonType, yaml.safe_load(s))
-        return s
+        return cast(JsonType, yaml.safe_load(s))
 
     def _rebuild_selectors(self) -> None:
         """
@@ -319,10 +327,19 @@ class RecipeParser:
             new_node = RecipeParser._parse_line_node(clean_line)
             # If the last node ended (pre-comments) with a |, reset the value to be a list of the following,
             # extra-indented strings
-            if Regex.MULTILINE.match(line):
+            multiline_re_match = Regex.MULTILINE.match(line)
+            if multiline_re_match:
+                # Calculate which multiline symbol is used. The first character must be matched, the second is optional.
+                variant_capture = cast(str, multiline_re_match.group(Regex.MULTILINE_VARIANT_CAPTURE_GROUP_CHAR))
+                variant_sign = cast(str | None, multiline_re_match.group(Regex.MULTILINE_VARIANT_CAPTURE_GROUP_SUFFIX))
+                if variant_sign is not None:
+                    variant_capture += variant_sign
                 # Per YAML spec, multiline statements can't be commented. In other words, the `#` symbol is seen as a
                 # string character in multiline values.
-                multiline_node = Node([], multiline_flag=True)
+                multiline_node = Node(
+                    [],
+                    multiline_variant=MultilineVariant(variant_capture),
+                )
                 # Type narrow that we assigned `value` as a `list`
                 assert isinstance(multiline_node.value, list)
                 multiline = lines[line_idx]
@@ -361,6 +378,29 @@ class RecipeParser:
         #
         # This table will have to be re-built or modified when the tree is modified with `patch()`.
         self._rebuild_selectors()
+
+    def _sort_top_level_keys(self) -> None:
+        """
+        Sorts the top-level keys to a "canonical" order (a human-centric order in which most recipes are currently
+        written). This should work on both old and new recipe formats.
+
+        TODO: Handle JINJA statements
+
+        The modification flag is not changed even though the underlying tree is. As far as YAML and our key-pathing
+        structure is concerned, order does not matter.
+        """
+
+        def _comparison(n: Node) -> int:
+            # For now, put all comments at the top of the file. Arguably this is better than having them "randomly tag"
+            # to another top-level key.
+            if n.is_comment():
+                return -sys.maxsize
+            # Unidentified keys go to the bottom of the file.
+            if not isinstance(n.value, str) or n.value not in TOP_LEVEL_KEY_SORT_ORDER:
+                return sys.maxsize
+            return TOP_LEVEL_KEY_SORT_ORDER[n.value]
+
+        self._root.children.sort(key=_comparison)
 
     @staticmethod
     def _str_tree_recurse(node: Node, depth: int, lines: list[str]) -> None:
@@ -441,7 +481,7 @@ class RecipeParser:
                 lines.append(f"{spaces}{node.value}:  {node.comment}".rstrip())
                 lines.append(
                     f"{spaces}{TAB_AS_SPACES}- "
-                    f"{stringify_yaml(node.children[0].value, True)}  "
+                    f"{stringify_yaml(node.children[0].value, multiline_variant=node.children[0].multiline_variant)}  "
                     f"{node.children[0].comment}".rstrip()
                 )
                 return
@@ -460,10 +500,14 @@ class RecipeParser:
             # for other types.
             #
             # By the language spec, # symbols do not indicate comments on multiline strings.
-            if node.children[0].multiline_flag:
-                lines.append(f"{spaces}{node.value}: |  {node.comment}".rstrip())
+            if node.children[0].multiline_variant != MultilineVariant.NONE:
+                multi_variant: Final[MultilineVariant] = node.children[0].multiline_variant
+                lines.append(f"{spaces}{node.value}: {multi_variant}  {node.comment}".rstrip())
                 for val_line in cast(list[str], node.children[0].value):
-                    lines.append(f"{spaces}{TAB_AS_SPACES}" f"{stringify_yaml(val_line, True)}".rstrip())
+                    lines.append(
+                        f"{spaces}{TAB_AS_SPACES}"
+                        f"{stringify_yaml(val_line, multiline_variant=multi_variant)}".rstrip()
+                    )
                 return
             lines.append(
                 f"{spaces}{node.value}: "
@@ -546,10 +590,13 @@ class RecipeParser:
             if child.is_comment():
                 continue
 
-            # Handle multiline strings
-            value = child.value if not child.multiline_flag else "\n".join(child.value)
-            if replace_variables and isinstance(value, str):
-                value = self._render_jinja_vars(value)
+            # Handle multiline strings and variable replacement
+            value = normalize_multiline_strings(child.value, child.multiline_variant)
+            if isinstance(value, str):
+                if replace_variables:
+                    value = self._render_jinja_vars(value)
+                elif child.multiline_variant != MultilineVariant.NONE:
+                    value = cast(str, yaml.safe_load(value))
 
             # Empty keys are interpreted to point to `None`
             if child.is_empty_key():
@@ -641,15 +688,8 @@ class RecipeParser:
                 continue
             _patch_and_log({"op": "add", "path": f"/context/{name}", "value": value})
 
-        # Hack: `add` has no concept of ordering and new fields are appended to the end. Logically, `context` should be
-        # at the top of the file, so we'll force it to the front of root's child list.
-        # TODO: make more robust and don't assume `context` will be at the end of the list
-        # TODO: manage some human-friendly ordering of all top-level sections
-        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
-
         # Similarly, patch-in the new `schema_version` value to the top of the file
         _patch_and_log({"op": "add", "path": "/schema_version", "value": CURRENT_RECIPE_SCHEMA_FORMAT})
-        new_recipe._root.children.insert(0, new_recipe._root.children.pop(-1))
 
         # Swap all JINJA to use the new `${{ }}` format.
         jinja_sub_locations: Final[list[str]] = new_recipe.search(Regex.JINJA_SUB)
@@ -732,10 +772,13 @@ class RecipeParser:
         # TODO Complete: handle changes to the recipe structure and fields
         # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes
         #                to `contains_value()`
-        # TODO Complete: ensure some common "canonical" ordering to the top-level fields
 
         # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
         new_recipe._vars_tbl = {}
+
+        # Sort the top-level keys to a "canonical" ordering. This should make previous patch operations look more
+        # "sensible" to a human reader.
+        new_recipe._sort_top_level_keys()
 
         return new_recipe.render(), msg_tbl
 
@@ -788,13 +831,16 @@ class RecipeParser:
         # Handle unpacking of the last key-value set of nodes.
         if node.is_single_key() and not node.is_root():
             # As of writing, Jinja substitutions are not used
-            if node.children[0].multiline_flag:
-                # PyYaml will not preserve newlines passed into strings, so we can directly check for variable
-                # substitutions on a multiline string
-                multiline_str = "\n".join(cast(str, node.children[0].value))
+            if node.children[0].multiline_variant != MultilineVariant.NONE:
+                multiline_str = cast(
+                    str,
+                    normalize_multiline_strings(
+                        cast(list[str], node.children[0].value), node.children[0].multiline_variant
+                    ),
+                )
                 if sub_vars:
                     return self._render_jinja_vars(multiline_str)
-                return multiline_str
+                return cast(JsonType, yaml.safe_load(multiline_str))
             return_value = cast(Primitives, node.children[0].value)
         # Leaf nodes can return their value directly
         elif node.is_leaf():

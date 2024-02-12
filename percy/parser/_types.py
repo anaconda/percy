@@ -23,6 +23,21 @@ ROOT_NODE_VALUE: Final[str] = "/"
 # Marker used to temporarily work around some Jinja-template parsing issues
 PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
 
+# Ideal sort-order of the top-level YAML keys for human readability and traditionally how we organize our files. This
+# should work on both old and new recipe formats.
+TOP_LEVEL_KEY_SORT_ORDER: Final[dict[str, int]] = {
+    "schema_version": 0,
+    "context": 1,
+    "package": 2,
+    "source": 3,
+    "build": 4,
+    "requirements": 5,
+    "outputs": 6,
+    "test": 7,
+    "about": 8,
+    "extra": 9,
+}
+
 #### Private Classes (Not to be used external to the `parser` module) ####
 
 # NOTE: The classes put in this file should be structures (NamedTuples) and very small support classes that don't make
@@ -54,5 +69,10 @@ class Regex:
     JINJA_SET_LINE: Final[re.Pattern[str]] = re.compile(r"{%\s*set\s*" + _JINJA_VAR_FUNCTION_PATTERN + r"\s*=.*%}\s*\n")
 
     SELECTOR: Final[re.Pattern[str]] = re.compile(r"\[.*\]")
-    MULTILINE: Final[re.Pattern[str]] = re.compile(r"^\s*.*:\s+\|(\s*|\s+#.*)")
+    # Detects the 6 common variants (3 |'s, 3 >'s). See this guide for more info:
+    #   https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-in-yaml-over-multiple-lines/21699210
+    MULTILINE: Final[re.Pattern[str]] = re.compile(r"^\s*.*:\s+(\||>)(\+|\-)?(\s*|\s+#.*)")
+    # Group where the "variant" string is identified
+    MULTILINE_VARIANT_CAPTURE_GROUP_CHAR: Final[int] = 1
+    MULTILINE_VARIANT_CAPTURE_GROUP_SUFFIX: Final[int] = 2
     DETECT_TRAILING_COMMENT: Final[re.Pattern[str]] = re.compile(r"(\s)+(#)")

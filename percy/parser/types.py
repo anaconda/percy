@@ -95,6 +95,23 @@ JSON_PATCH_SCHEMA: Final[SchemaType] = {
 }
 
 
+class MultilineVariant(StrEnum):
+    """
+    Captures which "multiline" descriptor was used on a Node, if one was used at all.
+
+    See this guide for details on the YAML spec:
+      https://stackoverflow.com/questions/3790454/how-do-i-break-a-string-in-yaml-over-multiple-lines/21699210
+    """
+
+    NONE = ""
+    PIPE = "|"
+    PIPE_PLUS = "|+"
+    PIPE_MINUS = "|-"
+    CARROT = ">"
+    CARROT_PLUS = ">+"
+    CARROT_MINUS = ">-"
+
+
 class MessageCategory(StrEnum):
     """
     Categories to classify `RecipeParser` messages into.
