@@ -317,7 +317,7 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
-@pytest.mark.parametrize("file_base", ["simple-recipe.yaml", "multi-output.yaml"])
+@pytest.mark.parametrize("file_base", ["simple-recipe.yaml", "multi-output.yaml", "huggingface_hub.yaml"])
 def test_render_to_new_recipe_format(file_base: str) -> None:
     """
     Validates rendering a recipe in the new format.

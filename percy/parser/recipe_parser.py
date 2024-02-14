@@ -769,7 +769,48 @@ class RecipeParser:
                     _patch_and_log({"op": "add", "path": requirements_path, "value": None})
                 _patch_and_log({"op": "move", "from": old_ire_path, "path": new_ire_path})
 
-        # TODO Complete: handle changes to the recipe structure and fields
+        ## `about` section changes and validation ##
+        # Warn if "required" fields are missing
+        about_required: Final[list[str]] = [
+            "summary",
+            "description",
+            "license",
+            "license_file",
+            "license_url",
+        ]
+        for field in about_required:
+            path = f"/about/{field}"
+            if not new_recipe.contains_value(path):
+                msg_tbl.add_message(MessageCategory.WARNING, f"Required field missing: {path}")
+
+        # Transform renamed fields
+        about_rename: Final[list[tuple[str, str]]] = [
+            ("home", "homepage"),
+            ("dev_url", "repository"),
+            ("doc_url", "documentation"),
+        ]
+        for old, new in about_rename:
+            old_path = f"/about/{old}"
+            new_path = f"/about/{new}"
+            if new_recipe.contains_value(old_path):
+                _patch_and_log({"op": "move", "from": old_path, "path": new_path})
+
+        # TODO validate: /about/license must be SPDX recognized.
+
+        # Remove deprecated `about` fields
+        about_deprecated: Final[list[str]] = [
+            "prelink_message",
+            "license_family",
+            "identifiers",
+            "tags",
+            "keywords",
+            "doc_source_url",
+        ]
+        for field in about_deprecated:
+            path = f"/about/{field}"
+            if new_recipe.contains_value(path):
+                _patch_and_log({"op": "remove", "path": path})
+
         # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes
         #                to `contains_value()`
 
