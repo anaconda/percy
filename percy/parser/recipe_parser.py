@@ -726,8 +726,8 @@ class RecipeParser:
                     "value": "${{ true if " + bool_expression + " }}",
                 }
                 if not isinstance(info.node.value, bool):
+                    # TODO: This logic from CEP-13 may be mis-guided
                     # CEP-13 states that ONLY list members may use the `if/then/else` blocks
-                    # TODO figure out how best to handle this edge case.
                     if not info.node.list_member_flag:
                         msg_tbl.add_message(
                             MessageCategory.WARNING, f"A non-list item had a selector at: {selector_path}"
@@ -1235,6 +1235,63 @@ class RecipeParser:
         self._rebuild_selectors()
         self._is_modified = True
         return selector
+
+    ## Comment Functions ##
+
+    def get_comments_table(self) -> dict[str, str]:
+        """
+        Returns a dictionary containing the location of every comment mapped to the value of the comment.
+        NOTE: Selectors are not considered to be comments.
+        :returns: List of paths where comments can be found.
+        """
+        comments_tbl: dict[str, str] = {}
+
+        def _track_comments(node: Node, path_stack: StrStack) -> None:
+            if node.comment == "" or Regex.SELECTOR.search(node.comment):
+                return
+
+            path = stack_path_to_str(path_stack)
+            comments_tbl[path] = node.comment
+
+        traverse_all(self._root, _track_comments)
+        return comments_tbl
+
+    def add_comment(self, path: str, comment: str) -> None:
+        """
+        Adds a comment to an existing path. If a comment exists, replaces the existing comment. If a selector exists,
+        comment is appended after the selector component of the comment.
+        :param path: Target path to add a comment to
+        :param comment: Comment to add
+        :raises KeyError: If the path provided is not found
+        :raises ValueError: If the comment provided is a selector, the empty string, or consists of only whitespace
+            characters
+        """
+        comment = comment.strip()
+        if comment == "":
+            raise ValueError("Comments cannot consist only of whitespace characters")
+
+        if Regex.SELECTOR.match(comment):
+            raise ValueError(f"Selectors can not be submitted as comments: {comment}")
+
+        node = traverse(self._root, str_to_stack_path(path))
+
+        if node is None:
+            raise KeyError(f"Path not found: {path}")
+
+        search_results = Regex.SELECTOR.search(node.comment)
+        # If a selector is present, append the selector.
+        if search_results:
+            selector = search_results.group(0)
+            # Strip the # if it is included
+            if comment[0] == "#":
+                comment = comment[1:].strip()
+            node.comment = f"# {selector} {comment}"
+            return
+
+        # Prepend a `#` if it is missing
+        if comment[0] != "#":
+            comment = f"# {comment}"
+        node.comment = comment
 
     ## YAML Patching Functions ##
 

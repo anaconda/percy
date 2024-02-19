@@ -317,6 +317,7 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
+# TODO: Finish `curl.yaml` test
 @pytest.mark.parametrize("file_base", ["simple-recipe.yaml", "multi-output.yaml", "huggingface_hub.yaml"])
 def test_render_to_new_recipe_format(file_base: str) -> None:
     """
@@ -962,6 +963,33 @@ def test_remove_selector() -> None:
 
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_remove_selector.yaml")
     assert parser.is_modified()
+
+
+## Comments ##
+
+
+def test_get_comments_table() -> None:
+    pass
+
+
+def test_add_comment() -> None:
+    pass
+
+
+def test_add_comment_raises() -> None:
+    """
+    Tests scenarios where `add_comment()` should raise an exception
+    """
+    parser = load_recipe("simple-recipe.yaml")
+
+    with pytest.raises(KeyError):
+        parser.add_comment("/package/path/to/fake/value", "A comment")
+    with pytest.raises(ValueError):
+        parser.add_comment("/build/number", "[unix]")
+    with pytest.raises(ValueError):
+        parser.add_comment("/build/number", "")
+    with pytest.raises(ValueError):
+        parser.add_comment("/build/number", "    ")
 
 
 ## Patch and Search ##
