@@ -1241,17 +1241,33 @@ class RecipeParser:
     def get_comments_table(self) -> dict[str, str]:
         """
         Returns a dictionary containing the location of every comment mapped to the value of the comment.
-        NOTE: Selectors are not considered to be comments.
+        NOTE:
+            - Selectors are not considered to be comments.
+            - Lines containing only comments are currently not addressable by our pathing scheme, so they are omitted.
+              For our current purposes (of upgrading the recipe format) this should be fine. Non-addressable values
+              should be less likely to be removed from patch operations.
         :returns: List of paths where comments can be found.
         """
         comments_tbl: dict[str, str] = {}
 
         def _track_comments(node: Node, path_stack: StrStack) -> None:
-            if node.comment == "" or Regex.SELECTOR.search(node.comment):
+            if node.is_comment() or node.comment == "":
                 return
+            comment = node.comment
+            # Handle comments found alongside a selector
+            if Regex.SELECTOR.search(comment):
+                comment = Regex.SELECTOR.sub("", comment).strip()
+                # Sanitize common artifacts left from removing the selector
+                comment = comment.replace("#  # ", "# ", 1).replace("#  ", "# ", 1)
+
+                # Reject selector-only comments
+                if comment in {"", "#"}:
+                    return
+                if comment[0] != "#":
+                    comment = f"# {comment}"
 
             path = stack_path_to_str(path_stack)
-            comments_tbl[path] = node.comment
+            comments_tbl[path] = comment
 
         traverse_all(self._root, _track_comments)
         return comments_tbl
@@ -1282,16 +1298,19 @@ class RecipeParser:
         # If a selector is present, append the selector.
         if search_results:
             selector = search_results.group(0)
-            # Strip the # if it is included
             if comment[0] == "#":
                 comment = comment[1:].strip()
-            node.comment = f"# {selector} {comment}"
-            return
+            comment = f"# {selector} {comment}"
 
         # Prepend a `#` if it is missing
         if comment[0] != "#":
             comment = f"# {comment}"
         node.comment = comment
+        # Comments for "single key" nodes apply to both the parent and child. This is because such parent nodes render
+        # on the same line as their children.
+        if node.is_single_key():
+            node.children[0].comment = comment
+        self._is_modified = True
 
     ## YAML Patching Functions ##
 

@@ -968,28 +968,78 @@ def test_remove_selector() -> None:
 ## Comments ##
 
 
-def test_get_comments_table() -> None:
-    pass
+@pytest.mark.parametrize(
+    "file,expected",
+    [
+        (
+            "simple-recipe.yaml",
+            {
+                "/requirements/host/1": "# selector with comment",
+                "/requirements/empty_field2": "# selector with comment with comment symbol",
+                "/requirements/run/0": "# not a selector",
+            },
+        ),
+        ("huggingface_hub.yaml", {}),
+        ("multi-output.yaml", {}),
+        # TODO: Add curl.yaml test
+        # ("curl.yaml", {}),
+    ],
+)
+def test_get_comments_table(file: str, expected: dict[str, str]) -> None:
+    """
+    Tests generating a table of comment locations
+    """
+    parser = load_recipe(file)
+    assert parser.get_comments_table() == expected
 
 
-def test_add_comment() -> None:
-    pass
+@pytest.mark.parametrize(
+    "file,ops,expected",
+    [
+        (
+            "simple-recipe.yaml",
+            [
+                ("/package/name", "# Come on Jeffery"),
+                ("/build/number", "# you can do it!"),
+                ("/requirements/empty_field1", "Pave the way!"),
+                ("/multi_level/list_1", "# Put your back into it!"),
+                ("/multi_level/list_2/1", "# Tell us why"),
+                ("/multi_level/list_2/2", " Show us how"),
+                ("/multi_level/list_3/0", "# Look at where you came from"),
+                ("/test_var_usage/foo", "Look at you now!"),
+            ],
+            "simple-recipe_test_add_comment.yaml",
+        ),
+    ],
+)
+def test_add_comment(file: str, ops: list[tuple[str, str]], expected: str) -> None:
+    parser = load_recipe(file)
+    for path, comment in ops:
+        parser.add_comment(path, comment)
+    assert parser.is_modified()
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/{expected}")
 
 
-def test_add_comment_raises() -> None:
+@pytest.mark.parametrize(
+    "file,path,comment,exception",
+    [
+        ("simple-recipe.yaml", "/package/path/to/fake/value", "A comment", KeyError),
+        ("simple-recipe.yaml", "/build/number", "[unix]", ValueError),
+        ("simple-recipe.yaml", "/build/number", "", ValueError),
+        ("simple-recipe.yaml", "/build/number", "    ", ValueError),
+    ],
+)
+def test_add_comment_raises(file: str, path: str, comment: str, exception: Exception) -> None:
     """
     Tests scenarios where `add_comment()` should raise an exception
+    :param file: File to test against
+    :param path: Path to add a comment
+    :param comment: Comment to add
+    :param exception: Exception expected to be raised
     """
-    parser = load_recipe("simple-recipe.yaml")
-
-    with pytest.raises(KeyError):
-        parser.add_comment("/package/path/to/fake/value", "A comment")
-    with pytest.raises(ValueError):
-        parser.add_comment("/build/number", "[unix]")
-    with pytest.raises(ValueError):
-        parser.add_comment("/build/number", "")
-    with pytest.raises(ValueError):
-        parser.add_comment("/build/number", "    ")
+    parser = load_recipe(file)
+    with pytest.raises(exception):
+        parser.add_comment(path, comment)
 
 
 ## Patch and Search ##
