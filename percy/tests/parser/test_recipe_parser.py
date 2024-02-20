@@ -317,16 +317,56 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
-# TODO: Finish `curl.yaml` test
-@pytest.mark.parametrize("file_base", ["simple-recipe.yaml", "multi-output.yaml", "huggingface_hub.yaml"])
-def test_render_to_new_recipe_format(file_base: str) -> None:
+@pytest.mark.parametrize(
+    "file_base,errors,warnings",
+    [
+        (
+            "simple-recipe.yaml",
+            [],
+            [
+                "A non-list item had a selector at: /requirements/empty_field2",
+                "Required field missing: /about/license_file",
+                "Required field missing: /about/license_url",
+            ],
+        ),
+        (
+            "multi-output.yaml",
+            [],
+            [
+                "Required field missing: /about/summary",
+                "Required field missing: /about/description",
+                "Required field missing: /about/license",
+                "Required field missing: /about/license_file",
+                "Required field missing: /about/license_url",
+            ],
+        ),
+        (
+            "huggingface_hub.yaml",
+            [],
+            [
+                "Required field missing: /about/license_url",
+            ],
+        ),
+        # TODO Complete: The `curl.yaml` test is far from perfect. It is very much a work in progress.
+        # (
+        #    "curl.yaml",
+        #    [],
+        #    [
+        #        "A non-list item had a selector at: /outputs/0/build/ignore_run_exports",
+        #    ],
+        # ),
+    ],
+)
+def test_render_to_new_recipe_format(file_base: str, errors: list[str], warnings: list[str]) -> None:
     """
     Validates rendering a recipe in the new format.
+    :param file_base: Base file name for both the input and the expected out
     """
     parser = load_recipe(file_base)
     result, tbl = parser.render_to_new_recipe_format()
     assert result == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
-    assert tbl.get_messages(MessageCategory.ERROR) == []
+    assert tbl.get_messages(MessageCategory.ERROR) == errors
+    assert tbl.get_messages(MessageCategory.WARNING) == warnings
     # Ensure that the original file was untouched
     assert not parser.is_modified()
     assert parser.diff() == ""
@@ -981,8 +1021,13 @@ def test_remove_selector() -> None:
         ),
         ("huggingface_hub.yaml", {}),
         ("multi-output.yaml", {}),
-        # TODO: Add curl.yaml test
-        # ("curl.yaml", {}),
+        (
+            "curl.yaml",
+            {
+                "/outputs/0/requirements/run/2": "# exact pin handled through openssl run_exports",
+                "/outputs/2/requirements/host/0": "# Only required to produce all openssl variants.",
+            },
+        ),
     ],
 )
 def test_get_comments_table(file: str, expected: dict[str, str]) -> None:

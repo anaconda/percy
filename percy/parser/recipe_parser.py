@@ -672,6 +672,8 @@ class RecipeParser:
         # as list members. Although inefficient, we have tests that validate round-tripping the parser and there
         # is no development cost in utilizing tools we already must maintain.
         new_recipe: RecipeParser = RecipeParser(self.render())
+        # Log the original
+        old_comments: Final[dict[str, str]] = new_recipe.get_comments_table()
 
         # Convenience wrapper that logs failed patches to the message table
         def _patch_and_log(patch: JsonPatchType) -> None:
@@ -811,8 +813,22 @@ class RecipeParser:
             if new_recipe.contains_value(path):
                 _patch_and_log({"op": "remove", "path": path})
 
-        # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes
-        #                to `contains_value()`
+        # TODO: Comment tracking may need improvement. The "correct way" of tracking comments with patch changes is a
+        #       fairly big engineering effort and refactor.
+        # Attempt to re-introduce comments that may have been removed with patch operations. This process is far
+        # from perfect, so log the comments we couldn't relocate.
+        new_comments: Final[dict[str, str]] = new_recipe.get_comments_table()
+        diff_comments: Final[dict[str, str]] = {k: v for k, v in old_comments.items() if k not in new_comments}
+        for path, comment in diff_comments.items():
+            if not new_recipe.contains_value(path):
+                msg_tbl.add_message(MessageCategory.WARNING, f"Could not relocate comment: {comment}")
+                continue
+            new_recipe.add_comment(path, comment)
+
+        # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes to
+        #                `contains_value()`
+        # TODO Complete: Attempt to combine consecutive If/Then blocks after other modifications. This should reduce the
+        #                risk of screwing up critical list indices and ordering.
 
         # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
         new_recipe._vars_tbl = {}
