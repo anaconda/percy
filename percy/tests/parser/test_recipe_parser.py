@@ -317,15 +317,56 @@ def test_render_to_object_multi_output() -> None:
     }
 
 
-@pytest.mark.parametrize("file_base", ["simple-recipe.yaml", "multi-output.yaml", "huggingface_hub.yaml"])
-def test_render_to_new_recipe_format(file_base: str) -> None:
+@pytest.mark.parametrize(
+    "file_base,errors,warnings",
+    [
+        (
+            "simple-recipe.yaml",
+            [],
+            [
+                "A non-list item had a selector at: /requirements/empty_field2",
+                "Required field missing: /about/license_file",
+                "Required field missing: /about/license_url",
+            ],
+        ),
+        (
+            "multi-output.yaml",
+            [],
+            [
+                "Required field missing: /about/summary",
+                "Required field missing: /about/description",
+                "Required field missing: /about/license",
+                "Required field missing: /about/license_file",
+                "Required field missing: /about/license_url",
+            ],
+        ),
+        (
+            "huggingface_hub.yaml",
+            [],
+            [
+                "Required field missing: /about/license_url",
+            ],
+        ),
+        # TODO Complete: The `curl.yaml` test is far from perfect. It is very much a work in progress.
+        # (
+        #    "curl.yaml",
+        #    [],
+        #    [
+        #        "A non-list item had a selector at: /outputs/0/build/ignore_run_exports",
+        #    ],
+        # ),
+    ],
+)
+def test_render_to_new_recipe_format(file_base: str, errors: list[str], warnings: list[str]) -> None:
     """
     Validates rendering a recipe in the new format.
+    :param file_base: Base file name for both the input and the expected out
     """
     parser = load_recipe(file_base)
     result, tbl = parser.render_to_new_recipe_format()
     assert result == load_file(f"{TEST_FILES_PATH}/new_format_{file_base}")
-    assert tbl.get_messages(MessageCategory.ERROR) == []
+    assert tbl.get_messages(MessageCategory.ERROR) == errors
+    assert tbl.get_messages(MessageCategory.WARNING) == warnings
     # Ensure that the original file was untouched
     assert not parser.is_modified()
     assert parser.diff() == ""
@@ -962,6 +1003,88 @@ def test_remove_selector() -> None:
 
     assert parser.render() == load_file(f"{TEST_FILES_PATH}/simple-recipe_test_remove_selector.yaml")
     assert parser.is_modified()
+
+
+## Comments ##
+
+
+@pytest.mark.parametrize(
+    "file,expected",
+    [
+        (
+            "simple-recipe.yaml",
+            {
+                "/requirements/host/1": "# selector with comment",
+                "/requirements/empty_field2": "# selector with comment with comment symbol",
+                "/requirements/run/0": "# not a selector",
+            },
+        ),
+        ("huggingface_hub.yaml", {}),
+        ("multi-output.yaml", {}),
+        (
+            "curl.yaml",
+            {
+                "/outputs/0/requirements/run/2": "# exact pin handled through openssl run_exports",
+                "/outputs/2/requirements/host/0": "# Only required to produce all openssl variants.",
+            },
+        ),
+    ],
+)
+def test_get_comments_table(file: str, expected: dict[str, str]) -> None:
+    """
+    Tests generating a table of comment locations
+    """
+    parser = load_recipe(file)
+    assert parser.get_comments_table() == expected
+
+
+@pytest.mark.parametrize(
+    "file,ops,expected",
+    [
+        (
+            "simple-recipe.yaml",
+            [
+                ("/package/name", "# Come on Jeffery"),
+                ("/build/number", "# you can do it!"),
+                ("/requirements/empty_field1", "Pave the way!"),
+                ("/multi_level/list_1", "# Put your back into it!"),
+                ("/multi_level/list_2/1", "# Tell us why"),
+                ("/multi_level/list_2/2", " Show us how"),
+                ("/multi_level/list_3/0", "# Look at where you came from"),
+                ("/test_var_usage/foo", "Look at you now!"),
+            ],
+            "simple-recipe_test_add_comment.yaml",
+        ),
+    ],
+)
+def test_add_comment(file: str, ops: list[tuple[str, str]], expected: str) -> None:
+    parser = load_recipe(file)
+    for path, comment in ops:
+        parser.add_comment(path, comment)
+    assert parser.is_modified()
+    assert parser.render() == load_file(f"{TEST_FILES_PATH}/{expected}")
+
+
+@pytest.mark.parametrize(
+    "file,path,comment,exception",
+    [
+        ("simple-recipe.yaml", "/package/path/to/fake/value", "A comment", KeyError),
+        ("simple-recipe.yaml", "/build/number", "[unix]", ValueError),
+        ("simple-recipe.yaml", "/build/number", "", ValueError),
+        ("simple-recipe.yaml", "/build/number", "    ", ValueError),
+    ],
+)
+def test_add_comment_raises(file: str, path: str, comment: str, exception: Exception) -> None:
+    """
+    Tests scenarios where `add_comment()` should raise an exception
+    :param file: File to test against
+    :param path: Path to add a comment
+    :param comment: Comment to add
+    :param exception: Exception expected to be raised
+    """
+    parser = load_recipe(file)
+    with pytest.raises(exception):
+        parser.add_comment(path, comment)
 
 
 ## Patch and Search ##

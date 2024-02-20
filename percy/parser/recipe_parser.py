@@ -672,6 +672,8 @@ class RecipeParser:
         # as list members. Although inefficient, we have tests that validate round-tripping the parser and there
         # is no development cost in utilizing tools we already must maintain.
         new_recipe: RecipeParser = RecipeParser(self.render())
+        # Log the original
+        old_comments: Final[dict[str, str]] = new_recipe.get_comments_table()
 
         # Convenience wrapper that logs failed patches to the message table
         def _patch_and_log(patch: JsonPatchType) -> None:
@@ -726,8 +728,8 @@ class RecipeParser:
                     "value": "${{ true if " + bool_expression + " }}",
                 }
                 if not isinstance(info.node.value, bool):
+                    # TODO: This logic from CEP-13 may be mis-guided
                     # CEP-13 states that ONLY list members may use the `if/then/else` blocks
-                    # TODO figure out how best to handle this edge case.
                     if not info.node.list_member_flag:
                         msg_tbl.add_message(
                             MessageCategory.WARNING, f"A non-list item had a selector at: {selector_path}"
@@ -811,8 +813,22 @@ class RecipeParser:
             if new_recipe.contains_value(path):
                 _patch_and_log({"op": "remove", "path": path})
 
-        # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes
-        #                to `contains_value()`
+        # TODO: Comment tracking may need improvement. The "correct way" of tracking comments with patch changes is a
+        #       fairly big engineering effort and refactor.
+        # Attempt to re-introduce comments that may have been removed with patch operations. This process is far
+        # from perfect, so log the comments we couldn't relocate.
+        new_comments: Final[dict[str, str]] = new_recipe.get_comments_table()
+        diff_comments: Final[dict[str, str]] = {k: v for k, v in old_comments.items() if k not in new_comments}
+        for path, comment in diff_comments.items():
+            if not new_recipe.contains_value(path):
+                msg_tbl.add_message(MessageCategory.WARNING, f"Could not relocate comment: {comment}")
+                continue
+            new_recipe.add_comment(path, comment)
+
+        # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes to
+        #                `contains_value()`
+        # TODO Complete: Attempt to combine consecutive If/Then blocks after other modifications. This should reduce the
+        #                risk of screwing up critical list indices and ordering.
 
         # Hack: Wipe the existing table so the JINJA `set` statements don't render the final form
         new_recipe._vars_tbl = {}
@@ -1235,6 +1251,82 @@ class RecipeParser:
         self._rebuild_selectors()
         self._is_modified = True
         return selector
+
+    ## Comment Functions ##
+
+    def get_comments_table(self) -> dict[str, str]:
+        """
+        Returns a dictionary containing the location of every comment mapped to the value of the comment.
+        NOTE:
+            - Selectors are not considered to be comments.
+            - Lines containing only comments are currently not addressable by our pathing scheme, so they are omitted.
+              For our current purposes (of upgrading the recipe format) this should be fine. Non-addressable values
+              should be less likely to be removed from patch operations.
+        :returns: List of paths where comments can be found.
+        """
+        comments_tbl: dict[str, str] = {}
+
+        def _track_comments(node: Node, path_stack: StrStack) -> None:
+            if node.is_comment() or node.comment == "":
+                return
+            comment = node.comment
+            # Handle comments found alongside a selector
+            if Regex.SELECTOR.search(comment):
+                comment = Regex.SELECTOR.sub("", comment).strip()
+                # Sanitize common artifacts left from removing the selector
+                comment = comment.replace("#  # ", "# ", 1).replace("#  ", "# ", 1)
+
+                # Reject selector-only comments
+                if comment in {"", "#"}:
+                    return
+                if comment[0] != "#":
+                    comment = f"# {comment}"
+
+            path = stack_path_to_str(path_stack)
+            comments_tbl[path] = comment
+
+        traverse_all(self._root, _track_comments)
+        return comments_tbl
+
+    def add_comment(self, path: str, comment: str) -> None:
+        """
+        Adds a comment to an existing path. If a comment exists, replaces the existing comment. If a selector exists,
+        comment is appended after the selector component of the comment.
+        :param path: Target path to add a comment to
+        :param comment: Comment to add
+        :raises KeyError: If the path provided is not found
+        :raises ValueError: If the comment provided is a selector, the empty string, or consists of only whitespace
+            characters
+        """
+        comment = comment.strip()
+        if comment == "":
+            raise ValueError("Comments cannot consist only of whitespace characters")
+
+        if Regex.SELECTOR.match(comment):
+            raise ValueError(f"Selectors can not be submitted as comments: {comment}")
+
+        node = traverse(self._root, str_to_stack_path(path))
+
+        if node is None:
+            raise KeyError(f"Path not found: {path}")
+
+        search_results = Regex.SELECTOR.search(node.comment)
+        # If a selector is present, append the selector.
+        if search_results:
+            selector = search_results.group(0)
+            if comment[0] == "#":
+                comment = comment[1:].strip()
+            comment = f"# {selector} {comment}"
+
+        # Prepend a `#` if it is missing
+        if comment[0] != "#":
+            comment = f"# {comment}"
+        node.comment = comment
+        # Comments for "single key" nodes apply to both the parent and child. This is because such parent nodes render
+        # on the same line as their children.
+        if node.is_single_key():
+            node.children[0].comment = comment
+        self._is_modified = True
 
     ## YAML Patching Functions ##
 
