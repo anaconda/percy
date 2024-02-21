@@ -34,8 +34,9 @@ TOP_LEVEL_KEY_SORT_ORDER: Final[dict[str, int]] = {
     "requirements": 5,
     "outputs": 6,
     "test": 7,
-    "about": 8,
-    "extra": 9,
+    "tests": 8,  # Used in the new recipe format
+    "about": 9,
+    "extra": 10,
 }
 
 #### Private Classes (Not to be used external to the `parser` module) ####

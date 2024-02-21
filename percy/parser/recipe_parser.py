@@ -680,6 +680,14 @@ class RecipeParser:
             if not new_recipe.patch(patch):
                 msg_tbl.add_message(MessageCategory.ERROR, f"Failed to patch: {patch}")
 
+        # Convenience wrapper that moves a value under an old path to a new one sharing a common base path BUT only if
+        # the old path exists.
+        def _patch_move_base_path(base_path: str, old_ext: str, new_ext: str) -> None:
+            old_path: Final[str] = RecipeParser.append_to_path(base_path, old_ext)
+            if not new_recipe.contains_value(old_path):
+                return
+            _patch_and_log({"op": "move", "from": old_path, "path": RecipeParser.append_to_path(base_path, new_ext)})
+
         # Convert the JINJA variable table to a `context` section. Empty tables still add the `context` section for
         # future developers' convenience.
         _patch_and_log({"op": "add", "path": "/context", "value": None})
@@ -812,6 +820,35 @@ class RecipeParser:
             path = f"/about/{field}"
             if new_recipe.contains_value(path):
                 _patch_and_log({"op": "remove", "path": path})
+
+        # Cached copy of all of the "outputs" in a recipe. This is useful for easily handling multi and single output
+        # recipes in 1 loop construct.
+        base_package_paths: Final[list[str]] = new_recipe.get_package_paths()
+
+        ## Upgrade the testing section(s) ##
+        test_paths: Final[map[str]] = map(
+            cast(Callable[[str], str], lambda s: RecipeParser.append_to_path(s, "/test")), base_package_paths
+        )
+        for test_path in test_paths:
+            if not new_recipe.contains_value(test_path):
+                continue
+
+            _patch_move_base_path(test_path, "/files", "/files/recipe")
+            _patch_move_base_path(test_path, "/source_files", "/files/source")
+            # TODO `requires` may be difficult to translate
+            _patch_move_base_path(test_path, "/requires", "/requirements/run")
+            # TODO handle patching-out `pip check` for new flag
+            _patch_move_base_path(test_path, "/commands", "/script")
+            _patch_move_base_path(test_path, "/imports", "/python/imports")
+            _patch_move_base_path(test_path, "/downstreams", "/downstream")
+
+            # Finally, move `test` -> `tests`
+            _patch_and_log({"op": "move", "from": test_path, "path": f"{test_path}s"})
+
+        ## Upgrade the multi-output section(s) ##
+        # TODO Complete
+
+        ## Final clean-up ##
 
         # TODO: Comment tracking may need improvement. The "correct way" of tracking comments with patch changes is a
         #       fairly big engineering effort and refactor.
