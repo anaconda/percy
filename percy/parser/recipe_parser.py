@@ -37,6 +37,7 @@ from percy.parser._types import (
     PERCY_SUB_MARKER,
     ROOT_NODE_VALUE,
     TOP_LEVEL_KEY_SORT_ORDER,
+    V1_TEST_SECTION_KEY_SORT_ORDER,
     ForceIndentDumper,
     Regex,
     StrStack,
@@ -379,6 +380,23 @@ class RecipeParser:
         # This table will have to be re-built or modified when the tree is modified with `patch()`.
         self._rebuild_selectors()
 
+    @staticmethod
+    def _canonical_sort_keys_comparison(n: Node, priority_tbl: dict[str, int]) -> int:
+        """
+        Given a look-up table defining "canonical" sort order, this function provides a way to compare Nodes.
+        :param n: Node to evaluate
+        :param priority_tbl: Table that provides a "canonical ordering" of keys
+        :returns: An integer indicating sort-order priority
+        """
+        # For now, put all comments at the top of the section. Arguably this is better than having them "randomly tag"
+        # to another top-level key.
+        if n.is_comment():
+            return -sys.maxsize
+        # Unidentified keys go to the bottom of the section.
+        if not isinstance(n.value, str) or n.value not in priority_tbl:
+            return sys.maxsize
+        return priority_tbl[n.value]
+
     def _sort_top_level_keys(self) -> None:
         """
         Sorts the top-level keys to a "canonical" order (a human-centric order in which most recipes are currently
@@ -391,14 +409,7 @@ class RecipeParser:
         """
 
         def _comparison(n: Node) -> int:
-            # For now, put all comments at the top of the file. Arguably this is better than having them "randomly tag"
-            # to another top-level key.
-            if n.is_comment():
-                return -sys.maxsize
-            # Unidentified keys go to the bottom of the file.
-            if not isinstance(n.value, str) or n.value not in TOP_LEVEL_KEY_SORT_ORDER:
-                return sys.maxsize
-            return TOP_LEVEL_KEY_SORT_ORDER[n.value]
+            return RecipeParser._canonical_sort_keys_comparison(n, TOP_LEVEL_KEY_SORT_ORDER)
 
         self._root.children.sort(key=_comparison)
 
@@ -680,7 +691,15 @@ class RecipeParser:
             if not new_recipe.patch(patch):
                 msg_tbl.add_message(MessageCategory.ERROR, f"Failed to patch: {patch}")
 
-        # Convenience wrapper that moves a value under an old path to a new one sharing a common base path BUT only if
+        # Convenience function constructs missing paths. Useful when you have to construct more than 1 path level at
+        # once (the JSON patch standard only allows the creation of 1 new level at a time)
+        def _patch_add_missing_path(base_path: str, ext: str, value: JsonType = None) -> None:
+            temp_path: Final[str] = RecipeParser.append_to_path(base_path, ext)
+            if new_recipe.contains_value(temp_path):
+                return
+            _patch_and_log({"op": "add", "path": temp_path, "value": value})
+
+        # Convenience function that moves a value under an old path to a new one sharing a common base path BUT only if
         # the old path exists.
         def _patch_move_base_path(base_path: str, old_ext: str, new_ext: str) -> None:
             old_path: Final[str] = RecipeParser.append_to_path(base_path, old_ext)
@@ -800,10 +819,7 @@ class RecipeParser:
             ("doc_url", "documentation"),
         ]
         for old, new in about_rename:
-            old_path = f"/about/{old}"
-            new_path = f"/about/{new}"
-            if new_recipe.contains_value(old_path):
-                _patch_and_log({"op": "move", "from": old_path, "path": new_path})
+            _patch_move_base_path("/about", old, new)
 
         # TODO validate: /about/license must be SPDX recognized.
 
@@ -834,16 +850,47 @@ class RecipeParser:
                 continue
 
             _patch_move_base_path(test_path, "/files", "/files/recipe")
+            # Edge case: `/source_files` exists but `/files` does not
+            if new_recipe.contains_value(RecipeParser.append_to_path(test_path, "/source_files")):
+                _patch_add_missing_path(test_path, "/files")
             _patch_move_base_path(test_path, "/source_files", "/files/source")
-            # TODO `requires` may be difficult to translate
+
+            if new_recipe.contains_value(RecipeParser.append_to_path(test_path, "/requires")):
+                _patch_add_missing_path(test_path, "/requirements")
             _patch_move_base_path(test_path, "/requires", "/requirements/run")
-            # TODO handle patching-out `pip check` for new flag
+
+            # Replace `- pip check` in `commands` with the new flag. If not found, set the flag to `False` (as the
+            # flag defaults to `True`).
+            commands = cast(list[str], new_recipe.get_value(RecipeParser.append_to_path(test_path, "/commands"), []))
+            pip_check = False
+            for i, command in enumerate(commands):
+                if command != "pip check":
+                    continue
+                # For now, we will only patch-out the first instance when no selector is attached
+                # TODO Future: handle selector logic/cases with `pip check || <bool>`
+                _patch_and_log({"op": "remove", "path": RecipeParser.append_to_path(test_path, f"/commands/{i}")})
+                pip_check = True
+                break
+            _patch_add_missing_path(test_path, "/python")
+            _patch_and_log(
+                {"op": "add", "path": RecipeParser.append_to_path(test_path, "/python/pip-check"), "value": pip_check}
+            )
+
             _patch_move_base_path(test_path, "/commands", "/script")
             _patch_move_base_path(test_path, "/imports", "/python/imports")
             _patch_move_base_path(test_path, "/downstreams", "/downstream")
 
-            # Finally, move `test` -> `tests`
-            _patch_and_log({"op": "move", "from": test_path, "path": f"{test_path}s"})
+            # Sort test section for "canonical order" and rename `test` to `tests`. This effectively invalidates
+            # the `test_path` variable from this point on.
+            def _test_comparison(n: Node) -> int:
+                return RecipeParser._canonical_sort_keys_comparison(n, V1_TEST_SECTION_KEY_SORT_ORDER)
+
+            test_node = traverse(new_recipe._root, str_to_stack_path(test_path))
+            if test_node is None:
+                msg_tbl.add_message(MessageCategory.WARNING, f"Failed to sort members of {test_path}")
+                continue
+            test_node.value = "tests"
+            test_node.children.sort(key=_test_comparison)
 
         ## Upgrade the multi-output section(s) ##
         # TODO Complete

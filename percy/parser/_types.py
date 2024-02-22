@@ -39,6 +39,15 @@ TOP_LEVEL_KEY_SORT_ORDER: Final[dict[str, int]] = {
     "extra": 10,
 }
 
+# Canonical sort order for the new "v1" recipe format's `tests` block
+V1_TEST_SECTION_KEY_SORT_ORDER: Final[dict[str, int]] = {
+    "script": 0,
+    "requirements": 1,
+    "files": 2,
+    "python": 3,
+    "downstream": 4,
+}
+
 #### Private Classes (Not to be used external to the `parser` module) ####
 
 # NOTE: The classes put in this file should be structures (NamedTuples) and very small support classes that don't make

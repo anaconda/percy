@@ -5,12 +5,14 @@ context:
 outputs:
   - name: libdb
     build:
-    test:
-      commands:
+    tests:
+      script:
         - if: unix
           then: test -f ${PREFIX}/lib/libdb${SHLIB_EXT}
         - if: win
           then: if not exist %LIBRARY_BIN%\libdb%SHLIB_EXT%
+      python:
+        pip-check: false
     requirements:
       run_exports:
         - bar
@@ -25,6 +27,8 @@ outputs:
         - ${{ compiler('cxx') }}
       run:
         - foo
-    test:
-      commands:
+    tests:
+      script:
         - db_archive -m hello
+      python:
+        pip-check: false
