@@ -899,15 +899,12 @@ class RecipeParser:
 
         # TODO: Comment tracking may need improvement. The "correct way" of tracking comments with patch changes is a
         #       fairly big engineering effort and refactor.
-        # Attempt to re-introduce comments that may have been removed with patch operations. This process is far
-        # from perfect, so log the comments we couldn't relocate.
+        # Alert the user which comments have been dropped.
         new_comments: Final[dict[str, str]] = new_recipe.get_comments_table()
         diff_comments: Final[dict[str, str]] = {k: v for k, v in old_comments.items() if k not in new_comments}
         for path, comment in diff_comments.items():
             if not new_recipe.contains_value(path):
                 msg_tbl.add_message(MessageCategory.WARNING, f"Could not relocate comment: {comment}")
-                continue
-            new_recipe.add_comment(path, comment)
 
         # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes to
         #                `contains_value()`
