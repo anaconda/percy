@@ -3,8 +3,12 @@ schema_version: 1
 context:
 
 outputs:
-  - name: libdb
+  - package:
+      name: libdb
     build:
+    requirements:
+      run_exports:
+        - bar
     tests:
       script:
         - if: unix
@@ -13,11 +17,9 @@ outputs:
           then: if not exist %LIBRARY_BIN%\libdb%SHLIB_EXT%
       python:
         pip-check: false
-    requirements:
-      run_exports:
-        - bar
   # metapackage for old anaconda name (only available on linux/mac)
-  - name: db
+  - package:
+      name: db
     requirements:
       build:
         # compilers are to ensure that variants are captured

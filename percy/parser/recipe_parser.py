@@ -397,22 +397,6 @@ class RecipeParser:
             return sys.maxsize
         return priority_tbl[n.value]
 
-    def _sort_top_level_keys(self) -> None:
-        """
-        Sorts the top-level keys to a "canonical" order (a human-centric order in which most recipes are currently
-        written). This should work on both old and new recipe formats.
-
-        TODO: Handle JINJA statements
-
-        The modification flag is not changed even though the underlying tree is. As far as YAML and our key-pathing
-        structure is concerned, order does not matter.
-        """
-
-        def _comparison(n: Node) -> int:
-            return RecipeParser._canonical_sort_keys_comparison(n, TOP_LEVEL_KEY_SORT_ORDER)
-
-        self._root.children.sort(key=_comparison)
-
     @staticmethod
     def _str_tree_recurse(node: Node, depth: int, lines: list[str]) -> None:
         """
@@ -485,6 +469,12 @@ class RecipeParser:
         """
         spaces = TAB_AS_SPACES * depth
 
+        # Edge case: The first element of dictionary in a list has a list `- ` prefix. Subsequent keys in the dictionary
+        # just have a tab.
+        is_first_collection_child: Final[bool] = (
+            parent is not None and parent.is_collection_element() and node == parent.children[0]
+        )
+
         # Handle same-line printing
         if node.is_single_key():
             # Edge case: Handle a list containing 1 member
@@ -497,9 +487,7 @@ class RecipeParser:
                 )
                 return
 
-            # Edge case: The first element of dictionary in a list has a list `- ` prefix. Subsequent keys in the
-            # dictionary just have a tab.
-            if parent is not None and parent.is_collection_element() and node == parent.children[0]:
+            if is_first_collection_child:
                 lines.append(
                     f"{TAB_AS_SPACES * (depth-1)}- {node.value}: "
                     f"{stringify_yaml(node.children[0].value)}  "
@@ -531,10 +519,13 @@ class RecipeParser:
         # Don't render a `:` for the non-visible root node. Also don't render invisible collection nodes.
         if depth > -1 and not node.is_collection_element():
             list_prefix = ""
-            # Being in a list changes how the depth is rendered
+            # Handle special cases for the "parent" key
             if node.list_member_flag:
-                depth_delta += 1
                 list_prefix = "- "
+                depth_delta += 1
+            if is_first_collection_child:
+                list_prefix = "- "
+                spaces = spaces[TAB_SPACE_COUNT:]
             # Nodes representing collections in a list have nothing to render
             lines.append(f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip())
 
@@ -706,6 +697,19 @@ class RecipeParser:
             if not new_recipe.contains_value(old_path):
                 return
             _patch_and_log({"op": "move", "from": old_path, "path": RecipeParser.append_to_path(base_path, new_ext)})
+
+        # Convenience function that sorts 1 level of keys, given a path. Optionally allows renaming of the target node.
+        def _sort_subtree_keys(sort_path: str, tbl: dict[str, int], rename: str = "") -> None:
+            def _comparison(n: Node) -> int:
+                return RecipeParser._canonical_sort_keys_comparison(n, tbl)
+
+            node = traverse(new_recipe._root, str_to_stack_path(sort_path))
+            if node is None:
+                msg_tbl.add_message(MessageCategory.WARNING, f"Failed to sort members of {sort_path}")
+                return
+            if rename:
+                node.value = rename
+            node.children.sort(key=_comparison)
 
         # Convert the JINJA variable table to a `context` section. Empty tables still add the `context` section for
         # future developers' convenience.
@@ -882,18 +886,29 @@ class RecipeParser:
 
             # Sort test section for "canonical order" and rename `test` to `tests`. This effectively invalidates
             # the `test_path` variable from this point on.
-            def _test_comparison(n: Node) -> int:
-                return RecipeParser._canonical_sort_keys_comparison(n, V1_TEST_SECTION_KEY_SORT_ORDER)
-
-            test_node = traverse(new_recipe._root, str_to_stack_path(test_path))
-            if test_node is None:
-                msg_tbl.add_message(MessageCategory.WARNING, f"Failed to sort members of {test_path}")
-                continue
-            test_node.value = "tests"
-            test_node.children.sort(key=_test_comparison)
+            _sort_subtree_keys(test_path, V1_TEST_SECTION_KEY_SORT_ORDER, rename="tests")
 
         ## Upgrade the multi-output section(s) ##
         # TODO Complete
+        if new_recipe.contains_value("/outputs"):
+            # On the top-level, `package` -> `recipe`
+            _patch_move_base_path(ROOT_NODE_VALUE, "/package", "/recipe")
+
+            for output_path in base_package_paths:
+                if output_path == ROOT_NODE_VALUE:
+                    continue
+
+                # Move `name` and `version` under `package`
+                if new_recipe.contains_value(
+                    RecipeParser.append_to_path(output_path, "/name")
+                ) or new_recipe.contains_value(RecipeParser.append_to_path(output_path, "/version")):
+                    _patch_add_missing_path(output_path, "/package")
+                _patch_move_base_path(output_path, "/name", "/package/name")
+                _patch_move_base_path(output_path, "/version", "/package/version")
+
+                # Not all the top-level keys are found in each output section, but all the output section keys are
+                # found at the top-level. So for consistency, we sort on that ordering.
+                _sort_subtree_keys(output_path, TOP_LEVEL_KEY_SORT_ORDER)
 
         ## Final clean-up ##
 
@@ -916,7 +931,7 @@ class RecipeParser:
 
         # Sort the top-level keys to a "canonical" ordering. This should make previous patch operations look more
         # "sensible" to a human reader.
-        new_recipe._sort_top_level_keys()
+        _sort_subtree_keys("/", TOP_LEVEL_KEY_SORT_ORDER)
 
         return new_recipe.render(), msg_tbl
 
