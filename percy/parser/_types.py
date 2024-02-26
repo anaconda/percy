@@ -34,8 +34,18 @@ TOP_LEVEL_KEY_SORT_ORDER: Final[dict[str, int]] = {
     "requirements": 5,
     "outputs": 6,
     "test": 7,
-    "about": 8,
-    "extra": 9,
+    "tests": 8,  # Used in the new recipe format
+    "about": 9,
+    "extra": 10,
+}
+
+# Canonical sort order for the new "v1" recipe format's `tests` block
+V1_TEST_SECTION_KEY_SORT_ORDER: Final[dict[str, int]] = {
+    "script": 0,
+    "requirements": 1,
+    "files": 2,
+    "python": 3,
+    "downstream": 4,
 }
 
 #### Private Classes (Not to be used external to the `parser` module) ####

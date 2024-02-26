@@ -37,6 +37,7 @@ from percy.parser._types import (
     PERCY_SUB_MARKER,
     ROOT_NODE_VALUE,
     TOP_LEVEL_KEY_SORT_ORDER,
+    V1_TEST_SECTION_KEY_SORT_ORDER,
     ForceIndentDumper,
     Regex,
     StrStack,
@@ -379,28 +380,22 @@ class RecipeParser:
         # This table will have to be re-built or modified when the tree is modified with `patch()`.
         self._rebuild_selectors()
 
-    def _sort_top_level_keys(self) -> None:
+    @staticmethod
+    def _canonical_sort_keys_comparison(n: Node, priority_tbl: dict[str, int]) -> int:
         """
-        Sorts the top-level keys to a "canonical" order (a human-centric order in which most recipes are currently
-        written). This should work on both old and new recipe formats.
-
-        TODO: Handle JINJA statements
-
-        The modification flag is not changed even though the underlying tree is. As far as YAML and our key-pathing
-        structure is concerned, order does not matter.
+        Given a look-up table defining "canonical" sort order, this function provides a way to compare Nodes.
+        :param n: Node to evaluate
+        :param priority_tbl: Table that provides a "canonical ordering" of keys
+        :returns: An integer indicating sort-order priority
         """
-
-        def _comparison(n: Node) -> int:
-            # For now, put all comments at the top of the file. Arguably this is better than having them "randomly tag"
-            # to another top-level key.
-            if n.is_comment():
-                return -sys.maxsize
-            # Unidentified keys go to the bottom of the file.
-            if not isinstance(n.value, str) or n.value not in TOP_LEVEL_KEY_SORT_ORDER:
-                return sys.maxsize
-            return TOP_LEVEL_KEY_SORT_ORDER[n.value]
-
-        self._root.children.sort(key=_comparison)
+        # For now, put all comments at the top of the section. Arguably this is better than having them "randomly tag"
+        # to another top-level key.
+        if n.is_comment():
+            return -sys.maxsize
+        # Unidentified keys go to the bottom of the section.
+        if not isinstance(n.value, str) or n.value not in priority_tbl:
+            return sys.maxsize
+        return priority_tbl[n.value]
 
     @staticmethod
     def _str_tree_recurse(node: Node, depth: int, lines: list[str]) -> None:
@@ -474,6 +469,12 @@ class RecipeParser:
         """
         spaces = TAB_AS_SPACES * depth
 
+        # Edge case: The first element of dictionary in a list has a list `- ` prefix. Subsequent keys in the dictionary
+        # just have a tab.
+        is_first_collection_child: Final[bool] = (
+            parent is not None and parent.is_collection_element() and node == parent.children[0]
+        )
+
         # Handle same-line printing
         if node.is_single_key():
             # Edge case: Handle a list containing 1 member
@@ -486,9 +487,7 @@ class RecipeParser:
                 )
                 return
 
-            # Edge case: The first element of dictionary in a list has a list `- ` prefix. Subsequent keys in the
-            # dictionary just have a tab.
-            if parent is not None and parent.is_collection_element() and node == parent.children[0]:
+            if is_first_collection_child:
                 lines.append(
                     f"{TAB_AS_SPACES * (depth-1)}- {node.value}: "
                     f"{stringify_yaml(node.children[0].value)}  "
@@ -520,10 +519,13 @@ class RecipeParser:
         # Don't render a `:` for the non-visible root node. Also don't render invisible collection nodes.
         if depth > -1 and not node.is_collection_element():
             list_prefix = ""
-            # Being in a list changes how the depth is rendered
+            # Handle special cases for the "parent" key
             if node.list_member_flag:
-                depth_delta += 1
                 list_prefix = "- "
+                depth_delta += 1
+            if is_first_collection_child:
+                list_prefix = "- "
+                spaces = spaces[TAB_SPACE_COUNT:]
             # Nodes representing collections in a list have nothing to render
             lines.append(f"{spaces}{list_prefix}{node.value}:  {node.comment}".rstrip())
 
@@ -680,6 +682,35 @@ class RecipeParser:
             if not new_recipe.patch(patch):
                 msg_tbl.add_message(MessageCategory.ERROR, f"Failed to patch: {patch}")
 
+        # Convenience function constructs missing paths. Useful when you have to construct more than 1 path level at
+        # once (the JSON patch standard only allows the creation of 1 new level at a time)
+        def _patch_add_missing_path(base_path: str, ext: str, value: JsonType = None) -> None:
+            temp_path: Final[str] = RecipeParser.append_to_path(base_path, ext)
+            if new_recipe.contains_value(temp_path):
+                return
+            _patch_and_log({"op": "add", "path": temp_path, "value": value})
+
+        # Convenience function that moves a value under an old path to a new one sharing a common base path BUT only if
+        # the old path exists.
+        def _patch_move_base_path(base_path: str, old_ext: str, new_ext: str) -> None:
+            old_path: Final[str] = RecipeParser.append_to_path(base_path, old_ext)
+            if not new_recipe.contains_value(old_path):
+                return
+            _patch_and_log({"op": "move", "from": old_path, "path": RecipeParser.append_to_path(base_path, new_ext)})
+
+        # Convenience function that sorts 1 level of keys, given a path. Optionally allows renaming of the target node.
+        def _sort_subtree_keys(sort_path: str, tbl: dict[str, int], rename: str = "") -> None:
+            def _comparison(n: Node) -> int:
+                return RecipeParser._canonical_sort_keys_comparison(n, tbl)
+
+            node = traverse(new_recipe._root, str_to_stack_path(sort_path))
+            if node is None:
+                msg_tbl.add_message(MessageCategory.WARNING, f"Failed to sort members of {sort_path}")
+                return
+            if rename:
+                node.value = rename
+            node.children.sort(key=_comparison)
+
         # Convert the JINJA variable table to a `context` section. Empty tables still add the `context` section for
         # future developers' convenience.
         _patch_and_log({"op": "add", "path": "/context", "value": None})
@@ -792,10 +823,7 @@ class RecipeParser:
             ("doc_url", "documentation"),
         ]
         for old, new in about_rename:
-            old_path = f"/about/{old}"
-            new_path = f"/about/{new}"
-            if new_recipe.contains_value(old_path):
-                _patch_and_log({"op": "move", "from": old_path, "path": new_path})
+            _patch_move_base_path("/about", old, new)
 
         # TODO validate: /about/license must be SPDX recognized.
 
@@ -813,17 +841,85 @@ class RecipeParser:
             if new_recipe.contains_value(path):
                 _patch_and_log({"op": "remove", "path": path})
 
+        # Cached copy of all of the "outputs" in a recipe. This is useful for easily handling multi and single output
+        # recipes in 1 loop construct.
+        base_package_paths: Final[list[str]] = new_recipe.get_package_paths()
+
+        ## Upgrade the testing section(s) ##
+        test_paths: Final[map[str]] = map(
+            cast(Callable[[str], str], lambda s: RecipeParser.append_to_path(s, "/test")), base_package_paths
+        )
+        for test_path in test_paths:
+            if not new_recipe.contains_value(test_path):
+                continue
+
+            _patch_move_base_path(test_path, "/files", "/files/recipe")
+            # Edge case: `/source_files` exists but `/files` does not
+            if new_recipe.contains_value(RecipeParser.append_to_path(test_path, "/source_files")):
+                _patch_add_missing_path(test_path, "/files")
+            _patch_move_base_path(test_path, "/source_files", "/files/source")
+
+            if new_recipe.contains_value(RecipeParser.append_to_path(test_path, "/requires")):
+                _patch_add_missing_path(test_path, "/requirements")
+            _patch_move_base_path(test_path, "/requires", "/requirements/run")
+
+            # Replace `- pip check` in `commands` with the new flag. If not found, set the flag to `False` (as the
+            # flag defaults to `True`).
+            commands = cast(list[str], new_recipe.get_value(RecipeParser.append_to_path(test_path, "/commands"), []))
+            pip_check = False
+            for i, command in enumerate(commands):
+                if command != "pip check":
+                    continue
+                # For now, we will only patch-out the first instance when no selector is attached
+                # TODO Future: handle selector logic/cases with `pip check || <bool>`
+                _patch_and_log({"op": "remove", "path": RecipeParser.append_to_path(test_path, f"/commands/{i}")})
+                pip_check = True
+                break
+            _patch_add_missing_path(test_path, "/python")
+            _patch_and_log(
+                {"op": "add", "path": RecipeParser.append_to_path(test_path, "/python/pip-check"), "value": pip_check}
+            )
+
+            _patch_move_base_path(test_path, "/commands", "/script")
+            _patch_move_base_path(test_path, "/imports", "/python/imports")
+            _patch_move_base_path(test_path, "/downstreams", "/downstream")
+
+            # Sort test section for "canonical order" and rename `test` to `tests`. This effectively invalidates
+            # the `test_path` variable from this point on.
+            _sort_subtree_keys(test_path, V1_TEST_SECTION_KEY_SORT_ORDER, rename="tests")
+
+        ## Upgrade the multi-output section(s) ##
+        # TODO Complete
+        if new_recipe.contains_value("/outputs"):
+            # On the top-level, `package` -> `recipe`
+            _patch_move_base_path(ROOT_NODE_VALUE, "/package", "/recipe")
+
+            for output_path in base_package_paths:
+                if output_path == ROOT_NODE_VALUE:
+                    continue
+
+                # Move `name` and `version` under `package`
+                if new_recipe.contains_value(
+                    RecipeParser.append_to_path(output_path, "/name")
+                ) or new_recipe.contains_value(RecipeParser.append_to_path(output_path, "/version")):
+                    _patch_add_missing_path(output_path, "/package")
+                _patch_move_base_path(output_path, "/name", "/package/name")
+                _patch_move_base_path(output_path, "/version", "/package/version")
+
+                # Not all the top-level keys are found in each output section, but all the output section keys are
+                # found at the top-level. So for consistency, we sort on that ordering.
+                _sort_subtree_keys(output_path, TOP_LEVEL_KEY_SORT_ORDER)
+
+        ## Final clean-up ##
+
         # TODO: Comment tracking may need improvement. The "correct way" of tracking comments with patch changes is a
         #       fairly big engineering effort and refactor.
-        # Attempt to re-introduce comments that may have been removed with patch operations. This process is far
-        # from perfect, so log the comments we couldn't relocate.
+        # Alert the user which comments have been dropped.
         new_comments: Final[dict[str, str]] = new_recipe.get_comments_table()
         diff_comments: Final[dict[str, str]] = {k: v for k, v in old_comments.items() if k not in new_comments}
         for path, comment in diff_comments.items():
             if not new_recipe.contains_value(path):
                 msg_tbl.add_message(MessageCategory.WARNING, f"Could not relocate comment: {comment}")
-                continue
-            new_recipe.add_comment(path, comment)
 
         # TODO Complete: move operations may result in empty fields we can eliminate. This may require changes to
         #                `contains_value()`
@@ -835,7 +931,7 @@ class RecipeParser:
 
         # Sort the top-level keys to a "canonical" ordering. This should make previous patch operations look more
         # "sensible" to a human reader.
-        new_recipe._sort_top_level_keys()
+        _sort_subtree_keys("/", TOP_LEVEL_KEY_SORT_ORDER)
 
         return new_recipe.render(), msg_tbl
 
