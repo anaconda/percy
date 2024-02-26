@@ -541,9 +541,7 @@ class RecipeParser:
                 lines.append(f"{spaces}{extra_tab}" f"{stringify_yaml(child.value)}:  " f"{child.comment}".rstrip())
             # Leaf nodes are rendered as members in a list
             elif child.is_leaf():
-                lines.append(
-                    f"{spaces}{TAB_AS_SPACES}- " f"{stringify_yaml(child.value)}  " f"{child.comment}".rstrip()
-                )
+                lines.append(f"{spaces}{extra_tab}- " f"{stringify_yaml(child.value)}  " f"{child.comment}".rstrip())
             else:
                 RecipeParser._render_tree(child, depth + depth_delta, lines, node)
             # By tradition, recipes have a blank line after every top-level section, unless they are a comment. Comments

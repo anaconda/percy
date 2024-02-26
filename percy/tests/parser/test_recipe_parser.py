@@ -348,13 +348,13 @@ def test_render_to_object_multi_output() -> None:
             ],
         ),
         # TODO Complete: The `curl.yaml` test is far from perfect. It is very much a work in progress.
-        # (
-        #    "curl.yaml",
-        #    [],
-        #    [
-        #        "A non-list item had a selector at: /outputs/0/build/ignore_run_exports",
-        #    ],
-        # ),
+        (
+            "curl.yaml",
+            [],
+            [
+                "A non-list item had a selector at: /outputs/0/build/ignore_run_exports",
+            ],
+        ),
     ],
 )
 def test_render_to_new_recipe_format(file_base: str, errors: list[str], warnings: list[str]) -> None:
