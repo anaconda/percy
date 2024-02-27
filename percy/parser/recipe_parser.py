@@ -779,6 +779,11 @@ class RecipeParser:
                 _patch_and_log(patch)
                 new_recipe.remove_selector(selector_path)
 
+        # TODO Complete
+        # Scan and alert removed fields
+        # build/
+        # about/
+
         # Move `run_exports` and `ignore_run_exports` from `build` to `requirements`
         # TODO Fix: comments are not preserved with patch operations (add a flag to `patch()`?)
         for base_path in new_recipe.get_package_paths():
