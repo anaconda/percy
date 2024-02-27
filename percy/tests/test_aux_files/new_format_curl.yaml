@@ -3,7 +3,7 @@ schema_version: 1
 context:
   version: 8.4.0
 
-package:
+recipe:
   name: curl_split_recipe
   version: ${{ version }}
 
@@ -36,7 +36,8 @@ requirements:
     - zlib        ${{ zlib }}
 
 outputs:
-  - name: libcurl
+  - package:
+      name: libcurl
     requirements:
       build:
         - ${{ compiler('c') }}
@@ -78,8 +79,8 @@ outputs:
         then: Library/lib/libcurl.lib
       - if: win
         then: Library/lib/libcurl.exp
-    test:
-      commands:
+    tests:
+      script:
         - if: not win
           then: curl-config --features
         - if: not win
@@ -94,8 +95,10 @@ outputs:
           then: if exist %LIBRARY_LIB%\libcurl_a.lib exit 1
         - if: win
           then: if not exist %LIBRARY_BIN%\libcurl.dll exit 1
-
-  - name: libcurl-static
+      python:
+        pip-check: false
+  - package:
+      name: libcurl-static
     requirements:
       build:
         - ${{ compiler('c') }}
@@ -113,14 +116,16 @@ outputs:
         then: lib/libcurl.a*
       - if: win
         then: Library/lib/libcurl_a.lib
-    test:
-      commands:
+    tests:
+      script:
         - if: not win
           then: test -f $PREFIX/lib/libcurl.a
         - if: win
           then: if not exist %LIBRARY_LIB%\libcurl_a.lib exit 1
-
-  - name: curl
+      python:
+        pip-check: false
+  - package:
+      name: curl
     files:
       - if: unix
         then: bin/curl
@@ -136,18 +141,18 @@ outputs:
       build:
         - ${{ compiler('c') }}
       host:
-        - openssl ${{ openssl }}  # Only required to produce all openssl variants.
+        - openssl ${{ openssl }}
         - ${{ pin_subpackage('libcurl', exact=True) }}
       run:
         - ${{ pin_subpackage('libcurl', exact=True) }}
-    test:
-      commands:
-        # curl help commands on Windows have non-zero status codes.  Need other test.
+    tests:
+      script:
         - curl --help
-        # Try downloading something from https to make sure the certs are used correctly.
         - curl https://raw.githubusercontent.com/conda-forge/curl-feedstock/master/LICENSE.txt
         - if: win
           then: if not exist %LIBRARY_BIN%\curl.exe exit 1
+      python:
+        pip-check: false
 
 about:
   license: curl

@@ -10,9 +10,10 @@
     - [General Installation](#general-installation)
         - [Install into your current environment](#install-into-your-current-environment)
         - [Install into a custom percy environment](#install-into-a-custom-percy-environment)
-- [Developer Installation](#developer-installation)
+- [Developer Notes](#developer-notes)
         - [Running pre-commit checks](#running-pre-commit-checks)
     - [Command line examples](#command-line-examples)
+    - [Release process](#release-process)
     - [Other examples](#other-examples)
         - [Recipe patching](#recipe-patching)
         - [Python 3.11 buildout](#python-311-buildout)
@@ -30,6 +31,10 @@ It can be used as a command line tool but is mostly intended to be used as a lib
 Why not using conda build to render?
 conda build resolves dependencies to qualify versions and process run_exports and other keys.
 This library renders without querying a channel, and is more suited for development phase.
+
+**NOTE: The `parser/` module has moved and will be eventually deprecated from this project.**
+**The module now resides in [this](https://github.com/anaconda/conda-recipe-manager) repo as we propose to**
+**move this work to [conda-incubator](https://github.com/conda-incubator).**
 
 # Getting Started
 

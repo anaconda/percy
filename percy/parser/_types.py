@@ -27,25 +27,27 @@ PERCY_SUB_MARKER: Final[str] = "__PERCY_SUBSTITUTION_MARKER__"
 # should work on both old and new recipe formats.
 TOP_LEVEL_KEY_SORT_ORDER: Final[dict[str, int]] = {
     "schema_version": 0,
-    "context": 1,
-    "package": 2,
-    "source": 3,
-    "build": 4,
-    "requirements": 5,
-    "outputs": 6,
-    "test": 7,
-    "tests": 8,  # Used in the new recipe format
-    "about": 9,
-    "extra": 10,
+    "context": 10,
+    "package": 20,
+    "recipe": 30,  # Used in the v1 recipe format
+    "source": 40,
+    "files": 50,
+    "build": 60,
+    "requirements": 70,
+    "outputs": 80,
+    "test": 90,
+    "tests": 100,  # Used in the v1 recipe format
+    "about": 110,
+    "extra": 120,
 }
 
 # Canonical sort order for the new "v1" recipe format's `tests` block
 V1_TEST_SECTION_KEY_SORT_ORDER: Final[dict[str, int]] = {
     "script": 0,
-    "requirements": 1,
-    "files": 2,
-    "python": 3,
-    "downstream": 4,
+    "requirements": 10,
+    "files": 20,
+    "python": 30,
+    "downstream": 40,
 }
 
 #### Private Classes (Not to be used external to the `parser` module) ####
