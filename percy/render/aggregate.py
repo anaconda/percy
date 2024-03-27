@@ -320,13 +320,13 @@ class Aggregate:
                 continue
             if feedstock_name.startswith("ctng-compilers-"):
                 logging.warning(
-                    "Skipping feedstock %s now replaced by binutils-feedstock and gcc_toolchain-toolchain",
+                    "Skipping feedstock %s now replaced by binutils-feedstock and gcc_toolchain-feedstock",
                     feedstock_name,
                 )
                 continue
             if feedstock_name.startswith("ctng-compiler-activation-"):
                 logging.warning(
-                    "Skipping feedstock %s now replaced by gcc_activation-toolchain",
+                    "Skipping feedstock %s now replaced by gcc_activation-feedstock",
                     feedstock_name,
                 )
                 continue
