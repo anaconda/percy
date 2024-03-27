@@ -324,6 +324,12 @@ class Aggregate:
                     feedstock_name,
                 )
                 continue
+            if feedstock_name.startswith("ctng-compiler-activation-"):
+                logging.warning(
+                    "Skipping feedstock %s now replaced by gcc_activation-toolchain",
+                    feedstock_name,
+                )
+                continue
             if "_cos6_" in feedstock_name or "_cos7_" in feedstock_name or "_amzn2_" in feedstock_name:
                 logging.warning("Skipping cdt %s", feedstock_name)
                 continue
