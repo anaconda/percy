@@ -320,7 +320,31 @@ class Aggregate:
                 continue
             if feedstock_name.startswith("ctng-compilers-"):
                 logging.warning(
-                    "Skipping feedstock %s now replaced by binutils-feedstock and gcc_toolchain-toolchain",
+                    "Skipping feedstock %s now replaced by binutils-feedstock and gcc_toolchain-feedstock",
+                    feedstock_name,
+                )
+                continue
+            if feedstock_name.startswith("ctng-compiler-activation-"):
+                logging.warning(
+                    "Skipping feedstock %s now replaced by gcc_activation-feedstock",
+                    feedstock_name,
+                )
+                continue
+            if feedstock_name.startswith("llvm-compilers-"):
+                logging.warning(
+                    "Skipping feedstock %s now replaced by llvmdev-feedstock",
+                    feedstock_name,
+                )
+                continue
+            if feedstock_name.startswith("clang-compilers-"):
+                logging.warning(
+                    "Skipping feedstock %s now replaced by clangdev-feedstock",
+                    feedstock_name,
+                )
+                continue
+            if feedstock_name.startswith("clang-compiler-activation-"):
+                logging.warning(
+                    "Skipping feedstock %s now replaced by clangdev-feedstock",
                     feedstock_name,
                 )
                 continue
