@@ -1,6 +1,9 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.1.6
+- Exclude `ctng-compiler-activation-feedstock`, `llvm-compilers-feedstock`, `clang-compilers-feedstock` and `clang-compiler-activation-feedstock` from locally loaded feedstocks because they are superseeded by other feedstocks.
+
 ## 0.1.5
 - Adds `get_read_only_parser()` function.
 - Fixes some comments.
