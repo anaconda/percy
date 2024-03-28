@@ -30,5 +30,5 @@ runs:
         source $CONDA/etc/profile.d/conda.sh
         conda init bash
         sed -i 's/- python >=3.*$/- python ${{ inputs.python-version }}.*/' environment.yaml
-        conda env create -f environment.yaml --name percy --force
+        conda env create -f environment.yaml --name percy
         conda run --name percy pip install .
