@@ -342,12 +342,6 @@ class Aggregate:
                     feedstock_name,
                 )
                 continue
-            if feedstock_name.startswith("clang-compiler-activation-"):
-                logging.warning(
-                    "Skipping feedstock %s now replaced by clangdev-feedstock",
-                    feedstock_name,
-                )
-                continue
             if "_cos6_" in feedstock_name or "_cos7_" in feedstock_name or "_amzn2_" in feedstock_name:
                 logging.warning("Skipping cdt %s", feedstock_name)
                 continue

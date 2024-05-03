@@ -1,6 +1,9 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.1.7
+- Revert exclusion of `clang-compiler-activation-feedstock` from locally loaded feedstocks since it's actually active and needed.
+
 ## 0.1.6
 - Exclude `ctng-compiler-activation-feedstock`, `llvm-compilers-feedstock`, `clang-compilers-feedstock` and `clang-compiler-activation-feedstock` from locally loaded feedstocks because they are superseeded by other feedstocks.
 
