@@ -196,12 +196,12 @@ def render(
             else:
                 return f"{compiler}_{selector_dict.get('target_platform', 'win-64')}"
 
-        # Based on https://github.com/conda/conda-build/blob/6d7805c97aa6de56346e62a9d1d3582cac00ddb8/conda_build/jinja_context.py#L559-L575
+        # Based on https://github.com/conda/conda-build/blob/6d7805c97aa6de56346e62a9d1d3582cac00ddb8/conda_build/jinja_context.py#L559-L575  # pylint: disable=line-too-long
         def expand_cdt(package_name: str) -> str:
             arch = selector_dict["target_platform"].split("-", 1)[-1]
 
             cdt_name = "cos6"
-            if arch == "ppc64le" or arch == "aarch64" or arch == "ppc64" or arch == "s390x":
+            if arch in ("ppc64le", "aarch64", "ppc64", "s390x"):
                 cdt_name = "cos7"
                 cdt_arch = arch
             else:
