@@ -6,6 +6,7 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 - Download cbc when none is found.
 - Remove previous parser tree code and depend on conda-recipe-manager instead.
 - Remove `get_read_only_parser()` function.
+- Add proper support for CDT packages.
 
 ## 0.1.7
 - Revert exclusion of `clang-compiler-activation-feedstock` from locally loaded feedstocks since it's actually active and needed.
