@@ -1,6 +1,9 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.1.8
+- Add proper support for CDT packages.
+
 ## 0.1.7
 - Revert exclusion of `clang-compiler-activation-feedstock` from locally loaded feedstocks since it's actually active and needed.
 
