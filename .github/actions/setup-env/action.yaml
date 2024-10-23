@@ -10,7 +10,7 @@ runs:
         cache: 'pip'
     - name: Cache conda env
       id: cache-conda
-      uses: actions/cache@13aacd865c20de90d75de3b17ebe84f7a17d57d2 # v4.0.0
+      uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
       env:
         cache-name: conda-env-cache
       with:
