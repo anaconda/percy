@@ -196,6 +196,22 @@ def render(
             else:
                 return f"{compiler}_{selector_dict.get('target_platform', 'win-64')}"
 
+        # Based on https://github.com/conda/conda-build/blob/6d7805c97aa6de56346e62a9d1d3582cac00ddb8/conda_build/jinja_context.py#L559-L575  # pylint: disable=line-too-long
+        def expand_cdt(package_name: str) -> str:
+            arch = selector_dict["target_platform"].split("-", 1)[-1]
+
+            cdt_name = "cos6"
+            if arch in ("ppc64le", "aarch64", "ppc64", "s390x"):
+                cdt_name = "cos7"
+                cdt_arch = arch
+            else:
+                cdt_arch = "x86_64" if arch == "64" else "i686"
+
+            cdt_name = selector_dict.get("cdt_name", cdt_name)
+            cdt_arch = selector_dict.get("cdt_arch", cdt_arch)
+
+            return f"{package_name}-{cdt_name}-{cdt_arch}"
+
         jinja_vars: Final[dict[str, Any]] = {
             "unix": selector_dict.get("unix", False),
             "win": selector_dict.get("win", False),
@@ -224,7 +240,7 @@ def render(
             "compiler": expand_compiler,
             "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x} x",
             "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x} x",
-            "cdt": lambda x: f"{x}-cos6-x86_64",
+            "cdt": expand_cdt,
             "os.environ.get": lambda name, default="": "",
             "ccache": lambda name, method="": "ccache",
         }

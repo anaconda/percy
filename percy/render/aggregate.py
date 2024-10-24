@@ -342,9 +342,6 @@ class Aggregate:
                     feedstock_name,
                 )
                 continue
-            if "_cos6_" in feedstock_name or "_cos7_" in feedstock_name or "_amzn2_" in feedstock_name:
-                logging.warning("Skipping cdt %s", feedstock_name)
-                continue
 
             # add to render list
             to_render.append((feedstock_repo, recipe_path, subdir, python, others, renderer))
