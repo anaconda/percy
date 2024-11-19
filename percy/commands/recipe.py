@@ -16,6 +16,7 @@ import click
 import percy.commands.aggregate
 import percy.render.dumper
 import percy.render.recipe
+import percy.updater.grayskull_sync as grayskull_sync
 from percy.render._renderer import RendererType
 
 # pylint: disable=line-too-long
@@ -64,15 +65,7 @@ def base_options(f: Callable):
         "-s",
         type=str,
         multiple=True,
-        default=[
-            "linux-64",
-            "linux-aarch64",
-            "linux-ppc64le",
-            "linux-s390x",
-            "osx-arm64",
-            "osx-64",
-            "win-64",
-        ],
+        default=None,
         help="Architecture. E.g. -s linux-64 -s win-64",
     )
     @click.option(
@@ -80,6 +73,7 @@ def base_options(f: Callable):
         "-p",
         type=str,
         multiple=True,
+        default=None,
         help="Python version. E.g. -p 3.9 -p 3.10",
     )
     @click.option(
@@ -87,7 +81,7 @@ def base_options(f: Callable):
         "-k",
         type=(str, str),
         multiple=True,
-        default={},
+        default=None,
         help="Additional key values (e.g. -k blas_impl openblas)",
     )
     @functools.wraps(f)
@@ -223,7 +217,7 @@ def patch(
     recipe: percy.render.recipe.Recipe  # pylint: disable=redefined-outer-name
     # Enables parse-tree mode
     if parse_tree:
-        backend = RendererType.PERCY
+        backend = RendererType.CRM
         op_mode = percy.render.recipe.OpMode.PARSE_TREE
         recipe = percy.render.recipe.Recipe.from_file(
             recipe_path,
@@ -245,3 +239,47 @@ def patch(
     with open(patch_file, encoding="utf-8") as p:
         recipe.patch(json.load(p), increment_build_number, op_mode=op_mode)
     print("Done")
+
+
+@recipe.command(short_help="Sync a recipe from pypi data")
+@click.pass_obj
+@click.option(
+    "--run_constrained",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=True,
+    multiple=False,
+    help="add run_constrained",
+)
+@click.option(
+    "--bump",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=True,
+    multiple=False,
+    help="bump build number if version is unchanged",
+)
+@click.option(
+    "--run_linter",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=True,
+    multiple=False,
+    help="run conda lint --fix after updating",
+)
+@click.option(
+    "--pypi_spec",
+    type=str,
+    multiple=False,
+    help="pypi_package spec",
+)
+def sync(obj, pypi_spec, run_constrained, bump, run_linter):
+    """
+    Sync a recipe from pypi data
+    """
+
+    recipe_path = obj["recipe_path"]
+    grayskull_sync.sync(recipe_path, pypi_spec, run_constrained, bump, run_linter)

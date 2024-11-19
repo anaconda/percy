@@ -41,7 +41,7 @@ class RendererType(Enum):
     RUAMEL = 2
     CONDA = 3
     CRM = 4  # conda-recipe-manager
-    JINJA = 5
+    RUAMEL_JINJA = 5
 
 
 if has_ruamel:
@@ -90,39 +90,11 @@ class _JinjaSilentUndefined(jinja2.Undefined):
 
         return EmptyString()
 
-    __add__ = (
-        __radd__
-    ) = (
-        __mul__
-    ) = (
-        __rmul__
-    ) = (
-        __div__
-    ) = (
-        __rdiv__
-    ) = (
-        __truediv__
-    ) = (
-        __rtruediv__
-    ) = (
-        __floordiv__
-    ) = (
+    __add__ = __radd__ = __mul__ = __rmul__ = __div__ = __rdiv__ = __truediv__ = __rtruediv__ = __floordiv__ = (
         __rfloordiv__
-    ) = (
-        __mod__
-    ) = (
-        __rmod__
-    ) = (
-        __pos__
-    ) = (
-        __neg__
-    ) = (
-        __call__
-    ) = (
-        __getitem__
-    ) = (
-        __lt__
-    ) = __le__ = __gt__ = __ge__ = __int__ = __float__ = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
+    ) = __mod__ = __rmod__ = __pos__ = __neg__ = __call__ = __getitem__ = __lt__ = __le__ = __gt__ = __ge__ = (
+        __int__
+    ) = __float__ = __complex__ = __pow__ = __rpow__ = _fail_with_undefined_error
 
 
 _jinja_silent_undef = jinja2.Environment(undefined=_JinjaSilentUndefined)
@@ -165,7 +137,7 @@ def _get_template(meta_yaml, selector_dict):
 
 
 def render(
-    recipe_dir: Path | str,
+    recipe_file: Path,
     meta_yaml: str,
     selector_dict: SelectorDict,
     renderer_type: Optional[RendererType] = None,
@@ -177,7 +149,7 @@ def render(
     - render template
     - parse yaml
     - normalize
-    :param recipe_dir: Directory that contains the target `meta.yaml` file.
+    :param recipe_file: Path to recipe.
     :param meta_yaml: Raw YAML text string from the file.
     :param selector_dict: Dictionary of selector statements
     :param renderer_type: Rendering engine to target
@@ -233,16 +205,16 @@ def render(
         render_dict = {**jinja_vars, **selector_dict}
         yaml_text = _get_template(meta_yaml, selector_dict).render(render_dict)
     except jinja2.exceptions.TemplateSyntaxError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=exc.message, line=exc.lineno) from exc
+        raise JinjaRenderFailure(recipe_file, message=exc.message, line=exc.lineno) from exc
     except jinja2.exceptions.TemplateError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=exc.message) from exc
+        raise JinjaRenderFailure(recipe_file, message=exc.message) from exc
     except TypeError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=str(exc)) from exc
+        raise JinjaRenderFailure(recipe_file, message=str(exc)) from exc
 
     try:
         if renderer_type == RendererType.RUAMEL:
             if not has_ruamel:
-                raise YAMLRenderFailure(recipe_dir, message="ruamel unavailable")
+                raise YAMLRenderFailure(recipe_file, message="ruamel unavailable")
             # load yaml with ruamel
             return ruamel.load(yaml_text.replace("\t", " ").replace("%", " "))
         elif renderer_type == RendererType.PYYAML:
@@ -254,10 +226,10 @@ def render(
                 )
         elif renderer_type == RendererType.CONDA:
             if not has_conda_build:
-                raise YAMLRenderFailure(recipe_dir, message="conda build unavailable")
+                raise YAMLRenderFailure(recipe_file, message="conda build unavailable")
             platform, arch = selector_dict.get("subdir").split("-")
             rendered = api.render(
-                recipe_dir,
+                recipe_file,
                 config=Config(
                     platform=platform,
                     arch=arch,
@@ -268,7 +240,17 @@ def render(
         elif renderer_type == RendererType.CRM:
             rendered = RecipeParserDeps(meta_yaml)
             return rendered
+        elif renderer_type == RendererType.RUAMEL_JINJA:
+            yaml_jinja = YAML(typ="jinja2")
+            yaml_jinja.indent(mapping=2, sequence=4, offset=2)
+            yaml_jinja.preserve_quotes = True
+            yaml_jinja.allow_duplicate_keys = True
+            yaml_jinja.width = 1000
+            data = None
+            with open(recipe_file) as fp:
+                data = yaml_jinja.load(fp)
+            return data
         else:
-            raise YAMLRenderFailure(recipe_dir, message="Unknown renderer type.")
+            raise YAMLRenderFailure(recipe_file, message="Unknown renderer type.")
     except ParserError as exc:
-        raise YAMLRenderFailure(recipe_dir, line=exc.problem_mark.line) from exc
+        raise YAMLRenderFailure(recipe_file, line=exc.problem_mark.line) from exc

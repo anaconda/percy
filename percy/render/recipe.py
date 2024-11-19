@@ -298,7 +298,7 @@ class Recipe:
         if self.renderer == renderer_utils.RendererType.CRM:
             self.meta = self.crm.render_to_object()
         else:
-            self.meta = renderer_utils.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
+            self.meta = renderer_utils.render(self.recipe_file, self.dump(), self.selector_dict, self.renderer)
 
         # should this be skipped?
         bld = self.meta.get("build", {})
@@ -513,7 +513,10 @@ class Recipe:
 
         :returns: A tuple of first_row, first_column, last_row, last_column
         """
-        if not path or self.renderer != renderer_utils.RendererType.RUAMEL:
+        if not path or self.renderer not in (
+            renderer_utils.RendererType.RUAMEL,
+            renderer_utils.RendererType.RUAMEL_JINJA,
+        ):
             if self.meta_yaml:
                 return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
             else:
@@ -704,10 +707,10 @@ class Recipe:
 
             return self.patch_with_parser(_patch_all)
 
-        if self.skip:
+        if evaluate_selectors and self.skip:
             logging.warning("Not patching skipped recipe %s", self.recipe_dir)
             return False
-        if self.renderer != renderer_utils.RendererType.RUAMEL:
+        if self.renderer not in (renderer_utils.RendererType.RUAMEL, renderer_utils.RendererType.RUAMEL_JINJA):
             self.renderer = renderer_utils.RendererType.RUAMEL
             self.render()
         jsonschema.validate(operations, self.schema)
@@ -911,29 +914,73 @@ class Recipe:
         self.meta_yaml[start_row:end_row] = section_range
 
     def _increment_build_number(self) -> None:
-        """
-        Helper function that auto-increments the build number
-        """
-        try:
-            build_number = int(self.orig.meta["build"]["number"]) + 1
-        except (KeyError, TypeError):
-            logging.error("No build number found for %s", self.recipe_dir)
-            return
+        self.set_build_number(int(self.meta["build"]["number"]) + 1)
+
+    def set_build_number(self, value=0):
         patterns = (
-            (r"(?=\s*?)number:\s*([0-9]+)", f"number: {build_number}"),
             (
                 r'(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
-                f"{{% set build_number = {build_number} %}}",
+                "{{% set build_number = {} %}}".format(value),
             ),
             (
                 r'(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
-                f"{{% set build = {build_number} %}}",
+                "{{% set build = {} %}}".format(value),
             ),
+            (r"(?=\s*?)number:\s*([0-9]+)", "number: {}".format(value)),
         )
         text = "\n".join(self.meta_yaml)
+        updated_text = text
         for pattern, replacement in patterns:
-            text = re.sub(pattern, replacement, text)
-        self.meta_yaml = text.split("\n")
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
+
+    def set_version(self, value):
+        patterns = (
+            (
+                r'(?=\s*?){%\s*set version\s*=\s*"?(.+)"?\s*%}',
+                '{{% set version = "{}" %}}'.format(value),
+            ),
+            (r"(?=\s*?)version:\s*(.+)", 'version: "{}"'.format(value)),
+        )
+        text = "\n".join(self.meta_yaml)
+        updated_text = text
+        for pattern, replacement in patterns:
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
+
+    def set_sha256(self, value):
+        patterns = (
+            (
+                r'(?=\s*?){%\s*set sha256\s*=\s*"?([A-Fa-f0-9]{64})"?\s*%}',
+                '{{% set sha256 = "{}" %}}'.format(value),
+            ),
+            (
+                r'(?=\s*?){%\s*set sha\s*=\s*"?([A-Fa-f0-9]{64})"?\s*%}',
+                '{{% set sha = "{}" %}}'.format(value),
+            ),
+            (r"(?=\s*?)sha256:\s*([A-Fa-f0-9]{64})", "sha256: {}".format(value)),
+        )
+        text = "\n".join(self.meta_yaml)
+        updated_text = text
+        for pattern, replacement in patterns:
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
+
+    def update_py_skip(self, value):
+        patterns = ((r"(?=\s*?)(skip:.*rue.*)\[(.*)(py<\d+)(.*)\]", r"\1[\2{}\4]".format(value)),)
+        text = "\n".join(self.meta_yaml)
+        updated_text = text
+        for pattern, replacement in patterns:
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
 
 
 class Dep:

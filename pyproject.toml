@@ -17,7 +17,7 @@ authors = [
 description = "Fast and rough renderer of conda recipes."
 readme = "README.md"
 license = {file = "LICENSE"}
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 keywords = ["renderer", "conda recipe"]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
@@ -27,10 +27,9 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Software Development :: Quality Assurance",

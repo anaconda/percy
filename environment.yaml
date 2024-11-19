@@ -21,6 +21,7 @@ dependencies:
   - requests
   - types-requests
   - ruamel.yaml
+  - ruamel.yaml.jinja2
   - conda-build
   - jsonschema
   - types-jsonschema
