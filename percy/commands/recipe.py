@@ -2,6 +2,7 @@
 File:           recipe.py
 Description:    CLI for interacting with recipe files.
 """
+
 from __future__ import annotations
 
 import functools

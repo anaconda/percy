@@ -25,3 +25,4 @@ dependencies:
   - jsonschema
   - types-jsonschema
   - pre-commit
+  - conda-recipe-manager

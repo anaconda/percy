@@ -2,6 +2,7 @@
 File:           repodata.py
 Description:    Provides tools for processing information about a repository
 """
+
 from __future__ import annotations
 
 import json

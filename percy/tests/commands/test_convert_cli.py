@@ -2,6 +2,7 @@
 File:           test_convert_cli.py
 Description:    Tests the `convert` CLI
 """
+
 from click.testing import CliRunner
 
 from percy.commands.convert import convert

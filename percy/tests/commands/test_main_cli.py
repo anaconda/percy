@@ -2,6 +2,7 @@
 File:           test_main_cli.py
 Description:    Tests the primary CLI interface, found under `percy.commands.main`
 """
+
 from click.testing import CliRunner
 
 from percy.commands.main import cli

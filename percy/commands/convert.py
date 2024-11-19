@@ -2,6 +2,7 @@
 File:           convert.py
 Description:    CLI for converting an old recipe file to the "new" format.
 """
+
 from __future__ import annotations
 
 import os
@@ -10,12 +11,8 @@ from enum import IntEnum
 from typing import Final
 
 import click
-
-from percy.parser.recipe_parser import RecipeParser
-from percy.parser.types import MessageCategory, MessageTable
-
-# Required file name for the recipe, specified in CEP-13
-NEW_FORMAT_RECIPE_FILE_NAME: Final[str] = "recipe.yaml"
+from conda_recipe_manager.parser.recipe_parser_convert import RecipeParserConvert
+from conda_recipe_manager.types import MessageCategory, MessageTable, Primitives, SentinelType
 
 
 class ExitCode(IntEnum):
@@ -65,11 +62,10 @@ def convert(file: click.File, output: click.Path) -> None:  # pylint: disable=re
     """
     Recipe conversion CLI utility. By default, recipes print to STDOUT. Messages always print to STDERR.
     """
-    recipe_content: Final[str] = file.read()
 
-    parser: RecipeParser
     try:
-        parser = RecipeParser(recipe_content)
+        recipe_content: Final[str] = RecipeParserConvert.pre_process_recipe_text(file.read())
+        recipe_converter = RecipeParserConvert(recipe_content)
     except Exception as e:  # pylint: disable=broad-exception-caught
         print_err("An exception occurred while parsing the recipe file:")
         print_err(e)
@@ -78,19 +74,18 @@ def convert(file: click.File, output: click.Path) -> None:  # pylint: disable=re
     result: str
     msg_tbl: MessageTable
     try:
-        result, msg_tbl = parser.render_to_new_recipe_format()
+        v1_content, msg_tbl, _ = recipe_converter.render_to_v1_recipe_format()
     except Exception as e:  # pylint: disable=broad-exception-caught
         print_err("An exception occurred while converting to the new recipe file:")
         print_err(e)
         sys.exit(ExitCode.RENDER_EXCEPTION)
-
     if output is None:
-        print_out(result)
+        print(v1_content)
     else:
         if not os.path.basename(output) == "recipe.yaml":
             print_err("WARNING: File is not called `recipe.yaml`.")
         with open(output, "w", encoding="utf-8") as fptr:
-            fptr.write(result)
+            fptr.write(v1_content)
 
     error_count: Final[int] = msg_tbl.get_message_count(MessageCategory.ERROR)
     warn_count: Final[int] = msg_tbl.get_message_count(MessageCategory.WARNING)

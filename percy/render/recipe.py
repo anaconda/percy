@@ -2,6 +2,7 @@
 File:           recipe.py
 Description:    Recipe renderer. Not as accurate as conda-build render, but faster and architecture independent.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -15,9 +16,10 @@ from typing import Any, Callable, Optional
 from urllib.parse import urlparse
 
 import jsonschema
+from conda_recipe_manager.parser.recipe_parser_deps import RecipeParserDeps
+from conda_recipe_manager.types import JsonPatchType
 
 import percy.render._renderer as renderer_utils
-from percy.parser.recipe_parser import JsonPatchType, RecipeParser
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
 from percy.render.types import SelectorDict
 from percy.render.variants import Variant, read_conda_build_config
@@ -39,7 +41,7 @@ class OpMode(Enum):
     """
 
     CLASSIC = 1  # Original operational mode
-    PARSE_TREE = 2  # Operational mode that uses the work in `recipe_parser.py`
+    PARSE_TREE = 2  # Operational mode that uses conda-recipe-manager
 
 
 class Recipe:
@@ -287,7 +289,16 @@ class Recipe:
         self.packages: dict[str, Package] = {}
 
         # render meta.yaml
-        self.meta = renderer_utils.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
+        self.crm = None
+        try:
+            self.crm = RecipeParserDeps(self.dump())
+        except:
+            logging.warning("Failed to render using RecipeParserDeps")
+            self.crm = None
+        if self.renderer == renderer_utils.RendererType.CRM:
+            self.meta = self.crm.render_to_object()
+        else:
+            self.meta = renderer_utils.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
 
         # should this be skipped?
         bld = self.meta.get("build", {})
@@ -622,7 +633,7 @@ class Recipe:
                     return True
         return False
 
-    def patch_with_parser(self, callback: Callable[[RecipeParser], None]) -> bool:
+    def patch_with_parser(self, callback: Callable[[RecipeParserDeps], None]) -> bool:
         """
         By providing a callback, this function allows calling code to utilize the new parse-tree/percy recipe parser
         in a way that is backwards compatible with the `Recipe` class.
@@ -639,7 +650,7 @@ class Recipe:
         """
         # Read in the file as a string. Remembering that `recipe` stores
         # data as a list.
-        parser = RecipeParser("\n".join(self.meta_yaml))
+        parser = RecipeParserDeps("\n".join(self.meta_yaml))
 
         # Execute the callback to perform actions against the parser.
         callback(parser)
@@ -654,25 +665,6 @@ class Recipe:
         # https://yaml.readthedocs.io/en/latest/detail.html
         self.render()
         return parser.is_modified()
-
-    def get_read_only_parser(self) -> RecipeParser:
-        """
-        This function returns a read-only parser that is incapable of committing changes to the original recipe file.
-
-        To put another way, any writes to this parser will only cause changes in memory AND NOT to the underlying recipe
-        file.
-
-        It is incredibly important to understand the implications of calling this function from a security and thread
-        safety perspective. This function exists so that we can use the the `RecipeParser` class in the `check_*()`
-        functions in `anaconda-linter`
-
-        NOTE: Expect this function to be eventually deprecated. It is provided as a stop-gap as we experiment and
-              potentially transition to primarily use the `RecipeParser`/parse tree implementation.
-        :returns: An instance of the `RecipeParser` class containing the state of the recipe file at time of call.
-        """
-        # TODO Future: Consider constructing this with an optional flag that disables writes further or throws when
-        # a write is attempted(?)
-        return RecipeParser("\n".join(self.meta_yaml))
 
     def patch(
         self,
@@ -693,7 +685,7 @@ class Recipe:
         # and use the newer parse tree work.
         if op_mode == OpMode.PARSE_TREE:
 
-            def _patch_all(parser: RecipeParser) -> None:
+            def _patch_all(parser: RecipeParserDeps) -> None:
                 # Perform all requested patches
                 for patch_op in operations:
                     parser.patch(patch_op)
@@ -1087,7 +1079,7 @@ def render(
     else:
         variants = []
         if not python:
-            python = ["3.8", "3.9", "3.10", "3.11"]
+            python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
         for s, p in list(itertools.product(subdir, python)):
             variant = {"subdir": s, "python": [p]}
             variant.update(others)

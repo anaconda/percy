@@ -2,6 +2,7 @@
 File:           variants.py
 Description:    Reads cbc files and gives variants. Largely inspired from conda build.
 """
+
 from __future__ import annotations
 
 import copy
@@ -187,7 +188,7 @@ def read_conda_build_config(
     else:
         subdir = _ensure_list(subdir)
     if python is None:
-        python = ["3.8", "3.9", "3.10", "3.11"]
+        python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
     else:
         python = _ensure_list(python)
 

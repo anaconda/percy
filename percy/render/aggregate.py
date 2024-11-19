@@ -3,6 +3,7 @@ File:           aggregate.py
 Description:    A representation of aggregate. May be used to get a rough build order of packages or gather health
                 information.
 """
+
 from __future__ import annotations
 
 import configparser
@@ -265,7 +266,7 @@ class Aggregate:
     def load_local_feedstocks(
         self,
         subdir: str = "linux-64",
-        python: str = "3.10",
+        python: str = "3.12",
         others: Optional[dict[str, Any]] = None,
         renderer: Optional[RendererType] = None,
     ) -> dict[str, Package]:
@@ -277,7 +278,7 @@ class Aggregate:
             This populates attributes packages and feedstocks.
 
         :param subdir:     The subdir for which to load the feedstocks. Defaults to "linux-64".
-        :param python:     The python version for which to load the feedstocks. Defaults to "3.10".
+        :param python:     The python version for which to load the feedstocks. Defaults to "3.12".
         :param others:     A variant dictionary. E.g. {"blas_impl" : "openblas"} Defaults to None.
         :param renderer:   Rendering engine to use to interpret YAML
 

@@ -2,6 +2,7 @@
 File:           test_recipe_cli.py
 Description:    Tests the recipe CLI
 """
+
 from click.testing import CliRunner
 
 from percy.commands.recipe import recipe

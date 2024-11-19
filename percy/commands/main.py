@@ -2,6 +2,7 @@
 File:           main.py
 Description:    Primary execution point of the `click` command line interface
 """
+
 from __future__ import annotations
 
 import os

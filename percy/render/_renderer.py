@@ -2,6 +2,7 @@
 File:           _renderer.py
 Description:    Provides tools for rendering recipe files.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -12,8 +13,8 @@ from typing import Any, Final, Optional
 
 import jinja2
 import yaml
+from conda_recipe_manager.parser.recipe_parser_deps import RecipeParserDeps
 
-from percy.parser.recipe_parser import RecipeParser
 from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
 from percy.render.types import SelectorDict
 
@@ -39,7 +40,8 @@ class RendererType(Enum):
     PYYAML = 1
     RUAMEL = 2
     CONDA = 3
-    PERCY = 4  # Custom parse-tree-based renderer, found in `recipe_parser.py`
+    CRM = 4  # conda-recipe-manager
+    JINJA = 5
 
 
 if has_ruamel:
@@ -263,9 +265,9 @@ def render(
                 variants=selector_dict,
             )
             return rendered[0][0].meta
-        elif renderer_type == RendererType.PERCY:
-            parser = RecipeParser(meta_yaml)
-            return parser.render_to_object()
+        elif renderer_type == RendererType.CRM:
+            rendered = RecipeParserDeps(meta_yaml)
+            return rendered
         else:
             raise YAMLRenderFailure(recipe_dir, message="Unknown renderer type.")
     except ParserError as exc:

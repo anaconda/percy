@@ -2,6 +2,7 @@
 File:           dumper.py
 Description:    Provides utilities to dump rendering results
 """
+
 from __future__ import annotations
 
 import sys
@@ -107,5 +108,8 @@ def dump_render_results(render_results: list, out: TextIO = sys.stdout) -> None:
     """
     if render_results and render_results[0].renderer == RendererType.RUAMEL:
         _dump_render_results_ruamel(render_results, out)
+    elif render_results and render_results[0].renderer == RendererType.CRM:
+        for render_result in render_results:
+            print(render_result.crm.render())
     else:
         _dump_render_results_yaml(render_results, out)
