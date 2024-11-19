@@ -16,8 +16,8 @@ import click
 import percy.commands.aggregate
 import percy.render.dumper
 import percy.render.recipe
-import percy.updater.grayskull_sync as grayskull_sync
 from percy.render._renderer import RendererType
+from percy.updater import grayskull_sync
 
 # pylint: disable=line-too-long
 

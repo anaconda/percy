@@ -12,7 +12,7 @@ from typing import Final
 
 import click
 from conda_recipe_manager.parser.recipe_parser_convert import RecipeParserConvert
-from conda_recipe_manager.types import MessageCategory, MessageTable, Primitives, SentinelType
+from conda_recipe_manager.types import MessageCategory, MessageTable
 
 
 class ExitCode(IntEnum):
@@ -71,7 +71,6 @@ def convert(file: click.File, output: click.Path) -> None:  # pylint: disable=re
         print_err(e)
         sys.exit(ExitCode.PARSE_EXCEPTION)
 
-    result: str
     msg_tbl: MessageTable
     try:
         v1_content, msg_tbl, _ = recipe_converter.render_to_v1_recipe_format()

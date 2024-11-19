@@ -88,6 +88,10 @@ From within a feedstock:
         percy recipe render --help
         percy recipe render -s linux-64 -p 3.10 -k blas_impl openblas
 
+- Update the recipe
+
+        percy recipe sync
+
 - Identify if the feedstock is pinned to the latest, compared to defautls:
 
         percy recipe outdated --help

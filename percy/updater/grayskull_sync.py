@@ -1,15 +1,20 @@
+"""
+Provides a sync method which can be used to sync an existing recipe with content form grayskull.
+"""
+
 import re
 import subprocess
 import tempfile
+from pathlib import Path
 
 import percy.render.recipe
 from percy.render._renderer import RendererType
 
 
 def gen_grayskull_recipe(
-    gs_file_path,
-    package_spec,
-    with_run_constrained=True,
+    gs_file_path: Path,
+    package_spec: str,
+    with_run_constrained: str = True,
 ):
     """
     Calls grayskull and format the resulting recipe for easy processing.
@@ -47,7 +52,7 @@ def gen_grayskull_recipe(
             sections.append(sec)
             content = re.sub(rf"# Extra: ({m}).*", rf"  {sec}:", content)
         # write final grayskull recipe
-        with open(gs_file_path, "w") as f:
+        with open(gs_file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
         # render recipe - RAW
@@ -67,7 +72,7 @@ def gen_grayskull_recipe(
         return raw_recipe, rendered_recipe, sections
 
 
-def sync(recipe_path, package_spec, with_run_constrained, bump, run_linter):
+def sync(recipe_path: Path, package_spec: str | None, with_run_constrained: bool, bump: bool, run_linter: bool):
     """
     Sync a recipe with content fetched from grayskull.
 
@@ -132,7 +137,6 @@ def sync(recipe_path, package_spec, with_run_constrained, bump, run_linter):
         for section in sections:
             try:
                 for pkg_spec in gs_raw_recipe.get(f"requirements/{section}"):
-
                     if pkg_spec.startswith("python "):
                         for sep, opp in sep_map.items():
                             s = pkg_spec.split(sep)

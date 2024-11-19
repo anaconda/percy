@@ -100,7 +100,7 @@ def _find_config_files(
                     cbc = requests.get(
                         "https://raw.githubusercontent.com/AnacondaRecipes/aggregate/master/conda_build_config.yaml"
                     )
-                    tmp = tempfile.NamedTemporaryFile(delete=False)
+                    tmp = tempfile.NamedTemporaryFile(delete=False)  # pylint: disable=consider-using-with
                     tmp.write(cbc.content)
                     files.append(tmp.name)
 

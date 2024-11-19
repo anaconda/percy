@@ -292,7 +292,7 @@ class Recipe:
         self.crm = None
         try:
             self.crm = RecipeParserDeps(self.dump())
-        except:
+        except Exception:  # pylint: disable=broad-exception-caught
             logging.warning("Failed to render using RecipeParserDeps")
             self.crm = None
         if self.renderer == renderer_utils.RendererType.CRM:
@@ -917,16 +917,19 @@ class Recipe:
         self.set_build_number(int(self.meta["build"]["number"]) + 1)
 
     def set_build_number(self, value=0):
+        """
+        Set build_number
+        """
         patterns = (
             (
                 r'(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
-                "{{% set build_number = {} %}}".format(value),
+                f"{{% set build_number = {value} %}}",
             ),
             (
                 r'(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
-                "{{% set build = {} %}}".format(value),
+                f"{{% set build = {value} %}}",
             ),
-            (r"(?=\s*?)number:\s*([0-9]+)", "number: {}".format(value)),
+            (r"(?=\s*?)number:\s*([0-9]+)", f"number: {value}"),
         )
         text = "\n".join(self.meta_yaml)
         updated_text = text
@@ -937,12 +940,15 @@ class Recipe:
         self.meta_yaml = updated_text.split("\n")
 
     def set_version(self, value):
+        """
+        Set version
+        """
         patterns = (
             (
                 r'(?=\s*?){%\s*set version\s*=\s*"?(.+)"?\s*%}',
-                '{{% set version = "{}" %}}'.format(value),
+                f'{{% set version = "{value}" %}}',
             ),
-            (r"(?=\s*?)version:\s*(.+)", 'version: "{}"'.format(value)),
+            (r"(?=\s*?)version:\s*(.+)", f'version: "{value}"'),
         )
         text = "\n".join(self.meta_yaml)
         updated_text = text
@@ -953,16 +959,19 @@ class Recipe:
         self.meta_yaml = updated_text.split("\n")
 
     def set_sha256(self, value):
+        """
+        Set sha256
+        """
         patterns = (
             (
                 r'(?=\s*?){%\s*set sha256\s*=\s*"?([A-Fa-f0-9]{64})"?\s*%}',
-                '{{% set sha256 = "{}" %}}'.format(value),
+                f'{{% set sha256 = "{value}" %}}',
             ),
             (
                 r'(?=\s*?){%\s*set sha\s*=\s*"?([A-Fa-f0-9]{64})"?\s*%}',
-                '{{% set sha = "{}" %}}'.format(value),
+                f'{{% set sha = "{value}" %}}',
             ),
-            (r"(?=\s*?)sha256:\s*([A-Fa-f0-9]{64})", "sha256: {}".format(value)),
+            (r"(?=\s*?)sha256:\s*([A-Fa-f0-9]{64})", f"sha256: {value}"),
         )
         text = "\n".join(self.meta_yaml)
         updated_text = text
@@ -973,7 +982,7 @@ class Recipe:
         self.meta_yaml = updated_text.split("\n")
 
     def update_py_skip(self, value):
-        patterns = ((r"(?=\s*?)(skip:.*rue.*)\[(.*)(py<\d+)(.*)\]", r"\1[\2{}\4]".format(value)),)
+        patterns = ((r"(?=\s*?)(skip:.*rue.*)\[(.*)(py<\d+)(.*)\]", rf"\1[\2{value}\4]"),)
         text = "\n".join(self.meta_yaml)
         updated_text = text
         for pattern, replacement in patterns:

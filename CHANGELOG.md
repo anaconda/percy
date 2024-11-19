@@ -2,7 +2,7 @@
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
 ## 0.2.0
-- Add command percy recipe sync 
+- Add command percy recipe sync
 - Download cbc when none is found.
 - Remove previous parser tree code and depend on conda-recipe-manager instead.
 - Remove `get_read_only_parser()` function.
