@@ -1,5 +1,12 @@
 """
 Provides a sync method which can be used to sync an existing recipe with content form grayskull.
+
+Disclaimer:
+This is putting together a bunch of code previously written.
+This does not claim to be pretty or bullet-proof.
+Code in general should be updated to use the CRM renderer whenenver possible.
+perseverance-scripts diff-deps may in a better state at the time you are reading this.
+https://github.com/anaconda/perseverance-scripts/blob/main/perseverance_scripts/commands/diff_deps.py
 """
 
 import logging
