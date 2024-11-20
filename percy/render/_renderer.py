@@ -52,7 +52,7 @@ if has_ruamel:
     ruamel.indent(mapping=2, sequence=2, offset=2)
     ruamel.preserve_quotes = True
     ruamel.allow_duplicate_keys = True
-    ruamel.width = 1000
+    ruamel.width = 2048
     ruamel.default_flow_style = False
     for digit in "0123456789":
         if digit in ruamel.resolver.versioned_resolver:
@@ -289,7 +289,7 @@ def render(
             yaml_jinja.indent(mapping=2, sequence=4, offset=2)
             yaml_jinja.preserve_quotes = True
             yaml_jinja.allow_duplicate_keys = True
-            yaml_jinja.width = 1000
+            yaml_jinja.width = 2048
             data = None
             with open(recipe_file, encoding="utf-8") as fp:
                 data = yaml_jinja.load(fp)

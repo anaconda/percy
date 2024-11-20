@@ -20,7 +20,7 @@ ruamel.version = (1, 1)
 ruamel.indent(mapping=2, sequence=4, offset=2)
 ruamel.preserve_quotes = True
 ruamel.allow_duplicate_keys = True
-ruamel.width = 1000
+ruamel.width = 2048
 ruamel.default_flow_style = False
 
 # List of top-level recipe fields
