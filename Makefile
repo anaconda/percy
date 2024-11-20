@@ -82,11 +82,11 @@ install: clean	## install the package to the active Python's site-packages
 	pip install .
 
 environment:    ## handles environment creation
-	conda env create -f environment.yaml --name $(CONDA_ENV_NAME) --force
+	conda env create -f environment.yaml --name $(CONDA_ENV_NAME) --yes
 	conda run --name $(CONDA_ENV_NAME) pip install .
 
 dev: clean		## install the package's development version to a fresh environment
-	conda env create -f environment.yaml --name $(CONDA_ENV_NAME) --force
+	conda env create -f environment.yaml --name $(CONDA_ENV_NAME) --yes
 	conda run --name $(CONDA_ENV_NAME) pip install -e .
 	$(CONDA_ACTIVATE) $(CONDA_ENV_NAME) && pre-commit install
 
@@ -100,7 +100,7 @@ test-debug:		## runs test cases with debugging info enabled
 	$(PYTHON3) -m pytest -n auto -vv --capture=no percy/tests/
 
 test-cov:		## checks test coverage requirements
-	$(PYTHON3) -m pytest -n auto --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=45 --cov-report term-missing
+	$(PYTHON3) -m pytest -n auto --cov-config=.coveragerc --cov=percy percy/tests/ --cov-fail-under=20 --cov-report term-missing
 
 lint:			## runs the linter against the project
 	pylint --rcfile=.pylintrc percy

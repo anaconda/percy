@@ -2,6 +2,7 @@
 File:           aggregate.py
 Description:    CLI tool for performing operations against all of aggregate.
 """
+
 from __future__ import annotations
 
 import functools
@@ -111,7 +112,7 @@ def base_options(f: Callable):
         "-p",
         type=str,
         multiple=False,
-        default="3.10",
+        default="3.12",
         help="Python version. E.g. -p 3.10",
     )
     @click.option(

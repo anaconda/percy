@@ -2,6 +2,7 @@
 File:           _renderer.py
 Description:    Provides tools for rendering recipe files.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -12,8 +13,8 @@ from typing import Any, Final, Optional
 
 import jinja2
 import yaml
+from conda_recipe_manager.parser.recipe_parser_deps import RecipeParserDeps
 
-from percy.parser.recipe_parser import RecipeParser
 from percy.render.exceptions import JinjaRenderFailure, YAMLRenderFailure
 from percy.render.types import SelectorDict
 
@@ -39,7 +40,8 @@ class RendererType(Enum):
     PYYAML = 1
     RUAMEL = 2
     CONDA = 3
-    PERCY = 4  # Custom parse-tree-based renderer, found in `recipe_parser.py`
+    CRM = 4  # conda-recipe-manager
+    RUAMEL_JINJA = 5
 
 
 if has_ruamel:
@@ -50,7 +52,7 @@ if has_ruamel:
     ruamel.indent(mapping=2, sequence=2, offset=2)
     ruamel.preserve_quotes = True
     ruamel.allow_duplicate_keys = True
-    ruamel.width = 1000
+    ruamel.width = 2048
     ruamel.default_flow_style = False
     for digit in "0123456789":
         if digit in ruamel.resolver.versioned_resolver:
@@ -163,7 +165,7 @@ def _get_template(meta_yaml, selector_dict):
 
 
 def render(
-    recipe_dir: Path | str,
+    recipe_file: Path,
     meta_yaml: str,
     selector_dict: SelectorDict,
     renderer_type: Optional[RendererType] = None,
@@ -175,7 +177,7 @@ def render(
     - render template
     - parse yaml
     - normalize
-    :param recipe_dir: Directory that contains the target `meta.yaml` file.
+    :param recipe_file: Path to recipe.
     :param meta_yaml: Raw YAML text string from the file.
     :param selector_dict: Dictionary of selector statements
     :param renderer_type: Rendering engine to target
@@ -195,6 +197,22 @@ def render(
                 return f"compiler_{lang}"
             else:
                 return f"{compiler}_{selector_dict.get('target_platform', 'win-64')}"
+
+        # Based on https://github.com/conda/conda-build/blob/6d7805c97aa6de56346e62a9d1d3582cac00ddb8/conda_build/jinja_context.py#L559-L575  # pylint: disable=line-too-long
+        def expand_cdt(package_name: str) -> str:
+            arch = selector_dict["target_platform"].split("-", 1)[-1]
+
+            cdt_name = "cos6"
+            if arch in ("ppc64le", "aarch64", "ppc64", "s390x"):
+                cdt_name = "cos7"
+                cdt_arch = arch
+            else:
+                cdt_arch = "x86_64" if arch == "64" else "i686"
+
+            cdt_name = selector_dict.get("cdt_name", cdt_name)
+            cdt_arch = selector_dict.get("cdt_arch", cdt_arch)
+
+            return f"{package_name}-{cdt_name}-{cdt_arch}"
 
         jinja_vars: Final[dict[str, Any]] = {
             "unix": selector_dict.get("unix", False),
@@ -224,23 +242,23 @@ def render(
             "compiler": expand_compiler,
             "pin_compatible": lambda x, max_pin=None, min_pin=None, lower_bound=None, upper_bound=None: f"{x} x",
             "pin_subpackage": lambda x, max_pin=None, min_pin=None, exact=False: f"{x} x",
-            "cdt": lambda x: f"{x}-cos6-x86_64",
+            "cdt": expand_cdt,
             "os.environ.get": lambda name, default="": "",
             "ccache": lambda name, method="": "ccache",
         }
         render_dict = {**jinja_vars, **selector_dict}
         yaml_text = _get_template(meta_yaml, selector_dict).render(render_dict)
     except jinja2.exceptions.TemplateSyntaxError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=exc.message, line=exc.lineno) from exc
+        raise JinjaRenderFailure(recipe_file, message=exc.message, line=exc.lineno) from exc
     except jinja2.exceptions.TemplateError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=exc.message) from exc
+        raise JinjaRenderFailure(recipe_file, message=exc.message) from exc
     except TypeError as exc:
-        raise JinjaRenderFailure(recipe_dir, message=str(exc)) from exc
+        raise JinjaRenderFailure(recipe_file, message=str(exc)) from exc
 
     try:
         if renderer_type == RendererType.RUAMEL:
             if not has_ruamel:
-                raise YAMLRenderFailure(recipe_dir, message="ruamel unavailable")
+                raise YAMLRenderFailure(recipe_file, message="ruamel unavailable")
             # load yaml with ruamel
             return ruamel.load(yaml_text.replace("\t", " ").replace("%", " "))
         elif renderer_type == RendererType.PYYAML:
@@ -252,10 +270,10 @@ def render(
                 )
         elif renderer_type == RendererType.CONDA:
             if not has_conda_build:
-                raise YAMLRenderFailure(recipe_dir, message="conda build unavailable")
+                raise YAMLRenderFailure(recipe_file, message="conda build unavailable")
             platform, arch = selector_dict.get("subdir").split("-")
             rendered = api.render(
-                recipe_dir,
+                recipe_file,
                 config=Config(
                     platform=platform,
                     arch=arch,
@@ -263,10 +281,20 @@ def render(
                 variants=selector_dict,
             )
             return rendered[0][0].meta
-        elif renderer_type == RendererType.PERCY:
-            parser = RecipeParser(meta_yaml)
-            return parser.render_to_object()
+        elif renderer_type == RendererType.CRM:
+            rendered = RecipeParserDeps(meta_yaml)
+            return rendered
+        elif renderer_type == RendererType.RUAMEL_JINJA:
+            yaml_jinja = YAML(typ="jinja2")
+            yaml_jinja.indent(mapping=2, sequence=4, offset=2)
+            yaml_jinja.preserve_quotes = True
+            yaml_jinja.allow_duplicate_keys = True
+            yaml_jinja.width = 2048
+            data = None
+            with open(recipe_file, encoding="utf-8") as fp:
+                data = yaml_jinja.load(fp)
+            return data
         else:
-            raise YAMLRenderFailure(recipe_dir, message="Unknown renderer type.")
+            raise YAMLRenderFailure(recipe_file, message="Unknown renderer type.")
     except ParserError as exc:
-        raise YAMLRenderFailure(recipe_dir, line=exc.problem_mark.line) from exc
+        raise YAMLRenderFailure(recipe_file, line=exc.problem_mark.line) from exc

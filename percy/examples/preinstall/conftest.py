@@ -1,5 +1,5 @@
 _DEFAULT_AGGREGATE = "~/work/recipes/aggregate/"
-_DEFAULT_PYTHON = ["3.8", "3.9", "3.10", "3.11"]
+_DEFAULT_PYTHON = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 _DEFAULT_SUBDIRS = [
     "linux-64",
     "linux-ppc64le",

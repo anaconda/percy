@@ -2,6 +2,7 @@
 File:           test_aggregate_cli.py
 Description:    Tests the `aggregate` CLI
 """
+
 from click.testing import CliRunner
 
 from percy.commands.aggregate import aggregate

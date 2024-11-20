@@ -2,6 +2,7 @@
 File:           recipe.py
 Description:    Recipe renderer. Not as accurate as conda-build render, but faster and architecture independent.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -15,9 +16,10 @@ from typing import Any, Callable, Optional
 from urllib.parse import urlparse
 
 import jsonschema
+from conda_recipe_manager.parser.recipe_parser_deps import RecipeParserDeps
+from conda_recipe_manager.types import JsonPatchType
 
 import percy.render._renderer as renderer_utils
-from percy.parser.recipe_parser import JsonPatchType, RecipeParser
 from percy.render.exceptions import EmptyRecipe, MissingMetaYaml
 from percy.render.types import SelectorDict
 from percy.render.variants import Variant, read_conda_build_config
@@ -39,7 +41,7 @@ class OpMode(Enum):
     """
 
     CLASSIC = 1  # Original operational mode
-    PARSE_TREE = 2  # Operational mode that uses the work in `recipe_parser.py`
+    PARSE_TREE = 2  # Operational mode that uses conda-recipe-manager
 
 
 class Recipe:
@@ -287,7 +289,16 @@ class Recipe:
         self.packages: dict[str, Package] = {}
 
         # render meta.yaml
-        self.meta = renderer_utils.render(self.recipe_dir, self.dump(), self.selector_dict, self.renderer)
+        self.crm = None
+        try:
+            self.crm = RecipeParserDeps(self.dump())
+        except Exception:  # pylint: disable=broad-exception-caught
+            logging.warning("Failed to render using RecipeParserDeps")
+            self.crm = None
+        if self.renderer == renderer_utils.RendererType.CRM:
+            self.meta = self.crm.render_to_object()
+        else:
+            self.meta = renderer_utils.render(self.recipe_file, self.dump(), self.selector_dict, self.renderer)
 
         # should this be skipped?
         bld = self.meta.get("build", {})
@@ -502,7 +513,10 @@ class Recipe:
 
         :returns: A tuple of first_row, first_column, last_row, last_column
         """
-        if not path or self.renderer != renderer_utils.RendererType.RUAMEL:
+        if not path or self.renderer not in (
+            renderer_utils.RendererType.RUAMEL,
+            renderer_utils.RendererType.RUAMEL_JINJA,
+        ):
             if self.meta_yaml:
                 return 0, 0, len(self.meta_yaml), len(self.meta_yaml[-1])
             else:
@@ -622,7 +636,7 @@ class Recipe:
                     return True
         return False
 
-    def patch_with_parser(self, callback: Callable[[RecipeParser], None]) -> bool:
+    def patch_with_parser(self, callback: Callable[[RecipeParserDeps], None]) -> bool:
         """
         By providing a callback, this function allows calling code to utilize the new parse-tree/percy recipe parser
         in a way that is backwards compatible with the `Recipe` class.
@@ -639,7 +653,7 @@ class Recipe:
         """
         # Read in the file as a string. Remembering that `recipe` stores
         # data as a list.
-        parser = RecipeParser("\n".join(self.meta_yaml))
+        parser = RecipeParserDeps("\n".join(self.meta_yaml))
 
         # Execute the callback to perform actions against the parser.
         callback(parser)
@@ -654,25 +668,6 @@ class Recipe:
         # https://yaml.readthedocs.io/en/latest/detail.html
         self.render()
         return parser.is_modified()
-
-    def get_read_only_parser(self) -> RecipeParser:
-        """
-        This function returns a read-only parser that is incapable of committing changes to the original recipe file.
-
-        To put another way, any writes to this parser will only cause changes in memory AND NOT to the underlying recipe
-        file.
-
-        It is incredibly important to understand the implications of calling this function from a security and thread
-        safety perspective. This function exists so that we can use the the `RecipeParser` class in the `check_*()`
-        functions in `anaconda-linter`
-
-        NOTE: Expect this function to be eventually deprecated. It is provided as a stop-gap as we experiment and
-              potentially transition to primarily use the `RecipeParser`/parse tree implementation.
-        :returns: An instance of the `RecipeParser` class containing the state of the recipe file at time of call.
-        """
-        # TODO Future: Consider constructing this with an optional flag that disables writes further or throws when
-        # a write is attempted(?)
-        return RecipeParser("\n".join(self.meta_yaml))
 
     def patch(
         self,
@@ -693,7 +688,7 @@ class Recipe:
         # and use the newer parse tree work.
         if op_mode == OpMode.PARSE_TREE:
 
-            def _patch_all(parser: RecipeParser) -> None:
+            def _patch_all(parser: RecipeParserDeps) -> None:
                 # Perform all requested patches
                 for patch_op in operations:
                     parser.patch(patch_op)
@@ -712,10 +707,10 @@ class Recipe:
 
             return self.patch_with_parser(_patch_all)
 
-        if self.skip:
+        if evaluate_selectors and self.skip:
             logging.warning("Not patching skipped recipe %s", self.recipe_dir)
             return False
-        if self.renderer != renderer_utils.RendererType.RUAMEL:
+        if self.renderer not in (renderer_utils.RendererType.RUAMEL, renderer_utils.RendererType.RUAMEL_JINJA):
             self.renderer = renderer_utils.RendererType.RUAMEL
             self.render()
         jsonschema.validate(operations, self.schema)
@@ -919,29 +914,82 @@ class Recipe:
         self.meta_yaml[start_row:end_row] = section_range
 
     def _increment_build_number(self) -> None:
+        self.set_build_number(int(self.meta["build"]["number"]) + 1)
+
+    def set_build_number(self, value=0):
         """
-        Helper function that auto-increments the build number
+        Set build_number
         """
-        try:
-            build_number = int(self.orig.meta["build"]["number"]) + 1
-        except (KeyError, TypeError):
-            logging.error("No build number found for %s", self.recipe_dir)
-            return
         patterns = (
-            (r"(?=\s*?)number:\s*([0-9]+)", f"number: {build_number}"),
             (
                 r'(?=\s*?){%\s*set build_number\s*=\s*"?([0-9]+)"?\s*%}',
-                f"{{% set build_number = {build_number} %}}",
+                f"{{% set build_number = {value} %}}",
             ),
             (
                 r'(?=\s*?){%\s*set build\s*=\s*"?([0-9]+)"?\s*%}',
-                f"{{% set build = {build_number} %}}",
+                f"{{% set build = {value} %}}",
             ),
+            (r"(?=\s*?)number:\s*([0-9]+)", f"number: {value}"),
         )
         text = "\n".join(self.meta_yaml)
+        updated_text = text
         for pattern, replacement in patterns:
-            text = re.sub(pattern, replacement, text)
-        self.meta_yaml = text.split("\n")
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
+
+    def set_version(self, value):
+        """
+        Set version
+        """
+        patterns = (
+            (
+                r'(?=\s*?){%\s*set version\s*=\s*"?(.+)"?\s*%}',
+                f'{{% set version = "{value}" %}}',
+            ),
+            (r"(?=\s*?)version:\s*(.+)", f'version: "{value}"'),
+        )
+        text = "\n".join(self.meta_yaml)
+        updated_text = text
+        for pattern, replacement in patterns:
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
+
+    def set_sha256(self, value):
+        """
+        Set sha256
+        """
+        patterns = (
+            (
+                r'(?=\s*?){%\s*set sha256\s*=\s*"?([A-Fa-f0-9]{64})"?\s*%}',
+                f'{{% set sha256 = "{value}" %}}',
+            ),
+            (
+                r'(?=\s*?){%\s*set sha\s*=\s*"?([A-Fa-f0-9]{64})"?\s*%}',
+                f'{{% set sha = "{value}" %}}',
+            ),
+            (r"(?=\s*?)sha256:\s*([A-Fa-f0-9]{64})", f"sha256: {value}"),
+        )
+        text = "\n".join(self.meta_yaml)
+        updated_text = text
+        for pattern, replacement in patterns:
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
+
+    def update_py_skip(self, value):
+        patterns = ((r"(?=\s*?)(skip:.*rue.*)\[(.*)(py<\d+)(.*)\]", rf"\1[\2{value}\4]"),)
+        text = "\n".join(self.meta_yaml)
+        updated_text = text
+        for pattern, replacement in patterns:
+            updated_text = re.sub(pattern, replacement, text)
+            if updated_text != text:
+                break
+        self.meta_yaml = updated_text.split("\n")
 
 
 class Dep:
@@ -1087,7 +1135,7 @@ def render(
     else:
         variants = []
         if not python:
-            python = ["3.8", "3.9", "3.10", "3.11"]
+            python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
         for s, p in list(itertools.product(subdir, python)):
             variant = {"subdir": s, "python": [p]}
             variant.update(others)

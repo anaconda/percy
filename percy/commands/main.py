@@ -2,6 +2,7 @@
 File:           main.py
 Description:    Primary execution point of the `click` command line interface
 """
+
 from __future__ import annotations
 
 import os
@@ -9,7 +10,6 @@ import os
 import click
 
 from percy.commands.aggregate import aggregate
-from percy.commands.convert import convert
 from percy.commands.recipe import recipe
 
 
@@ -22,7 +22,6 @@ def cli() -> None:
 # add subcommands
 cli.add_command(recipe)
 cli.add_command(aggregate)
-cli.add_command(convert)
 
 
 @cli.command()

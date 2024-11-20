@@ -2,6 +2,7 @@
 File:           exceptions.py
 Description:    Exceptions emitted by the rendering engine
 """
+
 from __future__ import annotations
 
 from pathlib import Path

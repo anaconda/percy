@@ -2,6 +2,7 @@
 File:           variants.py
 Description:    Reads cbc files and gives variants. Largely inspired from conda build.
 """
+
 from __future__ import annotations
 
 import copy
@@ -9,9 +10,11 @@ import itertools
 import logging
 import os
 import re
+import tempfile
 from pathlib import Path
 from typing import Optional, Sequence, cast
 
+import requests
 import yaml
 
 from percy.render.types import SelectorDict
@@ -93,6 +96,13 @@ def _find_config_files(
                 cfg = resolve_path(os.path.join(path, "..", "conda_build_config.yaml"))
                 if os.path.isfile(cfg):
                     files.append(cfg)
+                else:
+                    cbc = requests.get(
+                        "https://raw.githubusercontent.com/AnacondaRecipes/aggregate/master/conda_build_config.yaml"
+                    )
+                    tmp = tempfile.NamedTemporaryFile(delete=False)  # pylint: disable=consider-using-with
+                    tmp.write(cbc.content)
+                    files.append(tmp.name)
 
     path = cast(str, getattr(metadata_or_path, "path", metadata_or_path))
     cfg = resolve_path(os.path.join(path, "conda_build_config.yaml"))
@@ -174,20 +184,19 @@ def read_conda_build_config(
     recipe_dir = recipe_path.parent
     variants = []
 
-    if subdir is None:
+    if subdir is None or len(subdir) == 0:
         subdir = [
             "linux-64",
             "linux-aarch64",
             "linux-s390x",
-            "linux-ppc64le",
             "osx-64",
             "osx-arm64",
             "win-64",
         ]
     else:
         subdir = _ensure_list(subdir)
-    if python is None:
-        python = ["3.8", "3.9", "3.10", "3.11"]
+    if python is None or len(python) == 0:
+        python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
     else:
         python = _ensure_list(python)
 
