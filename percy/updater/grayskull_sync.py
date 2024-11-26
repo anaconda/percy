@@ -10,6 +10,7 @@ https://github.com/anaconda/perseverance-scripts/blob/main/perseverance_scripts/
 """
 
 import logging
+import os
 import re
 import subprocess
 import tempfile
@@ -19,11 +20,7 @@ import percy.render.recipe
 from percy.render._renderer import RendererType
 
 
-def gen_grayskull_recipe(
-    gs_file_path: Path,
-    package_spec: str,
-    with_run_constrained: str = True,
-):
+def gen_grayskull_recipe(gs_file_path: Path, package_spec: str, no_run_constrained: bool = True):
     """
     Calls grayskull and format the resulting recipe for easy processing.
 
@@ -31,7 +28,7 @@ def gen_grayskull_recipe(
 
     :param package_spec: Package spec accepted by grayskull pypi
 
-    :param with_run_constrained: Add run_constrained sections
+    :param no_run_constrained: Do not add run_constrained sections
 
     :returns: (raw_recipe, rendered_recipe, sections)
     """
@@ -39,7 +36,7 @@ def gen_grayskull_recipe(
     with tempfile.NamedTemporaryFile(mode="w+", encoding="utf-8") as tmp_file:
         # call grayskull
         cmd = "grayskull pypi"
-        if with_run_constrained:
+        if not no_run_constrained:
             cmd += " --extras-require-all"
         cmd += f" -o {tmp_file.name} {package_spec}"
         print(cmd)
@@ -80,7 +77,14 @@ def gen_grayskull_recipe(
         return raw_recipe, rendered_recipe, sections
 
 
-def sync(recipe_path: Path, package_spec: str | None, with_run_constrained: bool, bump: bool, run_linter: bool):
+def sync(
+    recipe_path: Path,
+    package_spec: str | None,
+    no_run_constrained: bool,
+    no_bump: bool,
+    no_linter: bool,
+    no_temp_files: bool,
+):
     """
     Sync a recipe with content fetched from grayskull.
 
@@ -88,11 +92,13 @@ def sync(recipe_path: Path, package_spec: str | None, with_run_constrained: bool
 
     :param package_spec: Package spec accepted by grayskull pypi (optional)
 
-    :param with_run_constrained: Add run_constrained sections
+    :param no_run_constrained: Do not add run_constrained sections
 
-    :param bump: If no version update, bump build number
+    :param no_bump: If no version update, do not bump build number
 
-    :param run_linter: Run linter
+    :param no_linter: Do not run linter
+
+    :param no_temp_files: Do leave intermediate files
 
     """
 
@@ -116,15 +122,22 @@ def sync(recipe_path: Path, package_spec: str | None, with_run_constrained: bool
             package_spec = next(iter(rendered_recipe.packages.keys()))
     except Exception as error:  # pylint: disable=broad-exception-caught
         logging.error("Failed to render existing recipe. %s", error)
+        return
 
     try:
         # load grayskull recipe
         gs_file_path = recipe_path.parent / "grayskull.yaml"
         gs_raw_recipe, gs_rendered_recipe, sections = gen_grayskull_recipe(
-            gs_file_path, package_spec, with_run_constrained
+            gs_file_path, package_spec, no_run_constrained
         )
+        if no_temp_files:
+            try:
+                os.remove(gs_file_path)
+            except OSError:
+                pass
     except Exception as error:  # pylint: disable=broad-exception-caught
         logging.error("Failed to load data from grayskull. %s", error)
+        return
 
     try:
         # sync changes
@@ -132,7 +145,7 @@ def sync(recipe_path: Path, package_spec: str | None, with_run_constrained: bool
         local_version = rendered_recipe.meta.get("package", {}).get("version", "-1")
         if grayskull_version == local_version:
             # no version change, bump build number
-            if bump:
+            if not no_bump:
                 build_number = str(int(rendered_recipe.meta.get("build", {}).get("number", "0")) + 1)
                 raw_recipe.set_build_number(build_number)
         else:
@@ -159,7 +172,8 @@ def sync(recipe_path: Path, package_spec: str | None, with_run_constrained: bool
                             for sep, opp in sep_map.items():
                                 s = pkg_spec.split(sep)
                                 if len(s) > 1:
-                                    skip_value = f"py{opp}{s[1].strip().replace('.','')}"
+                                    skip_value = "".join(s[1].strip().split(".")[:2])
+                                    skip_value = f"py{opp}{skip_value}"
                                     pkg_spec = "python"
                                     break
 
@@ -187,11 +201,13 @@ def sync(recipe_path: Path, package_spec: str | None, with_run_constrained: bool
                 raw_recipe.update_py_skip(skip_value)
             raw_recipe.patch(patch_instructions, False, False)
 
-        try:
-            # run linter with autofix
-            if run_linter:
-                subprocess.call("conda lint . --fix", text=True, shell=True)
-        except Exception as error:  # pylint: disable=broad-exception-caught
-            logging.error("Failed to lint synced recipe. %s", error)
     except Exception as error:  # pylint: disable=broad-exception-caught
         logging.error("Failed to sync changes to recipe. %s", error)
+        return
+
+    try:
+        # run linter with autofix
+        if not no_linter:
+            subprocess.call("conda lint . --fix", text=True, shell=True)
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        logging.error("Failed to lint synced recipe. %s", error)

@@ -1,6 +1,9 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.2.1
+- Bug fixes around percy recipe sync
+
 ## 0.2.0
 - Add command percy recipe sync
 - Download cbc when none is found.
