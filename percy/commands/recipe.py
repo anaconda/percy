@@ -244,31 +244,40 @@ def patch(
 @recipe.command(short_help="Sync a recipe from pypi data")
 @click.pass_obj
 @click.option(
-    "--run_constrained",
+    "--no_run_constrained",
     type=bool,
     is_flag=True,
     show_default=True,
-    default=True,
+    default=False,
     multiple=False,
-    help="add run_constrained",
+    help="do not add run_constrained",
 )
 @click.option(
-    "--bump",
+    "--no_bump",
     type=bool,
     is_flag=True,
     show_default=True,
-    default=True,
+    default=False,
     multiple=False,
-    help="bump build number if version is unchanged",
+    help="do not bump build number if version is unchanged",
 )
 @click.option(
-    "--run_linter",
+    "--no_linter",
     type=bool,
     is_flag=True,
     show_default=True,
-    default=True,
+    default=False,
     multiple=False,
-    help="run conda lint --fix after updating",
+    help="do not run conda lint --fix after updating",
+)
+@click.option(
+    "--no_temp_files",
+    type=bool,
+    is_flag=True,
+    show_default=True,
+    default=False,
+    multiple=False,
+    help="do not keep intermediate files",
 )
 @click.option(
     "--pypi_spec",
@@ -276,10 +285,10 @@ def patch(
     multiple=False,
     help="pypi_package spec",
 )
-def sync(obj, pypi_spec, run_constrained, bump, run_linter):
+def sync(obj, pypi_spec, no_run_constrained, no_bump, no_linter, no_temp_files):
     """
     Sync a recipe from pypi data
     """
 
     recipe_path = obj["recipe_path"]
-    grayskull_sync.sync(recipe_path, pypi_spec, run_constrained, bump, run_linter)
+    grayskull_sync.sync(recipe_path, pypi_spec, no_run_constrained, no_bump, no_linter, no_temp_files)
