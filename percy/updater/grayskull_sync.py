@@ -122,87 +122,92 @@ def sync(
             package_spec = next(iter(rendered_recipe.packages.keys()))
     except Exception as error:  # pylint: disable=broad-exception-caught
         logging.error("Failed to render existing recipe. %s", error)
-    else:
-        try:
-            # load grayskull recipe
-            gs_file_path = recipe_path.parent / "grayskull.yaml"
-            gs_raw_recipe, gs_rendered_recipe, sections = gen_grayskull_recipe(
-                gs_file_path, package_spec, no_run_constrained
-            )
-            if no_temp_files:
-                try:
-                    os.remove(gs_file_path)
-                except OSError:
-                    pass
+        return
+
+    try:
+        # load grayskull recipe
+        gs_file_path = recipe_path.parent / "grayskull.yaml"
+        gs_raw_recipe, gs_rendered_recipe, sections = gen_grayskull_recipe(
+            gs_file_path, package_spec, no_run_constrained
+        )
+        if no_temp_files:
             try:
-                # sync changes
-                grayskull_version = gs_rendered_recipe.meta.get("package", {}).get("version", "-1")
-                local_version = rendered_recipe.meta.get("package", {}).get("version", "-1")
-                if grayskull_version == local_version:
-                    # no version change, bump build number
-                    if not no_bump:
-                        build_number = str(int(rendered_recipe.meta.get("build", {}).get("number", "0")) + 1)
-                        raw_recipe.set_build_number(build_number)
-                else:
-                    raw_recipe.set_version(grayskull_version)
-                    raw_recipe.set_sha256(gs_rendered_recipe.meta.get("source", {}).get("sha256", "unknown"))
-                    raw_recipe.set_build_number("0")
+                os.remove(gs_file_path)
+            except OSError:
+                pass
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        logging.error("Failed to load data from grayskull. %s", error)
+        return
 
-                    # build dep patch instructions
-                    patch_instructions = []
-                    sep_map = {
-                        ">=": "<",
-                        ">": "<=",
-                        "==": "!=",
-                        "!=": "==",
-                        "<=": ">",
-                        "<": ">=",
-                    }
-                    skip_value = None
-                    for section in sections:
-                        try:
-                            for pkg_spec in gs_raw_recipe.get(f"requirements/{section}"):
-                                pkg_spec = pkg_spec.replace("<{", "{{")
-                                if pkg_spec.startswith("python "):
-                                    for sep, opp in sep_map.items():
-                                        s = pkg_spec.split(sep)
-                                        if len(s) > 1:
-                                            skip_value = "".join(s[1].strip().split(".")[:2])
-                                            skip_value = f"py{opp}{skip_value}"
-                                            pkg_spec = "python"
-                                            break
+    try:
+        # sync changes
+        grayskull_version = gs_rendered_recipe.meta.get("package", {}).get("version", "-1")
+        local_version = rendered_recipe.meta.get("package", {}).get("version", "-1")
+        if grayskull_version == local_version:
+            # no version change, bump build number
+            if not no_bump:
+                build_number = str(int(rendered_recipe.meta.get("build", {}).get("number", "0")) + 1)
+                raw_recipe.set_build_number(build_number)
+        else:
+            raw_recipe.set_version(grayskull_version)
+            raw_recipe.set_sha256(gs_rendered_recipe.meta.get("source", {}).get("sha256", "unknown"))
+            raw_recipe.set_build_number("0")
 
-                                section_name = section
-                                print(section, pkg_spec)
-                                if section.startswith("run_constrained"):
-                                    if len(pkg_spec.split()) < 2:
-                                        continue
-                                    (section_name, extra) = section.rsplit("_", 1)
-                                    pkg_spec = f"{pkg_spec} # extra:{extra}"
-
-                                patch_instructions.append(
-                                    {
-                                        "op": "add",
-                                        "path": f"requirements/{section_name}",
-                                        "match": rf"{pkg_spec.split()[0]}( .*)?",
-                                        "value": [pkg_spec],
-                                    }
-                                )
-                        except KeyError as e:
-                            print(e)
-                            continue
-
-                    if skip_value:
-                        raw_recipe.update_py_skip(skip_value)
-                    raw_recipe.patch(patch_instructions, False, False)
-
+            # build dep patch instructions
+            patch_instructions = []
+            sep_map = {
+                ">=": "<",
+                ">": "<=",
+                "==": "!=",
+                "!=": "==",
+                "<=": ">",
+                "<": ">=",
+            }
+            skip_value = None
+            for section in sections:
                 try:
-                    # run linter with autofix
-                    if not no_linter:
-                        subprocess.call("conda lint . --fix", text=True, shell=True)
-                except Exception as error:  # pylint: disable=broad-exception-caught
-                    logging.error("Failed to lint synced recipe. %s", error)
-            except Exception as error:  # pylint: disable=broad-exception-caught
-                logging.error("Failed to sync changes to recipe. %s", error)
-        except Exception as error:  # pylint: disable=broad-exception-caught
-            logging.error("Failed to load data from grayskull. %s", error)
+                    for pkg_spec in gs_raw_recipe.get(f"requirements/{section}"):
+                        pkg_spec = pkg_spec.replace("<{", "{{")
+                        if pkg_spec.startswith("python "):
+                            for sep, opp in sep_map.items():
+                                s = pkg_spec.split(sep)
+                                if len(s) > 1:
+                                    skip_value = "".join(s[1].strip().split(".")[:2])
+                                    skip_value = f"py{opp}{skip_value}"
+                                    pkg_spec = "python"
+                                    break
+
+                        section_name = section
+                        print(section, pkg_spec)
+                        if section.startswith("run_constrained"):
+                            if len(pkg_spec.split()) < 2:
+                                continue
+                            (section_name, extra) = section.rsplit("_", 1)
+                            pkg_spec = f"{pkg_spec} # extra:{extra}"
+
+                        patch_instructions.append(
+                            {
+                                "op": "add",
+                                "path": f"requirements/{section_name}",
+                                "match": rf"{pkg_spec.split()[0]}( .*)?",
+                                "value": [pkg_spec],
+                            }
+                        )
+                except KeyError as e:
+                    print(e)
+                    continue
+
+            if skip_value:
+                raw_recipe.update_py_skip(skip_value)
+            raw_recipe.patch(patch_instructions, False, False)
+
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        logging.error("Failed to sync changes to recipe. %s", error)
+        return
+
+    try:
+        # run linter with autofix
+        if not no_linter:
+            subprocess.call("conda lint . --fix", text=True, shell=True)
+    except Exception as error:  # pylint: disable=broad-exception-caught
+        logging.error("Failed to lint synced recipe. %s", error)
