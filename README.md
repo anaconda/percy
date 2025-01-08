@@ -57,7 +57,7 @@ conda install distro-tooling::percy -y
 ```
 or
 ```sh
-conda install -c distro-tooling percy
+conda install -c distro-tooling percy -y
 ```
 
 # Developer Notes
