@@ -51,6 +51,11 @@ make environment
 conda activate percy
 ```
 
+### Install into a pre-made environment using distro tools
+```sh
+conda install distro-tooling::percy -y
+```
+
 # Developer Notes
 ```sh
 make dev
