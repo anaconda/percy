@@ -35,6 +35,7 @@ Percy is used by:
 
 - https://github.com/anaconda/anaconda-linter as a recipe processor.
 - https://github.com/anaconda/perseverance-python-buildout as a build order generator.
+- https://github.com/anaconda/pr-inspector as a recipe processor.
 
 **NOTE: The `parser/` module has moved and will be eventually deprecated from this project.**
 **The module now resides in [conda-incubator](https://github.com/conda-incubator/conda-recipe-manager).**
