@@ -1,6 +1,13 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.2.2
+- Fix bug in dumper for rendered RUAMEL
+- Remove s390x from default values
+- Only call CRM when renderer is CRM
+- Remove py_buildorder example
+- Fix bug in default aggregate path
+
 ## 0.2.1
 - Bug fixes around percy recipe sync
 

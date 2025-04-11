@@ -106,7 +106,7 @@ def dump_render_results(render_results: list, out: TextIO = sys.stdout) -> None:
     :param render_results: list of rendered variants.
     :param out: Output stream. Defaults to sys.stdout.
     """
-    if render_results and render_results[0].renderer == RendererType.RUAMEL:
+    if render_results and render_results[0].renderer in (RendererType.RUAMEL, RendererType.RUAMEL_JINJA):
         _dump_render_results_ruamel(render_results, out)
     elif render_results and render_results[0].renderer == RendererType.CRM:
         for render_result in render_results:
