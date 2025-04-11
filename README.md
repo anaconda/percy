@@ -16,7 +16,6 @@
     - [Release process](#release-process)
     - [Other examples](#other-examples)
         - [Recipe patching](#recipe-patching)
-        - [Python 3.11 buildout](#python-311-buildout)
         - [Build order examples](#build-order-examples)
         - [Test install examples](#test-install-examples)
         - [Find pinning issues in aggregate](#find-pinning-issues-in-aggregate)
@@ -32,13 +31,27 @@ Why not using conda build to render?
 conda build resolves dependencies to qualify versions and process run_exports and other keys.
 This library renders without querying a channel, and is more suited for development phase.
 
+Percy is used by:
+
+- https://github.com/anaconda/anaconda-linter as a recipe processor.
+- https://github.com/anaconda/perseverance-python-buildout as a build order generator.
+- https://github.com/anaconda/pr-inspector as a recipe processor.
+
 **NOTE: The `parser/` module has moved and will be eventually deprecated from this project.**
-**The module now resides in [this](https://github.com/anaconda/conda-recipe-manager) repo as we propose to**
-**move this work to [conda-incubator](https://github.com/conda-incubator).**
+**The module now resides in [conda-incubator](https://github.com/conda-incubator/conda-recipe-manager).**
 
 # Getting Started
 
 ## General Installation
+
+### Install into a pre-made environment using distro tools
+```sh
+conda install distro-tooling::percy -y
+```
+or
+```sh
+conda install -c distro-tooling percy -y
+```
 
 ### Install into your current environment
 ```sh
@@ -140,10 +153,6 @@ and [aggregate](https://github.com/AnacondaRecipes/aggregate) and publish to `di
 ### Recipe patching
 
 See percy/examples/patch
-
-### Python 3.11 buildout
-
-See percy/examples/py311 [here](percy/examples/py311/README.md)
 
 ### Build order examples
 

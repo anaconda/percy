@@ -16,7 +16,6 @@ import click
 import yaml
 
 import percy.render.aggregate
-import percy.render.recipe
 import percy.repodata.repodata
 from percy.render._renderer import RendererType
 
@@ -28,7 +27,7 @@ def get_configured_aggregate(cmd_line: Optional[str | Path] = None) -> Path:
         recipe file is determined by the current working directory.
     """
     # command line has highest precedence
-    if cmd_line is None:
+    if cmd_line:
         return Path(cmd_line)
     # environment variable
     path = os.getenv("ABS_AGGREGATE")

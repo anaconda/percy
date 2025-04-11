@@ -290,12 +290,8 @@ class Recipe:
 
         # render meta.yaml
         self.crm = None
-        try:
-            self.crm = RecipeParserDeps(self.dump())
-        except Exception:  # pylint: disable=broad-exception-caught
-            logging.warning("Failed to render using RecipeParserDeps")
-            self.crm = None
         if self.renderer == renderer_utils.RendererType.CRM:
+            self.crm = RecipeParserDeps(self.dump())
             self.meta = self.crm.render_to_object()
         else:
             self.meta = renderer_utils.render(self.recipe_file, self.dump(), self.selector_dict, self.renderer)
