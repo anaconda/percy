@@ -43,6 +43,15 @@ Percy is used by:
 
 ## General Installation
 
+### Install into a pre-made environment using distro tools
+```sh
+conda install distro-tooling::percy -y
+```
+or
+```sh
+conda install -c distro-tooling percy -y
+```
+
 ### Install into your current environment
 ```sh
 make install
