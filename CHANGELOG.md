@@ -1,6 +1,10 @@
 # Changelog
 Note: version releases in the 0.x.y range may introduce breaking changes.
 
+## 0.2.3
+- Fix dropping selector on recipe sync
+- Use CRM for version and sha
+
 ## 0.2.2
 - Fix bug in dumper for rendered RUAMEL
 - Remove s390x from default values

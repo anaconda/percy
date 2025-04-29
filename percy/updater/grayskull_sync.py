@@ -102,6 +102,7 @@ def sync(
 
     """
 
+    logging.info("Rendering existing recipe %s.", recipe_path)
     try:
         # render recipe - processing jinja and selectors
         rendered_recipes = percy.render.recipe.render(
@@ -124,6 +125,7 @@ def sync(
         logging.error("Failed to render existing recipe. %s", error)
         return
 
+    logging.info("Generating grayskull recipe.")
     try:
         # load grayskull recipe
         gs_file_path = recipe_path.parent / "grayskull.yaml"
@@ -139,20 +141,23 @@ def sync(
         logging.error("Failed to load data from grayskull. %s", error)
         return
 
+    logging.info("Syncing changes to recipe.")
     try:
         # sync changes
         grayskull_version = gs_rendered_recipe.meta.get("package", {}).get("version", "-1")
         local_version = rendered_recipe.meta.get("package", {}).get("version", "-1")
         if grayskull_version == local_version:
-            # no version change, bump build number
+            logging.info("No version change, bumping build number.")
             if not no_bump:
                 build_number = str(int(rendered_recipe.meta.get("build", {}).get("number", "0")) + 1)
                 raw_recipe.set_build_number(build_number)
         else:
+            logging.info("Version change, updating version and sha.")
             raw_recipe.set_version(grayskull_version)
             raw_recipe.set_sha256(gs_rendered_recipe.meta.get("source", {}).get("sha256", "unknown"))
             raw_recipe.set_build_number("0")
 
+            logging.info("Patching dependency requirements.")
             # build dep patch instructions
             patch_instructions = []
             sep_map = {
@@ -166,8 +171,9 @@ def sync(
             skip_value = None
             for section in sections:
                 try:
-                    for pkg_spec in gs_raw_recipe.get(f"requirements/{section}"):
-                        pkg_spec = pkg_spec.replace("<{", "{{")
+                    (start_row, _, end_row, _) = gs_raw_recipe.get_raw_range(f"requirements/{section}")
+                    for pkg_spec in gs_raw_recipe.meta_yaml[start_row:end_row]:
+                        pkg_spec = pkg_spec.strip().strip("-").rstrip("#").replace("<{", "{{")
                         if pkg_spec.startswith("python "):
                             for sep, opp in sep_map.items():
                                 s = pkg_spec.split(sep)
@@ -189,7 +195,7 @@ def sync(
                             {
                                 "op": "add",
                                 "path": f"requirements/{section_name}",
-                                "match": rf"{pkg_spec.split()[0]}( .*)?",
+                                "match": rf"{pkg_spec.split()[0]}(?=[\s]|$)( .*)?",
                                 "value": [pkg_spec],
                             }
                         )
@@ -198,13 +204,25 @@ def sync(
                     continue
 
             if skip_value:
+                logging.info("Updating python skip value.")
                 raw_recipe.update_py_skip(skip_value)
+            logging.info("Patching dependency requirements.")
             raw_recipe.patch(patch_instructions, False, False)
+
+            logging.info("Calling CRM: gives a chance to correct the source url as well.")
+            try:
+                # run CRM to set version and sha
+                subprocess.call(
+                    f"crm bump-recipe -t {grayskull_version} {recipe_path}", text=True, shell=True, timeout=5
+                )
+            except Exception as error:  # pylint: disable=broad-exception-caught
+                logging.error("Failed to update version using CRM. %s", error)
 
     except Exception as error:  # pylint: disable=broad-exception-caught
         logging.error("Failed to sync changes to recipe. %s", error)
         return
 
+    logging.info("Calling conda lint --fix: fix lint errors.")
     try:
         # run linter with autofix
         if not no_linter:
