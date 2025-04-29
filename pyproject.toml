@@ -10,7 +10,7 @@ namespaces = false
 
 [project]
 name = "percy"
-version = "0.2.2"
+version = "0.2.3"
 authors = [
   { name="Anaconda, Inc.", email="distribution_team@anaconda.com" },
 ]
