@@ -1,0 +1,99 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - 'cli-*'
+    branches:
+      - '**'
+    paths-ignore:
+      - '**.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-cli:
+    runs-on: [self-hosted-default]
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        persist-credentials: false
+
+    - name: Setup miniconda
+      uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3.2.0
+      with:
+        channels: defaults
+
+    - name: Install dependencies
+      run: conda install conda-build conda-package-handling -q
+
+    - name: Build
+      run: |
+        set -ex
+        conda build ./conda-recipe --output-folder ./dist --no-test --extra-meta "sha=${GITHUB_SHA}" "remote_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" "flow_run_id=${GITHUB_RUN_ID}"
+        cph transmute --out-folder ./dist/noarch ./dist/noarch/percy*.tar.bz2 .conda
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      with:
+        name: package
+        path: ./dist/noarch/percy*.conda
+
+  test-cli:
+    needs: ['build-cli']
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    runs-on: [self-hosted-default]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: package
+          path: dist
+
+      - name: Run tests
+        run: conda build -t dist/percy* --extra-deps 'python=${{ matrix.python-version }}'
+
+  release-cli:
+    needs: ['test-cli']
+
+    if: startsWith(github.event.ref, 'refs/tags/cli-')
+
+    runs-on: [self-hosted-default]
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - name: Setup miniconda
+      uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3.2.0
+      with:
+        channels: defaults
+
+    - name: Install conda-repo-cli
+      run: conda install conda-repo-cli -q
+
+    - name: Download artifacts
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+      with:
+        name: package
+        path: dist
+
+    - name: Upload to https://pkgs.as.anacondaconnect.com
+      run: |
+        conda repo config --set sites.pkgs.url https://pkgs.as.internal.anacondaconnect.com/api
+        conda repo --token $PSM_TOKEN --site pkgs upload --channel anaconda-distro --package-type conda ./dist/*
+      env:
+        PSM_TOKEN: ${{ secrets.PSM_ON_PREM_TOKEN }}
