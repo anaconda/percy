@@ -50,7 +50,7 @@ conda install https://pkgs.as.anacondaconnect.com/api/repo/anaconda-distro::perc
 ```
 or
 ```sh
-conda install -c -c https://pkgs.as.anacondaconnect.com/api/repo/anaconda-distro percy -y
+conda install -c https://pkgs.as.anacondaconnect.com/api/repo/anaconda-distro percy -y
 ```
 
 ### Install into your current environment
