@@ -1,0 +1,64 @@
+{% set name = "percy" %}
+{% set version = "0.2.4" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  number: 0
+  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
+  entry_points:
+    - percy = percy.commands.main:cli
+
+requirements:
+  host:
+    - python
+    - pip
+    - setuptools
+    - wheel
+  run:
+    - python >=3.11
+    - click >=8.1.7
+    - conda
+    - jinja2
+    - pyyaml
+    - requests
+    - jsonschema
+    - ruamel.yaml
+    - ruamel.yaml.jinja2
+    - conda-recipe-manager
+    - conda-build
+    - grayskull
+
+test:
+  imports:
+    - percy
+  source_files:
+    - percy/tests/
+  requires:
+    - pip
+    - pytest
+    - pytest-xdist
+  commands:
+    - pip check
+    - python -m pytest -n auto percy/tests/
+
+about:
+  home: https://github.com/anaconda-distribution/percy
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: LICENSE
+  summary: Helper tool for recipes on aggregate.
+  description: |
+    Renders local recipes, provides build orders, find outdated recipes.
+  doc_url: https://github.com/anaconda-distribution/percy
+  dev_url: https://github.com/anaconda-distribution/percy
+
+extra:
+  recipe-maintainers:
+    - cbouss

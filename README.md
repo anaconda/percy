@@ -46,11 +46,11 @@ Percy is used by:
 
 ### Install into a pre-made environment using distro tools
 ```sh
-conda install distro-tooling::percy -y
+conda install https://pkgs.as.anacondaconnect.com/api/repo/anaconda-distro::percy -y
 ```
 or
 ```sh
-conda install -c distro-tooling percy -y
+conda install -c https://pkgs.as.anacondaconnect.com/api/repo/anaconda-distro percy -y
 ```
 
 ### Install into your current environment
@@ -101,7 +101,7 @@ From within a feedstock:
         percy recipe render --help
         percy recipe render -s linux-64 -p 3.10 -k blas_impl openblas
 
-- Update the recipe
+- Update the recipe - prefer recipe-bumper-cli instead:
 
         percy recipe sync
 
@@ -141,12 +141,16 @@ A group name corresponds to the github/gitlab... organization name, extracted fr
 ## Release process
 Here is a rough outline of how to conduct a release of this project:
 1. Update `CHANGELOG.md`
-1. Update the version number in `pyproject.toml`
+1. Update the version number in `pyproject.toml` and `conda-recipe/meta.yaml`
 1. Ensure `environment.yaml` is up to date with the latest dependencies
-1. Create a new release on GitHub with a version tag.
-1. The Anaconda packaging team will need to update
-[the feedstock](https://github.com/AnacondaRecipes/percy-feedstock)
-and [aggregate](https://github.com/AnacondaRecipes/aggregate) and publish to `distro-tooling`
+
+When you are ready to release, create a tag named `cli-<version>` where `<version>` correspond
+to the version you want to release. For example, `git tag -a cli-0.1.0 -m cli-0.1.0`. Then push
+the tag.
+
+Pushing the tag will automatically trigger a build and a release to https://pkgs.as.anacondaconnect.com/api/repo/anaconda-distro.
+
+Watch the process at https://github.com/anaconda/percy/actions/workflows/publish.yaml?query=event%3Apush+branch%3Amain.
 
 ## Other examples
 
