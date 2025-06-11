@@ -101,7 +101,7 @@ From within a feedstock:
         percy recipe render --help
         percy recipe render -s linux-64 -p 3.10 -k blas_impl openblas
 
-- Update the recipe - prefer recipe-bumper-cli isntead:
+- Update the recipe - prefer recipe-bumper-cli instead:
 
         percy recipe sync
 
