@@ -1,5 +1,22 @@
 # Changelog
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+
 Note: version releases in the 0.x.y range may introduce breaking changes.
+
+
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [0.2.5]
+### Added
+- `stdlib('c')` substitution in `percy.render._renderer.render()`
+### Fixed
+- Made `None` falsey logic more robust in a few locations
 
 ## 0.2.4
 - Publication to anaconda-distro
@@ -57,3 +74,7 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 - Adds `CHANGELOG.md`
 - Bug fixes
 - README updates
+
+
+[Unreleased]: https://github.com/anaconda/percy/compare/0.2.6...HEAD
+[0.2.5]: https://github.com/anaconda/percy/compare/0.2.5...0.2.6
