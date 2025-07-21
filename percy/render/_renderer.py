@@ -192,7 +192,7 @@ def render(
         def expand_compiler(lang):
             compiler = selector_dict.get(f"{lang}_compiler", None)
             if compiler is None or not compiler:
-                return compiler
+                return f"compiler_{lang}"
             elif renderer_type == RendererType.RUAMEL:
                 return f"compiler_{lang}"
             return f"{compiler}_{selector_dict.get('target_platform', 'win-64')}"
@@ -200,7 +200,9 @@ def render(
         def expand_stdlib(lang):
             stdlib = selector_dict.get(f"{lang}_stdlib", None)
             if stdlib is None or not stdlib:
-                return stdlib
+                return f"stdlib_{lang}"
+            elif renderer_type == RendererType.RUAMEL:
+                return f"stdlib_{lang}"
             return f"{stdlib}_{selector_dict.get('target_platform', 'win-64')}"
 
         # Based on https://github.com/conda/conda-build/blob/6d7805c97aa6de56346e62a9d1d3582cac00ddb8/conda_build/jinja_context.py#L559-L575  # pylint: disable=line-too-long
