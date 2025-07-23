@@ -12,6 +12,10 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 ### Fixed
 ### Security
 
+## [0.2.6]
+### Added
+- fixed `stdlib('c')` substitution in `percy.render._renderer.render()`
+
 ## [0.2.5]
 ### Added
 - `stdlib('c')` substitution in `percy.render._renderer.render()`
