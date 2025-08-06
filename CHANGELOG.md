@@ -13,7 +13,7 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 ### Security
 
 ## [0.2.6]
-### Added
+### Fixed
 - fixed `stdlib('c')` substitution in `percy.render._renderer.render()`
 
 ## [0.2.5]
@@ -81,4 +81,5 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 
 
 [Unreleased]: https://github.com/anaconda/percy/compare/0.2.6...HEAD
-[0.2.5]: https://github.com/anaconda/percy/compare/0.2.5...0.2.6
+[0.2.6]: https://github.com/anaconda/percy/compare/0.2.5...0.2.6
+[0.2.5]: https://github.com/anaconda/percy/compare/0.2.4...0.2.5
