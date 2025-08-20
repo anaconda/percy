@@ -12,6 +12,10 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 ### Fixed
 ### Security
 
+## [0.2.7]
+### Changed
+- Remove osx-64 from default values
+
 ## [0.2.6]
 ### Added
 - fixed `stdlib('c')` substitution in `percy.render._renderer.render()`
