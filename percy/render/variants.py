@@ -188,7 +188,6 @@ def read_conda_build_config(
         subdir = [
             "linux-64",
             "linux-aarch64",
-            "osx-64",
             "osx-arm64",
             "win-64",
         ]
