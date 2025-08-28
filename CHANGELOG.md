@@ -17,7 +17,7 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 - Remove osx-64 from default values
 
 ## [0.2.6]
-### Added
+### Fixed
 - fixed `stdlib('c')` substitution in `percy.render._renderer.render()`
 
 ## [0.2.5]
@@ -84,5 +84,7 @@ Note: version releases in the 0.x.y range may introduce breaking changes.
 - README updates
 
 
-[Unreleased]: https://github.com/anaconda/percy/compare/0.2.6...HEAD
-[0.2.5]: https://github.com/anaconda/percy/compare/0.2.5...0.2.6
+[Unreleased]: https://github.com/anaconda/percy/compare/cli-0.2.7...HEAD
+[0.2.5]: https://github.com/anaconda/percy/compare/cli-0.2.4...cli-0.2.5
+[0.2.6]: https://github.com/anaconda/percy/compare/cli-0.2.5...cli-0.2.6
+[0.2.7]: https://github.com/anaconda/percy/compare/cli-0.2.6...cli-0.2.7
